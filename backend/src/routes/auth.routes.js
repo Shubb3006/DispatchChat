@@ -1,0 +1,15 @@
+import { Router } from "express";
+import { check, login, logout, signup } from "../controllers/auth.controller";
+import { protectedRoute } from '../middlewares/auth.middleware';
+
+const router = Router();
+
+router.post("/login",login);
+router.post("/signup",signup);
+
+router.post("/logout", logout);
+
+router.get("/check", protectedRoute, check);
+
+
+export default router;

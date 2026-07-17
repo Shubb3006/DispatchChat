@@ -1,0 +1,6 @@
+{
+  "name": "OZACK",
+  "description": "Enterprise fleet management, real-time dispatch, route optimization, driver app, invoicing, safety compliance, and Samsara/BorderConnect workflows.",
+  "requestFramePermissions": ["camera", "geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
