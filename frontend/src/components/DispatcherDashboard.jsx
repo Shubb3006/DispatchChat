@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useDriverStore } from "../store/useDriverstore";
+import { useDriverStore } from "../stores/useDriverstore";
 
 import WhatsAppChatHub from "./WhatsAppChatHub";
 import ShipmentDetailsModal from "./ShipmentDetailsModal";
@@ -25,6 +25,8 @@ import {
   FileText,
   Image,
 } from "lucide-react";
+import { option } from "motion/react-client";
+import { useShipmentStore } from "../stores/useShipmentStore";
 export default function DispatcherDashboard({
   shipments,
   trips = [],
@@ -32,13 +34,18 @@ export default function DispatcherDashboard({
   onUpdateTrip,
   onRemoveTrip,
   messages,
-  onAddShipment,
+
   onUpdateShipment,
   onSendMessage,
   onMarkMessagesAsRead,
   currentUser,
 }) {
-  const mockDrivers = useDriverStore((state) => state.drivers);
+  console.log(shipments);
+  const { addShipment } = useShipmentStore();
+  const { fetchDrivers, drivers } = useDriverStore();
+  useEffect(() => {
+    fetchDrivers();
+  }, [fetchDrivers]);
   const [selectedShipment, setSelectedShipment] = useState(
     shipments[0] || null
   );
@@ -84,7 +91,7 @@ export default function DispatcherDashboard({
   const [consigneePhone, setConsigneePhone] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
-  const [driverId, setDriverId] = useState("DRV001");
+  const [driverId, setDriverId] = useState("");
   const [driverName, setDriverName] = useState("Marcus Vance");
   const [truck, setTruck] = useState("TRK-102");
   const [trailer, setTrailer] = useState("TRL-504");
@@ -101,7 +108,7 @@ export default function DispatcherDashboard({
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [isUploadingRateCon, setIsUploadingRateCon] = useState(false);
   const getDriverRecommendations = (loadWeight, loadPallets, loadOrigin) => {
-    return mockDrivers
+    return drivers
       .map((drv) => {
         const activeShipmentsForDriver = shipments.filter(
           (s) => s.driverId === drv.id && s.status !== "delivered"
@@ -121,17 +128,17 @@ export default function DispatcherDashboard({
         let currentRegion = "Midwest Corridor";
         let isNearby = false;
         let distanceMiles = 45;
-        if (drv.id === "DRV001") {
-          currentRegion = "Toronto/Chicago Corridor";
-        } else if (drv.id === "DRV002") {
-          currentRegion = "Pacific Northwest";
-        } else if (drv.id === "DRV003") {
-          currentRegion = "Southwest Region";
-        } else if (drv.id === "DRV004") {
-          currentRegion = "Great Lakes Local";
-        } else if (drv.id === "DRV005") {
-          currentRegion = "Northeast Corridor";
-        }
+        // if (drv.id === "DRV001") {
+        //   currentRegion = "Toronto/Chicago Corridor";
+        // } else if (drv.id === "DRV002") {
+        //   currentRegion = "Pacific Northwest";
+        // } else if (drv.id === "DRV003") {
+        //   currentRegion = "Southwest Region";
+        // } else if (drv.id === "DRV004") {
+        //   currentRegion = "Great Lakes Local";
+        // } else if (drv.id === "DRV005") {
+        //   currentRegion = "Northeast Corridor";
+        // }
         const originLower = (loadOrigin || "").toLowerCase();
         if (
           drv.id === "DRV001" &&
@@ -655,7 +662,7 @@ export default function DispatcherDashboard({
           },
         ],
       };
-      onAddShipment(newShipment);
+      await addShipment(newShipment);
       setSelectedShipment(newShipment);
       setIsDetailModalOpen(true);
     } catch (err) {
@@ -664,9 +671,10 @@ export default function DispatcherDashboard({
       setIsUploadingRateCon(false);
     }
   };
-  const handleCreateLoad = (e) => {
+  const handleCreateLoad = async (e) => {
     e.preventDefault();
     if (!customerName || !origin || !destination) return;
+    console.log(shipments);
     const numericTrackingNumbers = shipments
       .map((s) => parseInt(s.trackingNumber, 10))
       .filter((num) => !isNaN(num) && num >= 1e4);
@@ -676,7 +684,6 @@ export default function DispatcherDashboard({
         : 10006;
     const trackingNumber = String(nextNum);
     const newShipment = {
-      id: "SHP" + (shipments.length + 101),
       trackingNumber,
       customerName,
       customerEmail,
@@ -735,8 +742,8 @@ export default function DispatcherDashboard({
         },
       ],
     };
-    onAddShipment(newShipment);
     setSelectedShipment(newShipment);
+    await addShipment(newShipment);
     setIsDetailModalOpen(true);
     setShowAddForm(false);
     setCustomerName("");
@@ -931,7 +938,7 @@ export default function DispatcherDashboard({
                     <select
                       value={consolidationDriverId}
                       onChange={(e) => {
-                        const matched = mockDrivers.find(
+                        const matched = drivers.find(
                           (d) => d.id === e.target.value
                         );
                         if (matched) {
@@ -943,7 +950,7 @@ export default function DispatcherDashboard({
                       }}
                       className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold"
                     >
-                      {mockDrivers.map((drv) => (
+                      {drivers.map((drv) => (
                         <option key={drv.id} value={drv.id}>
                           {drv.name}
                         </option>
@@ -1800,57 +1807,17 @@ export default function DispatcherDashboard({
                           Assigned Driver
                         </label>
                         <select
-                          onChange={(e) => {
-                            setDriverId(e.target.value);
-                            const matched = [
-                              {
-                                id: "DRV001",
-                                name: "Marcus Vance",
-                                truck: "TRK-102",
-                                trailer: "TRL-504",
-                              },
-                              {
-                                id: "DRV002",
-                                name: "Sarah Jenkins",
-                                truck: "TRK-215",
-                                trailer: "TRL-309",
-                              },
-                              {
-                                id: "DRV003",
-                                name: "Rajesh Patel",
-                                truck: "TRK-145",
-                                trailer: "TRL-802",
-                              },
-                              {
-                                id: "DRV004",
-                                name: "Alex Rodriguez",
-                                truck: "TRK-302",
-                                trailer: "TRL-220",
-                              },
-                              {
-                                id: "DRV005",
-                                name: "Yuri Gromyko",
-                                truck: "TRK-188",
-                                trailer: "TRL-415",
-                              },
-                            ].find((d) => d.id === e.target.value);
-                            if (matched) {
-                              setDriverName(matched.name);
-                              setTruck(matched.truck);
-                              setTrailer(matched.trailer);
-                            }
-                          }}
+                          value={driverId}
+                          onChange={(e) => setDriverId(e.target.value)}
                           className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800"
                         >
-                          <option value="DRV001">Marcus Vance (TRK-102)</option>
-                          <option value="DRV002">
-                            Sarah Jenkins (TRK-215)
-                          </option>
-                          <option value="DRV003">Rajesh Patel (TRK-145)</option>
-                          <option value="DRV004">
-                            Alex Rodriguez (TRK-302)
-                          </option>
-                          <option value="DRV005">Yuri Gromyko (TRK-188)</option>
+                          <option value="">Select Driver</option>
+
+                          {drivers.map((driver) => (
+                            <option key={driver.id} value={driver.id}>
+                              {driver.username}
+                            </option>
+                          ))}
                         </select>
                       </div>
                       <div>
@@ -2428,7 +2395,7 @@ export default function DispatcherDashboard({
                                 <span>{s.destinationCity}</span>
                               </div>
                               <div className="text-slate-500 text-2xs mt-0.5">
-                                {s.waypoints.length} Total Waypoints
+                                {s?.waypoints?.length} Total Waypoints
                               </div>
                             </td>
                             <td className="px-5 py-4">
@@ -2482,7 +2449,7 @@ export default function DispatcherDashboard({
                                 </div>
                               ) : (
                                 <span className="text-slate-400 capitalize text-2xs">
-                                  {s.status.replace("_", " ")}
+                                  {s?.status?.replace("_", " ")}
                                 </span>
                               )}
                             </td>
@@ -2589,7 +2556,7 @@ export default function DispatcherDashboard({
                     />
 
                     {/* Waypoint nodes */}
-                    {selectedShipment.waypoints.map((wpt, idx) => {
+                    {selectedShipment?.waypoints?.map((wpt, idx) => {
                       const x = 80 + idx * 135;
                       const y =
                         wpt.stopType === "pickup"
@@ -2666,7 +2633,7 @@ export default function DispatcherDashboard({
                       Current Facility
                     </div>
                     <div className="text-xs font-bold truncate">
-                      {selectedShipment.waypoints.find(
+                      {selectedShipment?.waypoints?.find(
                         (w) => w.status === "arrived" || w.status === "pending"
                       )?.companyName || "Fully Delivered"}
                     </div>
@@ -2697,14 +2664,14 @@ export default function DispatcherDashboard({
                   <div className="text-xs font-bold text-slate-700 font-mono uppercase tracking-tight flex items-center justify-between">
                     <span>
                       Routing Stops Manifest (
-                      {selectedShipment.waypoints.length} locations)
+                      {selectedShipment?.waypoints?.length} locations)
                     </span>
                     <span className="text-4xs text-slate-400">
                       Click chevrons to manually override stop sequences
                     </span>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    {selectedShipment.waypoints.map((wpt, idx) => {
+                    {selectedShipment?.waypoints?.map((wpt, idx) => {
                       const isEditing = editingWaypointId === wpt.id;
                       return (
                         <div
@@ -3166,7 +3133,7 @@ export default function DispatcherDashboard({
                         }
                         value={selectedShipment.driverId || ""}
                         onChange={(e) => {
-                          const matched = mockDrivers.find(
+                          const matched = drivers.find(
                             (d) => d.id === e.target.value
                           );
                           if (matched) {
@@ -3184,7 +3151,7 @@ export default function DispatcherDashboard({
                         className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400"
                       >
                         <option value="">-- Choose/Reassign Driver --</option>
-                        {mockDrivers.map((drv) => (
+                        {drivers.map((drv) => (
                           <option key={drv.id} value={drv.id}>
                             {drv.name} (Truck: {drv.truck} | Trailer:{" "}
                             {drv.trailer})
@@ -3948,7 +3915,7 @@ export default function DispatcherDashboard({
                     <select
                       value={editedShipment.driverId || ""}
                       onChange={(e) => {
-                        const matched = mockDrivers.find(
+                        const matched = drivers.find(
                           (d) => d.id === e.target.value
                         );
                         if (matched) {
@@ -3966,7 +3933,7 @@ export default function DispatcherDashboard({
                       <option value="">
                         -- Choose/Reassign an Active Driver --
                       </option>
-                      {mockDrivers.map((drv) => (
+                      {drivers.map((drv) => (
                         <option key={drv.id} value={drv.id}>
                           {drv.name} (Truck: {drv.truck} | Trailer:{" "}
                           {drv.trailer})

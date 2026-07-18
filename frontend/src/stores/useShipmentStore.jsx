@@ -2,7 +2,6 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
 
-
 export const useShipmentStore = create((set, get) => ({
   shipments: [],
   isLoading: false,
@@ -66,12 +65,45 @@ export const useShipmentStore = create((set, get) => ({
   },
 
   addShipment: async (shipment) => {
+    console.log(shipment);
     set({ isLoading: true });
     try {
+      const payload = {
+        load_number: shipment.trackingNumber,
+
+        dispatcher_id: shipment.dispatcherId,
+        driver_id: shipment.driverId,
+        truck_id: shipment.truckId,
+        trailer_id: shipment.trailerId,
+
+        customer_name: shipment.customerName,
+        customer_email: shipment.customerEmail,
+        customer_phone: shipment.customerPhone,
+        customer_billing_address: shipment.customerAddress,
+
+        shipper_name: shipment.shipperName,
+        shipper_phone: shipment.shipperPhone,
+        shipper_address: shipment.shipperAddress,
+        origin: shipment.originCity,
+
+        consignee_name: shipment.consigneeName,
+        consignee_phone: shipment.consigneePhone,
+        consignee_address: shipment.consigneeAddress,
+        destination: shipment.destinationCity,
+
+        pickup_date: new Date().toISOString(),
+        delivery_date: shipment.eta,
+
+        commodity: shipment.cargoDescription,
+        weight: shipment.weightLbs,
+        pieces: shipment.palletCount,
+        rate: shipment.priceInvoice,
+      };
+      console.log(payload);
       // Save shipment as load to backend API
       const response = await axiosInstance
-        .post("/load", shipment)
-        .catch(() => axiosInstance.post("/loads", shipment));
+        .post("/load", payload)
+        .catch(() => axiosInstance.post("/loads", payload));
       const savedShipment = response.data || shipment;
 
       // If the shipment has waypoints/stops, create them in load_stops table
@@ -80,8 +112,6 @@ export const useShipmentStore = create((set, get) => ({
           await Promise.all(
             shipment.waypoints.map((stop) =>
               axiosInstance.post("/load_stops", {
-                id:
-                  stop.id || "STP" + Math.floor(10000 + Math.random() * 90000),
                 load_id: shipment.id,
                 data: stop,
               })

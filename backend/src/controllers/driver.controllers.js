@@ -27,7 +27,7 @@ export const createDriver = async (req, res) => {
             });
         }
 
-        if (user.rows[0].role !== "DRIVER") {
+        if (user.rows[0].role !== "driver") {
             return res.status(400).json({
                 message: "Selected user is not a driver"
             });

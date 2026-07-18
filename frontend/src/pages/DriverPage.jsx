@@ -1,10 +1,11 @@
 import { useNavigate } from "react-router-dom";
-import { useShipmentStore } from "../store/useShipmentStore";
-import { useMessageStore } from "../store/useMessageStore";
-import { useDocumentStore } from "../store/useDocumentStore";
-import { useHOSStore } from "../store/useHOSStore";
-import { useSafetyStore } from "../store/useSafetyStore";
-import { useAuthStore } from "../store/useAuthStore";
+import { useEffect } from "react";
+import { useShipmentStore } from "../stores/useShipmentStore";
+import { useMessageStore } from "../stores/useMessageStore";
+import { useDocumentStore } from "../stores/useDocumentStore";
+import { useHOSStore } from "../stores/useHOSStore";
+import { useSafetyStore } from "../stores/useSafetyStore";
+import { useAuthStore } from "../stores/useAuthStore";
 import DriverApp from "../components/DriverApp";
 import { Truck, LogOut } from "lucide-react";
 
@@ -12,18 +13,24 @@ export default function DriverPage() {
   const navigate = useNavigate();
 
   const shipments = useShipmentStore((state) => state.shipments);
+  const fetchShipments = useShipmentStore((state) => state.fetchShipments);
   const updateShipment = useShipmentStore((state) => state.updateShipment);
-  const updateShipmentStatus = useShipmentStore((state) => state.updateShipmentStatus);
+  const updateShipmentStatus = useShipmentStore(
+    (state) => state.updateShipmentStatus
+  );
 
   const messages = useMessageStore((state) => state.messages);
+  const fetchMessages = useMessageStore((state) => state.fetchMessages);
   const sendMessage = useMessageStore((state) => state.sendMessage);
   const markAsRead = useMessageStore((state) => state.markAsRead);
 
   const documents = useDocumentStore((state) => state.documents);
+  const fetchDocuments = useDocumentStore((state) => state.fetchDocuments);
   const addDocument = useDocumentStore((state) => state.addDocument);
   const updateDocument = useDocumentStore((state) => state.updateDocument);
 
   const hosLogs = useHOSStore((state) => state.hosLogs);
+  const fetchHOSLogs = useHOSStore((state) => state.fetchHOSLogs);
   const updateHOSLog = useHOSStore((state) => state.updateHOSLog);
 
   const addSafetyIncident = useSafetyStore((state) => state.addSafetyIncident);
@@ -31,12 +38,22 @@ export default function DriverPage() {
   const currentUser = useAuthStore((state) => state.currentUser);
   const logout = useAuthStore((state) => state.logout);
 
+  useEffect(() => {
+    fetchShipments();
+    fetchMessages();
+    fetchDocuments();
+    fetchHOSLogs();
+  }, [fetchShipments, fetchMessages, fetchDocuments, fetchHOSLogs]);
+
   const handleAddDocument = async (newDoc) => {
     await addDocument(newDoc);
     if (newDoc.status === "approved") {
       const ship = shipments.find((s) => s.id === newDoc.shipmentId);
       if (ship && !ship.documentIds.includes(newDoc.id)) {
-        const updatedShip = { ...ship, documentIds: [...ship.documentIds, newDoc.id] };
+        const updatedShip = {
+          ...ship,
+          documentIds: [...ship.documentIds, newDoc.id],
+        };
         await updateShipment(updatedShip);
       }
     }
@@ -46,7 +63,12 @@ export default function DriverPage() {
     await updateDocument(updatedDoc);
   };
 
-  const handleSendMessage = async (content, recipientId, shipmentId, attachment) => {
+  const handleSendMessage = async (
+    content,
+    recipientId,
+    shipmentId,
+    attachment
+  ) => {
     const newMessage = {
       id: "MSG" + (messages.length + 101),
       senderRole: "driver",
@@ -57,7 +79,7 @@ export default function DriverPage() {
       timestamp: new Date().toISOString(),
       read: false,
       shipmentId,
-      attachment
+      attachment,
     };
     await sendMessage(newMessage);
   };
@@ -66,8 +88,18 @@ export default function DriverPage() {
     await updateHOSLog(updatedLog.driverId, updatedLog);
   };
 
-  const handleUpdateShipmentStatus = async (shipmentId, status, waypoints, borderConnectStatus) => {
-    await updateShipmentStatus(shipmentId, status, waypoints, borderConnectStatus);
+  const handleUpdateShipmentStatus = async (
+    shipmentId,
+    status,
+    waypoints,
+    borderConnectStatus
+  ) => {
+    await updateShipmentStatus(
+      shipmentId,
+      status,
+      waypoints,
+      borderConnectStatus
+    );
   };
 
   const handleMarkMessagesAsRead = async (shipmentId, role) => {
@@ -102,23 +134,37 @@ export default function DriverPage() {
               <Truck className="h-8 w-8" />
             </div>
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-white font-sans">OZACK MOBILE</h1>
+              <h1 className="text-2xl font-black tracking-tight text-white font-sans">
+                OZACK MOBILE
+              </h1>
               <p className="text-xs text-slate-400 font-medium tracking-wide uppercase font-mono mt-1">
                 Driver App Companion
               </p>
             </div>
             <div className="border-t border-slate-800 pt-4 space-y-3">
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">Driver Profile</span>
-                <span className="font-bold text-slate-200 text-sm">{currentUser?.name}</span>
+                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                  Driver Profile
+                </span>
+                <span className="font-bold text-slate-200 text-sm">
+                  {currentUser?.name}
+                </span>
               </div>
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">Duty Status</span>
-                <span className="font-mono bg-emerald-950 text-emerald-400 border border-emerald-900 px-1.5 py-0.5 rounded text-[10px] font-bold">ELD SYNCED</span>
+                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                  Duty Status
+                </span>
+                <span className="font-mono bg-emerald-950 text-emerald-400 border border-emerald-900 px-1.5 py-0.5 rounded text-[10px] font-bold">
+                  ELD SYNCED
+                </span>
               </div>
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">Active Vehicle</span>
-                <span className="font-bold text-slate-300 font-mono">TRK-102 / TRL-504</span>
+                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                  Active Vehicle
+                </span>
+                <span className="font-bold text-slate-300 font-mono">
+                  TRK-102 / TRL-504
+                </span>
               </div>
             </div>
           </div>
@@ -145,7 +191,9 @@ export default function DriverPage() {
             <div className="h-9 bg-slate-900 flex items-end justify-between px-7 text-3xs text-slate-400 select-none shrink-0 pb-1.5 z-40">
               <span className="font-bold font-mono">09:41</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 text-[8px] font-mono">SAMSARA</span>
+                <span className="text-slate-500 text-[8px] font-mono">
+                  SAMSARA
+                </span>
                 <div className="flex items-center gap-0.5">
                   <span className="w-[2px] h-1 bg-emerald-500 rounded-xs" />
                   <span className="w-[2px] h-1.5 bg-emerald-500 rounded-xs" />
@@ -188,7 +236,8 @@ export default function DriverPage() {
         {/* Mobile-only Logout panel */}
         <div className="lg:hidden flex items-center justify-between w-full max-w-[385px] mt-4 z-10">
           <div className="text-2xs text-slate-400">
-            Logged in as <span className="font-bold text-white">{currentUser?.name}</span>
+            Logged in as{" "}
+            <span className="font-bold text-white">{currentUser?.name}</span>
           </div>
           <button
             onClick={handleLogout}

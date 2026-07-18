@@ -3,99 +3,250 @@ import pool from "../config/db";
 
 // CREATE LOAD
 
-export const createLoad = async(req,res)=>{
+// export const createLoad = async(req,res)=>{
 
-    try{
+//     try{
+//         console.log(req.body)
 
-        const {
-            load_number,
-            pb_num,
-            customer_id,
-            dispatcher_id,
-            driver_id,
-            truck_id,
-            trailer_id,
-            origin,
-            destination,
-            pickup_date,
-            delivery_date,
-            commodity,
-            weight,
-            pieces,
-            rate
-        } = req.body;
-
-
-
-        const result = await pool.query(
-        `
-        INSERT INTO loads
-        (
-            load_number,
-            pb_num,
-            customer_id,
-            dispatcher_id,
-            driver_id,
-            truck_id,
-            trailer_id,
-            origin,
-            destination,
-            pickup_date,
-            delivery_date,
-            commodity,
-            weight,
-            pieces,
-            rate
-        )
-
-        VALUES
-        (
-            $1,$2,$3,$4,$5,
-            $6,$7,$8,$9,$10,
-            $11,$12,$13,$14,$15
-        )
-
-        RETURNING *
-        `,
-        [
-            load_number,
-            pb_num,
-            customer_id,
-            dispatcher_id,
-            driver_id,
-            truck_id,
-            trailer_id,
-            origin,
-            destination,
-            pickup_date,
-            delivery_date,
-            commodity,
-            weight,
-            pieces,
-            rate
-        ]
-        );
-
-
-        res.status(201).json({
-            success:true,
-            load:result.rows[0]
-        });
+//         const {
+//             load_number,
+//             dispatcher_id,
+//             driver_id,
+//             truck_id,
+//             trailer_id,
+          
+//             customer_name,
+//             customer_email,
+//             customer_phone,
+//             customer_billing_address,
+          
+//             shipper_name,
+//             shipper_phone,
+//             shipper_address,
+//             origin,
+          
+//             consignee_name,
+//             consignee_phone,
+//             consignee_address,
+//             destination,
+          
+//             pickup_date,
+//             delivery_date,
+          
+//             commodity,
+//             weight,
+//             pieces,
+//             rate
+//         } = req.body;
 
 
 
-    }catch(error){
+//         const result = await pool.query(
+//         `
+//         INSERT INTO loads
+//         (
+//             load_number,
+//   dispatcher_id,
+//   driver_id,
+//   truck_id,
+//   trailer_id,
 
-        console.log(error);
+//   customer_name,
+//   customer_email,
+//   customer_phone,
+//   customer_billing_address,
 
-        res.status(500).json({
-            message:"Server error"
-        });
+//   shipper_name,
+//   shipper_phone,
+//   shipper_address,
+//   origin,
 
-    }
+//   consignee_name,
+//   consignee_phone,
+//   consignee_address,
+//   destination,
 
+//   pickup_date,
+//   delivery_date,
+
+//   commodity,
+//   weight,
+//   pieces,
+//   rate
+//         )
+
+//         VALUES
+//         (
+//             $1,$2,$3,$4,$5,
+//             $6,$7,$8,$9,$10,
+//             $11,$12,$13,$14,$15
+//         )
+
+//         RETURNING *
+//         `,
+//         [
+//             load_number,
+//             pb_num,
+//             customer_id,
+//             dispatcher_id,
+//             driver_id,
+//             truck_id,
+//             trailer_id,
+//             origin,
+//             destination,
+//             pickup_date,
+//             delivery_date,
+//             commodity,
+//             weight,
+//             pieces,
+//             rate
+//         ]
+//         );
+
+
+//         res.status(201).json({
+//             success:true,
+//             load:result.rows[0]
+//         });
+
+
+
+//     }catch(error){
+
+//         console.log(error);
+
+//         res.status(500).json({
+//             message:"Server error"
+//         });
+
+//     }
+
+// };
+
+export const createLoad = async (req, res) => {
+  try {
+    console.log(req.body);
+
+    const {
+      load_number,
+      dispatcher_id,
+      driver_id,
+      truck_id,
+      trailer_id,
+
+      customer_name,
+      customer_email,
+      customer_phone,
+      customer_billing_address,
+
+      shipper_name,
+      shipper_phone,
+      shipper_address,
+      origin,
+
+      consignee_name,
+      consignee_phone,
+      consignee_address,
+      destination,
+
+      pickup_date,
+      delivery_date,
+
+      commodity,
+      weight,
+      pieces,
+      rate,
+    } = req.body;
+
+    const result = await pool.query(
+      `
+      INSERT INTO loads
+      (
+        load_number,
+        dispatcher_id,
+        driver_id,
+        truck_id,
+        trailer_id,
+
+        customer_name,
+        customer_email,
+        customer_phone,
+        customer_billing_address,
+
+        shipper_name,
+        shipper_phone,
+        shipper_address,
+        origin,
+
+        consignee_name,
+        consignee_phone,
+        consignee_address,
+        destination,
+
+        pickup_date,
+        delivery_date,
+
+        commodity,
+        weight,
+        pieces,
+        rate
+      )
+      VALUES
+      (
+        $1,$2,$3,$4,$5,
+        $6,$7,$8,$9,
+        $10,$11,$12,$13,
+        $14,$15,$16,$17,
+        $18,$19,
+        $20,$21,$22,$23
+      )
+      RETURNING *;
+      `,
+      [
+        load_number,
+        dispatcher_id,
+        driver_id,
+        truck_id,
+        trailer_id,
+
+        customer_name,
+        customer_email,
+        customer_phone,
+        customer_billing_address,
+
+        shipper_name,
+        shipper_phone,
+        shipper_address,
+        origin,
+
+        consignee_name,
+        consignee_phone,
+        consignee_address,
+        destination,
+
+        pickup_date,
+        delivery_date,
+
+        commodity,
+        weight,
+        pieces,
+        rate,
+      ]
+    );
+
+    res.status(201).json({
+      success: true,
+      load: result.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
 };
-
 
 export const getAllLoads = async (req, res) => {
     try {

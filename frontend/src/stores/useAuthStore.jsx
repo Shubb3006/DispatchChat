@@ -286,6 +286,9 @@ export const useAuthStore = create((set, get) => ({
       toast.error(msg);
       return false;
     }
+    finally{
+      set({isLoading:false})
+    }
   },
 
   deleteUser: async (id) => {

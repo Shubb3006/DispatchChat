@@ -1,4 +1,4 @@
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../stores/useAuthStore";
 
 import Navigation from "../components/Navigation";
 import DispatcherDashboard from "../components/DispatcherDashboard";

@@ -8,7 +8,7 @@ import {
   UserCheck,
   AlertCircle,
 } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../stores/useAuthStore";
 const AVAILABLE_MODULES = [
   {
     id: "dispatcher",
@@ -44,7 +44,7 @@ export default function HRDashboard({
   onDeleteUser,
 }) {
   const addUser = useAuthStore((state) => state.addUser);
-
+  const isLoading = useAuthStore((state) => state.isLoading);
   const [name, setName] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("driver");
@@ -428,10 +428,17 @@ export default function HRDashboard({
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm flex items-center justify-center space-x-1.5"
+            disabled={isLoading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-50"
           >
-            <UserPlus className="h-4 w-4" />
-            <span>Create & Register User</span>
+            {isLoading ? (
+              <span>Adding User.....</span>
+            ) : (
+              <>
+                <UserPlus className="h-4 w-4" />
+                <span>Create & Register User</span>
+              </>
+            )}
           </button>
         </form>
       </div>

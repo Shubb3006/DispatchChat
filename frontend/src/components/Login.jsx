@@ -8,7 +8,7 @@ import {
   UserPlus,
   KeyRound,
 } from "lucide-react";
-import { useAuthStore } from "../store/useAuthStore";
+import { useAuthStore } from "../stores/useAuthStore";
 import { useNavigate } from "react-router-dom";
 export default function Login() {
   const navigate = useNavigate();

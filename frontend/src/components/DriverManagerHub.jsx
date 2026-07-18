@@ -11,7 +11,7 @@ import {
   Search,
   MessageSquare,
 } from "lucide-react";
-import { useDriverStore } from "../store/useDriverstore";
+import { useDriverStore } from "../stores/useDriverstore";
 export default function DriverManagerHub({
   shipments,
   messages,
