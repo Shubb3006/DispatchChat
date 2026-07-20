@@ -126,7 +126,7 @@ export const useAuthStore = create((set, get) => ({
       set({
         authUser: user,
         currentUser: user,
-        isLoggedIn: !!user,
+        isLoggedIn: true,
         isLoading: false,
       });
     } catch (error) {

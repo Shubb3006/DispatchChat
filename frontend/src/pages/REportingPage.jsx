@@ -729,10 +729,10 @@ export default function ReportingPage() {
                           {s.customerName}
                         </td>
                         <td className="px-4 py-3 text-slate-600">
-                          ${s.costEstimate.toLocaleString()}
+                          ${s?.costEstimate?.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-slate-900 font-bold">
-                          ${s.priceInvoice.toLocaleString()}
+                          ${s?.priceInvoice?.toLocaleString()}
                         </td>
                         <td className="px-4 py-3 text-right">
                           <span className="text-emerald-600 font-bold">

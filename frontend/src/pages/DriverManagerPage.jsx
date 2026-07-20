@@ -4,7 +4,7 @@ import { useMessageStore } from "../stores/useMessageStore";
 import { useHOSStore } from "../stores/useHOSStore";
 import { useSafetyStore } from "../stores/useSafetyStore";
 import { useAuthStore } from "../stores/useAuthStore";
-import { useDriverStore } from "../stores/useDriverstore"
+import { useDriverStore } from "../stores/useDriverstore";
 import WhatsAppChatHub from "../components/WhatsAppChatHub";
 import {
   Headphones,
@@ -84,9 +84,10 @@ export default function DriverManagerPage() {
     await markAsRead(shipmentId, role);
   };
 
+  console.log(shipments);
   const driversStatusList = drivers.map((drv) => {
     const activeShipment = shipments.find(
-      (s) => s.driverId === drv.id && s.status !== "delivered"
+      (s) => s.driver_id === drv.id && s.status !== "completed"
     );
     const rawHos = hosLogs.find((l) => l.driverId === drv.id);
     const mappedHos = rawHos
@@ -139,12 +140,12 @@ export default function DriverManagerPage() {
       safetyScore: mappedSafety,
     };
   });
-
+  console.log(driversStatusList);
   const filteredDrivers = driversStatusList.filter(
     (d) =>
-      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
       d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (d.activeShipment?.trackingNumber || "")
+      (d.activeShipment?.load_number || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
   );
@@ -261,7 +262,7 @@ export default function DriverManagerPage() {
                     <div>
                       <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
-                        {drv.name}
+                        {drv.username}
                       </h3>
                       <span className="text-3xs font-mono font-bold text-slate-400 uppercase tracking-tight">
                         Driver ID: {drv.id}
@@ -269,10 +270,10 @@ export default function DriverManagerPage() {
                     </div>
                     <div className="text-right">
                       <span className="text-3xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 block uppercase tracking-wide font-mono">
-                        TRK: {drv.truck}
+                        TRK: {drv.truck || "Truck"}
                       </span>
                       <span className="text-[9px] text-slate-400 mt-0.5 block font-mono">
-                        TRL: {drv.trailer}
+                        TRL: {drv.trailer || "Trailer"}
                       </span>
                     </div>
                   </div>
@@ -287,7 +288,7 @@ export default function DriverManagerPage() {
                         <div className="flex items-center justify-between text-3xs font-mono">
                           <div className="flex items-center gap-1">
                             <span className="font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded">
-                              {drv.activeShipment.trackingNumber}
+                              {drv.activeShipment.load_number}
                             </span>
                             {drv.activeShipment.priority && (
                               <span
@@ -312,8 +313,8 @@ export default function DriverManagerPage() {
                         </p>
                         <div className="flex justify-between items-center text-3xs text-slate-500 font-mono">
                           <span>
-                            Route: {drv.activeShipment.originCity} →{" "}
-                            {drv.activeShipment.destinationCity}
+                            Route: {drv.activeShipment.customer_billing_address}{" "}
+                            → {drv.activeShipment.destination}
                           </span>
                         </div>
                       </div>

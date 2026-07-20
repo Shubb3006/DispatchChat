@@ -156,7 +156,8 @@ export const createLoad = async (req, res) => {
       weight,
       pieces,
       rate,
-    } = req.body;
+      status
+   } = req.body;
 
     const result = await pool.query(
       `
@@ -189,7 +190,8 @@ export const createLoad = async (req, res) => {
         commodity,
         weight,
         pieces,
-        rate
+        rate,
+        status
       )
       VALUES
       (
@@ -198,7 +200,7 @@ export const createLoad = async (req, res) => {
         $10,$11,$12,$13,
         $14,$15,$16,$17,
         $18,$19,
-        $20,$21,$22,$23
+        $20,$21,$22,$23,$24
       )
       RETURNING *;
       `,
@@ -231,6 +233,7 @@ export const createLoad = async (req, res) => {
         weight,
         pieces,
         rate,
+        status
       ]
     );
 
@@ -252,9 +255,14 @@ export const getAllLoads = async (req, res) => {
     try {
 
         const result = await pool.query(`
-            SELECT *
-            FROM loads
-            ORDER BY created_at DESC
+            SELECT
+    l.*,
+    u.username AS driver_name
+FROM loads l
+LEFT JOIN drivers d
+    ON l.driver_id = d.id
+LEFT JOIN users u
+    ON d.user_id = u.id;
         `);
 
         res.json({
@@ -281,9 +289,15 @@ export const getLoadById = async (req, res) => {
 
         const result = await pool.query(
             `
-            SELECT *
-            FROM loads
-            WHERE id=$1
+           SELECT
+    l.*,
+    u.username AS driver_name
+FROM loads l
+LEFT JOIN drivers d
+    ON l.driver_id = d.id
+LEFT JOIN users u
+    ON d.user_id = u.id
+WHERE l.id = $1;
             `,
             [id]
         );
@@ -328,25 +342,35 @@ export const updateLoad = async (req, res) => {
             weight,
             pieces,
             rate,
-            status
+            status,
+            driver_id,
         } = req.body;
 
-        const result = await pool.query(
-            `
-            UPDATE loads
-            SET
-                origin=$1,
-                destination=$2,
-                pickup_date=$3,
-                delivery_date=$4,
-                commodity=$5,
-                weight=$6,
-                pieces=$7,
-                rate=$8,
-                status=$9
-            WHERE id=$10
-            RETURNING *
-            `,
+        const result = await pool.query(`
+            WITH updated_load AS (
+    UPDATE loads
+    SET
+        origin = $1,
+        destination = $2,
+        pickup_date = $3,
+        delivery_date = $4,
+        commodity = $5,
+        weight = $6,
+        pieces = $7,
+        rate = $8,
+        status = $9,
+        driver_id = $10
+    WHERE id = $11
+    RETURNING *
+)
+SELECT
+    ul.*,
+    u.username AS driver_name
+FROM updated_load ul
+LEFT JOIN drivers d
+    ON ul.driver_id = d.id
+LEFT JOIN users u
+    ON d.user_id = u.id;`,
             [
                 origin,
                 destination,
@@ -357,7 +381,8 @@ export const updateLoad = async (req, res) => {
                 pieces,
                 rate,
                 status,
-                id
+                driver_id, // $10
+                id         // $11
             ]
         );
 
@@ -471,3 +496,22 @@ export const deleteLoad = async (req, res) => {
     }
 
 };
+
+
+
+// (            `
+//             UPDATE loads
+//             SET
+//                 origin=$1,
+//                 destination=$2,
+//                 pickup_date=$3,
+//                 delivery_date=$4,
+//                 commodity=$5,
+//                 weight=$6,
+//                 pieces=$7,
+//                 rate=$8,
+//                 status=$9,
+//                 driver_id=$10
+//             WHERE id=$11
+//             RETURNING *
+//             `,)

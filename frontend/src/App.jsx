@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   HashRouter as Router,
   Routes,
@@ -21,6 +21,9 @@ import InvoicingPage from "./pages/InvoicingPage";
 import CustomerPage from "./pages/CustomerPage";
 import HRPage from "./pages/HRPage";
 import ReportingPage from "./pages/REportingPage";
+import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./ProtectedRoute";
+import { Loader, Loader2 } from "lucide-react";
 
 function LogiSyncApp() {
   const location = useLocation();
@@ -31,6 +34,13 @@ function LogiSyncApp() {
   const users = useAuthStore((state) => state.users);
   const logoutAction = useAuthStore((state) => state.logout);
   const setCurrentUser = (user) => useAuthStore.setState({ currentUser: user });
+
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+  useEffect(() => {
+    checkAuth();
+  }, []);
 
   const [currentRole, setCurrentRole] = useState("dispatcher");
   const [systemTime, setSystemTime] = useState("");
@@ -108,6 +118,32 @@ function LogiSyncApp() {
   const activeShipmentsCount = shipments.filter(
     (s) => s.status !== "delivered" && s.status !== "pending"
   ).length;
+
+  if (isCheckingAuth) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="animate-spin" />
+      </div>
+    );
+  }
+
+  if (!isLoggedIn) {
+    return (
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  if (currentUser?.role === "driver") {
+    return (
+      <Routes>
+        <Route path="/driver" element={<DriverPage />} />
+        <Route path="*" element={<Navigate to="/driver" replace />} />
+      </Routes>
+    );
+  }
 
   if (!isLoggedIn) {
     return (
@@ -261,5 +297,10 @@ function LogiSyncApp() {
 }
 
 export default function App() {
-  return <LogiSyncApp />;
+  return (
+    <>
+      <Toaster />
+      <LogiSyncApp />
+    </>
+  );
 }

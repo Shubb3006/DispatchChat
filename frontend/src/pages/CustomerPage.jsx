@@ -27,17 +27,10 @@ export default function CustomerPage() {
     fetchShipments();
   }, [fetchShipments]);
 
-  const [searchQuery, setSearchQuery] = useState("10001");
+  const [searchQuery, setSearchQuery] = useState("");
   const [searchedShipment, setSearchedShipment] = useState(null);
 
   // Automatically select matching shipment when list loads
-  useEffect(() => {
-    if (!searchedShipment && shipments.length > 0) {
-      const found =
-        shipments.find((s) => s.trackingNumber === "10001") || shipments[0];
-      setSearchedShipment(found);
-    }
-  }, [shipments, searchedShipment]);
 
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
@@ -58,13 +51,13 @@ export default function CustomerPage() {
 
   useEffect(() => {
     if (searchedShipment) {
-      const isDelivered = searchedShipment.status === "delivered";
-      const isArrived = searchedShipment.status === "arrived";
+      const isDelivered = searchedShipment.status === "DELIVERED";
+      const isArrived = searchedShipment.status === "ARRIVED";
       let initialDist = 0;
       if (isDelivered || isArrived) {
         initialDist = 0;
       } else if (
-        searchedShipment.status === "pending" ||
+        searchedShipment.status === "PENDING" ||
         searchedShipment.status === "dispatched"
       ) {
         initialDist = searchedShipment.totalDistanceMiles || 320;
@@ -154,7 +147,7 @@ export default function CustomerPage() {
     if (!searchQuery.trim()) return;
     const found = shipments.find(
       (s) =>
-        s.trackingNumber.trim().toLowerCase() ===
+        s?.load_number?.trim().toLowerCase() ===
           searchQuery.trim().toLowerCase() ||
         (s.poNumber &&
           s.poNumber.trim().toLowerCase() ===
@@ -162,7 +155,7 @@ export default function CustomerPage() {
         (s.bolNumber &&
           s.bolNumber.trim().toLowerCase() === searchQuery.trim().toLowerCase())
     );
-    setSearchedShipment(found || null);
+    setSearchedShipment(found);
     setAiReport(null);
   };
 

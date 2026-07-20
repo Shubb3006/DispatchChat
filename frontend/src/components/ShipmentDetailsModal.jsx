@@ -39,7 +39,6 @@ export default function ShipmentDetailsModal({
   onUpdateShipment,
   onMarkMessagesAsRead,
 }) {
-  console.log(shipment);
   const { fetchDrivers, drivers } = useDriverStore();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
@@ -89,13 +88,12 @@ export default function ShipmentDetailsModal({
   };
   const handleDriverChange = (driverId) => {
     const matched = drivers.find((d) => d.id === driverId);
+    console.log(matched);
     if (matched) {
       onUpdateShipment({
         ...shipment,
-        driverId: matched.id,
-        driverName: matched.name,
-        truckNumber: matched.truck,
-        trailerNumber: matched.trailer,
+        driver_id: matched.id,
+        driver_name: matched.username, // or matched.name
       });
     }
   };
@@ -235,7 +233,6 @@ export default function ShipmentDetailsModal({
       "AI sequenced waypoints successfully applied to active shipment sequence."
     );
   };
-  console.log(drivers);
   const getStatusColor = (status) => {
     switch (status) {
       case "pending":
@@ -270,14 +267,14 @@ export default function ShipmentDetailsModal({
             <div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-mono font-bold tracking-wider text-slate-300">
-                  LOAD # {shipment.trackingNumber}
+                  LOAD # {shipment.load_number}
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded-full text-3xs font-mono font-bold uppercase ${getStatusColor(
                     shipment.status
                   )}`}
                 >
-                  {shipment.status.replace("_", " ")}
+                  {shipment?.status?.replace("_", " ")}
                 </span>
                 <span
                   className={`px-2 py-0.5 rounded-full text-3xs font-mono font-bold uppercase border bg-slate-800 border-slate-700 text-slate-200`}
@@ -286,14 +283,14 @@ export default function ShipmentDetailsModal({
                 </span>
               </div>
               <h2 className="text-lg font-bold truncate max-w-md font-sans text-white mt-0.5">
-                {shipment.customerName}
+                {shipment.customer_name}
               </h2>
             </div>
           </div>
 
           <div className="flex items-center space-x-3">
             <span className="text-xs font-mono text-slate-400 hidden sm:inline-block">
-              ETA: {new Date(shipment.eta).toLocaleString()}
+              ETA: {new Date(shipment.delivery_date).toLocaleDateString()}
             </span>
             <button
               onClick={onClose}
@@ -394,16 +391,16 @@ export default function ShipmentDetailsModal({
                       Active Dispatch Driver & Truck
                     </p>
                     <h3 className="text-lg font-bold font-sans text-white">
-                      {shipment.driverName}
+                      {shipment.driver_name}
                     </h3>
                     <p className="text-2xs font-mono text-slate-300 mt-0.5">
                       Truck:{" "}
                       <span className="font-bold text-white">
-                        {shipment.truckNumber}
+                        {shipment.truck_id}
                       </span>{" "}
                       • Trailer:{" "}
                       <span className="font-bold text-white">
-                        {shipment.trailerNumber}
+                        {shipment.trailer_id}
                       </span>
                     </p>
                   </div>
@@ -424,7 +421,7 @@ export default function ShipmentDetailsModal({
                           currentUser.role === "driver_manager"
                         )
                       }
-                      value={shipment.driverId || ""}
+                      value={shipment.driver_id || ""}
                       onChange={(e) => handleDriverChange(e.target.value)}
                       className="bg-white/10 text-white rounded-lg px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-white border border-white/20 cursor-pointer w-full"
                     >
@@ -521,7 +518,7 @@ export default function ShipmentDetailsModal({
                               Customer Name
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.customerName}
+                              {shipment.customer_name}
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -530,9 +527,9 @@ export default function ShipmentDetailsModal({
                             </span>
                             <p
                               className="font-semibold text-slate-900 truncate"
-                              title={shipment.customerEmail}
+                              title={shipment.customer_email}
                             >
-                              {shipment.customerEmail || "N/A"}
+                              {shipment.customer_email || "N/A"}
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -540,7 +537,7 @@ export default function ShipmentDetailsModal({
                               Customer Phone
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.customerPhone || "N/A"}
+                              {shipment.customer_phone || "N/A"}
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -548,7 +545,7 @@ export default function ShipmentDetailsModal({
                               Customer Address
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.customerAddress || "N/A"}
+                              {shipment.customer_billing_address || "N/A"}
                             </p>
                           </div>
                         </div>
@@ -567,7 +564,7 @@ export default function ShipmentDetailsModal({
                                   Shipper Name
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.shipperName || "N/A"}
+                                  {shipment.shipper_name || "N/A"}
                                 </p>
                               </div>
                               <div className="space-y-1">
@@ -575,7 +572,7 @@ export default function ShipmentDetailsModal({
                                   Shipper Phone
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.shipperPhone || "N/A"}
+                                  {shipment.shipper_phone || "N/A"}
                                 </p>
                               </div>
                             </div>
@@ -584,7 +581,7 @@ export default function ShipmentDetailsModal({
                                 Shipper Address
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.shipperAddress || "N/A"}
+                                {shipment.shipper_address || "N/A"}
                               </p>
                             </div>
                             <div className="space-y-1">
@@ -609,7 +606,7 @@ export default function ShipmentDetailsModal({
                                   Consignee Name
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.consigneeName || "N/A"}
+                                  {shipment.consignee_name || "N/A"}
                                 </p>
                               </div>
                               <div className="space-y-1">
@@ -617,7 +614,7 @@ export default function ShipmentDetailsModal({
                                   Consignee Phone
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.consigneePhone || "N/A"}
+                                  {shipment.consignee_phone || "N/A"}
                                 </p>
                               </div>
                             </div>
@@ -626,7 +623,7 @@ export default function ShipmentDetailsModal({
                                 Consignee Address
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.consigneeAddress || "N/A"}
+                                {shipment.consignee_address || "N/A"}
                               </p>
                             </div>
                             <div className="space-y-1">
@@ -634,7 +631,7 @@ export default function ShipmentDetailsModal({
                                 Destination City
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.destinationCity || "N/A"}
+                                {shipment.destination || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -685,7 +682,7 @@ export default function ShipmentDetailsModal({
                               Cargo Weight
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.weightLbs.toLocaleString()} lbs
+                              {shipment?.weight?.toLocaleString()} lbs
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -693,7 +690,7 @@ export default function ShipmentDetailsModal({
                               Pallet Count
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.palletCount} Pallets
+                              {shipment.pieces} Pallets
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -721,7 +718,7 @@ export default function ShipmentDetailsModal({
                               Invoice Price
                             </span>
                             <p className="font-bold text-indigo-600">
-                              ${shipment.priceInvoice.toLocaleString()}
+                              ${shipment?.priceInvoice?.toLocaleString()}
                             </p>
                           </div>
                           <div className="space-y-1">
@@ -729,7 +726,7 @@ export default function ShipmentDetailsModal({
                               Cost Estimate
                             </span>
                             <p className="font-semibold text-slate-900">
-                              ${shipment.costEstimate.toLocaleString()}
+                              ${shipment?.costEstimate?.toLocaleString()}
                             </p>
                           </div>
                         </div>

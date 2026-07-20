@@ -14,6 +14,7 @@ import truckRoutes from "./routes/trucks.routes.js"
 import locationRoutes from "./routes/location.routes.js"
 import loadStopsRoutes from "./routes/load_stop.route.js"
 import userRoutes from "./routes/user.routes.js"
+import tripRoutes from "./routes/trip.routes.js"
 
 dotenv.config();
 
@@ -43,6 +44,7 @@ app.use("/api/trucks",truckRoutes);
 app.use("/api/locations",locationRoutes);
 app.use("/api/load_stops",loadStopsRoutes);
 app.use("/api/user",userRoutes);
+app.use("/api/trips",tripRoutes);
 
 app.get("/hi",(req,res)=>{
   res.send("Hello")

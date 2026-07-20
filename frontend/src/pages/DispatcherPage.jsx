@@ -4,10 +4,10 @@ import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
 import { useMessageStore } from "../stores/useMessageStore";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useDriverStore } from "../stores/useDriverstore";
 import { useAssetStore } from "../stores/useAssetStore";
 import { useCustomerStore } from "../stores/useCustomerStore";
 import DispatcherDashboard from "../components/DispatcherDashboard";
-import { useDriverStore } from "../stores/useDriverstore";
 
 export default function DispatcherPage() {
   const location = useLocation();
@@ -35,6 +35,7 @@ export default function DispatcherPage() {
   const fetchCustomers = useCustomerStore((state) => state.fetchCustomers);
 
   const currentUser = useAuthStore((state) => state.currentUser);
+  const isLoading = useShipmentStore((state) => state.isLoading);
 
   // Decentralized state fetching on mount in this page module
   useEffect(() => {
@@ -67,9 +68,9 @@ export default function DispatcherPage() {
     await removeTrip(tripId);
   };
 
-  const handleAddShipment = async (newShipment) => {
-    await addShipment(newShipment);
-  };
+  // const handleAddShipment = async (newShipment) => {
+  //   await addShipment(newShipment);
+  // };
 
   const handleUpdateShipment = async (updated) => {
     await updateShipment(updated);
@@ -106,6 +107,26 @@ export default function DispatcherPage() {
     await markAsRead(shipmentId, role);
   };
 
+  if (isLoading && shipments.length === 0) {
+    return (
+      <div
+        className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-6"
+        id="dispatcher-loading-screen"
+      >
+        <div className="relative flex items-center justify-center mb-6">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+          <div className="absolute h-8 w-8 bg-blue-500/10 rounded-full animate-ping"></div>
+        </div>
+        <h3 className="text-lg font-semibold tracking-wide text-slate-200">
+          Synchronizing Logistics Portal
+        </h3>
+        <p className="text-slate-400 text-sm mt-2 animate-pulse">
+          Fetching active loads, manifests and assets...
+        </p>
+      </div>
+    );
+  }
+
   return (
     <DispatcherDashboard
       shipments={shipments}
@@ -114,7 +135,6 @@ export default function DispatcherPage() {
       onUpdateTrip={handleUpdateTrip}
       onRemoveTrip={handleRemoveTrip}
       messages={messages}
-      onAddShipment={handleAddShipment}
       onUpdateShipment={handleUpdateShipment}
       onSendMessage={handleSendMessage}
       onMarkMessagesAsRead={handleMarkMessagesAsRead}

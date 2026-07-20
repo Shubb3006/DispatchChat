@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import WhatsAppChatHub from "./WhatsAppChatHub";
 import {
   Headphones,
@@ -12,8 +12,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 import { useDriverStore } from "../stores/useDriverstore";
+import { useShipmentStore } from "../stores/useShipmentStore";
 export default function DriverManagerHub({
-  shipments,
   messages,
   hosLogs,
   safetyScores,
@@ -23,6 +23,15 @@ export default function DriverManagerHub({
   currentUser,
 }) {
   const drivers = useDriverStore((state) => state.drivers);
+  const fetchDrivers=useDriverStore((state)=>state.fetchDrivers);
+
+  const {shipments,fetchShipments}=useShipmentStore();
+  useEffect(()=>{
+    fetchDrivers();
+    fetchShipments();
+  },[])
+
+  console.log(drivers)
   const [activeTab, setActiveTab] = useState("manifests");
   const [searchQuery, setSearchQuery] = useState("");
   const driversStatusList = drivers.map((drv) => {
@@ -82,9 +91,9 @@ export default function DriverManagerHub({
   });
   const filteredDrivers = driversStatusList.filter(
     (d) =>
-      d.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.user_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      (d.activeShipment?.trackingNumber || "")
+      (d.activeShipment?.tracking_number || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
   );

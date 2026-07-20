@@ -10,51 +10,17 @@ export const useShipmentStore = create((set, get) => ({
   fetchShipments: async () => {
     set({ isLoading: true, error: null });
     try {
-      // Fetch both loads and load stops from the backend
-      const [loadsRes, stopsRes] = await Promise.allSettled([
-        axiosInstance.get("/load").catch(() => axiosInstance.get("/loads")),
-        axiosInstance.get("/load_stops"),
-      ]);
+      // Fetch only loads from the backend API
+      const response = await axiosInstance
+        .get("/load")
+        .catch(() => axiosInstance.get("/load"));
+      const fetchedLoads = response.data.loads || [];
 
-      let fetchedLoads = [];
-      if (loadsRes.status === "fulfilled" && loadsRes.value.data) {
-        fetchedLoads = loadsRes.value.data;
-      } else {
-        // Fallback to /api/shipments or similar if needed
-        const fallback = await axiosInstance
-          .get("/shipments")
-          .catch(() => null);
-        if (fallback && fallback.data) {
-          fetchedLoads = fallback.data;
-        }
-      }
-
-      let fetchedStops = [];
-      if (stopsRes.status === "fulfilled" && stopsRes.value.data) {
-        fetchedStops = stopsRes.value.data;
-      }
-
-      // Map/combine loads with their corresponding load stops if separate
+      // Map and parse the serialized load objects from data field if needed
       const finalShipments = fetchedLoads.map((load) => {
-        const parsedLoad =
-          typeof load.data === "string"
-            ? JSON.parse(load.data)
-            : load.data || load;
-        const matchingStops = fetchedStops
-          .filter(
-            (stop) =>
-              stop.load_id === parsedLoad.id || stop.loadId === parsedLoad.id
-          )
-          .map((stop) =>
-            typeof stop.data === "string"
-              ? JSON.parse(stop.data)
-              : stop.data || stop
-          );
-
-        if (matchingStops.length > 0 && !parsedLoad.waypoints) {
-          parsedLoad.waypoints = matchingStops;
-        }
-        return parsedLoad;
+        return typeof load.data === "string"
+          ? JSON.parse(load.data)
+          : load.data || load;
       });
 
       set({ shipments: finalShipments, isLoading: false });
@@ -65,11 +31,12 @@ export const useShipmentStore = create((set, get) => ({
   },
 
   addShipment: async (shipment) => {
-    console.log(shipment);
     set({ isLoading: true });
+    console.log(shipment);
     try {
       const payload = {
-        load_number: shipment.trackingNumber,
+        load_number: shipment.load_number,
+        status: shipment.status,
 
         dispatcher_id: shipment.dispatcherId,
         driver_id: shipment.driverId,
@@ -99,40 +66,26 @@ export const useShipmentStore = create((set, get) => ({
         pieces: shipment.palletCount,
         rate: shipment.priceInvoice,
       };
-      console.log(payload);
       // Save shipment as load to backend API
       const response = await axiosInstance
         .post("/load", payload)
         .catch(() => axiosInstance.post("/loads", payload));
-      const savedShipment = response.data || shipment;
+      const savedShipment = response.data.load || shipment;
 
-      // If the shipment has waypoints/stops, create them in load_stops table
-      if (shipment.waypoints && shipment.waypoints.length > 0) {
-        try {
-          await Promise.all(
-            shipment.waypoints.map((stop) =>
-              axiosInstance.post("/load_stops", {
-                load_id: shipment.id,
-                data: stop,
-              })
-            )
-          );
-        } catch (stopErr) {
-          console.warn("Failed to save individual load stops:", stopErr);
-        }
-      }
-
+      toast.success(
+        `Load #${shipment.load_number || shipment.id} added successfully`
+      );
       set((state) => ({
         shipments: [savedShipment, ...state.shipments],
         isLoading: false,
       }));
-      toast.success(
-        `Load ${shipment.trackingNumber || shipment.id} added successfully`
-      );
+
+      return true;
     } catch (err) {
       console.error("Failed to save load:", err);
       set({ error: "Failed to add shipment", isLoading: false });
       toast.error("Failed to add load");
+      return false;
     }
   },
 
@@ -142,7 +95,7 @@ export const useShipmentStore = create((set, get) => ({
       const response = await axiosInstance
         .put(`/load/${shipment.id}`, shipment)
         .catch(() => axiosInstance.put(`/loads/${shipment.id}`, shipment));
-      const updated = response.data || shipment;
+      const updated = response.data.load || shipment;
 
       set((state) => ({
         shipments: state.shipments.map((s) =>
@@ -150,7 +103,7 @@ export const useShipmentStore = create((set, get) => ({
         ),
         isLoading: false,
       }));
-      toast.success(`Load ${shipment.trackingNumber || shipment.id} updated`);
+      toast.success(`Load #${shipment.load_number || shipment.id} updated`);
     } catch (err) {
       console.error("Failed to update load:", err);
       set({ error: "Failed to update shipment", isLoading: false });
@@ -191,24 +144,6 @@ export const useShipmentStore = create((set, get) => ({
         .catch(() =>
           axiosInstance.put(`/loads/${shipmentId}`, updatedShipment)
         );
-
-      // If waypoints/stops were updated, update them in load_stops table
-      if (waypoints && waypoints.length > 0) {
-        try {
-          await axiosInstance
-            .put(`/load_stops/bulk/${shipmentId}`, { waypoints })
-            .catch(() => {
-              // Fallback: save individually
-              return Promise.all(
-                waypoints.map((stop) =>
-                  axiosInstance.put(`/load_stops/${stop.id}`, stop)
-                )
-              );
-            });
-        } catch (stopErr) {
-          console.warn("Failed to update load stops bulk/individual:", stopErr);
-        }
-      }
 
       set((state) => ({
         shipments: state.shipments.map((s) =>

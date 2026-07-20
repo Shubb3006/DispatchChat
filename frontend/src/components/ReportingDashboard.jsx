@@ -76,7 +76,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
   const costSamsara = Math.round(estDrivers * 1.5);
   const costGemini = Math.round(estDrivers * 4 * 0.09);
   const costSecurity = Math.max(0, Math.round((estDrivers + estEmployees - 500) * 0.2));
-  const costSMS = Math.round(estDrivers * 0.45);
+  const costSMS = Math.round(estDrivers);
   const totalExpense = costCloud + costSamsara + costGemini + costSecurity + costSMS;
   const costPerUser = (totalExpense / (estDrivers + estEmployees || 1)).toFixed(2);
   const themeClasses = {

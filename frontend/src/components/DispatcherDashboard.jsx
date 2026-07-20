@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useDriverStore } from "../stores/useDriverstore";
-
+import { useAssetStore } from "../stores/useAssetStore";
+import { useCustomerStore } from "../stores/useCustomerStore";
 import WhatsAppChatHub from "./WhatsAppChatHub";
 import ShipmentDetailsModal from "./ShipmentDetailsModal";
 import {
@@ -25,30 +26,51 @@ import {
   FileText,
   Image,
 } from "lucide-react";
-import { option } from "motion/react-client";
 import { useShipmentStore } from "../stores/useShipmentStore";
+import { useTripStore } from "../stores/useTripStore";
 export default function DispatcherDashboard({
   shipments,
-  trips = [],
   onAddTrip,
   onUpdateTrip,
   onRemoveTrip,
   messages,
-
   onUpdateShipment,
   onSendMessage,
   onMarkMessagesAsRead,
   currentUser,
 }) {
-  console.log(shipments);
-  const { addShipment } = useShipmentStore();
-  const { fetchDrivers, drivers } = useDriverStore();
+  const { addShipment, isLoading } = useShipmentStore();
+  const mockDrivers = useDriverStore((state) => state.drivers);
+  const fetchDrivers = useDriverStore((state) => state.fetchDrivers);
+
+  const trucks = useAssetStore((state) => state.trucks);
+  const trailors = useAssetStore((state) => state.trailors);
+  const fetchTrucks = useAssetStore((state) => state.fetchTrucks);
+  const fetchTrailors = useAssetStore((state) => state.fetchTrailors);
+
+  const customers = useCustomerStore((state) => state.customers);
+  const fetchCustomers = useCustomerStore((state) => state.fetchCustomers);
+
+  const fetchTrips = useTripStore((state) => state.fetchTrips);
+  const trips = useTripStore((state) => state.trips);
+
   useEffect(() => {
     fetchDrivers();
-  }, [fetchDrivers]);
+    fetchTrucks();
+    fetchTrailors();
+    fetchCustomers();
+    fetchTrips();
+  }, []);
+
   const [selectedShipment, setSelectedShipment] = useState(
     shipments[0] || null
   );
+
+  useEffect(() => {
+    if (!selectedShipment && shipments && shipments.length > 0) {
+      setSelectedShipment(shipments[0]);
+    }
+  }, [shipments, selectedShipment]);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [newMessage, setNewMessage] = useState("");
   const [activeView, setActiveView] = useState("grid");
@@ -62,9 +84,8 @@ export default function DispatcherDashboard({
   const [formCommitment, setFormCommitment] = useState("normal");
   const [formCommitmentDate, setFormCommitmentDate] = useState("");
   const [formCommitmentTime, setFormCommitmentTime] = useState("");
-  const [consolidationDriverId, setConsolidationDriverId] = useState("DRV001");
-  const [consolidationDriverName, setConsolidationDriverName] =
-    useState("Marcus Vance");
+  const [consolidationDriverId, setConsolidationDriverId] = useState("");
+  const [consolidationDriverName, setConsolidationDriverName] = useState("");
   const [consolidationTruck, setConsolidationTruck] = useState("TRK-102");
   const [consolidationTrailer, setConsolidationTrailer] = useState("TRL-504");
   const [selectedConsolidationIds, setSelectedConsolidationIds] = useState([]);
@@ -79,10 +100,14 @@ export default function DispatcherDashboard({
   const [editingWaypointId, setEditingWaypointId] = useState(null);
   const [editScheduledTime, setEditScheduledTime] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
-  const [customerName, setCustomerName] = useState("");
-  const [customerEmail, setCustomerEmail] = useState("");
-  const [customerPhone, setCustomerPhone] = useState("");
-  const [customerAddress, setCustomerAddress] = useState("");
+  const [customerId, setCustomerId] = useState("CUST001");
+  const [customerName, setCustomerName] = useState("AeroParts Manufacturing");
+  const [customerEmail, setCustomerEmail] = useState("logistics@aeroparts.com");
+  const [customerPhone, setCustomerPhone] = useState("+1 (416) 555-0100");
+  const [customerAddress, setCustomerAddress] = useState(
+    "150 Industrial Pkwy, Sector 4, Toronto, ON"
+  );
+  const [pbNum, setPbNum] = useState("");
   const [shipperName, setShipperName] = useState("");
   const [shipperAddress, setShipperAddress] = useState("");
   const [shipperPhone, setShipperPhone] = useState("");
@@ -108,7 +133,7 @@ export default function DispatcherDashboard({
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [isUploadingRateCon, setIsUploadingRateCon] = useState(false);
   const getDriverRecommendations = (loadWeight, loadPallets, loadOrigin) => {
-    return drivers
+    return mockDrivers
       .map((drv) => {
         const activeShipmentsForDriver = shipments.filter(
           (s) => s.driverId === drv.id && s.status !== "delivered"
@@ -128,17 +153,17 @@ export default function DispatcherDashboard({
         let currentRegion = "Midwest Corridor";
         let isNearby = false;
         let distanceMiles = 45;
-        // if (drv.id === "DRV001") {
-        //   currentRegion = "Toronto/Chicago Corridor";
-        // } else if (drv.id === "DRV002") {
-        //   currentRegion = "Pacific Northwest";
-        // } else if (drv.id === "DRV003") {
-        //   currentRegion = "Southwest Region";
-        // } else if (drv.id === "DRV004") {
-        //   currentRegion = "Great Lakes Local";
-        // } else if (drv.id === "DRV005") {
-        //   currentRegion = "Northeast Corridor";
-        // }
+        if (drv.id === "DRV001") {
+          currentRegion = "Toronto/Chicago Corridor";
+        } else if (drv.id === "DRV002") {
+          currentRegion = "Pacific Northwest";
+        } else if (drv.id === "DRV003") {
+          currentRegion = "Southwest Region";
+        } else if (drv.id === "DRV004") {
+          currentRegion = "Great Lakes Local";
+        } else if (drv.id === "DRV005") {
+          currentRegion = "Northeast Corridor";
+        }
         const originLower = (loadOrigin || "").toLowerCase();
         if (
           drv.id === "DRV001" &&
@@ -242,42 +267,40 @@ export default function DispatcherDashboard({
         }
         if (globalSearchQuery.trim() !== "") {
           const query = globalSearchQuery.toLowerCase();
-          const matchesTracking = s.trackingNumber
-            .toLowerCase()
-            .includes(query);
-          const matchesCustomer = s.customerName.toLowerCase().includes(query);
-          const matchesDriver = s.driverName.toLowerCase().includes(query);
+          const matchesTracking = s.load_number.toLowerCase().includes(query);
+          const matchesCustomer = s.customer_name.toLowerCase().includes(query);
+          const matchesDriver = s.driver_name.toLowerCase().includes(query);
           const matchesCity =
-            s.originCity.toLowerCase().includes(query) ||
-            s.destinationCity.toLowerCase().includes(query);
-          const shipperNames = s.waypoints
-            .filter((w) => w.stopType === "pickup")
-            .map((w) => w.companyName.toLowerCase());
-          const matchesShipperName = shipperNames.some((name) =>
+            s.customer_billing_address.toLowerCase().includes(query) ||
+            s.destination.toLowerCase().includes(query);
+          const shipperNames = s?.waypoints
+            ?.filter((w) => w.stopType === "pickup")
+            ?.map((w) => w.companyName.toLowerCase());
+          const matchesShipperName = shipperNames?.some((name) =>
             name.includes(query)
           );
-          const shipperAddresses = s.waypoints
-            .filter((w) => w.stopType === "pickup")
-            .map((w) => w.address.toLowerCase());
-          const matchesShipperAddress = shipperAddresses.some((addr) =>
+          const shipperAddresses = s?.waypoints
+            ?.filter((w) => w.stopType === "pickup")
+            ?.map((w) => w.address.toLowerCase());
+          const matchesShipperAddress = shipperAddresses?.some((addr) =>
             addr.includes(query)
           );
-          const consigneeNames = s.waypoints
-            .filter((w) => w.stopType === "delivery")
-            .map((w) => w.companyName.toLowerCase());
-          const matchesConsigneeName = consigneeNames.some((name) =>
+          const consigneeNames = s?.waypoints
+            ?.filter((w) => w.stopType === "delivery")
+            ?.map((w) => w.companyName.toLowerCase());
+          const matchesConsigneeName = consigneeNames?.some((name) =>
             name.includes(query)
           );
-          const consigneeAddresses = s.waypoints
-            .filter((w) => w.stopType === "delivery")
-            .map((w) => w.address.toLowerCase());
-          const matchesConsigneeAddress = consigneeAddresses.some((addr) =>
+          const consigneeAddresses = s?.waypoints
+            ?.filter((w) => w.stopType === "delivery")
+            ?.map((w) => w.address.toLowerCase());
+          const matchesConsigneeAddress = consigneeAddresses?.some((addr) =>
             addr.includes(query)
           );
-          const matchesPickupLocation = s.originCity
+          const matchesPickupLocation = s.customer_billing_address
             .toLowerCase()
             .includes(query);
-          const matchesDeliveryLocation = s.destinationCity
+          const matchesDeliveryLocation = s.destination
             .toLowerCase()
             .includes(query);
           if (searchField === "trackingNumber") return matchesTracking;
@@ -332,8 +355,8 @@ export default function DispatcherDashboard({
             .join(", ");
           compareValue = nameA.localeCompare(nameB);
         } else if (sortBy === "shipperAddress") {
-          const addrA = a.waypoints
-            .filter((w) => w.stopType === "pickup")
+          const addrA = a?.waypoints
+            ?.filter((w) => w.stopType === "pickup")
             .map((w) => w.address)
             .join(", ");
           const addrB = b.waypoints
@@ -377,12 +400,16 @@ export default function DispatcherDashboard({
     sortOrder,
   ]);
   const handleConsolidateTrips = () => {
+    if (!consolidationDriverId) {
+      alert("Please select a driver");
+      return;
+    }
     if (selectedConsolidationIds.length === 0) {
       alert("Please select at least one load to consolidate into this trip.");
       return;
     }
     const numericTripNumbers = trips
-      .map((t) => parseInt(t.tripNumber, 10))
+      .map((t) => parseInt(t.trip_number, 10))
       .filter((num) => !isNaN(num) && num >= 1e4);
     const nextTripNum =
       numericTripNumbers.length > 0
@@ -393,13 +420,15 @@ export default function DispatcherDashboard({
     const selectedLoads = shipments.filter((s) =>
       selectedConsolidationIds.includes(s.id)
     );
-    const totalWeight = selectedLoads.reduce((sum, s) => sum + s.weightLbs, 0);
+    const totalWeight = selectedLoads.reduce(
+      (sum, s) => sum + Number(s.weight),
+      0
+    );
     const totalPallets = selectedLoads.reduce(
-      (sum, s) => sum + s.palletCount,
+      (sum, s) => sum + Number(s.pieces),
       0
     );
     const newTrip = {
-      id: tripId,
       tripNumber,
       driverId: consolidationDriverId,
       driverName: consolidationDriverName,
@@ -409,7 +438,6 @@ export default function DispatcherDashboard({
       shipmentIds: [...selectedConsolidationIds],
       totalWeightLbs: totalWeight,
       totalPallets,
-      createdAt: /* @__PURE__ */ new Date().toISOString(),
     };
     selectedLoads.forEach((shipment) => {
       const updatedShipment = {
@@ -427,9 +455,9 @@ export default function DispatcherDashboard({
       onAddTrip(newTrip);
     }
     setSelectedConsolidationIds([]);
-    alert(
-      `Successfully consolidated ${selectedLoads.length} loads into Trip #${tripNumber} under driver ${consolidationDriverName}!`
-    );
+
+    setConsolidationDriverId("");
+    setConsolidationDriverName("");
   };
   useEffect(() => {
     if (selectedShipment && onMarkMessagesAsRead) {
@@ -440,7 +468,7 @@ export default function DispatcherDashboard({
     if (globalSearchQuery.trim()) {
       const query = globalSearchQuery.trim().toLowerCase();
       const matchedShipment = shipments.find(
-        (s) => s.trackingNumber.toLowerCase() === query
+        (s) => s.load_number.toLowerCase() === query
       );
       if (matchedShipment) {
         setSelectedShipment(matchedShipment);
@@ -662,7 +690,7 @@ export default function DispatcherDashboard({
           },
         ],
       };
-      await addShipment(newShipment);
+      onAddShipment(newShipment);
       setSelectedShipment(newShipment);
       setIsDetailModalOpen(true);
     } catch (err) {
@@ -674,17 +702,54 @@ export default function DispatcherDashboard({
   const handleCreateLoad = async (e) => {
     e.preventDefault();
     if (!customerName || !origin || !destination) return;
-    console.log(shipments);
-    const numericTrackingNumbers = shipments
-      .map((s) => parseInt(s.trackingNumber, 10))
-      .filter((num) => !isNaN(num) && num >= 1e4);
-    const nextNum =
-      numericTrackingNumbers.length > 0
-        ? Math.max(...numericTrackingNumbers) + 1
-        : 10006;
-    const trackingNumber = String(nextNum);
+    // Robust parsing of load/tracking numbers (supporting custom prefixes like "LOAD " or "L" or "LD-")
+    let maxNum = 10005;
+    let preferredPrefix = "";
+    let hasCustomPrefix = false;
+
+    shipments.forEach((s) => {
+      const numStr = String(s.trackingNumber || s.load_number || "");
+      // Match optional prefix followed by trailing digits
+      const match = numStr.match(/^(.*?)(\d+)$/);
+      if (match) {
+        const prefix = match[1];
+        const num = parseInt(match[2], 10);
+        if (!isNaN(num) && num > maxNum) {
+          maxNum = num;
+          preferredPrefix = prefix;
+          hasCustomPrefix = true;
+        }
+      } else {
+        // Fallback: extract any digits from the string
+        const digits = numStr.replace(/\D/g, "");
+        if (digits) {
+          const num = parseInt(digits, 10);
+          if (!isNaN(num) && num > maxNum) {
+            maxNum = num;
+            preferredPrefix = "";
+            hasCustomPrefix = false;
+          }
+        }
+      }
+    });
+
+    const nextNum = maxNum + 1;
+    const trackingNumber = hasCustomPrefix
+      ? `${preferredPrefix}${nextNum}`
+      : String(nextNum);
+
+    // Generate a secure unique database ID to prevent any duplicate/overwrite collisions
+    const uniqueId =
+      "SHP" +
+      Date.now().toString().slice(-6) +
+      Math.floor(10 + Math.random() * 90);
+
+    // Construct newShipment object with all properties required for both DB columns and frontend backwards compatibility
     const newShipment = {
-      trackingNumber,
+      load_number: trackingNumber,
+      pb_num: pbNum || "PB-" + trackingNumber,
+      customer_id: customerId,
+      customerId,
       customerName,
       customerEmail,
       customerPhone,
@@ -700,9 +765,15 @@ export default function DispatcherDashboard({
       driverName,
       truckNumber: truck,
       trailerNumber: trailer,
+      truck_id: truck,
+      trailer_id: trailer,
       originCity: origin,
       destinationCity: destination,
       cargoDescription: cargo,
+      commodity: cargo,
+      weight: Number(weight),
+      pieces: Number(pallets),
+      rate: Math.round(distance * 4.5),
       weightLbs: Number(weight),
       palletCount: Number(pallets),
       totalDistanceMiles: Number(distance),
@@ -742,14 +813,18 @@ export default function DispatcherDashboard({
         },
       ],
     };
-    setSelectedShipment(newShipment);
-    await addShipment(newShipment);
-    setIsDetailModalOpen(true);
+    const success = await addShipment(newShipment);
+    if (success) {
+      setSelectedShipment(newShipment);
+    }
+    // setIsDetailModalOpen(true);
     setShowAddForm(false);
-    setCustomerName("");
-    setCustomerEmail("");
-    setCustomerPhone("");
-    setCustomerAddress("");
+    setCustomerId("CUST001");
+    setCustomerName("AeroParts Manufacturing");
+    setCustomerEmail("logistics@aeroparts.com");
+    setCustomerPhone("+1 (416) 555-0100");
+    setCustomerAddress("150 Industrial Pkwy, Sector 4, Toronto, ON");
+    setPbNum("");
     setShipperName("");
     setShipperAddress("");
     setShipperPhone("");
@@ -771,6 +846,8 @@ export default function DispatcherDashboard({
           m.senderName === selectedShipment.driverName
       )
     : [];
+
+  console.log(shipments);
   return (
     <div
       id="dispatcher-suite"
@@ -936,23 +1013,25 @@ export default function DispatcherDashboard({
                       Select Driver Profile
                     </label>
                     <select
+                      required
                       value={consolidationDriverId}
                       onChange={(e) => {
-                        const matched = drivers.find(
+                        const matched = mockDrivers.find(
                           (d) => d.id === e.target.value
                         );
                         if (matched) {
                           setConsolidationDriverId(matched.id);
-                          setConsolidationDriverName(matched.name);
+                          setConsolidationDriverName(matched.username);
                           setConsolidationTruck(matched.truck);
                           setConsolidationTrailer(matched.trailer);
                         }
                       }}
                       className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold"
                     >
-                      {drivers.map((drv) => (
+                      <option value="">Select a driver</option>
+                      {mockDrivers.map((drv) => (
                         <option key={drv.id} value={drv.id}>
-                          {drv.name}
+                          {drv.username}
                         </option>
                       ))}
                     </select>
@@ -1057,16 +1136,16 @@ export default function DispatcherDashboard({
                                     />
                                   </td>
                                   <td className="px-4 py-3 font-semibold text-slate-900">
-                                    <div>{s.trackingNumber}</div>
+                                    <div>{s.load_number}</div>
                                     <div className="text-3xs text-slate-500 font-normal truncate max-w-[120px]">
-                                      {s.customerName}
+                                      {s.customer_name}
                                     </div>
                                   </td>
                                   <td className="px-4 py-3 text-slate-700">
                                     <div className="flex items-center space-x-1">
-                                      <span>{s.originCity}</span>
-                                      <ArrowRight className="h-3 w-3 text-slate-400" />
-                                      <span>{s.destinationCity}</span>
+                                      <span>{s.customer_billing_address}</span>
+                                      <ArrowRight className="h-10 w-10 text-slate-400" />
+                                      <span>{s.destination}</span>
                                     </div>
                                   </td>
                                   <td className="px-4 py-3">
@@ -1081,7 +1160,7 @@ export default function DispatcherDashboard({
                                     </span>
                                   </td>
                                   <td className="px-4 py-3 font-mono font-medium text-slate-800">
-                                    {s.weightLbs.toLocaleString()} lbs
+                                    {s?.weightLbs?.toLocaleString()} lbs
                                   </td>
                                   <td className="px-4 py-3 font-mono font-medium text-slate-800">
                                     {s.palletCount || 2}
@@ -1125,11 +1204,11 @@ export default function DispatcherDashboard({
                       selectedConsolidationIds.includes(s.id)
                     );
                     const totalWeight = selectedLoads.reduce(
-                      (sum, s) => sum + s.weightLbs,
+                      (sum, s) => sum + Number(s.weight),
                       0
                     );
                     const totalPallets = selectedLoads.reduce(
-                      (sum, s) => sum + (s.palletCount || 2),
+                      (sum, s) => sum + (Number(s.pieces) || 2),
                       0
                     );
                     const hasFTL = selectedLoads.some(
@@ -1309,10 +1388,10 @@ export default function DispatcherDashboard({
                       const tripLoads = shipments.filter(
                         (s) => s.tripId === trip.id
                       );
-                      const matchesTripNum = trip.tripNumber
+                      const matchesTripNum = trip.trip_number
                         .toLowerCase()
                         .includes(query);
-                      const matchesDriver = trip.driverName
+                      const matchesDriver = trip.trip.driver_name
                         .toLowerCase()
                         .includes(query);
                       const matchesTruck =
@@ -1366,10 +1445,10 @@ export default function DispatcherDashboard({
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5">
                               <span className="text-xs font-bold text-slate-900">
-                                Trip #{trip.tripNumber}
+                                Trip #{trip.trip_number}
                               </span>
                               <span className="text-3xs font-mono bg-indigo-50 text-indigo-700 px-1 py-0.2 rounded border border-indigo-100 uppercase font-bold">
-                                {trip.shipmentIds.length} loads
+                                {trip?.shipment_ids?.length} loads
                               </span>
                             </div>
 
@@ -1424,7 +1503,7 @@ export default function DispatcherDashboard({
                                 Driver:
                               </span>
                               <div className="text-slate-700 font-bold text-2xs font-sans mt-0.5 truncate">
-                                {trip.driverName}
+                                {trip.driver_name}
                               </div>
                             </div>
                             <div>
@@ -1444,7 +1523,7 @@ export default function DispatcherDashboard({
                                 Weight:
                               </span>
                               <div className="text-slate-700 font-bold text-2xs mt-0.5">
-                                {trip.totalWeightLbs.toLocaleString()} lbs
+                                {trip?.total_weight_lbs || 0.0} lbs
                               </div>
                             </div>
                             <div>
@@ -1452,7 +1531,7 @@ export default function DispatcherDashboard({
                                 Space:
                               </span>
                               <div className="text-slate-700 font-bold text-2xs mt-0.5">
-                                {trip.totalPallets} Pallets
+                                {trip?.total_pallets || 0} Pallets
                               </div>
                             </div>
                           </div>
@@ -1515,7 +1594,7 @@ export default function DispatcherDashboard({
                                   onClick={() => {
                                     if (
                                       confirm(
-                                        `Are you sure you want to disassemble Trip #${trip.tripNumber}? This will unassign all ${tripLoads.length} shipments and return them to independent loads.`
+                                        `Are you sure you want to disassemble Trip #${trip.trip_number}? This will unassign all ${tripLoads.length} shipments and return them to independent loads.`
                                       )
                                     ) {
                                       tripLoads.forEach((s) => {
@@ -1529,7 +1608,7 @@ export default function DispatcherDashboard({
                                         onRemoveTrip(trip.id);
                                       }
                                       alert(
-                                        `Trip #${trip.tripNumber} disassembled successfully.`
+                                        `Trip #${trip.trip_number} disassembled successfully.`
                                       );
                                     }
                                   }}
@@ -1559,9 +1638,7 @@ export default function DispatcherDashboard({
               <div className="px-5 py-4 border-b border-slate-150 flex items-center justify-between bg-slate-50">
                 <div className="flex items-center space-x-2">
                   <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
-                  <h3 className="text-base font-semibold text-slate-900">
-                    Active Shipments Fleet Manager
-                  </h3>
+                  <h3 className="text-base font-semibold text-slate-900"></h3>
                 </div>
                 {(currentUser.role === "super_admin" ||
                   currentUser.role === "admin" ||
@@ -1616,7 +1693,39 @@ export default function DispatcherDashboard({
                     <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                       1. Customer Details
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                      <div>
+                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          Select Profile
+                        </label>
+                        <select
+                          value={customerId}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setCustomerId(val);
+                            const chosen = customers.find((c) => c.id === val);
+                            if (chosen) {
+                              setCustomerName(chosen.name);
+                              setCustomerEmail(chosen.email || "");
+                              setCustomerPhone(chosen.phone || "");
+                              setCustomerAddress(chosen.address || "");
+                            } else if (val === "NEW") {
+                              setCustomerName("");
+                              setCustomerEmail("");
+                              setCustomerPhone("");
+                              setCustomerAddress("");
+                            }
+                          }}
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                        >
+                          {customers.map((cust) => (
+                            <option key={cust.id} value={cust.id}>
+                              {cust.name} ({cust.id})
+                            </option>
+                          ))}
+                          <option value="NEW">Custom / New Profile</option>
+                        </select>
+                      </div>
                       <div>
                         <label className="block text-3xs font-bold text-slate-500 uppercase">
                           Customer Account Name
@@ -1807,15 +1916,37 @@ export default function DispatcherDashboard({
                           Assigned Driver
                         </label>
                         <select
+                          required
                           value={driverId}
-                          onChange={(e) => setDriverId(e.target.value)}
+                          onChange={(e) => {
+                            const val = e.target.value;
+                            setDriverId(val);
+                            const matched = mockDrivers.find(
+                              (d) => d.id === val
+                            );
+                            if (matched) {
+                              setDriverName(matched.name);
+                              setTruck(
+                                matched.truckNumber ||
+                                  matched.truck ||
+                                  "TRK-102"
+                              );
+                              setTrailer(
+                                matched.trailerNumber ||
+                                  matched.trailer ||
+                                  "TRL-504"
+                              );
+                            }
+                          }}
                           className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800"
                         >
-                          <option value="">Select Driver</option>
-
-                          {drivers.map((driver) => (
-                            <option key={driver.id} value={driver.id}>
-                              {driver.username}
+                          <option value="" defaultChecked>
+                            Select a driver
+                          </option>
+                          {mockDrivers.map((drv) => (
+                            <option key={drv.id} value={drv.id}>
+                              {drv.username} (
+                              {drv.truck || drv.truckNumber || "No Truck"})
                             </option>
                           ))}
                         </select>
@@ -2132,9 +2263,10 @@ export default function DispatcherDashboard({
                     </button>
                     <button
                       type="submit"
-                      className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-sm"
+                      className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-sm disabled:opacity-50"
+                      disabled={isLoading}
                     >
-                      Confirm Dispatch
+                      {isLoading ? "Processing..." : "Confirm Dispatch"}
                     </button>
                   </div>
                 </form>
@@ -2346,7 +2478,7 @@ export default function DispatcherDashboard({
                             <td className="px-5 py-4">
                               <div className="flex flex-wrap items-center gap-1.5">
                                 <span className="font-semibold text-slate-900">
-                                  {s.trackingNumber}
+                                  {s.load_number}
                                 </span>
                                 <span
                                   className={`px-1.5 py-0.5 rounded text-3xs font-mono font-bold uppercase ${
@@ -2390,9 +2522,9 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="flex items-center space-x-1 text-slate-700">
-                                <span>{s.originCity}</span>
-                                <ArrowRight className="h-3 w-3 text-slate-400" />
-                                <span>{s.destinationCity}</span>
+                                <span>{s.customer_billing_address}</span>
+                                <ArrowRight className="h-10 w-10  text-slate-400" />
+                                <span>{s.destination}</span>
                               </div>
                               <div className="text-slate-500 text-2xs mt-0.5">
                                 {s?.waypoints?.length} Total Waypoints
@@ -2408,10 +2540,11 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="text-slate-900">
-                                {s.driverName}
+                                {s.driver_name}
                               </div>
                               <div className="text-slate-500 text-2xs mt-0.5 font-mono">
-                                {s.truckNumber} • {s.trailerNumber}
+                                {s.truck_umber || "TRuck"} •{" "}
+                                {s.trailer_number || "Trailer"}
                               </div>
                             </td>
                             <td className="px-5 py-4">
@@ -2431,7 +2564,7 @@ export default function DispatcherDashboard({
                                       : "bg-slate-100 text-slate-800"
                                   }`}
                                 >
-                                  {s.borderConnectStatus}
+                                  {s.borderConnectStatus || "N/A"}
                                 </span>
                               )}
                             </td>
@@ -3028,13 +3161,13 @@ export default function DispatcherDashboard({
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-slate-500">Customer:</span>
                       <span className="font-semibold text-slate-800">
-                        {selectedShipment.customerName}
+                        {selectedShipment.customer_name}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-slate-500">Dispatcher:</span>
                       <span className="font-semibold text-slate-800">
-                        {selectedShipment.dispatcherName || "Unassigned"}
+                        {selectedShipment.dispatcher_name || "Unassigned"}
                       </span>
                     </div>
                     <div className="flex justify-between items-center text-xs">
@@ -3047,7 +3180,7 @@ export default function DispatcherDashboard({
                     <div className="flex justify-between items-center text-xs">
                       <span className="text-slate-500">Driver/Equip:</span>
                       <span className="font-semibold text-slate-800">
-                        {selectedShipment.driverName} (
+                        {selectedShipment.driver_name} (
                         {selectedShipment.truckNumber})
                       </span>
                     </div>
@@ -3133,14 +3266,14 @@ export default function DispatcherDashboard({
                         }
                         value={selectedShipment.driverId || ""}
                         onChange={(e) => {
-                          const matched = drivers.find(
+                          const matched = mockDrivers.find(
                             (d) => d.id === e.target.value
                           );
                           if (matched) {
                             const updated = {
                               ...selectedShipment,
                               driverId: matched.id,
-                              driverName: matched.name,
+                              driverName: matched.username,
                               truckNumber: matched.truck,
                               trailerNumber: matched.trailer,
                             };
@@ -3151,9 +3284,9 @@ export default function DispatcherDashboard({
                         className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 disabled:bg-slate-100 disabled:text-slate-400"
                       >
                         <option value="">-- Choose/Reassign Driver --</option>
-                        {drivers.map((drv) => (
+                        {mockDrivers.map((drv) => (
                           <option key={drv.id} value={drv.id}>
-                            {drv.name} (Truck: {drv.truck} | Trailer:{" "}
+                            {drv.username} (Truck: {drv.truck} | Trailer:{" "}
                             {drv.trailer})
                           </option>
                         ))}
@@ -3211,7 +3344,7 @@ export default function DispatcherDashboard({
                                     const updated = {
                                       ...selectedShipment,
                                       driverId: driver.id,
-                                      driverName: driver.name,
+                                      driverName: driver.username,
                                       truckNumber: driver.truck,
                                       trailerNumber: driver.trailer,
                                     };
@@ -3226,7 +3359,7 @@ export default function DispatcherDashboard({
                                 >
                                   <div className="flex items-center justify-between w-full">
                                     <span className="font-extrabold text-[11px]">
-                                      {driver.name}
+                                      {driver.username}
                                     </span>
                                     <span
                                       className={`text-[8.5px] font-mono font-bold ${
@@ -3517,7 +3650,7 @@ export default function DispatcherDashboard({
                     <div className="flex items-center space-x-2">
                       <MessageSquare className="h-4 w-4 text-indigo-600" />
                       <span className="text-xs font-bold text-slate-800 font-mono uppercase">
-                        Driver Comms: {selectedShipment.driverName}
+                        Driver Comms: {selectedShipment.driver_name}
                       </span>
                     </div>
                     <div className="flex items-center space-x-1">
@@ -3534,7 +3667,7 @@ export default function DispatcherDashboard({
                       <div className="text-center text-slate-400 py-12 text-2xs">
                         No communications logged. Type a message below to
                         coordinate border manifests or routing warnings with{" "}
-                        {selectedShipment.driverName}.
+                        {selectedShipment.driver_name}.
                       </div>
                     ) : (
                       activeChatMessages.map((msg, index) => {
@@ -3707,7 +3840,7 @@ export default function DispatcherDashboard({
                         type="text"
                         value={newMessage}
                         onChange={(e) => setNewMessage(e.target.value)}
-                        placeholder={`Message ${selectedShipment.driverName}...`}
+                        placeholder={`Message ${selectedShipment.driver_name}...`}
                         className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-xs bg-slate-50 focus:bg-white focus:outline-none"
                       />
                       <button
@@ -3732,7 +3865,7 @@ export default function DispatcherDashboard({
           <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
               <h3 className="text-lg font-bold text-slate-900">
-                Edit Load Details: {editedShipment.trackingNumber}
+                Edit Load Details: {editedShipment.load_number}
               </h3>
               <button
                 onClick={() => setIsEditingDetails(false)}
@@ -3915,7 +4048,7 @@ export default function DispatcherDashboard({
                     <select
                       value={editedShipment.driverId || ""}
                       onChange={(e) => {
-                        const matched = drivers.find(
+                        const matched = mockDrivers.find(
                           (d) => d.id === e.target.value
                         );
                         if (matched) {
@@ -3933,7 +4066,7 @@ export default function DispatcherDashboard({
                       <option value="">
                         -- Choose/Reassign an Active Driver --
                       </option>
-                      {drivers.map((drv) => (
+                      {mockDrivers.map((drv) => (
                         <option key={drv.id} value={drv.id}>
                           {drv.name} (Truck: {drv.truck} | Trailer:{" "}
                           {drv.trailer})
