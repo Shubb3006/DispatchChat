@@ -28,6 +28,8 @@ import {
 } from "lucide-react";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
+import { axiosInstance } from "@/lib/axios";
+import TripDetailsModal from "./TripDetailModal";
 export default function DispatcherDashboard({
   shipments,
   onAddTrip,
@@ -39,6 +41,9 @@ export default function DispatcherDashboard({
   onMarkMessagesAsRead,
   currentUser,
 }) {
+  const [selectedTrip, setSelectedTrip] = useState(null);
+  const [isTripModalOpen, setIsTripModalOpen] = useState(false);
+
   const { addShipment, isLoading } = useShipmentStore();
   const mockDrivers = useDriverStore((state) => state.drivers);
   const fetchDrivers = useDriverStore((state) => state.fetchDrivers);
@@ -53,7 +58,6 @@ export default function DispatcherDashboard({
 
   const fetchTrips = useTripStore((state) => state.fetchTrips);
   const trips = useTripStore((state) => state.trips);
-
   useEffect(() => {
     fetchDrivers();
     fetchTrucks();
@@ -447,7 +451,7 @@ export default function DispatcherDashboard({
         driverName: consolidationDriverName,
         truckNumber: consolidationTruck,
         trailerNumber: consolidationTrailer,
-        status: "dispatched",
+        status: "assigned",
       };
       onUpdateShipment(updatedShipment);
     });
@@ -476,7 +480,8 @@ export default function DispatcherDashboard({
       } else {
         const matchedTrip = trips.find(
           (t) =>
-            t.tripNumber.toLowerCase() === query || t.id.toLowerCase() === query
+            t?.tripNumber?.toLowerCase() === query ||
+            t?.id?.toLowerCase() === query
         );
         if (matchedTrip) {
           setActiveView("consolidation");
@@ -847,7 +852,25 @@ export default function DispatcherDashboard({
       )
     : [];
 
-  console.log(shipments);
+  const filteredTrips = trips.filter((trip) => {
+    if (!globalSearchQuery) return true;
+
+    const q = globalSearchQuery.toLowerCase();
+
+    const tripLoads = shipments.filter(
+      (shipment) => shipment.tripId === trip.id
+    );
+
+    return (
+      trip.trip_number.toLowerCase().includes(q) ||
+      trip.driver_name.toLowerCase().includes(q) ||
+      tripLoads.some((load) =>
+        [load.customer_name, load.destination, load.tracking_number]
+          .filter(Boolean)
+          .some((value) => value.toLowerCase().includes(q))
+      )
+    );
+  });
   return (
     <div
       id="dispatcher-suite"
@@ -1022,8 +1045,8 @@ export default function DispatcherDashboard({
                         if (matched) {
                           setConsolidationDriverId(matched.id);
                           setConsolidationDriverName(matched.username);
-                          setConsolidationTruck(matched.truck);
-                          setConsolidationTrailer(matched.trailer);
+                          setConsolidationTruck(matched?.truck);
+                          setConsolidationTrailer(matched?.trailer);
                         }
                       }}
                       className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold"
@@ -1086,9 +1109,8 @@ export default function DispatcherDashboard({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {shipments.filter(
-                          (s) => !s.tripId && s.status !== "delivered"
-                        ).length === 0 ? (
+                        {shipments.filter((s) => s.status === "pending")
+                          .length === 0 ? (
                           <tr>
                             <td
                               colSpan={7}
@@ -1099,9 +1121,7 @@ export default function DispatcherDashboard({
                           </tr>
                         ) : (
                           shipments
-                            .filter(
-                              (s) => !s.tripId && s.status !== "delivered"
-                            )
+                            .filter((s) => s.status === "pending")
                             .map((s) => {
                               const isChecked =
                                 selectedConsolidationIds.includes(s.id);
@@ -1374,6 +1394,7 @@ export default function DispatcherDashboard({
               </div>
 
               {/* Trips list */}
+
               <div className="space-y-3.5 max-h-[600px] overflow-y-auto pr-1">
                 {trips.length === 0 ? (
                   <p className="text-xs text-slate-400 text-center py-6 font-medium">
@@ -1391,18 +1412,18 @@ export default function DispatcherDashboard({
                       const matchesTripNum = trip.trip_number
                         .toLowerCase()
                         .includes(query);
-                      const matchesDriver = trip.trip.driver_name
+                      const matchesDriver = trip.driver_name
                         .toLowerCase()
                         .includes(query);
                       const matchesTruck =
-                        trip.truckNumber.toLowerCase().includes(query) ||
-                        trip.trailerNumber.toLowerCase().includes(query);
+                        trip?.truckNumber?.toLowerCase().includes(query) ||
+                        trip?.trailerNumber?.toLowerCase().includes(query);
                       const matchesLoads = tripLoads.some(
                         (s) =>
-                          s.trackingNumber.toLowerCase().includes(query) ||
-                          s.customerName.toLowerCase().includes(query) ||
-                          s.originCity.toLowerCase().includes(query) ||
-                          s.destinationCity.toLowerCase().includes(query) ||
+                          s.tracking_number.toLowerCase().includes(query) ||
+                          s.customer_name.toLowerCase().includes(query) ||
+                          s.customer_city.toLowerCase().includes(query) ||
+                          s.destination.toLowerCase().includes(query) ||
                           s.waypoints.some(
                             (w) =>
                               w.companyName.toLowerCase().includes(query) ||
@@ -1436,11 +1457,30 @@ export default function DispatcherDashboard({
                               ? "bg-slate-50 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
                               : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                           }`}
-                          onClick={() =>
-                            setShowSelectedTripDetailsId(
-                              isExpanded ? null : trip.id
-                            )
-                          }
+                          // onClick={() =>
+                          //   setShowSelectedTripDetailsId(
+                          //     isExpanded ? null : trip.id
+                          //   )
+                          // }
+                          onClick={async () => {
+                            const response = await axiosInstance.get(
+                              `/trips/${trip.id}`
+                            );
+
+                            setSelectedTrip(response.data.trip);
+                            setIsTripModalOpen(true);
+                          }}
+                          // onClick={() => {
+                          //   const tripWithLoads = {
+                          //     ...trip,
+                          //     shipments: shipments.filter((s) =>
+                          //       trip.shipment_ids.includes(s.id)
+                          //     ),
+                          //   };
+
+                          //   setSelectedTrip(tripWithLoads);
+                          //   setIsTripModalOpen(true);
+                          // }}
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5">
@@ -1454,7 +1494,7 @@ export default function DispatcherDashboard({
 
                             {/* Editable Trip Status dropdown */}
                             <div onClick={(e) => e.stopPropagation()}>
-                              <select
+                              {/* <select
                                 value={trip.status}
                                 onChange={(e) => {
                                   const newStatus = e.target.value;
@@ -1471,7 +1511,7 @@ export default function DispatcherDashboard({
                                         newStatus === "in_transit"
                                           ? "in_transit"
                                           : newStatus === "completed"
-                                          ? "delivered"
+                                          ? "completed"
                                           : newStatus === "dispatched"
                                           ? "dispatched"
                                           : "pending",
@@ -1492,7 +1532,20 @@ export default function DispatcherDashboard({
                                 <option value="dispatched">Dispatched</option>
                                 <option value="in_transit">In Transit</option>
                                 <option value="completed">Completed</option>
-                              </select>
+                              </select> */}
+                              <span
+                                className={`text-2xs font-bold px-2 py-1 rounded capitalize ${
+                                  trip.status === "completed"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : trip.status === "in_transit"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : trip.status === "dispatched"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : "bg-slate-100 text-slate-800"
+                                }`}
+                              >
+                                {trip.status.replace("_", " ")}
+                              </span>
                             </div>
                           </div>
 
@@ -1594,7 +1647,7 @@ export default function DispatcherDashboard({
                                   onClick={() => {
                                     if (
                                       confirm(
-                                        `Are you sure you want to disassemble Trip #${trip.trip_number}? This will unassign all ${tripLoads.length} shipments and return them to independent loads.`
+                                        `Are you sure you want to disassemble Trip #${trip.trip_number}? This will unassign all ${trip.shipment_ids.length} shipments and return them to independent loads.`
                                       )
                                     ) {
                                       tripLoads.forEach((s) => {
@@ -1607,9 +1660,6 @@ export default function DispatcherDashboard({
                                       if (onRemoveTrip) {
                                         onRemoveTrip(trip.id);
                                       }
-                                      alert(
-                                        `Trip #${trip.trip_number} disassembled successfully.`
-                                      );
                                     }
                                   }}
                                   className="text-rose-600 hover:text-white border border-rose-200 hover:bg-rose-600 hover:border-rose-600 px-2.5 py-1 rounded text-3xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
@@ -4191,6 +4241,19 @@ export default function DispatcherDashboard({
             </div>
           </div>
         </div>
+      )}
+      {isTripModalOpen && (
+        <TripDetailsModal
+          isOpen={isTripModalOpen}
+          onClose={() => {
+            setIsTripModalOpen(false);
+            setSelectedTrip(null);
+          }}
+          setSelectedTrip={setSelectedTrip}
+          trip={selectedTrip}
+          onUpdateShipment={onUpdateShipment}
+          onRemoveTrip={onRemoveTrip}
+        />
       )}
 
       {selectedShipment && (

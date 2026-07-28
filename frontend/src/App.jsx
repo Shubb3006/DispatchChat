@@ -36,6 +36,10 @@ function LogiSyncApp() {
   const setCurrentUser = (user) => useAuthStore.setState({ currentUser: user });
 
   const checkAuth = useAuthStore((state) => state.checkAuth);
+  const fetchShipments = useShipmentStore((state) => state.fetchShipments);
+  useEffect(() => {
+    fetchShipments();
+  }, [checkAuth]);
 
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
   useEffect(() => {
@@ -118,6 +122,9 @@ function LogiSyncApp() {
   const activeShipmentsCount = shipments.filter(
     (s) => s.status !== "delivered" && s.status !== "pending"
   ).length;
+  console.log(shipments);
+
+  console.log(activeShipmentsCount);
 
   if (isCheckingAuth) {
     return (

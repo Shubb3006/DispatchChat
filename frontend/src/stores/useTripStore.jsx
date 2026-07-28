@@ -41,6 +41,7 @@ export const useTripStore = create((set, get) => ({
   },
 
   addTrip: async (trip) => {
+    console.log("Ss");
     const payLoad = {
       trip_number: trip.tripNumber,
       driver_id: trip.driverId,
@@ -59,6 +60,7 @@ export const useTripStore = create((set, get) => ({
         isLoading: false,
       }));
       toast.success(`Trip added successfully`);
+      // await useShipmentStore.getState().fetchShipments();
     } catch (err) {
       console.error("Failed to add trip:", err);
       set({ error: "Failed to add trip", isLoading: false });
@@ -100,6 +102,7 @@ export const useTripStore = create((set, get) => ({
         isLoading: false,
       }));
       toast.success("Trip removed");
+      await useShipmentStore.getState().fetchShipments();
     } catch (err) {
       console.error("Failed to delete trip:", err);
       set({ error: "Failed to delete trip", isLoading: false });

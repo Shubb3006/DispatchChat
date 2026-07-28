@@ -50,6 +50,15 @@ for (const shipmentId of shipmentIds) {
       `,
       [trip.id, shipmentId]
     );
+
+    await pool.query(
+      `
+      UPDATE loads
+      SET status = 'assigned'
+      WHERE id = $1
+      `,
+      [shipmentId]
+    );
   }
 
 const finalTrip = await pool.query(
@@ -321,10 +330,77 @@ export const getAllTrips = async (req, res) => {
       });
     }
   };
-  export const deleteTrip = async (req, res) => {
+//   export const deleteTrip = async (req, res) => {
+
+//   try {
+//     const { id } = req.params;
+
+//     const result = await pool.query(
+//       `
+//       DELETE FROM trips
+//       WHERE id = $1
+//       RETURNING *;
+//       `,
+//       [id]
+//     );
+
+//     if (result.rows.length === 0) {
+//       return res.status(404).json({
+//         success: false,
+//         message: "Trip not found",
+//       });
+//     }
+
+//     res.json({
+//       success: true,
+//       message: "Trip deleted successfully",
+//     });
+//   } catch (error) {
+//     console.log(error);
+
+//     res.status(500).json({
+//       success: false,
+//       message: "Server Error",
+//     });
+//   }
+// };
+
+export const deleteTrip = async (req, res) => {
   try {
     const { id } = req.params;
 
+    // Get all loads belonging to this trip
+    const loadsResult = await pool.query(
+      `
+      SELECT load_id
+      FROM trip_loads
+      WHERE trip_id = $1
+      `,
+      [id]
+    );
+
+    // Remove mappings
+    await pool.query(
+      `
+      DELETE FROM trip_loads
+      WHERE trip_id = $1
+      `,
+      [id]
+    );
+
+    // (Optional) Reset load status
+    for (const row of loadsResult.rows) {
+      await pool.query(
+        `
+        UPDATE loads
+        SET status = 'pending'
+        WHERE id = $1
+        `,
+        [row.load_id]
+      );
+    }
+
+    // Delete trip
     const result = await pool.query(
       `
       DELETE FROM trips

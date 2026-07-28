@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
+import { useTripStore } from "./useTripStore";
 
 export const useShipmentStore = create((set, get) => ({
   shipments: [],
@@ -14,6 +15,7 @@ export const useShipmentStore = create((set, get) => ({
       const response = await axiosInstance
         .get("/load")
         .catch(() => axiosInstance.get("/load"));
+      console.log(response.data);
       const fetchedLoads = response.data.loads || [];
 
       // Map and parse the serialized load objects from data field if needed
@@ -23,6 +25,7 @@ export const useShipmentStore = create((set, get) => ({
           : load.data || load;
       });
 
+      console.log(finalShipments);
       set({ shipments: finalShipments, isLoading: false });
     } catch (err) {
       console.error("Failed to fetch loads:", err);
@@ -103,6 +106,7 @@ export const useShipmentStore = create((set, get) => ({
         ),
         isLoading: false,
       }));
+      await useTripStore.getState().fetchTrips();
       toast.success(`Load #${shipment.load_number || shipment.id} updated`);
     } catch (err) {
       console.error("Failed to update load:", err);
