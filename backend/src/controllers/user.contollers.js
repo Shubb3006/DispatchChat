@@ -1,6 +1,6 @@
 // POST /api/users
 
-import pool from "../config/db";
+import pool from "../config/db.js";
 
 export const createUser = async (req, res) => {
     try {

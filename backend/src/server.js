@@ -4,8 +4,8 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 
 
-import authRoutes from "./routes/auth.routes";
-import loadRoutes from "./routes/load.routes";
+import authRoutes from "./routes/auth.routes.js";
+import loadRoutes from "./routes/load.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
 import driverRoutes from "./routes/driver.routes.js"

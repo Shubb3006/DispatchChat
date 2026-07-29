@@ -1,7 +1,7 @@
 import {Router} from "express";
-import { protectedRoute } from "../middlewares/auth.middleware";
-import { uploadDocument } from "../controllers/upload.controller";
-import { upload } from "../config/multer";
+import { protectedRoute } from "../middlewares/auth.middleware.js";
+import { uploadDocument } from "../controllers/upload.controller.js";
+import { upload } from "../config/multer.js";
 
 
 

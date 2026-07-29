@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import pool from "../config/db";
+import pool from "../config/db.js";
 
 export const protectedRoute = async (req,res,next) => {
 

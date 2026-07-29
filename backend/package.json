@@ -2,8 +2,9 @@
   "name": "logisync-backend",
   "version": "1.0.0",
   "private": true,
+  "type": "module",
   "scripts": {
-    "dev": "tsx watch src/server.js",
+    "dev": "nodemon src/server.js",
     "build": "tsc",
     "start": "node dist/server.js"
   },

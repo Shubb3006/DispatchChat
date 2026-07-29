@@ -1,6 +1,7 @@
-import pool from "../config/db";
+
 import  bcrypt  from 'bcrypt';
-import { generateToken } from "../lib/utils";
+import { generateToken } from "../lib/utils.js";
+import pool from '../config/db.js';
 
 
 export const login = async (req, res) => {

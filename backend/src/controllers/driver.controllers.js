@@ -1,4 +1,4 @@
-import pool from "../config/db";
+import pool from "../config/db.js";
 
 // Create Driver
 export const createDriver = async (req, res) => {

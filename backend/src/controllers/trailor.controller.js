@@ -1,4 +1,4 @@
-import pool from "../config/db";
+import pool from "../config/db.js";
 
 // Create Trailer
 export const createTrailer = async (req, res) => {

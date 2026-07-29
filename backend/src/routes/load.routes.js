@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { protectedRoute } from "../middlewares/auth.middleware";
-import { authorize } from "../middlewares/role.middleware";
-import { createLoad, getAllLoads,getLoadById,updateLoad ,updateLoadStatus,deleteLoad} from "../controllers/load.controller";
+import { protectedRoute } from "../middlewares/auth.middleware.js";
+import { authorize } from "../middlewares/role.middleware.js";
+import { createLoad, getAllLoads,getLoadById,updateLoad ,updateLoadStatus,deleteLoad} from "../controllers/load.controller.js";
 
 
 const router=Router();
@@ -45,4 +45,4 @@ router.delete(
     deleteLoad
 );
 
-module.exports = router;
+export default router;

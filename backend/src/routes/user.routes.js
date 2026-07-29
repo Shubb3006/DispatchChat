@@ -1,7 +1,7 @@
 import {Router} from "express";
-import { createUser, deleteUser, getUsers } from "../controllers/user.contollers";
-import { protectedRoute } from "../middlewares/auth.middleware";
-import { authorize } from "../middlewares/role.middleware";
+import { createUser, deleteUser, getUsers } from "../controllers/user.contollers.js";
+import { protectedRoute } from "../middlewares/auth.middleware.js";
+import { authorize } from "../middlewares/role.middleware.js";
 
 
 

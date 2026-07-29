@@ -8,8 +8,8 @@ import {
     deleteCustomer
 } from "../controllers/customer.controller.js";
 
-import { protectedRoute } from '../middlewares/auth.middleware';
-import { authorize } from '../middlewares/role.middleware';
+import { protectedRoute } from '../middlewares/auth.middleware.js';
+import { authorize } from '../middlewares/role.middleware.js';
 
 const router = express.Router();
 
