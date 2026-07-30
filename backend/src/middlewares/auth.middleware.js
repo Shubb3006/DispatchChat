@@ -30,12 +30,28 @@ export const protectedRoute = async (req,res,next) => {
 
         const result = await pool.query(
             `
-            SELECT 
-                id,
-                username,
-                role
-            FROM users
-            WHERE id=$1
+           SELECT
+    u.id,
+    u.username,
+    u.role,
+    u.allowed_modules,
+
+    d.id AS driver_id,
+    d.driver_code,
+    d.license_number,
+    d.license_expiry,
+    d.assigned_truck_number,
+    d.assigned_trailer_number,
+    d.current_duty_status,
+    d.status AS driver_status,
+    d.current_lat,
+    d.current_lng
+
+FROM users u
+LEFT JOIN drivers d
+ON u.id = d.user_id
+
+WHERE u.id = $1
             `,
             [
                 decoded.userId
@@ -53,7 +69,30 @@ export const protectedRoute = async (req,res,next) => {
         }
 
 
-        req.user = result.rows[0];
+        const user = result.rows[0];
+
+req.user = {
+  id: user.id,
+  username: user.username,
+  email: user.email,
+  role: user.role,
+  allowed_modules: user.allowed_modules,
+
+  driver: user.driver_id
+    ? {
+        id: user.driver_id,
+        driver_code: user.driver_code,
+        license_number: user.license_number,
+        license_expiry: user.license_expiry,
+        assigned_truck_number: user.assigned_truck_number,
+        assigned_trailer_number: user.assigned_trailer_number,
+        current_duty_status: user.current_duty_status,
+        status: user.driver_status,
+        current_lat: user.current_lat,
+        current_lng: user.current_lng,
+      }
+    : null,
+};
 
 
         next();

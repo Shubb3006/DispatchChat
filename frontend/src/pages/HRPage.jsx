@@ -42,6 +42,7 @@ const AVAILABLE_MODULES = [
 
 export default function HRPage() {
   const users = useAuthStore((state) => state.users);
+  const isLoading = useAuthStore((state) => state.isLoading);
   const currentUser = useAuthStore((state) => state.currentUser);
   const fetchUsers = useAuthStore((state) => state.fetchUsers);
   const addUser = useAuthStore((state) => state.addUser);
@@ -49,6 +50,7 @@ export default function HRPage() {
   const navigate = useNavigate();
 
   const [name, setName] = useState("");
+  const [password, setPassword] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("driver");
   const [selectedModules, setSelectedModules] = useState(["driver"]);
@@ -106,6 +108,10 @@ export default function HRPage() {
       setError("Please enter a full name.");
       return;
     }
+    if (!password.trim()) {
+      setError("Please Enter a password");
+      return;
+    }
     if (!username.trim()) {
       setError("Please enter a unique username.");
       return;
@@ -120,6 +126,7 @@ export default function HRPage() {
       id: "USR" + Math.floor(1e3 + Math.random() * 9e3),
       name: name.trim(),
       username: cleanUsername,
+      password,
       role,
       allowedModules:
         role === "admin" || role === "super_admin"
@@ -135,6 +142,7 @@ export default function HRPage() {
     );
     setName("");
     setUsername("");
+    setPassword("");
     setRole("driver");
     setSelectedModules(["driver"]);
   };
@@ -366,6 +374,24 @@ export default function HRPage() {
             </div>
           </div>
 
+          {/* password */}
+          <div className="space-y-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+              Password
+            </label>
+            <div className="relative">
+              <input
+              minLength={6}
+                type="password"
+                required
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="*********"
+                className="w-full text-xs border border-slate-200 rounded-lg pl-2 pr-2 py-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono"
+              />
+            </div>
+          </div>
+
           {/* Base Role Selector */}
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
@@ -459,10 +485,13 @@ export default function HRPage() {
           {/* Submit Button */}
           <button
             type="submit"
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm flex items-center justify-center space-x-1.5"
+            disabled={isLoading}
+            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-50"
           >
             <UserPlus className="h-4 w-4" />
-            <span>Create & Register User</span>
+            <span>
+              {isLoading ? "Adding user...." : "Create & Register User"}
+            </span>
           </button>
         </form>
       </div>

@@ -9,11 +9,38 @@ export const login = async (req, res) => {
     console.log(req.body)
     const { username, password } = req.body;
 
+    // const result = await pool.query(
+    //   "SELECT * FROM users WHERE username=$1",
+    //   [username]
+    // );
+
     const result = await pool.query(
-      "SELECT * FROM users WHERE username=$1",
+      `
+      SELECT
+          u.id,
+          u.username,
+          u.role,
+          u.allowed_modules,
+          u.password,
+    
+          d.id AS driver_id,
+          d.driver_code,
+          d.license_number,
+          d.license_expiry,
+          d.assigned_truck_number,
+          d.assigned_trailer_number,
+          d.current_duty_status,
+          d.status AS driver_status,
+          d.current_lat,
+          d.current_lng
+    
+      FROM users u
+      LEFT JOIN drivers d
+          ON d.user_id = u.id
+      WHERE u.username = $1
+      `,
       [username]
     );
-
     if (result.rows.length === 0) {
       return res.status(401).json({
         message: "Invalid username"
@@ -41,15 +68,38 @@ export const login = async (req, res) => {
     
     return res.json({
         success:true,
-        user:{
-            id:user.id,
-            username:user.username,
-            role:user.role,
-            email:user.email,
-            allowedModules:user.allowed_modules,
-        }
-    });
+        // user:{
+        //     id:user.id,
+        //     username:user.username,
+        //     role:user.role,
+        //     email:user.email,
+        //     allowed_modules:user.allowed_modules,
+        // }
+        user: {
+          id: user.id,
+          username: user.username,
+          role: user.role,
+         
+          allowed_modules: user.allowed_modules,
+      
+          driver: user.driver_id
+              ? {
+                  id: user.driver_id,
+                  driver_code: user.driver_code,
+                  license_number: user.license_number,
+                  license_expiry: user.license_expiry,
+                  assigned_truck_number: user.assigned_truck_number,
+                  assigned_trailer_number: user.assigned_trailer_number,
+                  current_duty_status: user.current_duty_status,
+                  status: user.driver_status,
+                  current_lat: user.current_lat,
+                  current_lng: user.current_lng,
+              }
+              : null,
+      }
 
+
+    });
   } catch (err) {
     console.log(err);
     res.status(500).json({
@@ -219,6 +269,7 @@ export const signup = async (req, res) => {
 
 export const check = async (req, res) => {
   try {
+    console.log(req.user)
     return res.status(200).json(req.user);
   } catch (error) {
     console.log(error.message);

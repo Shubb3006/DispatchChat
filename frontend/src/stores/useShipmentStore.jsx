@@ -15,7 +15,6 @@ export const useShipmentStore = create((set, get) => ({
       const response = await axiosInstance
         .get("/load")
         .catch(() => axiosInstance.get("/load"));
-      console.log(response.data);
       const fetchedLoads = response.data.loads || [];
 
       // Map and parse the serialized load objects from data field if needed
@@ -25,7 +24,6 @@ export const useShipmentStore = create((set, get) => ({
           : load.data || load;
       });
 
-      console.log(finalShipments);
       set({ shipments: finalShipments, isLoading: false });
     } catch (err) {
       console.error("Failed to fetch loads:", err);

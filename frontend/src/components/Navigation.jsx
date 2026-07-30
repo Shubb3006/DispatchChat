@@ -43,41 +43,43 @@ export default function Navigation({
     },
     { id: "hr", label: "HR User Directory", icon: Users },
   ];
-  const filteredTabs = allTabs.filter((tab) => {
-    const isSuperOrAdmin =
-      currentUser.role === "super_admin" || currentUser.role === "admin";
-    if (isSuperOrAdmin) {
-      return true;
-    }
-    if (tab.id === "reporting") {
-      return false;
-    }
-    if (tab.id === "hr") {
-      return false;
-    }
-    if (tab.id === "data_entry") {
-      return currentUser.role === "data_entry";
-    }
-    if (tab.id === "dispatcher") {
-      return currentUser.role === "dispatcher";
-    }
-    if (tab.id === "driver_manager") {
-      return currentUser.role === "driver_manager";
-    }
-    if (tab.id === "customs") {
-      return currentUser.role === "customs";
-    }
-    if (tab.id === "safety") {
-      return currentUser.role === "safety";
-    }
-    if (tab.id === "invoicing") {
-      return currentUser.role === "invoicing";
-    }
-    if (tab.id === "driver") {
-      return currentUser.role === "driver";
-    }
-    return currentUser.allowedModules.includes(tab.id);
-  });
+  // const filteredTabs = allTabs.filter((tab) => {
+
+  //   const isSuperOrAdmin =
+  //     currentUser.role === "super_admin" || currentUser.role === "admin";
+  //   if (isSuperOrAdmin) {
+  //     return true;
+  //   }
+  //   if (tab.id === "reporting") {
+  //     return false;
+  //   }
+  //   if (tab.id === "hr") {
+  //     return false;
+  //   }
+  //   if (tab.id === "data_entry") {
+  //     return currentUser.role === "data_entry";
+  //   }
+  //   if (tab.id === "dispatcher") {
+  //     return currentUser.role === "dispatcher";
+  //   }
+  //   if (tab.id === "driver_manager") {
+  //     return currentUser.role === "driver_manager";
+  //   }
+  //   if (tab.id === "customs") {
+  //     return currentUser.role === "customs";
+  //   }
+  //   if (tab.id === "safety") {
+  //     return currentUser.role === "safety";
+  //   }
+  //   if (tab.id === "invoicing") {
+  //     return currentUser.role === "invoicing";
+  //   }
+  //   if (tab.id === "driver") {
+  //     return currentUser.role === "driver";
+  //   }
+  //   return currentUser.allowed_modules.includes(tab.id);
+  // });
+
   // const getInitials = (name) => {
   //   return name
   //     .split(" ")
@@ -86,6 +88,14 @@ export default function Navigation({
   //     .substring(0, 2)
   //     .toUpperCase();
   // };
+
+  const filteredTabs = allTabs.filter((tab) => {
+    if (currentUser.role === "super_admin" || currentUser.role === "admin") {
+      return true;
+    }
+
+    return currentUser.allowed_modules.includes(tab.id);
+  });
   const avatarColors = {
     super_admin: "bg-purple-600",
     admin: "bg-rose-600",

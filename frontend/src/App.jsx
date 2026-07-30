@@ -312,7 +312,6 @@
 //   );
 // }
 
-
 import React, { useEffect, useState } from "react";
 import {
   HashRouter as Router,
@@ -344,7 +343,15 @@ function LogiSyncApp() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const { isLoggedIn, currentUser, users, logout, checkAuth, isCheckingAuth, fetchUsers } = useAuthStore();
+  const {
+    isLoggedIn,
+    currentUser,
+    users,
+    logout,
+    checkAuth,
+    isCheckingAuth,
+    fetchUsers,
+  } = useAuthStore();
   const setCurrentUser = (user) => useAuthStore.setState({ currentUser: user });
   const { fetchShipments, shipments } = useShipmentStore();
   const messages = useMessageStore((state) => state.messages);
@@ -384,15 +391,26 @@ function LogiSyncApp() {
 
     const cleanPath = location.pathname.replace("/", "");
     const validRoles = [
-      "dispatcher", "driver_manager", "driver", "safety", 
-      "invoicing", "customer", "hr", "reporting", "data_entry", "customs"
+      "dispatcher",
+      "driver_manager",
+      "driver",
+      "safety",
+      "invoicing",
+      "customer",
+      "hr",
+      "reporting",
+      "data_entry",
+      "customs",
     ];
 
     if (validRoles.includes(cleanPath)) {
       if (currentRole !== cleanPath) setCurrentRole(cleanPath);
     } else if (currentUser) {
-      const isSuperOrAdmin = currentUser.role === "super_admin" || currentUser.role === "admin";
-      const defaultRole = isSuperOrAdmin ? "reporting" : (currentUser.allowedModules?.[0] || "customer");
+      const isSuperOrAdmin =
+        currentUser.role === "super_admin" || currentUser.role === "admin";
+      const defaultRole = isSuperOrAdmin
+        ? "reporting"
+        : currentUser.allowedModules?.[0] || "customer";
       setCurrentRole(defaultRole);
       navigate("/" + defaultRole);
     }
@@ -400,9 +418,11 @@ function LogiSyncApp() {
 
   // Badges
   const unreadMessagesCount = messages.filter(
-    (m) => !m.read && m.recipientId === (currentRole === "driver" ? "DRV001" : "DISP_OFFICE")
+    (m) =>
+      !m.read &&
+      m.recipientId === (currentRole === "driver" ? "DRV001" : "DISP_OFFICE")
   ).length;
-  
+
   const activeShipmentsCount = shipments.filter(
     (s) => s.status !== "delivered" && s.status !== "pending"
   ).length;
@@ -444,10 +464,8 @@ function LogiSyncApp() {
 
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden shadow-[-4px_0_24px_-10px_rgba(0,0,0,0.1)] z-10 rounded-l-2xl bg-white">
-        
         {/* Simplified Top Header */}
         <header className="h-16 border-b border-slate-100 flex items-center justify-between px-8 shrink-0 bg-white select-none">
-          
           {/* Left: Page Title */}
           <div className="flex items-center gap-4">
             <h1 className="font-semibold text-lg text-slate-800 capitalize">
@@ -463,14 +481,15 @@ function LogiSyncApp() {
                 <span className="w-2 h-2 rounded-full bg-emerald-500" /> Samsara
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> BorderConnect
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
+                BorderConnect
               </div>
             </div>
 
             <div className="h-6 w-[1px] bg-slate-200 hidden md:block" />
 
             {/* Clean User/Role Selector for Dev */}
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <UserCircle className="w-5 h-5 text-slate-400" />
               <select
                 value={currentUser?.id}
@@ -478,9 +497,10 @@ function LogiSyncApp() {
                   const found = users.find((u) => u.id === e.target.value);
                   if (found) {
                     setCurrentUser(found);
-                    const target = (found.role === "super_admin" || found.role === "admin") 
-                      ? "reporting" 
-                      : found.allowedModules[0] || "customer";
+                    const target =
+                      found.role === "super_admin" || found.role === "admin"
+                        ? "reporting"
+                        : found.allowedModules[0] || "customer";
                     navigate("/" + target);
                   }
                 }}
@@ -488,10 +508,21 @@ function LogiSyncApp() {
               >
                 {users.map((u) => (
                   <option key={u.id} value={u.id}>
-                    {u.name} ({u.role})
+                    {u.username} ({u.role})
                   </option>
                 ))}
               </select>
+            </div> */}
+            <div className="flex items-center gap-3">
+              <UserCircle className="w-5 h-5 text-slate-400" />
+              <div className="text-right">
+                <div className="text-sm font-semibold text-slate-800">
+                  {currentUser.username}
+                </div>
+                <div className="text-xs text-slate-500 capitalize">
+                  {currentUser.role.replace("_", " ")}
+                </div>
+              </div>
             </div>
           </div>
         </header>
@@ -509,7 +540,10 @@ function LogiSyncApp() {
             <Route path="/customer" element={<CustomerPage />} />
             <Route path="/hr" element={<HRPage />} />
             <Route path="/reporting" element={<ReportingPage />} />
-            <Route path="*" element={<Navigate to={`/${currentRole}`} replace />} />
+            <Route
+              path="*"
+              element={<Navigate to={`/${currentRole}`} replace />}
+            />
           </Routes>
         </div>
 
@@ -532,9 +566,9 @@ function LogiSyncApp() {
 export default function App() {
   return (
     <>
-      <Toaster position="top-right" />
-     
-        <LogiSyncApp />
+      <Toaster />
+
+      <LogiSyncApp />
     </>
   );
 }

@@ -186,6 +186,7 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", payload);
       const user = res.data?.user || res.data;
+      console.log(res.data);
       toast.success("Sign in successful");
       set({
         authUser: user,
@@ -285,9 +286,8 @@ export const useAuthStore = create((set, get) => ({
 
       toast.error(msg);
       return false;
-    }
-    finally{
-      set({isLoading:false})
+    } finally {
+      set({ isLoading: false });
     }
   },
 

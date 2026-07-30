@@ -29,8 +29,8 @@ export default function DriverPage() {
   const addDocument = useDocumentStore((state) => state.addDocument);
   const updateDocument = useDocumentStore((state) => state.updateDocument);
 
-  const hosLogs = useHOSStore((state) => state.hosLogs);
-  const fetchHOSLogs = useHOSStore((state) => state.fetchHOSLogs);
+  const hosLog = useHOSStore((state) => state.hosLog);
+  const fetchHOSLog = useHOSStore((state) => state.fetchHOSLog);
   const updateHOSLog = useHOSStore((state) => state.updateHOSLog);
 
   const addSafetyIncident = useSafetyStore((state) => state.addSafetyIncident);
@@ -42,8 +42,8 @@ export default function DriverPage() {
     fetchShipments();
     fetchMessages();
     fetchDocuments();
-    fetchHOSLogs();
-  }, [fetchShipments, fetchMessages, fetchDocuments, fetchHOSLogs]);
+    fetchHOSLog();
+  }, [fetchShipments, fetchMessages, fetchDocuments, fetchHOSLog]);
 
   const handleAddDocument = async (newDoc) => {
     await addDocument(newDoc);
@@ -63,29 +63,46 @@ export default function DriverPage() {
     await updateDocument(updatedDoc);
   };
 
+  // const handleSendMessage = async (
+  //   content,
+  //   recipientId,
+  //   shipmentId,
+  //   attachment
+  // ) => {
+  //   const newMessage = {
+  //     id: "MSG" + (messages.length + 101),
+  //     senderRole: "driver",
+  //     senderName: currentUser?.name || "Marcus Vance",
+  //     recipientId: "DISP_OFFICE",
+  //     recipientName: "Chief Dispatcher Keith",
+  //     content,
+  //     timestamp: new Date().toISOString(),
+  //     read: false,
+  //     shipmentId,
+  //     attachment,
+  //   };
+  //   await sendMessage(newMessage);
+  // };
+
   const handleSendMessage = async (
-    content,
+    text,
     recipientId,
+    driverId,
     shipmentId,
-    attachment
+    attachments = []
   ) => {
-    const newMessage = {
-      id: "MSG" + (messages.length + 101),
-      senderRole: "driver",
-      senderName: currentUser?.name || "Marcus Vance",
-      recipientId: "DISP_OFFICE",
-      recipientName: "Chief Dispatcher Keith",
-      content,
-      timestamp: new Date().toISOString(),
-      read: false,
-      shipmentId,
-      attachment,
-    };
-    await sendMessage(newMessage);
+    await sendMessage({
+      recipient_id: recipientId,
+      driver_id: driverId,
+      shipment_id: shipmentId,
+      text,
+      attachments,
+    });
   };
 
   const handleUpdateHOSLog = async (updatedLog) => {
-    await updateHOSLog(updatedLog.driverId, updatedLog);
+    console.log(updatedLog);
+    await updateHOSLog(updatedLog);
   };
 
   const handleUpdateShipmentStatus = async (
@@ -210,10 +227,11 @@ export default function DriverPage() {
             {/* Real Driver App rendered directly */}
             <div className="flex-1 overflow-y-auto bg-[#F1F3F5]">
               <DriverApp
+                currentUser={currentUser}
                 shipments={shipments}
                 messages={messages}
                 documents={documents}
-                hosLogs={hosLogs}
+                hosLog={hosLog}
                 onAddDocument={handleAddDocument}
                 onUpdateDocument={handleUpdateDocument}
                 onSendMessage={handleSendMessage}

@@ -15,6 +15,12 @@ import locationRoutes from "./routes/location.routes.js"
 import loadStopsRoutes from "./routes/load_stop.route.js"
 import userRoutes from "./routes/user.routes.js"
 import tripRoutes from "./routes/trip.routes.js"
+import hosLogRoutes from "./routes/hos.route.js";
+import driverDocumentRoutes from "./routes/driver_document.route.js";
+import safetyIncidentRoutes from "./routes/safety_incident.routes.js";
+import invoiceRoutes from "./routes/invoice.routes.js";
+
+import messageRoutes from "./routes/message.routes.js";
 
 dotenv.config();
 
@@ -45,6 +51,12 @@ app.use("/api/locations",locationRoutes);
 app.use("/api/load_stops",loadStopsRoutes);
 app.use("/api/user",userRoutes);
 app.use("/api/trips",tripRoutes);
+app.use("/api/hos-logs", hosLogRoutes);
+app.use("/api/driver-documents", driverDocumentRoutes);
+app.use("/api/safety-incidents", safetyIncidentRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/messages", messageRoutes);
+
 
 app.get("/hi",(req,res)=>{
   res.send("Hello")
