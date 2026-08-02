@@ -28,7 +28,7 @@ export default function DriverManagerPage() {
   const markAsRead = useMessageStore((state) => state.markAsRead);
 
   const hosLogs = useHOSStore((state) => state.hosLogs);
-  const fetchHOSLogs = useHOSStore((state) => state.fetchHOSLogs);
+  const fetchAllHOSLogs = useHOSStore((state) => state.fetchAllHOSLogs);
 
   const safetyScores = useSafetyStore((state) => state.safetyScores);
   const fetchSafetyScores = useSafetyStore((state) => state.fetchSafetyScores);
@@ -41,20 +41,20 @@ export default function DriverManagerPage() {
   // Fetch all necessary state inside this page controller on mount
   useEffect(() => {
     fetchShipments();
-    fetchMessages();
-    fetchHOSLogs();
+    fetchAllHOSLogs();
     fetchSafetyScores();
     fetchDrivers();
-  }, [
-    fetchShipments,
-    fetchMessages,
-    fetchHOSLogs,
-    fetchSafetyScores,
-    fetchDrivers,
-  ]);
+  }, [fetchShipments, fetchAllHOSLogs, fetchSafetyScores, fetchDrivers]);
 
   const [activeTab, setActiveTab] = useState("manifests");
   const [searchQuery, setSearchQuery] = useState("");
+
+  useEffect(() => {
+    if (activeTab === "whatsapp") {
+      fetchMessages();
+    }
+  }, [activeTab]);
+  console.log(hosLogs);
 
   // Role configuration
   const currentRole = "driver_manager";
@@ -84,31 +84,36 @@ export default function DriverManagerPage() {
     await markAsRead(shipmentId, role);
   };
 
-  console.log(shipments);
+  console.log(hosLogs);
   const driversStatusList = drivers.map((drv) => {
     const activeShipment = shipments.find(
       (s) => s.driver_id === drv.id && s.status !== "completed"
     );
-    const rawHos = hosLogs.find((l) => l.driverId === drv.id);
+    const rawHos = hosLogs.find((l) => l.driver_id === drv.id);
+
     const mappedHos = rawHos
       ? {
-          statusCode: rawHos.currentStatus,
+          statusCode: rawHos.current_status,
+    
           statusLabel:
-            rawHos.currentStatus === "D"
+            rawHos.current_status === "D"
               ? "Driving"
-              : rawHos.currentStatus === "ON"
+              : rawHos.current_status === "ON"
               ? "On Duty"
-              : rawHos.currentStatus === "SB"
+              : rawHos.current_status === "SB"
               ? "Sleeper Berth"
               : "Off Duty",
-          hoursRemainingToday: parseFloat(
-            (rawHos.drivingSecondsRemaining / 3600).toFixed(1)
+    
+          hoursRemainingToday: Number(
+            (rawHos.driving_seconds_remaining / 3600).toFixed(1)
           ),
-          cycleHoursRemaining: parseFloat(
-            (rawHos.cycleSecondsRemaining / 3600).toFixed(1)
+    
+          cycleHoursRemaining: Number(
+            (rawHos.cycle_seconds_remaining / 3600).toFixed(1)
           ),
+    
           violations:
-            rawHos.drivingSecondsRemaining <= 0
+            rawHos.driving_seconds_remaining <= 0
               ? ["Drive Limit Violation"]
               : [],
         }
@@ -119,7 +124,7 @@ export default function DriverManagerPage() {
           cycleHoursRemaining: 70,
           violations: [],
         };
-    const rawSafety = safetyScores.find((s) => s.driverId === drv.id);
+    const rawSafety = safetyScores.find((s) => s.driver_id === drv.id);
     const mappedSafety = rawSafety
       ? {
           score: rawSafety.score,
@@ -144,7 +149,7 @@ export default function DriverManagerPage() {
   const filteredDrivers = driversStatusList.filter(
     (d) =>
       d.username.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      d.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      d.driver_code.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (d.activeShipment?.load_number || "")
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
@@ -265,15 +270,15 @@ export default function DriverManagerPage() {
                         {drv.username}
                       </h3>
                       <span className="text-3xs font-mono font-bold text-slate-400 uppercase tracking-tight">
-                        Driver ID: {drv.id}
+                        Driver ID: {drv.driver_code}
                       </span>
                     </div>
                     <div className="text-right">
                       <span className="text-3xs font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 block uppercase tracking-wide font-mono">
-                        TRK: {drv.truck || "Truck"}
+                        TRK: {drv.assigned_truck_number || "Truck"}
                       </span>
                       <span className="text-[9px] text-slate-400 mt-0.5 block font-mono">
-                        TRL: {drv.trailer || "Trailer"}
+                        TRL: {drv.assigned_trailer_number || "Trailer"}
                       </span>
                     </div>
                   </div>
@@ -415,10 +420,10 @@ export default function DriverManagerPage() {
                     <tr key={d.id} className="hover:bg-slate-50/50">
                       <td className="px-5 py-3.5">
                         <div className="font-semibold text-slate-900">
-                          {d.name}
+                          {d.username}
                         </div>
                         <div className="text-3xs text-slate-400">
-                          ID: {d.id}
+                          ID: {d.driver_code}
                         </div>
                       </td>
                       <td className="px-5 py-3.5">

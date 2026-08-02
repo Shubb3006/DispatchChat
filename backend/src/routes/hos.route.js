@@ -40,6 +40,8 @@
 
 import express from "express";
 import {
+  getAllHOSLogs,
+  getDriverHOSLog,
   getMyHOSLog,
   updateMyHOSStatus,
   // getAllHOSLogs,
@@ -51,6 +53,10 @@ const router = express.Router();
 // Driver endpoints
 router.get("/me", protectedRoute, getMyHOSLog);
 router.put("/me", protectedRoute, updateMyHOSStatus);
+
+router.get("/", protectedRoute, getAllHOSLogs);
+router.get("/:driverId", protectedRoute, getDriverHOSLog);
+
 
 // Dispatcher/Admin endpoint
 // router.get("/", protectedRoute, getAllHOSLogs);

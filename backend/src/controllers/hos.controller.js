@@ -527,3 +527,93 @@ export const updateMyHOSStatus = async (req, res) => {
     });
   }
 };
+
+
+export const getAllHOSLogs = async (req, res) => {
+  console.log("Sas")
+  try {
+    const result = await pool.query(
+      `
+      SELECT
+          h.*,
+          d.id AS driver_id,
+          d.driver_code,
+          d.assigned_truck_number,
+          d.assigned_trailer_number,
+
+          u.id AS user_id,
+         
+          u.username
+
+      FROM hos_logs h
+
+      JOIN drivers d
+      ON h.driver_id = d.id
+
+      JOIN users u
+      ON d.user_id = u.id
+
+      ORDER BY u.full_name
+      `
+    );
+
+    res.json({
+      success: true,
+      logs: result.rows,
+    });
+
+  } catch (err) {
+    console.error(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};
+
+
+export const getDriverHOSLog = async (req, res) => {
+  try {
+    const { driverId } = req.params;
+
+    const result = await pool.query(
+      `
+      SELECT
+          h.*,
+          d.driver_code,
+          d.assigned_truck_number,
+          d.assigned_trailer_number,
+          u.full_name,
+          u.username
+      FROM hos_logs h
+      JOIN drivers d
+      ON h.driver_id=d.id
+      JOIN users u
+      ON d.user_id=u.id
+      WHERE h.driver_id=$1
+      `,
+      [driverId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "HOS not found",
+      });
+    }
+
+    res.json({
+      success: true,
+      log: result.rows[0],
+    });
+
+  } catch (err) {
+    console.log(err);
+
+    res.status(500).json({
+      success: false,
+      message: "Server Error",
+    });
+  }
+};

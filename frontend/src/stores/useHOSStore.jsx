@@ -121,21 +121,83 @@
 //   },
 // }));
 
+// import { create } from "zustand";
+// import toast from "react-hot-toast";
+// import { axiosInstance } from "../../lib/axios";
+
+// export const useHOSStore = create((set) => ({
+//   hosLog: null,
+//   isLoading: false,
+//   error: null,
+
+//   fetchHOSLog: async () => {
+//     set({ isLoading: true, error: null });
+//     console.log("sd");
+//     try {
+//       const response = await axiosInstance.get("/hos-logs/me");
+//       console.log(response.data);
+
+//       set({
+//         hosLog: response.data.log,
+//         isLoading: false,
+//       });
+//     } catch (err) {
+//       console.error(err);
+
+//       set({
+//         error: "Failed to fetch HOS log",
+//         isLoading: false,
+//       });
+//     }
+//   },
+
+//   updateHOSLog: async (status) => {
+//     try {
+//       console.log(status);
+//       const response = await axiosInstance.put("/hos-logs/me", {
+//         status,
+//       });
+
+//       set({
+//         hosLog: response.data.log,
+//       });
+
+//       toast.success("HOS updated");
+//     } catch (err) {
+//       console.error(err);
+//       toast.error("Failed to update HOS");
+//     }
+//   },
+// }));
+
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
 
 export const useHOSStore = create((set) => ({
+  // Driver
   hosLog: null,
+
+  // Dispatcher/Admin
+  hosLogs: [],
+
   isLoading: false,
   error: null,
 
+  /*
+  ==========================================
+  DRIVER - GET MY HOS
+  GET /hos-logs/me
+  ==========================================
+  */
   fetchHOSLog: async () => {
-    set({ isLoading: true, error: null });
-    console.log("sd");
+    set({
+      isLoading: true,
+      error: null,
+    });
+
     try {
       const response = await axiosInstance.get("/hos-logs/me");
-      console.log(response.data);
 
       set({
         hosLog: response.data.log,
@@ -145,15 +207,20 @@ export const useHOSStore = create((set) => ({
       console.error(err);
 
       set({
-        error: "Failed to fetch HOS log",
+        error: "Failed to fetch HOS",
         isLoading: false,
       });
     }
   },
 
+  /*
+  ==========================================
+  DRIVER - UPDATE MY HOS
+  PUT /hos-logs/me
+  ==========================================
+  */
   updateHOSLog: async (status) => {
     try {
-      console.log(status);
       const response = await axiosInstance.put("/hos-logs/me", {
         status,
       });
@@ -161,6 +228,65 @@ export const useHOSStore = create((set) => ({
       set({
         hosLog: response.data.log,
       });
+
+      toast.success("HOS updated");
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to update HOS");
+    }
+  },
+
+  /*
+  ==========================================
+  DISPATCHER - GET ALL DRIVER HOS
+  GET /hos-logs
+  ==========================================
+  */
+  fetchAllHOSLogs: async () => {
+    console.log("SDS");
+    set({
+      isLoading: true,
+      error: null,
+    });
+
+    try {
+      const response = await axiosInstance.get("/hos-logs");
+      console.log(response.data)
+      set({
+        hosLogs: response.data.logs,
+        isLoading: false,
+      });
+    } catch (err) {
+      console.error(err);
+
+      set({
+        error: "Failed to fetch HOS logs",
+        isLoading: false,
+      });
+    }
+  },
+
+  /*
+  ==========================================
+  DISPATCHER - UPDATE ANY DRIVER HOS
+  PUT /hos-logs/:driverId
+  ==========================================
+  */
+  updateDriverHOS: async (driverId, status) => {
+    try {
+      const response = await axiosInstance.put(`/hos-logs/${driverId}`, {
+        status,
+      });
+
+      const updatedLog = response.data.log;
+
+      set((state) => ({
+        hosLogs: state.hosLogs.map((log) =>
+          log.driver_id === driverId || log.driverId === driverId
+            ? updatedLog
+            : log
+        ),
+      }));
 
       toast.success("HOS updated");
     } catch (err) {
