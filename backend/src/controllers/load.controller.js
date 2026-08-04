@@ -520,6 +520,7 @@ ORDER BY l.created_at DESC;`)
 
 export const updateLoad = async (req, res) => {
   try {
+    console.log("Load statu")
     console.log(req.body)
     const { id } = req.params;
 
@@ -578,6 +579,8 @@ LEFT JOIN users u
         id         // $11
       ]
     );
+    console.log("Updated load:", result.rows[0].status);
+
 
     if (result.rows.length === 0) {
 

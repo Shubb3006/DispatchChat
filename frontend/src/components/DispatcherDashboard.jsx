@@ -440,11 +440,11 @@ export default function DispatcherDashboard({
       const updatedShipment = {
         ...shipment,
         tripId,
-        driverId: consolidationDriverId,
-        driverName: consolidationDriverName,
-        truckNumber: consolidationTruck,
-        trailerNumber: consolidationTrailer,
-        status: "assigned",
+        driver_id: consolidationDriverId,
+        // driver_name: consolidationDriverName,
+        // truck_number: consolidationTruck,
+        // trailer_number: consolidationTrailer,
+        // status: "trip_assigned",
       };
       onUpdateShipment(updatedShipment);
     });

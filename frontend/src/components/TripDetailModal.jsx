@@ -11,10 +11,19 @@ import {
 } from "lucide-react";
 
 const statusStyles = {
-  assigned: "bg-slate-100 text-slate-700",
-  dispatched: "bg-blue-100 text-blue-700",
-  in_transit: "bg-amber-100 text-amber-700",
+  trip_assigned: "bg-slate-100 text-slate-700",
+  in_transit: "bg-blue-100 text-blue-700",
+  at_destination_hub: "bg-amber-100 text-amber-700",
+  out_for_delivery: "bg-orange-100 text-orange-700",
   delivered: "bg-emerald-100 text-emerald-700",
+};
+
+const statusLabels = {
+  trip_assigned: "Trip Assigned",
+  in_transit: "In Transit",
+  at_destination_hub: "At Destination Hub",
+  out_for_delivery: "Out For Delivery",
+  delivered: "Delivered",
 };
 
 export default function TripDetailsModal({
@@ -192,12 +201,17 @@ export default function TripDetailsModal({
                             statusStyles[load.status]
                           }`}
                         >
-                          <option value="assigned">Assigned</option>
-
-                          <option value="dispatched">Dispatched</option>
+                          <option value="trip_assigned">Trip Assigned</option>
 
                           <option value="in_transit">In Transit</option>
 
+                          <option value="at_destination_hub">
+                            At Destination Hub
+                          </option>
+
+                          <option value="out_for_delivery">
+                            Out for Delivery
+                          </option>
                           <option value="delivered">Delivered</option>
                         </select>
                       </td>

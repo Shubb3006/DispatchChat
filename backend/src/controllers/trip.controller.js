@@ -54,7 +54,7 @@ export const createTrip = async (req, res) => {
       await pool.query(
         `
       UPDATE loads
-      SET status = 'assigned'
+      SET status = 'trip_assigned'
       WHERE id = $1
       `,
         [shipmentId]
