@@ -36,11 +36,11 @@ export const createTrip = async (req, res) => {
 
     const trip = tripResult.rows[0];
 
-// insert into trip_loads...
+    // insert into trip_loads...
 
-for (const shipmentId of shipmentIds) {
-    await pool.query(
-      `
+    for (const shipmentId of shipmentIds) {
+      await pool.query(
+        `
       INSERT INTO trip_loads
       (
         trip_id,
@@ -48,21 +48,21 @@ for (const shipmentId of shipmentIds) {
       )
       VALUES ($1,$2)
       `,
-      [trip.id, shipmentId]
-    );
+        [trip.id, shipmentId]
+      );
 
-    await pool.query(
-      `
+      await pool.query(
+        `
       UPDATE loads
       SET status = 'assigned'
       WHERE id = $1
       `,
-      [shipmentId]
-    );
-  }
+        [shipmentId]
+      );
+    }
 
-const finalTrip = await pool.query(
-  `
+    const finalTrip = await pool.query(
+      `
   SELECT
       t.*,
       u.username AS driver_name,
@@ -81,14 +81,14 @@ const finalTrip = await pool.query(
   WHERE t.id = $1
   GROUP BY t.id, u.username;
   `,
-  [trip.id]
-);
+      [trip.id]
+    );
 
-    
+
 
     res.status(201).json({
       success: true,
-      trip:finalTrip.rows[0],
+      trip: finalTrip.rows[0],
     });
   } catch (error) {
     console.log(error);
@@ -101,8 +101,8 @@ const finalTrip = await pool.query(
 };
 
 export const getAllTrips = async (req, res) => {
-    try {
-        const result = await pool.query(`
+  try {
+    const result = await pool.query(`
             SELECT
                 t.*,
                 u.username AS driver_name,
@@ -124,24 +124,24 @@ export const getAllTrips = async (req, res) => {
             ORDER BY
                 t.created_at DESC;
             `);
-  
-      res.json({
-        success: true,
-        trips: result.rows,
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Server Error",
-      });
-    }
-  };
 
-  export const getTripById = async (req, res) => {
-    try {
-      const { id } = req.params;
-  
-      const tripResult = await pool.query(
-        `
+    res.json({
+      success: true,
+      trips: result.rows,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export const getTripById = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const tripResult = await pool.query(
+      `
         SELECT
           t.*,
           u.username AS driver_name
@@ -152,54 +152,54 @@ export const getAllTrips = async (req, res) => {
           ON d.user_id = u.id
         WHERE t.id = $1;
         `,
-        [id]
-      );
-  
-      if (tripResult.rows.length === 0) {
-        return res.status(404).json({
-          message: "Trip not found",
-        });
-      }
-  
-      const shipmentResult = await pool.query(
-        `
+      [id]
+    );
+
+    if (tripResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Trip not found",
+      });
+    }
+
+    const shipmentResult = await pool.query(
+      `
         SELECT l.*
         FROM trip_loads tl
         JOIN loads l
           ON tl.load_id = l.id
         WHERE tl.trip_id = $1;
         `,
-        [id]
-      );
-  
-      res.json({
-        success: true,
-        trip: {
-          ...tripResult.rows[0],
-          shipments: shipmentResult.rows,
-        },
-      });
-    } catch (error) {
-      res.status(500).json({
-        message: "Server Error",
-      });
-    }
-  };
+      [id]
+    );
 
-  export const updateTrip = async (req, res) => {
-    try {
-      const { id } = req.params;
-      console.log(req.body)
-      const {
-        driver_id,
-        status,
-        total_weight_lbs,
-        total_pallets,
-        shipment_ids,
-      } = req.body;
-  
-      const tripResult = await pool.query(
-        `
+    res.json({
+      success: true,
+      trip: {
+        ...tripResult.rows[0],
+        shipments: shipmentResult.rows,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
+
+export const updateTrip = async (req, res) => {
+  try {
+    const { id } = req.params;
+    console.log(req.body)
+    const {
+      driver_id,
+      status,
+      total_weight_lbs,
+      total_pallets,
+      shipment_ids,
+    } = req.body;
+
+    const tripResult = await pool.query(
+      `
         WITH updated_trip AS (
           UPDATE trips
           SET
@@ -219,34 +219,34 @@ export const getAllTrips = async (req, res) => {
         LEFT JOIN users u
           ON d.user_id = u.id;
         `,
-        [
-          driver_id,
-          status,
-          total_weight_lbs,
-          total_pallets,
-          id,
-        ]
-      );
-  
-      if (tripResult.rows.length === 0) {
-        return res.status(404).json({
-          message: "Trip not found",
-        });
-      }
-  
-      // Remove old shipments from this trip
-      await pool.query(
-        `
+      [
+        driver_id,
+        status,
+        total_weight_lbs,
+        total_pallets,
+        id,
+      ]
+    );
+
+    if (tripResult.rows.length === 0) {
+      return res.status(404).json({
+        message: "Trip not found",
+      });
+    }
+
+    // Remove old shipments from this trip
+    await pool.query(
+      `
         DELETE FROM trip_loads
         WHERE trip_id = $1
         `,
-        [id]
-      );
-  
-      // Add the new shipments
-      for (const shipmentId of shipment_ids) {
-        await pool.query(
-          `
+      [id]
+    );
+
+    // Add the new shipments
+    for (const shipmentId of shipment_ids) {
+      await pool.query(
+        `
           INSERT INTO trip_loads
           (
             trip_id,
@@ -254,9 +254,9 @@ export const getAllTrips = async (req, res) => {
           )
           VALUES ($1, $2)
           `,
-          [id, shipmentId]
-        );
-      }
+        [id, shipmentId]
+      );
+    }
 
     //  const updateLoadsResult=await pool.query(
     //     `
@@ -270,33 +270,32 @@ export const getAllTrips = async (req, res) => {
     //     `,
     //     [status, id]
     //   );
-    const result=await pool.query(
-      `
-      
-          SELECT load_id
-          FROM trip_loads
-          WHERE trip_id = $1
-      
-      `,
-      [ id]
+    // Map trip status → the correct load status to propagate.
+    // Only advance loads that are at or below the new trip status in the pipeline.
+    // picked_up / at_warehouse are pre-trip stages set by other flows — don't touch those.
+    const TRIP_STATUS_TO_LOAD_STATUS = {
+      dispatched: "dispatched",
+      in_transit: "in_transit",
+      completed: "delivered",
+    };
+    const loadStatusToSet = TRIP_STATUS_TO_LOAD_STATUS[status] || null;
+
+    const result = await pool.query(
+      `SELECT load_id FROM trip_loads WHERE trip_id = $1`,
+      [id]
     );
 
-    for (const row of result.rows) {
-      console.log(row)
-      await pool.query(
-        `
-        UPDATE loads
-        SET status = $1
-        WHERE id = $2
-        `,
-        [status, row.load_id]
-      );
+    if (loadStatusToSet) {
+      for (const row of result.rows) {
+        await pool.query(
+          `UPDATE loads SET status = $1 WHERE id = $2`,
+          [loadStatusToSet, row.load_id]
+        );
+      }
     }
 
-      console.log(result.rows);
-
-      const finalTrip = await pool.query(
-        `
+    const finalTrip = await pool.query(
+      `
         SELECT
             t.*,
             u.username AS driver_name,
@@ -315,21 +314,21 @@ export const getAllTrips = async (req, res) => {
         WHERE t.id = $1
         GROUP BY t.id, u.username;
         `,
-        [id]
-      );
-  
-      res.json({
-        success: true,
-        trip: finalTrip.rows[0],
-      });
-    } catch (error) {
-      console.log(error);
-  
-      res.status(500).json({
-        message: "Server Error",
-      });
-    }
-  };
+      [id]
+    );
+
+    res.json({
+      success: true,
+      trip: finalTrip.rows[0],
+    });
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server Error",
+    });
+  }
+};
 //   export const deleteTrip = async (req, res) => {
 
 //   try {

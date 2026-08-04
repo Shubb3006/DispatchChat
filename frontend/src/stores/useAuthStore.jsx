@@ -123,10 +123,12 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.get("/auth/check");
       const user = res.data;
+      // Single batched set — one render instead of three
       set({
         authUser: user,
         currentUser: user,
         isLoggedIn: true,
+        isCheckingAuth: false,
         isLoading: false,
       });
     } catch (error) {
@@ -135,10 +137,9 @@ export const useAuthStore = create((set, get) => ({
         authUser: null,
         currentUser: null,
         isLoggedIn: false,
+        isCheckingAuth: false,
         isLoading: false,
       });
-    } finally {
-      set({ isCheckingAuth: false, isLoading: false });
     }
   },
 

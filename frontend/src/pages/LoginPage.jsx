@@ -35,9 +35,8 @@ export default function LoginPage() {
 
   const handleLoginSuccess = (user) => {
     const isSuperOrAdmin = user.role === "super_admin" || user.role === "admin";
-    const target = isSuperOrAdmin
-      ? "reporting"
-      : user.allowedModules[0] || "customer";
+    const modules = user.allowedModules || user.allowed_modules || [];
+    const target = isSuperOrAdmin ? "reporting" : modules[0] || "customer";
     navigate("/" + target);
   };
 
@@ -92,7 +91,7 @@ export default function LoginPage() {
         username: username.trim().toLowerCase(),
         password,
         role,
-        allowedModules,
+        allowed_modules: allowedModules,
       };
       const signedUp = await authSignUp(newUser);
       if (signedUp) {
@@ -123,6 +122,7 @@ export default function LoginPage() {
   };
 
   const handleQuickLogin = (user) => {
+    console.log(user)
     setUsername(user.username);
     setPassword(user.password || "password");
     setIsSignUp(false);
@@ -322,7 +322,7 @@ export default function LoginPage() {
         </div>
 
         {/* Quick Testing Panel (Only shown in Sign In mode) */}
-        {!isSignUp && users && users.length > 0 && (
+        {/* {!isSignUp && users && users.length > 0 && (
           <div className="bg-slate-800/30 border border-slate-800/80 rounded-2xl p-5 space-y-4">
             <div className="flex items-center space-x-2 border-b border-slate-800/60 pb-2">
               <Sparkles className="h-3.5 w-3.5 text-indigo-400" />
@@ -355,7 +355,7 @@ export default function LoginPage() {
               <span className="font-bold text-indigo-400">password</span>
             </div>
           </div>
-        )}
+        )} */}
       </div>
     </div>
   );

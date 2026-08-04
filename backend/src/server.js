@@ -21,8 +21,13 @@ import safetyIncidentRoutes from "./routes/safety_incident.routes.js";
 import invoiceRoutes from "./routes/invoice.routes.js";
 
 import messageRoutes from "./routes/message.routes.js";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 
 const app = express();
@@ -39,6 +44,7 @@ app.use(
 app.use(cookieParser());
 
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/load",loadRoutes)

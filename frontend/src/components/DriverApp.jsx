@@ -4577,7 +4577,7 @@ export default function DriverApp({
     if (!myShipment) return;
     onUpdateShipment({
       ...myShipment,
-      driverNotes,
+      driver_notes:driverNotes,
     });
     setNotesSaved(true);
     setTimeout(() => setNotesSaved(false), 2500);
@@ -5687,43 +5687,7 @@ export default function DriverApp({
 
       {activeTab === "docs" && (
         <DocumentScannerWidget
-          docType={docType}
-          setDocType={setDocType}
-          parserLoadId={parserLoadId}
-          setParserLoadId={setParserLoadId}
-          parserCustomLoadNumber={parserCustomLoadNumber}
-          setParserCustomLoadNumber={setParserCustomLoadNumber}
-          shipments={shipments}
-          fileInputRef={fileInputRef}
-          handleFileChange={handleFileChange}
-          fileName={fileName}
-          fileText={fileText}
-          setFileText={setFileText}
-          ocrLoading={ocrLoading}
-          ocrError={ocrError}
-          handleParseDocument={handleParseDocument}
-          skidPhotos={skidPhotos}
-          setSkidPhotos={setSkidPhotos}
-          startSkidCamera={startSkidCamera}
-          extractedResult={extractedResult}
-          myDocuments={myDocuments}
-          docLogFilter={docLogFilter}
-          setDocLogFilter={setDocLogFilter}
-          filteredDocLogs={filteredDocLogs}
-          selectedDocIds={selectedDocIds}
-          handleSelectAllFilteredDocs={handleSelectAllFilteredDocs}
-          handleBulkDownload={handleBulkDownload}
-          handleBulkStatusUpdate={handleBulkStatusUpdate}
-          handleToggleSelectDoc={handleToggleSelectDoc}
-          selectedLogDoc={selectedLogDoc}
-          setSelectedLogDoc={setSelectedLogDoc}
-          getDocumentImage={getDocumentImage}
-          handlePrintDocument={handlePrintDocument}
-          handleDownloadDocument={handleDownloadDocument}
-          internalNoteText={internalNoteText}
-          setInternalNoteText={setInternalNoteText}
-          noteSaved={noteSaved}
-          handleSaveInternalNote={handleSaveInternalNote}
+         myShipment={myShipment}
         />
       )}
 

@@ -1,12 +1,12 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
-import { useTripStore } from "./useTripStore";
 
 export const useShipmentStore = create((set, get) => ({
   shipments: [],
   isLoading: false,
   error: null,
+  pendingBOLs: [],
 
   fetchShipments: async () => {
     set({ isLoading: true, error: null });
@@ -49,6 +49,8 @@ export const useShipmentStore = create((set, get) => ({
         customer_phone: shipment.customerPhone,
         customer_billing_address: shipment.customerAddress,
 
+        commitment: shipment.priority,
+
         shipper_name: shipment.shipperName,
         shipper_phone: shipment.shipperPhone,
         shipper_address: shipment.shipperAddress,
@@ -76,6 +78,7 @@ export const useShipmentStore = create((set, get) => ({
       toast.success(
         `Load #${shipment.load_number || shipment.id} added successfully`
       );
+      // Batch the state update — one render instead of two
       set((state) => ({
         shipments: [savedShipment, ...state.shipments],
         isLoading: false,
@@ -91,6 +94,7 @@ export const useShipmentStore = create((set, get) => ({
   },
 
   updateShipment: async (shipment) => {
+    console.log(shipment);
     set({ isLoading: true });
     try {
       const response = await axiosInstance
@@ -98,13 +102,15 @@ export const useShipmentStore = create((set, get) => ({
         .catch(() => axiosInstance.put(`/loads/${shipment.id}`, shipment));
       const updated = response.data.load || shipment;
 
+      // Batch isLoading: false with the data update — one render instead of two
       set((state) => ({
         shipments: state.shipments.map((s) =>
           s.id === shipment.id ? updated : s
         ),
         isLoading: false,
       }));
-      await useTripStore.getState().fetchTrips();
+      // Do NOT call fetchTrips() here — it triggers a full re-fetch cascade.
+      // The trips store will reflect the change on the next natural fetch.
       toast.success(`Load #${shipment.load_number || shipment.id} updated`);
     } catch (err) {
       console.error("Failed to update load:", err);
@@ -209,6 +215,34 @@ export const useShipmentStore = create((set, get) => ({
       console.error("Failed to update status:", err);
       set({ error: "Failed to update shipment status" });
       toast.error("Failed to update load status");
+    }
+  },
+
+  fetchPendingBOLs: async () => {
+    try {
+      const response = await axiosInstance.get("/load/pending-bols");
+      set({ pendingBOLs: response.data.data || [] });
+    } catch (error) {
+      console.error("Error fetching pending BOLs", error);
+    }
+  },
+
+  approveBOL: async (loadId, documentId) => {
+    try {
+      await axiosInstance.post("/load/approve-bol", {
+        load_id: loadId,
+        document_id: documentId,
+      });
+      // Update local state to reflect change immediately
+      set((state) => ({
+        shipments: state.shipments.map((load) =>
+          load.id === loadId ? { ...load, status: "picked_up" } : load
+        ),
+        pendingBOLs: state.pendingBOLs.filter((doc) => doc.id !== documentId),
+      }));
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: error.message };
     }
   },
 }));

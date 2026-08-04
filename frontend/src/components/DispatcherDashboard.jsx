@@ -40,31 +40,24 @@ export default function DispatcherDashboard({
   onSendMessage,
   onMarkMessagesAsRead,
   currentUser,
+  pendingBOLs,
+  handleApprove,
 }) {
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
 
   const { addShipment, isLoading } = useShipmentStore();
   const mockDrivers = useDriverStore((state) => state.drivers);
-  const fetchDrivers = useDriverStore((state) => state.fetchDrivers);
 
   const trucks = useAssetStore((state) => state.trucks);
   const trailors = useAssetStore((state) => state.trailors);
-  const fetchTrucks = useAssetStore((state) => state.fetchTrucks);
-  const fetchTrailors = useAssetStore((state) => state.fetchTrailors);
 
   const customers = useCustomerStore((state) => state.customers);
-  const fetchCustomers = useCustomerStore((state) => state.fetchCustomers);
 
-  const fetchTrips = useTripStore((state) => state.fetchTrips);
   const trips = useTripStore((state) => state.trips);
-  useEffect(() => {
-    fetchDrivers();
-    fetchTrucks();
-    fetchTrailors();
-    fetchCustomers();
-    fetchTrips();
-  }, []);
+
+  // All data is already fetched by DispatcherPage on mount.
+  // No duplicate fetch calls here — subscribing to the stores is enough.
 
   const [selectedShipment, setSelectedShipment] = useState(
     shipments[0] || null
@@ -463,11 +456,13 @@ export default function DispatcherDashboard({
     setConsolidationDriverId("");
     setConsolidationDriverName("");
   };
+  // Only fire when the selected shipment changes, not on every message arrival.
+  // Using selectedShipment?.id keeps the dep stable (primitive string, not object).
   useEffect(() => {
     if (selectedShipment && onMarkMessagesAsRead) {
       onMarkMessagesAsRead(selectedShipment.id, "dispatcher");
     }
-  }, [selectedShipment?.id, messages.length]);
+  }, [selectedShipment?.id]); // eslint-disable-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (globalSearchQuery.trim()) {
       const query = globalSearchQuery.trim().toLowerCase();
@@ -744,10 +739,10 @@ export default function DispatcherDashboard({
       : String(nextNum);
 
     // Generate a secure unique database ID to prevent any duplicate/overwrite collisions
-    const uniqueId =
-      "SHP" +
-      Date.now().toString().slice(-6) +
-      Math.floor(10 + Math.random() * 90);
+    // const uniqueId =
+    //   "SHP" +
+    //   Date.now().toString().slice(-6) +
+    //   Math.floor(10 + Math.random() * 90);
 
     // Construct newShipment object with all properties required for both DB columns and frontend backwards compatibility
     const newShipment = {
@@ -766,12 +761,12 @@ export default function DispatcherDashboard({
       consigneeAddress: consigneeAddress || destination,
       consigneePhone,
       status: "pending",
-      driverId,
-      driverName,
-      truckNumber: truck,
-      trailerNumber: trailer,
-      truck_id: truck,
-      trailer_id: trailer,
+      // driverId,
+      // driverName,
+      // truckNumber: truck,
+      // trailerNumber: trailer,
+      // truck_id: truck,
+      // trailer_id: trailer,
       originCity: origin,
       destinationCity: destination,
       cargoDescription: cargo,
@@ -787,36 +782,36 @@ export default function DispatcherDashboard({
       eta: new Date(Date.now() + 864e5 * 2).toISOString(),
       borderConnectStatus:
         origin.includes("ON") || destination.includes("BC") ? "draft" : "none",
-      documentIds: [],
+      // documentIds: [],
       loadType,
       priority,
       deliveryCommitment: formCommitment,
       commitmentDate: formCommitment === "normal" ? void 0 : formCommitmentDate,
       commitmentTime: formCommitment === "normal" ? void 0 : formCommitmentTime,
-      waypoints: [
-        {
-          id: `WPT_NEW_1`,
-          companyName: shipperName || `${customerName} Depot`,
-          address: shipperAddress || origin,
-          lat: 41.8,
-          lng: -87.6,
-          stopType: "pickup",
-          sequence: 1,
-          status: "pending",
-          scheduledTime: new Date(Date.now() + 36e5 * 4).toISOString(),
-        },
-        {
-          id: `WPT_NEW_2`,
-          companyName: consigneeName || `${customerName} Consignee`,
-          address: consigneeAddress || destination,
-          lat: 43.6,
-          lng: -79.6,
-          stopType: "delivery",
-          sequence: 2,
-          status: "pending",
-          scheduledTime: new Date(Date.now() + 864e5 * 1.5).toISOString(),
-        },
-      ],
+      // waypoints: [
+      //   {
+      //     id: `WPT_NEW_1`,
+      //     companyName: shipperName || `${customerName} Depot`,
+      //     address: shipperAddress || origin,
+      //     lat: 41.8,
+      //     lng: -87.6,
+      //     stopType: "pickup",
+      //     sequence: 1,
+      //     status: "pending",
+      //     scheduledTime: new Date(Date.now() + 36e5 * 4).toISOString(),
+      //   },
+      //   {
+      //     id: `WPT_NEW_2`,
+      //     companyName: consigneeName || `${customerName} Consignee`,
+      //     address: consigneeAddress || destination,
+      //     lat: 43.6,
+      //     lng: -79.6,
+      //     stopType: "delivery",
+      //     sequence: 2,
+      //     status: "pending",
+      //     scheduledTime: new Date(Date.now() + 864e5 * 1.5).toISOString(),
+      //   },
+      // ],
     };
     const success = await addShipment(newShipment);
     if (success) {
@@ -992,6 +987,62 @@ export default function DispatcherDashboard({
         </div>
       </div>
 
+      <div className="bg-white p-5 rounded-lg shadow mb-8 border-l-4 border-orange-500">
+        <h2 className="text-lg font-semibold text-gray-800 mb-4">
+          Pending BOL Approvals Awaiting Review ({pendingBOLs.length})
+        </h2>
+
+        {pendingBOLs.length === 0 ? (
+          <p className="text-gray-500 text-sm">
+            No unapproved BOL documents found at the moment.
+          </p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="border-b bg-gray-100 text-xs text-gray-600 uppercase">
+                  <th className="p-3">Load Number</th>
+                  <th className="p-3">Uploaded Document</th>
+                  <th className="p-3">Submitted At</th>
+                  <th className="p-3">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {pendingBOLs.map((doc) => (
+                  <tr
+                    key={doc.id}
+                    className="border-b hover:bg-gray-50 text-sm"
+                  >
+                    <td className="p-3 font-semibold">{doc.load_number}</td>
+                    <td className="p-3">
+                      <a
+                        href={doc.file_path}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-blue-600 underline font-medium"
+                      >
+                        View Scanned BOL
+                      </a>
+                    </td>
+                    <td className="p-3 text-xs text-gray-500">
+                      {new Date(doc.created_at).toLocaleString()}
+                    </td>
+                    <td className="p-3">
+                      <button
+                        onClick={() => handleApprove(doc.load_id, doc.id)}
+                        className="bg-green-600 text-white px-4 py-1.5 rounded text-sm font-medium hover:bg-green-700 shadow-sm"
+                      >
+                        Approve BOL (Set Picked Up)
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
       {activeView === "whatsapp" ? (
         <WhatsAppChatHub
           currentRole="dispatcher"
@@ -1109,7 +1160,7 @@ export default function DispatcherDashboard({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {shipments.filter((s) => s.status === "pending")
+                        {shipments.filter((s) => s.status === "At Warehouse")
                           .length === 0 ? (
                           <tr>
                             <td
@@ -1121,7 +1172,7 @@ export default function DispatcherDashboard({
                           </tr>
                         ) : (
                           shipments
-                            .filter((s) => s.status === "pending")
+                            .filter((s) => s.status === "At Warehouse")
                             .map((s) => {
                               const isChecked =
                                 selectedConsolidationIds.includes(s.id);
@@ -1163,7 +1214,7 @@ export default function DispatcherDashboard({
                                   </td>
                                   <td className="px-4 py-3 text-slate-700">
                                     <div className="flex items-center space-x-1">
-                                      <span>{s.customer_billing_address}</span>
+                                      <span>{s.origin}</span>
                                       <ArrowRight className="h-10 w-10 text-slate-400" />
                                       <span>{s.destination}</span>
                                     </div>
@@ -1185,22 +1236,7 @@ export default function DispatcherDashboard({
                                   <td className="px-4 py-3 font-mono font-medium text-slate-800">
                                     {s.palletCount || 2}
                                   </td>
-                                  <td className="px-4 py-3">
-                                    {s.deliveryCommitment === "guaranteed" ? (
-                                      <span className="bg-emerald-100 text-emerald-800 text-3xs font-bold px-1.5 py-0.5 rounded uppercase">
-                                        Guaranteed
-                                      </span>
-                                    ) : s.deliveryCommitment ===
-                                      "guaranteed_appointment" ? (
-                                      <span className="bg-indigo-100 text-indigo-800 text-3xs font-bold px-1.5 py-0.5 rounded uppercase">
-                                        Appointment
-                                      </span>
-                                    ) : (
-                                      <span className="bg-slate-100 text-slate-700 text-3xs font-semibold px-1.5 py-0.5 rounded uppercase">
-                                        Normal
-                                      </span>
-                                    )}
-                                  </td>
+                                  <td className="px-4 py-3">{s.commitment}</td>
                                 </tr>
                               );
                             })
@@ -1961,7 +1997,7 @@ export default function DispatcherDashboard({
                       4. Cargo, Routing & Dispatch Assets
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
-                      <div>
+                      {/* <div>
                         <label className="block text-3xs font-bold text-slate-500 uppercase">
                           Assigned Driver
                         </label>
@@ -2000,7 +2036,7 @@ export default function DispatcherDashboard({
                             </option>
                           ))}
                         </select>
-                      </div>
+                      </div> */}
                       <div>
                         <label className="block text-3xs font-bold text-slate-500 uppercase font-semibold text-indigo-950">
                           Freight Load Mode
@@ -2016,16 +2052,21 @@ export default function DispatcherDashboard({
                       </div>
                       <div>
                         <label className="block text-3xs font-bold text-slate-500 uppercase font-semibold text-indigo-950">
-                          Shipment Priority
+                          Commitment
                         </label>
                         <select
                           value={priority}
                           onChange={(e) => setPriority(e.target.value)}
                           className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-bold text-indigo-700"
                         >
-                          <option value="standard">Standard</option>
-                          <option value="high">High</option>
-                          <option value="urgent">Urgent</option>
+                          <option value="Normal">Normal Delivery</option>
+                          <option value="Appointment">Appointment</option>
+                          <option value="Guaranteed Delivery">
+                            Guaranteed Delivery
+                          </option>
+                          <option value="Guaranteed with Appointment Need">
+                            Guaranteed with Appointment Need
+                          </option>
                         </select>
                       </div>
                       <div className="col-span-1 md:col-span-2">
@@ -2119,7 +2160,7 @@ export default function DispatcherDashboard({
                                 type="button"
                                 onClick={() => {
                                   setDriverId(driver.id);
-                                  setDriverName(driver.name);
+                                  setDriverName(driver.username);
                                   setTruck(driver.truck);
                                   setTrailer(driver.trailer);
                                 }}
@@ -2132,7 +2173,7 @@ export default function DispatcherDashboard({
                                 <div className="space-y-1">
                                   <div className="flex items-center justify-between gap-1">
                                     <span className="font-extrabold text-2xs truncate block">
-                                      {driver.name}
+                                      {driver.username}
                                     </span>
                                     {isSelected && (
                                       <span className="h-2 w-2 rounded-full bg-white block animate-ping shrink-0" />
@@ -2572,7 +2613,7 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="flex items-center space-x-1 text-slate-700">
-                                <span>{s.customer_billing_address}</span>
+                                <span>{s.origin}</span>
                                 <ArrowRight className="h-10 w-10  text-slate-400" />
                                 <span>{s.destination}</span>
                               </div>
@@ -2590,11 +2631,11 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="text-slate-900">
-                                {s.driver_name}
+                                {s.driver_id ? s.driver_name : "N/A"}
                               </div>
                               <div className="text-slate-500 text-2xs mt-0.5 font-mono">
-                                {s.truck_umber || "TRuck"} •{" "}
-                                {s.trailer_number || "Trailer"}
+                                {s.driver_id ? s.truck_umber : ""}
+                                {s.driver_id ? s.trailer_number : ""}
                               </div>
                             </td>
                             <td className="px-5 py-4">

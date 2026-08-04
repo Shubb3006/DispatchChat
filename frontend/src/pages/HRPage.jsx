@@ -1,44 +1,27 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
-import {
-  Users,
-  UserPlus,
-  Trash2,
-  Check,
-  Lock,
-  UserCheck,
-  AlertCircle,
-} from "lucide-react";
+import { Users, UserPlus, Trash2, Check, Lock, AlertCircle, UserCheck } from "lucide-react";
 
 const AVAILABLE_MODULES = [
-  {
-    id: "dispatcher",
-    label: "Dispatch Console",
-    description: "Access to dispatch shipments & route sequences",
-  },
-  {
-    id: "driver",
-    label: "Driver Terminal",
-    description:
-      "Access to logs, routing stop statuses, and document scan uploads",
-  },
-  {
-    id: "safety",
-    label: "Safety Compliance",
-    description: "Access to safety incidents & Samsara HOS driver log reviews",
-  },
-  {
-    id: "invoicing",
-    label: "Billing & LTL",
-    description: "Access to invoice creation & freight rate calculators",
-  },
-  {
-    id: "customer",
-    label: "Customer Portal",
-    description: "Access to shipment searches and client-facing status updates",
-  },
+  { id: "dispatcher", label: "Dispatch Console", description: "Dispatch shipments & route sequences" },
+  { id: "driver", label: "Driver Terminal", description: "Logs, stop statuses, and document uploads" },
+  { id: "safety", label: "Safety Compliance", description: "Safety incidents & HOS log reviews" },
+  { id: "invoicing", label: "Billing & LTL", description: "Invoice creation & freight rate calculators" },
+  { id: "customer", label: "Customer Portal", description: "Shipment searches and client status updates" },
 ];
+
+const ROLE_COLORS = {
+  super_admin: "bg-purple-100 text-purple-700 border-purple-200",
+  admin: "bg-red-100 text-red-700 border-red-200",
+  dispatcher: "bg-blue-100 text-blue-700 border-blue-200",
+  driver: "bg-green-100 text-green-700 border-green-200",
+  driver_manager: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  customs: "bg-teal-100 text-teal-700 border-teal-200",
+  safety: "bg-orange-100 text-orange-700 border-orange-200",
+  data_entry: "bg-indigo-100 text-indigo-700 border-indigo-200",
+  invoicing: "bg-emerald-100 text-emerald-700 border-emerald-200",
+};
 
 export default function HRPage() {
   const users = useAuthStore((state) => state.users);
@@ -57,109 +40,68 @@ export default function HRPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Fetch users on load of the HR page
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  useEffect(() => { fetchUsers(); }, [fetchUsers]);
 
   const handleRoleChange = (newRole) => {
     setRole(newRole);
-    if (newRole === "driver") {
-      setSelectedModules(["driver"]);
-    } else if (newRole === "dispatcher") {
-      setSelectedModules(["dispatcher"]);
-    } else if (newRole === "driver_manager") {
-      setSelectedModules(["dispatcher"]);
-    } else if (newRole === "customs") {
-      setSelectedModules(["dispatcher"]);
-    } else if (newRole === "data_entry") {
-      setSelectedModules(["dispatcher"]);
-    } else if (newRole === "safety") {
-      setSelectedModules(["safety"]);
-    } else if (newRole === "invoicing") {
-      setSelectedModules(["invoicing"]);
-    } else if (newRole === "admin" || newRole === "super_admin") {
-      setSelectedModules([
-        "dispatcher",
-        "driver",
-        "safety",
-        "invoicing",
-        "customer",
-      ]);
-    }
+    const defaults = {
+      driver: ["driver"],
+      dispatcher: ["dispatcher"],
+      driver_manager: ["dispatcher"],
+      customs: ["dispatcher"],
+      data_entry: ["dispatcher"],
+      safety: ["safety"],
+      invoicing: ["invoicing"],
+      admin: ["dispatcher", "driver", "safety", "invoicing", "customer"],
+      super_admin: ["dispatcher", "driver", "safety", "invoicing", "customer"],
+    };
+    setSelectedModules(defaults[newRole] || ["driver"]);
   };
 
   const handleToggleModule = (modId) => {
     if (role === "admin" || role === "super_admin") return;
-    setSelectedModules((prev) => {
-      if (prev.includes(modId)) {
-        return prev.filter((m) => m !== modId);
-      } else {
-        return [...prev, modId];
-      }
-    });
+    setSelectedModules((prev) => prev.includes(modId) ? prev.filter((m) => m !== modId) : [...prev, modId]);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
-    setSuccess("");
-    if (!name.trim()) {
-      setError("Please enter a full name.");
-      return;
-    }
-    if (!password.trim()) {
-      setError("Please Enter a password");
-      return;
-    }
-    if (!username.trim()) {
-      setError("Please enter a unique username.");
-      return;
-    }
+    setError(""); setSuccess("");
+
+    if (!name.trim()) { setError("Please enter a full name."); return; }
+    if (!password.trim()) { setError("Please enter a password."); return; }
+    if (!username.trim()) { setError("Please enter a username."); return; }
+
     const cleanUsername = username.trim().toLowerCase().replace(/\s+/g, "_");
-    const usernameExists = users.some((u) => u.username === cleanUsername);
-    if (usernameExists) {
+    if (users.some((u) => u.username === cleanUsername)) {
       setError(`Username "@${cleanUsername}" is already taken.`);
       return;
     }
+
     const newUser = {
       id: "USR" + Math.floor(1e3 + Math.random() * 9e3),
       name: name.trim(),
       username: cleanUsername,
       password,
       role,
-      allowedModules:
-        role === "admin" || role === "super_admin"
-          ? ["dispatcher", "driver", "safety", "invoicing", "customer"]
-          : selectedModules,
+      allowedModules: role === "admin" || role === "super_admin"
+        ? ["dispatcher", "driver", "safety", "invoicing", "customer"]
+        : selectedModules,
       createdAt: new Date().toISOString().split("T")[0],
     };
+
     await addUser(newUser);
-    setSuccess(
-      `User "${
-        newUser.name
-      }" was successfully registered as ${role.toUpperCase()}!`
-    );
-    setName("");
-    setUsername("");
-    setPassword("");
-    setRole("driver");
-    setSelectedModules(["driver"]);
+    setSuccess(`"${newUser.name}" added as ${role}.`);
+    setName(""); setUsername(""); setPassword(""); setRole("driver"); setSelectedModules(["driver"]);
   };
 
   const handleDeleteUser = async (id) => {
     await deleteUser(id);
-    if (currentUser && currentUser.id === id) {
-      const currentUsersList = useAuthStore.getState().users;
-      const fallback =
-        currentUsersList.find((u) => u.id !== id) || currentUsersList[0];
-      if (fallback) {
-        useAuthStore.setState({ currentUser: fallback });
-        const isSuperOrAdmin =
-          fallback.role === "super_admin" || fallback.role === "admin";
-        const target = isSuperOrAdmin
-          ? "reporting"
-          : fallback.allowedModules[0] || "customer";
+    if (currentUser?.id === id) {
+      const remaining = useAuthStore.getState().users.find((u) => u.id !== id);
+      if (remaining) {
+        useAuthStore.setState({ currentUser: remaining });
+        const target = remaining.role === "super_admin" || remaining.role === "admin"
+          ? "reporting" : remaining.allowedModules[0] || "customer";
         navigate("/" + target);
       } else {
         useAuthStore.setState({ currentUser: null, isLoggedIn: false });
@@ -169,133 +111,63 @@ export default function HRPage() {
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full overflow-hidden">
-      {/* Left and Middle Column: Directory List */}
-      <div className="lg:col-span-2 flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
-        <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-          <div className="flex items-center space-x-2">
-            <Users className="h-5 w-5 text-slate-600" />
-            <div>
-              <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">
-                Active Team Directory
-              </h2>
-              <p className="text-[10px] text-slate-500">
-                Corporate users, credentials, and functional access permissions
-              </p>
-            </div>
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
+
+      {/* User Directory */}
+      <div className="lg:col-span-2 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <Users className="h-5 w-5 text-slate-500" />
+            <h2 className="font-semibold text-slate-900">Team Directory</h2>
           </div>
-          <span className="px-2.5 py-1 text-[10px] font-mono font-bold bg-slate-200/60 text-slate-700 rounded-full">
-            Total Accounts: {users.length}
-          </span>
+          <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full font-medium">{users.length} accounts</span>
         </div>
 
         <div className="flex-1 overflow-auto divide-y divide-slate-100">
           {users.map((user) => {
             const isSelf = user.id === currentUser?.id;
-            const isProtected =
-              user.role === "super_admin" &&
-              currentUser?.role !== "super_admin";
+            const isProtected = user.role === "super_admin" && currentUser?.role !== "super_admin";
+            const roleStyle = ROLE_COLORS[user.role] || "bg-slate-100 text-slate-600 border-slate-200";
             return (
-              <div
-                key={user.id}
-                className="p-4 flex items-start justify-between hover:bg-slate-50/40 transition-colors"
-              >
+              <div key={user.id} className="px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                 <div className="space-y-1.5 min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="font-bold text-xs text-slate-800">
-                      {user.name}
-                    </span>
-                    <span className="text-[10px] font-mono text-slate-400">
-                      @{user.username}
-                    </span>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-sm text-slate-900">{user.name}</span>
+                    <span className="text-xs text-slate-400">@{user.username}</span>
                     {isSelf && (
-                      <span className="px-1.5 py-0.5 text-[8px] bg-indigo-50 text-indigo-600 border border-indigo-100 rounded font-bold uppercase tracking-wider">
-                        You
-                      </span>
+                      <span className="px-1.5 py-0.5 text-xs bg-blue-50 text-blue-600 border border-blue-100 rounded-full font-medium">You</span>
                     )}
                   </div>
-
-                  {/* Role Badge */}
-                  <div className="flex flex-wrap items-center gap-1.5">
-                    <span
-                      className={`px-2 py-0.5 text-[9px] font-mono font-bold uppercase rounded-sm border ${
-                        user.role === "super_admin"
-                          ? "bg-purple-50 text-purple-700 border-purple-100"
-                          : user.role === "admin"
-                          ? "bg-rose-50 text-rose-700 border-rose-100"
-                          : user.role === "dispatcher"
-                          ? "bg-blue-50 text-blue-700 border-blue-100"
-                          : user.role === "driver"
-                          ? "bg-emerald-50 text-emerald-700 border-emerald-100"
-                          : user.role === "driver_manager"
-                          ? "bg-cyan-50 text-cyan-700 border-cyan-100"
-                          : user.role === "customs"
-                          ? "bg-teal-50 text-teal-700 border-teal-100"
-                          : user.role === "safety"
-                          ? "bg-orange-50 text-orange-700 border-orange-100"
-                          : user.role === "data_entry"
-                          ? "bg-indigo-50 text-indigo-700 border-indigo-100"
-                          : user.role === "invoicing"
-                          ? "bg-green-50 text-green-700 border-green-100"
-                          : "bg-slate-50 text-slate-700 border-slate-200"
-                      }`}
-                    >
-                      {user.role.replace("_", " ")}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className={`px-2 py-0.5 text-xs font-medium rounded-full border capitalize ${roleStyle}`}>
+                      {user.role.replace(/_/g, " ")}
                     </span>
-
-                    <span className="text-[10px] text-slate-400 font-mono">
-                      • Created: {user.createdAt}
-                    </span>
+                    <span className="text-xs text-slate-400">Joined {user.createdAt}</span>
                   </div>
-
-                  {/* Modules list */}
-                  <div className="flex flex-wrap items-center gap-1">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase font-mono mr-1">
-                      Access:
-                    </span>
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <span className="text-xs text-slate-400">Access:</span>
                     {user.role === "admin" || user.role === "super_admin" ? (
-                      <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded font-mono">
-                        ✨ Unrestricted Master Access (All Modules & Reporting)
-                      </span>
+                      <span className="text-xs text-slate-500 italic">All modules</span>
                     ) : (
-                      <>
-                        {user.allowedModules?.map((mod) => (
-                          <span
-                            key={mod}
-                            className="text-[9px] font-semibold text-indigo-600 bg-indigo-50/50 border border-indigo-100 px-1.5 py-0.2 rounded font-mono uppercase"
-                          >
-                            {mod}
-                          </span>
-                        ))}
-                        {(!user.allowedModules ||
-                          user.allowedModules.length === 0) && (
-                          <span className="text-[9px] font-bold text-slate-400 italic">
-                            No modules assigned
-                          </span>
-                        )}
-                      </>
+                      user.allowedModules?.map((mod) => (
+                        <span key={mod} className="text-xs font-medium text-blue-600 bg-blue-50 border border-blue-100 px-1.5 py-0.5 rounded-full capitalize">
+                          {mod}
+                        </span>
+                      ))
                     )}
                   </div>
                 </div>
 
-                {/* Actions */}
-                <div className="flex items-center gap-2">
+                <div className="ml-4 shrink-0">
                   {isProtected ? (
-                    <span
-                      className="text-slate-400 p-1"
-                      title="Super Admin Account Protected"
-                    >
-                      <Lock className="h-3.5 w-3.5" />
-                    </span>
+                    <Lock className="h-4 w-4 text-slate-300" />
                   ) : isSelf ? (
-                    <span className="text-[10px] font-mono text-slate-400 italic">
-                      Current Session
-                    </span>
+                    <span className="text-xs text-slate-400 italic">Current session</span>
                   ) : (
                     <button
                       onClick={() => handleDeleteUser(user.id)}
-                      className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded transition-colors cursor-pointer"
-                      title="Deactivate / Delete User Account"
+                      className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
+                      title="Remove user"
                     >
                       <Trash2 className="h-4 w-4" />
                     </button>
@@ -307,100 +179,52 @@ export default function HRPage() {
         </div>
       </div>
 
-      {/* Right Column: Register Account Form */}
-      <div className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
-        <div className="p-4 border-b border-slate-100 flex items-center space-x-2 bg-slate-50/50">
-          <UserPlus className="h-5 w-5 text-indigo-600" />
-          <div>
-            <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">
-              Register Team Account
-            </h2>
-            <p className="text-[10px] text-slate-500">
-              Create login and assign role capabilities
-            </p>
-          </div>
+      {/* Register Form */}
+      <div className="flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
+          <UserPlus className="h-5 w-5 text-blue-600" />
+          <h2 className="font-semibold text-slate-900">Add Team Member</h2>
         </div>
 
-        <form
-          onSubmit={handleSubmit}
-          className="p-4 flex-1 overflow-auto space-y-4"
-        >
+        <form onSubmit={handleSubmit} className="p-5 flex-1 overflow-auto space-y-4">
           {error && (
-            <div className="p-2.5 bg-red-50 border border-red-100 text-red-700 rounded-lg text-[11px] flex items-start space-x-1.5">
-              <AlertCircle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 p-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-700">
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{error}</span>
             </div>
           )}
-
           {success && (
-            <div className="p-2.5 bg-emerald-50 border border-emerald-100 text-emerald-800 rounded-lg text-[11px] flex items-start space-x-1.5">
-              <UserCheck className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+            <div className="flex items-start gap-2 p-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
+              <UserCheck className="h-4 w-4 shrink-0 mt-0.5" />
               <span>{success}</span>
             </div>
           )}
 
-          {/* Full Name */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Full Name
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Marcus Vance"
-              className="w-full text-xs border border-slate-200 rounded-lg p-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none"
-            />
-          </div>
-
-          {/* Username */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Username
-            </label>
-            <div className="relative">
-              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs font-mono">
-                @
-              </span>
+          {[
+            { label: "Full Name", value: name, set: setName, placeholder: "e.g. Marcus Vance", type: "text" },
+            { label: "Username", value: username, set: setUsername, placeholder: "e.g. marcus_drv", type: "text" },
+            { label: "Password", value: password, set: setPassword, placeholder: "Min 6 characters", type: "password", minLength: 6 },
+          ].map(({ label, value, set, placeholder, type, minLength }) => (
+            <div key={label} className="space-y-1.5">
+              <label className="text-sm font-medium text-slate-700">{label}</label>
               <input
-                type="text"
+                type={type}
                 required
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
-                placeholder="marcus_driver"
-                className="w-full text-xs border border-slate-200 rounded-lg pl-6 pr-2 py-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono"
+                minLength={minLength}
+                value={value}
+                onChange={(e) => set(e.target.value)}
+                placeholder={placeholder}
+                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
               />
             </div>
-          </div>
+          ))}
 
-          {/* password */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Password
-            </label>
-            <div className="relative">
-              <input
-              minLength={6}
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="*********"
-                className="w-full text-xs border border-slate-200 rounded-lg pl-2 pr-2 py-2 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none font-mono"
-              />
-            </div>
-          </div>
-
-          {/* Base Role Selector */}
-          <div className="space-y-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-              Main Corporate Role
-            </label>
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-slate-700">Role</label>
             <select
               value={role}
               onChange={(e) => handleRoleChange(e.target.value)}
-              className="w-full text-xs border border-slate-200 rounded-lg p-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer font-bold"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
             >
               <option value="driver">Driver</option>
               <option value="dispatcher">Dispatcher</option>
@@ -414,84 +238,44 @@ export default function HRPage() {
             </select>
           </div>
 
-          {/* Module Capabilities Checklist */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
-                Functional Capabilities
-              </label>
-              {(role === "admin" || role === "super_admin") && (
-                <span className="text-[9px] font-bold text-rose-600 bg-rose-50 border border-rose-100 px-1.5 py-0.2 rounded font-mono uppercase">
-                  Locked (Full Access)
-                </span>
-              )}
-            </div>
-
-            <p className="text-[9px] text-slate-400 italic">
-              Note: Reporting / Analytics module is restricted and only
-              available to Administrators.
-            </p>
-
-            <div className="space-y-1.5">
-              {AVAILABLE_MODULES.map((mod) => {
-                const isSelected =
-                  role === "admin" ||
-                  role === "super_admin" ||
-                  selectedModules.includes(mod.id);
-                const isDisabled = role === "admin" || role === "super_admin";
-                return (
-                  <button
-                    key={mod.id}
-                    type="button"
-                    disabled={isDisabled}
-                    onClick={() => handleToggleModule(mod.id)}
-                    className={`w-full flex items-start text-left p-2 rounded-lg border text-xs transition-colors ${
-                      isSelected
-                        ? "bg-indigo-50/40 border-indigo-200 text-slate-800"
-                        : "bg-slate-50/50 border-slate-100 text-slate-500"
-                    } ${
-                      isDisabled
-                        ? "opacity-85"
-                        : "cursor-pointer hover:border-indigo-300"
-                    }`}
-                  >
-                    <div className="pt-0.5 mr-2">
-                      <div
-                        className={`w-3.5 h-3.5 rounded border flex items-center justify-center ${
-                          isSelected
-                            ? "bg-indigo-600 border-indigo-600 text-white"
-                            : "border-slate-300 bg-white"
-                        }`}
-                      >
-                        {isSelected && (
-                          <Check className="h-2.5 w-2.5 stroke-[3]" />
-                        )}
+            <label className="text-sm font-medium text-slate-700">Module Access</label>
+            {role === "admin" || role === "super_admin" ? (
+              <p className="text-xs text-slate-500 italic">Full access to all modules</p>
+            ) : (
+              <div className="space-y-2">
+                {AVAILABLE_MODULES.map((mod) => {
+                  const isSelected = selectedModules.includes(mod.id);
+                  return (
+                    <button
+                      key={mod.id}
+                      type="button"
+                      onClick={() => handleToggleModule(mod.id)}
+                      className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left cursor-pointer transition-all ${
+                        isSelected ? "bg-blue-50 border-blue-200 text-slate-800" : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
+                      }`}
+                    >
+                      <div className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${isSelected ? "bg-blue-600 border-blue-600" : "border border-slate-300 bg-white"}`}>
+                        {isSelected && <Check className="h-3 w-3 text-white" strokeWidth={3} />}
                       </div>
-                    </div>
-                    <div>
-                      <div className="font-bold text-[11px] font-sans uppercase tracking-tight">
-                        {mod.label}
+                      <div>
+                        <div className="text-sm font-medium">{mod.label}</div>
+                        <div className="text-xs text-slate-400 mt-0.5">{mod.description}</div>
                       </div>
-                      <div className="text-[9px] text-slate-400 font-sans leading-tight mt-0.5">
-                        {mod.description}
-                      </div>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold py-2 px-4 rounded-lg cursor-pointer transition-colors shadow-sm flex items-center justify-center space-x-1.5 disabled:opacity-50"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2.5 px-4 rounded-xl cursor-pointer transition-colors shadow-sm flex items-center justify-center gap-2 disabled:opacity-50"
           >
             <UserPlus className="h-4 w-4" />
-            <span>
-              {isLoading ? "Adding user...." : "Create & Register User"}
-            </span>
+            <span>{isLoading ? "Adding..." : "Create Account"}</span>
           </button>
         </form>
       </div>

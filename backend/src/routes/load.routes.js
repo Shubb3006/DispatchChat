@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { protectedRoute } from "../middlewares/auth.middleware.js";
 import { authorize } from "../middlewares/role.middleware.js";
-import { createLoad, getAllLoads,getLoadById,updateLoad ,updateLoadStatus,deleteLoad} from "../controllers/load.controller.js";
-
+import { createLoad, getAllLoads,updateLoad ,updateLoadStatus,deleteLoad, approveBOL, uploadBOL, getPendingBOLs} from "../controllers/load.controller.js";
+import {upload} from '../config/multer.js'; // <
 
 const router=Router();
 
@@ -19,16 +19,16 @@ router.get(
     getAllLoads
 );
 
-router.get(
-    "/:id",
-    protectedRoute,
-    getLoadById
-);
+// router.get(
+//     "/:id",
+//     protectedRoute,
+//     getLoadById
+// );
 
 router.put(
     "/:id",
     protectedRoute,
-    authorize("admin","super_admin", "dispatcher"),
+    // authorize("admin","super_admin", "dispatcher"),
     updateLoad
 );
 
@@ -44,5 +44,9 @@ router.delete(
     authorize("admin","super_admin"),
     deleteLoad
 );
+
+router.get("/pending-bols",protectedRoute,getPendingBOLs)
+router.post('/upload-bol',protectedRoute, upload.single('bol_image'), uploadBOL);
+router.post('/approve-bol',protectedRoute, approveBOL);
 
 export default router;

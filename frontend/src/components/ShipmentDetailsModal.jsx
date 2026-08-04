@@ -92,6 +92,7 @@ export default function ShipmentDetailsModal({
     if (matched) {
       onUpdateShipment({
         ...shipment,
+        status: "Driver Assigned For Pickup",
         driver_id: matched.id,
         driver_name: matched.username, // or matched.name
       });
@@ -251,6 +252,7 @@ export default function ShipmentDetailsModal({
         return "bg-slate-100 text-slate-800 border-slate-200";
     }
   };
+  console.log(shipment);
   return (
     <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
       <motion.div
@@ -707,9 +709,9 @@ export default function ShipmentDetailsModal({
                             </span>
                             <p
                               className="font-semibold text-slate-900 truncate"
-                              title={shipment.cargoDescription}
+                              title={shipment.cargo}
                             >
-                              {shipment.cargoDescription}
+                              {shipment.cargo}
                             </p>
                           </div>
 
@@ -759,9 +761,9 @@ export default function ShipmentDetailsModal({
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
                           Driver Notes (Feedback from Road)
                         </h4>
-                        {shipment.driverNotes ? (
+                        {shipment.driver_notes ? (
                           <p className="text-xs text-slate-800 bg-white border border-amber-100 p-3 rounded-lg leading-relaxed whitespace-pre-wrap font-sans">
-                            {shipment.driverNotes}
+                            {shipment.driver_notes}
                           </p>
                         ) : (
                           <p className="text-xs text-slate-400 italic bg-white/40 border border-dashed border-slate-200 p-3 rounded-lg">

@@ -339,43 +339,52 @@ import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./ProtectedRoute";
 import { Loader2, UserCircle, Activity } from "lucide-react";
 
+// Isolated clock component — only this tiny component re-renders every second,
+// not the entire app shell.
+function SystemClock() {
+  const [time, setTime] = useState(
+    () => new Date().toLocaleTimeString("en-US", { hour12: true })
+  );
+  useEffect(() => {
+    const id = setInterval(() => {
+      setTime(new Date().toLocaleTimeString("en-US", { hour12: true }));
+    }, 1000);
+    return () => clearInterval(id);
+  }, []);
+  return <span>{time}</span>;
+}
+
 function LogiSyncApp() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const {
-    isLoggedIn,
-    currentUser,
-    users,
-    logout,
-    checkAuth,
-    isCheckingAuth,
-    fetchUsers,
-  } = useAuthStore();
+  // Select only the specific slices needed — avoids re-rendering on unrelated auth state changes
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
+  const currentUser = useAuthStore((state) => state.currentUser);
+  const users = useAuthStore((state) => state.users);
+  const logout = useAuthStore((state) => state.logout);
+  const checkAuth = useAuthStore((state) => state.checkAuth);
+  const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
+  const fetchUsers = useAuthStore((state) => state.fetchUsers);
+
   const setCurrentUser = (user) => useAuthStore.setState({ currentUser: user });
-  const { fetchShipments, shipments } = useShipmentStore();
+
+  const fetchShipments = useShipmentStore((state) => state.fetchShipments);
+  const shipments = useShipmentStore((state) => state.shipments);
   const messages = useMessageStore((state) => state.messages);
 
   const [currentRole, setCurrentRole] = useState("dispatcher");
-  const [systemTime, setSystemTime] = useState("");
 
-  // Bootstrap Data
+  // Bootstrap Data — run once on mount only
   useEffect(() => {
     checkAuth();
     fetchUsers();
-  }, []);
-
-  useEffect(() => {
     fetchShipments();
-  }, [checkAuth]);
-
-  // System Clock
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setSystemTime(new Date().toLocaleTimeString("en-US", { hour12: true }));
-    }, 1000);
-    return () => clearInterval(interval);
   }, []);
+
+  // System Clock — intentionally omitted from LogiSyncApp state.
+  // The <SystemClock /> component below manages its own tick so the
+  // rest of the app shell does NOT re-render every second.
 
   // Role & Routing Logic
   useEffect(() => {
@@ -408,9 +417,10 @@ function LogiSyncApp() {
     } else if (currentUser) {
       const isSuperOrAdmin =
         currentUser.role === "super_admin" || currentUser.role === "admin";
+      const modules = currentUser.allowedModules || currentUser.allowed_modules || [];
       const defaultRole = isSuperOrAdmin
         ? "reporting"
-        : currentUser.allowedModules?.[0] || "customer";
+        : modules[0] || "customer";
       setCurrentRole(defaultRole);
       navigate("/" + defaultRole);
     }
@@ -555,7 +565,7 @@ function LogiSyncApp() {
           <div className="flex gap-4 items-center">
             <Activity className="w-3 h-3" />
             <span>Server: US-EAST-1</span>
-            <span>{systemTime}</span>
+            <SystemClock />
           </div>
         </footer>
       </div>
