@@ -33,7 +33,6 @@ export const useShipmentStore = create((set, get) => ({
 
   addShipment: async (shipment) => {
     set({ isLoading: true });
-    console.log(shipment);
     try {
       const payload = {
         load_number: shipment.load_number,
@@ -53,13 +52,19 @@ export const useShipmentStore = create((set, get) => ({
 
         shipper_name: shipment.shipperName,
         shipper_phone: shipment.shipperPhone,
-        shipper_address: shipment.shipperAddress,
-        origin: shipment.originCity,
+        shipper_street_address: shipment.shipperAddress,
+        shipper_district: shipment.shipperDistrict,
+        shipper_state: shipment.shipperState,
+        shipper_country: shipment.shipperCountry,
+        shipper_zipcode: shipment.shipperZipcode,
 
         consignee_name: shipment.consigneeName,
         consignee_phone: shipment.consigneePhone,
-        consignee_address: shipment.consigneeAddress,
-        destination: shipment.destinationCity,
+        consignee_street_address: shipment.consigneeAddress,
+        consignee_district: shipment.consigneeDistrict,
+        consignee_state: shipment.consigneeState,
+        consignee_country: shipment.consigneeCountry,
+        consignee_zipcode: shipment.consigneeZipcode,
 
         pickup_date: new Date().toISOString(),
         delivery_date: shipment.eta,
@@ -69,10 +74,10 @@ export const useShipmentStore = create((set, get) => ({
         pieces: shipment.palletCount,
         rate: shipment.priceInvoice,
       };
+      console.log(payload);
       // Save shipment as load to backend API
-      const response = await axiosInstance
-        .post("/load", payload)
-        .catch(() => axiosInstance.post("/loads", payload));
+      const response = await axiosInstance.post("/load", payload)
+      
       const savedShipment = response.data.load || shipment;
 
       toast.success(

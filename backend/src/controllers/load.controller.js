@@ -277,7 +277,6 @@ const supabase = (supabaseUrl.startsWith('http'))
 export const createLoad = async (req, res) => {
   try {
     const dispatcher_id = req.body.dispatcher_id || (req.user ? req.user.id : null);
-
     const {
       load_number,
       // driver_id,
@@ -291,14 +290,18 @@ export const createLoad = async (req, res) => {
       customer_billing_address,
 
       shipper_name,
-      shipper_phone,
-      shipper_address,
-      origin,
+      shipper_zipcode,
+      shipper_street_address,
+      shipper_district,
+      shipper_state,
+      shipper_country,
 
       consignee_name,
-      consignee_phone,
-      consignee_address,
-      destination,
+      consignee_zipcode,
+      consignee_street_address,
+      consignee_district,
+      consignee_state,
+      consignee_country,
 
       pickup_date,
       delivery_date,
@@ -327,14 +330,18 @@ export const createLoad = async (req, res) => {
         customer_billing_address,
 
         shipper_name,
-        shipper_phone,
-        shipper_address,
-        origin,
+        shipper_zipcode,
+        shipper_street_address,
+        shipper_district,
+        shipper_state,
+        shipper_country,
 
         consignee_name,
-        consignee_phone,
-        consignee_address,
-        destination,
+        consignee_zipcode,
+        consignee_street_address,
+        consignee_district,
+        consignee_state,
+        consignee_country,
 
         pickup_date,
         delivery_date,
@@ -352,7 +359,7 @@ export const createLoad = async (req, res) => {
         $10,$11,$12,$13,
         $14,$15,$16,$17,
         $18,$19,
-        $20,$21,$22
+        $20,$21,$22,$23,$24,$25,$26
       )
       RETURNING *;
       `,
@@ -367,14 +374,18 @@ export const createLoad = async (req, res) => {
         customer_billing_address,
 
         shipper_name,
-        shipper_phone,
-        shipper_address,
-        origin,
+        shipper_zipcode,
+        shipper_street_address,
+        shipper_district,
+        shipper_state,
+        shipper_country,
 
         consignee_name,
-        consignee_phone,
-        consignee_address,
-        destination,
+        consignee_zipcode,
+        consignee_street_address,
+        consignee_district,
+        consignee_state,
+        consignee_country,
 
         pickup_date,
         delivery_date,

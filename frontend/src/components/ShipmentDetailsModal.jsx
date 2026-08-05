@@ -569,29 +569,45 @@ export default function ShipmentDetailsModal({
                                   {shipment.shipper_name || "N/A"}
                                 </p>
                               </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper Phone
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_phone || "N/A"}
-                                </p>
-                              </div>
                             </div>
                             <div className="space-y-1">
                               <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper Address
+                                Shipper Street Address
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.shipper_address || "N/A"}
+                                {shipment.shipper_street_address || "N/A"}
                               </p>
                             </div>
                             <div className="space-y-1">
                               <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Origin City
+                                Shipper District
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.originCity || "N/A"}
+                                {shipment.shipper_district || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Shipper Zipcode
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.shipper_zipcode || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Shipper State
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.shipper_state || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Shipper Country
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.shipper_country || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -611,29 +627,45 @@ export default function ShipmentDetailsModal({
                                   {shipment.consignee_name || "N/A"}
                                 </p>
                               </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee Phone
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_phone || "N/A"}
-                                </p>
-                              </div>
                             </div>
                             <div className="space-y-1">
                               <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee Address
+                                Consignee Street Address
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.consignee_address || "N/A"}
+                                {shipment.consignee_street_address || "N/A"}
                               </p>
                             </div>
                             <div className="space-y-1">
                               <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Destination City
+                                Consignee District
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.destination || "N/A"}
+                                {shipment.consignee_district || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Consignee Zipcode
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.consignee_zipcode || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Consignee State
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.consignee_state || "N/A"}
+                              </p>
+                            </div>
+                            <div className="space-y-1">
+                              <span className="text-slate-400 uppercase font-mono text-3xs">
+                                Consignee Country
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.consignee_country || "N/A"}
                               </p>
                             </div>
                           </div>
@@ -787,11 +819,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="text"
-                              value={editedShipment.customerName}
+                              value={editedShipment.customer_name}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  customerName: e.target.value,
+                                  customer_name: e.target.value,
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -803,11 +835,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="email"
-                              value={editedShipment.customerEmail || ""}
+                              value={editedShipment.customer_email || ""}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  customerEmail: e.target.value,
+                                  customer_email: e.target.value,
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -819,11 +851,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="text"
-                              value={editedShipment.customerPhone || ""}
+                              value={editedShipment.customer_phone || ""}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  customerPhone: e.target.value,
+                                  customer_phone: e.target.value,
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -835,11 +867,13 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="text"
-                              value={editedShipment.customerAddress || ""}
+                              value={
+                                editedShipment.customer_billing_address || ""
+                              }
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  customerAddress: e.target.value,
+                                  customer_billing_address: e.target.value,
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -862,27 +896,11 @@ export default function ShipmentDetailsModal({
                                 </label>
                                 <input
                                   type="text"
-                                  value={editedShipment.shipperName || ""}
+                                  value={editedShipment.shipper_name || ""}
                                   onChange={(e) =>
                                     setEditedShipment({
                                       ...editedShipment,
-                                      shipperName: e.target.value,
-                                    })
-                                  }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                  Shipper Phone
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editedShipment.shipperPhone || ""}
-                                  onChange={(e) =>
-                                    setEditedShipment({
-                                      ...editedShipment,
-                                      shipperPhone: e.target.value,
+                                      shipper_name: e.target.value,
                                     })
                                   }
                                   className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -891,15 +909,17 @@ export default function ShipmentDetailsModal({
                             </div>
                             <div>
                               <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Shipper Address
+                                Shipper Street Address
                               </label>
                               <input
                                 type="text"
-                                value={editedShipment.shipperAddress || ""}
+                                value={
+                                  editedShipment.shipper_street_address || ""
+                                }
                                 onChange={(e) =>
                                   setEditedShipment({
                                     ...editedShipment,
-                                    shipperAddress: e.target.value,
+                                    shipper_street_address: e.target.value,
                                   })
                                 }
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -907,15 +927,63 @@ export default function ShipmentDetailsModal({
                             </div>
                             <div>
                               <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Origin City / Prov / State
+                                Shipper District
                               </label>
                               <input
                                 type="text"
-                                value={editedShipment.originCity || ""}
+                                value={editedShipment.shipper_district || ""}
                                 onChange={(e) =>
                                   setEditedShipment({
                                     ...editedShipment,
-                                    originCity: e.target.value,
+                                    shipper_district: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Shipper Zipcode
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.shipper_zipcode || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    shipper_zipcode: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Shipper State
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.shipper_state || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    shipper_state: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Shipper Country
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.shipper_country || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    shipper_country: e.target.value,
                                   })
                                 }
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -936,27 +1004,11 @@ export default function ShipmentDetailsModal({
                                 </label>
                                 <input
                                   type="text"
-                                  value={editedShipment.consigneeName || ""}
+                                  value={editedShipment.consignee_name || ""}
                                   onChange={(e) =>
                                     setEditedShipment({
                                       ...editedShipment,
-                                      consigneeName: e.target.value,
-                                    })
-                                  }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                                />
-                              </div>
-                              <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                  Consignee Phone
-                                </label>
-                                <input
-                                  type="text"
-                                  value={editedShipment.consigneePhone || ""}
-                                  onChange={(e) =>
-                                    setEditedShipment({
-                                      ...editedShipment,
-                                      consigneePhone: e.target.value,
+                                      consignee_name: e.target.value,
                                     })
                                   }
                                   className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -965,15 +1017,17 @@ export default function ShipmentDetailsModal({
                             </div>
                             <div>
                               <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Consignee Address
+                                Consignee Street Address
                               </label>
                               <input
                                 type="text"
-                                value={editedShipment.consigneeAddress || ""}
+                                value={
+                                  editedShipment.consignee_street_address || ""
+                                }
                                 onChange={(e) =>
                                   setEditedShipment({
                                     ...editedShipment,
-                                    consigneeAddress: e.target.value,
+                                    consignee_street_address: e.target.value,
                                   })
                                 }
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -981,15 +1035,63 @@ export default function ShipmentDetailsModal({
                             </div>
                             <div>
                               <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Destination City / Prov / State
+                                Consignee District
                               </label>
                               <input
                                 type="text"
-                                value={editedShipment.destinationCity || ""}
+                                value={editedShipment.consignee_district || ""}
                                 onChange={(e) =>
                                   setEditedShipment({
                                     ...editedShipment,
-                                    destinationCity: e.target.value,
+                                    consignee_district: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Consignee Zipcode
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.consignee_zipcode || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    consignee_zipcode: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Consignee State
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.consignee_state || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    consignee_state: e.target.value,
+                                  })
+                                }
+                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                Consignee Country
+                              </label>
+                              <input
+                                type="text"
+                                value={editedShipment.consignee_country || ""}
+                                onChange={(e) =>
+                                  setEditedShipment({
+                                    ...editedShipment,
+                                    consignee_country: e.target.value,
                                   })
                                 }
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"

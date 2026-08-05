@@ -1,4 +1,58 @@
 import React, { useState, useEffect } from "react";
+
+const US_STATES = [
+  { code: "AL", name: "Alabama" },
+  { code: "AK", name: "Alaska" },
+  { code: "AZ", name: "Arizona" },
+  { code: "AR", name: "Arkansas" },
+  { code: "CA", name: "California" },
+  { code: "CO", name: "Colorado" },
+  { code: "CT", name: "Connecticut" },
+  { code: "DE", name: "Delaware" },
+  { code: "FL", name: "Florida" },
+  { code: "GA", name: "Georgia" },
+  { code: "HI", name: "Hawaii" },
+  { code: "ID", name: "Idaho" },
+  { code: "IL", name: "Illinois" },
+  { code: "IN", name: "Indiana" },
+  { code: "IA", name: "Iowa" },
+  { code: "KS", name: "Kansas" },
+  { code: "KY", name: "Kentucky" },
+  { code: "LA", name: "Louisiana" },
+  { code: "ME", name: "Maine" },
+  { code: "MD", name: "Maryland" },
+  { code: "MA", name: "Massachusetts" },
+  { code: "MI", name: "Michigan" },
+  { code: "MN", name: "Minnesota" },
+  { code: "MS", name: "Mississippi" },
+  { code: "MO", name: "Missouri" },
+  { code: "MT", name: "Montana" },
+  { code: "NE", name: "Nebraska" },
+  { code: "NV", name: "Nevada" },
+  { code: "NH", name: "New Hampshire" },
+  { code: "NJ", name: "New Jersey" },
+  { code: "NM", name: "New Mexico" },
+  { code: "NY", name: "New York" },
+  { code: "NC", name: "North Carolina" },
+  { code: "ND", name: "North Dakota" },
+  { code: "OH", name: "Ohio" },
+  { code: "OK", name: "Oklahoma" },
+  { code: "OR", name: "Oregon" },
+  { code: "PA", name: "Pennsylvania" },
+  { code: "RI", name: "Rhode Island" },
+  { code: "SC", name: "South Carolina" },
+  { code: "SD", name: "South Dakota" },
+  { code: "TN", name: "Tennessee" },
+  { code: "TX", name: "Texas" },
+  { code: "UT", name: "Utah" },
+  { code: "VT", name: "Vermont" },
+  { code: "VA", name: "Virginia" },
+  { code: "WA", name: "Washington" },
+  { code: "WV", name: "West Virginia" },
+  { code: "WI", name: "Wisconsin" },
+  { code: "WY", name: "Wyoming" },
+  { code: "DC", name: "District of Columbia" },
+];
 import { useDriverStore } from "../stores/useDriverstore";
 import { useAssetStore } from "../stores/useAssetStore";
 import { useCustomerStore } from "../stores/useCustomerStore";
@@ -25,6 +79,8 @@ import {
   Paperclip,
   FileText,
   Image,
+  MapPin,
+  Search,
 } from "lucide-react";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
@@ -108,9 +164,17 @@ export default function DispatcherDashboard({
   const [shipperName, setShipperName] = useState("");
   const [shipperAddress, setShipperAddress] = useState("");
   const [shipperPhone, setShipperPhone] = useState("");
+  const [shipperDistrict, setShipperDistrict] = useState("");
+  const [shipperZipcode, setShipperZipcode] = useState("");
+  const [shipperState, setShipperState] = useState("");
+  const [shipperCountry, setShipperCountry] = useState("");
   const [consigneeName, setConsigneeName] = useState("");
   const [consigneeAddress, setConsigneeAddress] = useState("");
   const [consigneePhone, setConsigneePhone] = useState("");
+  const [consigneeDistrict, setConsigneeDistrict] = useState("");
+  const [consigneeZipcode, setConsigneeZipcode] = useState("");
+  const [consigneeState, setConsigneeState] = useState("");
+  const [consigneeCountry, setConsigneeCountry] = useState("");
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [driverId, setDriverId] = useState("");
@@ -122,13 +186,16 @@ export default function DispatcherDashboard({
   const [pallets, setPallets] = useState(4);
   const [distance, setDistance] = useState(300);
   const [loadType, setLoadType] = useState("LTL");
-  const [priority, setPriority] = useState("standard");
+  const [priority, setPriority] = useState("Normal Delivery");
   const [isEditingDetails, setIsEditingDetails] = useState(false);
   const [editedShipment, setEditedShipment] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const [aiError, setAiError] = useState(null);
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [isUploadingRateCon, setIsUploadingRateCon] = useState(false);
+  const [plannerDestSearch, setPlannerDestSearch] = useState("");
+  const [plannerSelectedState, setPlannerSelectedState] = useState("all");
+
   const getDriverRecommendations = (loadWeight, loadPallets, loadOrigin) => {
     return mockDrivers
       .map((drv) => {
@@ -238,6 +305,158 @@ export default function DispatcherDashboard({
       })
       .sort((a, b) => b.score - a.score);
   };
+
+  const commitmentBadges = {
+    "Normal Delivery": "bg-slate-100 text-slate-700 border-slate-300",
+    "Guaranteed Delivery": "bg-blue-100 text-blue-900 border-blue-300",
+    "Appointment Delivery": "bg-amber-100 text-amber-900 border-amber-300",
+    "Guaranteed with Appointment Need":
+      "bg-purple-100 text-purple-900 border-purple-300",
+  };
+  // const filteredWarehouseLoads = React.useMemo(() => {
+  //   return shipments.filter((s) => {
+  //     const st = String(s.status || "")
+  //       .toLowerCase()
+  //       .replace(/\s+/g, "_");
+  //     const isAtWarehouse =
+  //       st === "at_warehouse" ||
+  //       st === "at warehouse" ||
+  //       s.status === "At Warehouse";
+  //     if (!isAtWarehouse) return false;
+
+  //     if (plannerSelectedState && plannerSelectedState !== "all") {
+  //       const stateCode = plannerSelectedState.toLowerCase();
+  //       const stateObj = US_STATES.find(
+  //         (stObj) => stObj.code.toLowerCase() === stateCode
+  //       );
+  //       const stateName = stateObj ? stateObj.name.toLowerCase() : "";
+
+  //       const destText = (
+  //         (s.destination || "") +
+  //         " " +
+  //         (s.destinationCity || "") +
+  //         " " +
+  //         (s.destinationState || "") +
+  //         " " +
+  //         (s.customer_city || "") +
+  //         " " +
+  //         (s.consigneeAddress || "")
+  //       ).toLowerCase();
+
+  //       const matchesCode = new RegExp(`\\b${stateCode}\\b`, "i").test(
+  //         destText
+  //       );
+  //       const matchesName = stateName && destText.includes(stateName);
+
+  //       if (!matchesCode && !matchesName) return false;
+  //     }
+
+  //     if (plannerDestSearch.trim()) {
+  //       const q = plannerDestSearch.trim().toLowerCase();
+  //       const searchTarget = (
+  //         (s.destination || "") +
+  //         " " +
+  //         (s.destinationCity || "") +
+  //         " " +
+  //         (s.destinationState || "") +
+  //         " " +
+  //         (s.customer_city || "") +
+  //         " " +
+  //         (s.consigneeAddress || "") +
+  //         " " +
+  //         (s.load_number || "") +
+  //         " " +
+  //         (s.tracking_number || "") +
+  //         " " +
+  //         (s.customer_name || "")
+  //       ).toLowerCase();
+
+  //       if (!searchTarget.includes(q)) return false;
+  //     }
+
+  //     return true;
+  //   });
+  // }, [shipments, plannerSelectedState, plannerDestSearch]);
+  const filteredWarehouseLoads = React.useMemo(() => {
+    const commitmentOrder = {
+      "Guaranteed with Appointment Need": 1,
+      "Appointment Delivery": 3,
+      "Guaranteed Delivery": 2,
+      "Normal Delivery": 4,
+    };
+
+    return shipments
+      .filter((s) => {
+        const st = String(s.status || "")
+          .toLowerCase()
+          .replace(/\s+/g, "_");
+
+        const isAtWarehouse =
+          st === "at_warehouse" ||
+          st === "at warehouse" ||
+          s.status === "At Warehouse";
+
+        if (!isAtWarehouse) return false;
+
+        if (plannerSelectedState && plannerSelectedState !== "all") {
+          const stateCode = plannerSelectedState.toLowerCase();
+          const stateObj = US_STATES.find(
+            (stObj) => stObj.code.toLowerCase() === stateCode
+          );
+          const stateName = stateObj ? stateObj.name.toLowerCase() : "";
+
+          const destText = (
+            (s.destination || "") +
+            " " +
+            (s.destinationCity || "") +
+            " " +
+            (s.destinationState || "") +
+            " " +
+            (s.customer_city || "") +
+            " " +
+            (s.consigneeAddress || "")
+          ).toLowerCase();
+
+          const matchesCode = new RegExp(`\\b${stateCode}\\b`, "i").test(
+            destText
+          );
+          const matchesName = stateName && destText.includes(stateName);
+
+          if (!matchesCode && !matchesName) return false;
+        }
+
+        if (plannerDestSearch.trim()) {
+          const q = plannerDestSearch.trim().toLowerCase();
+          const searchTarget = (
+            (s.destination || "") +
+            " " +
+            (s.destinationCity || "") +
+            " " +
+            (s.destinationState || "") +
+            " " +
+            (s.customer_city || "") +
+            " " +
+            (s.consigneeAddress || "") +
+            " " +
+            (s.load_number || "") +
+            " " +
+            (s.tracking_number || "") +
+            " " +
+            (s.customer_name || "")
+          ).toLowerCase();
+
+          if (!searchTarget.includes(q)) return false;
+        }
+
+        return true;
+      })
+      .sort((a, b) => {
+        const aPriority = commitmentOrder[a.commitment] ?? 999;
+        const bPriority = commitmentOrder[b.commitment] ?? 999;
+
+        return aPriority - bPriority;
+      });
+  }, [shipments, plannerSelectedState, plannerDestSearch]);
   const filteredAndSortedShipments = React.useMemo(() => {
     return shipments
       .filter((s) => {
@@ -264,9 +483,11 @@ export default function DispatcherDashboard({
         }
         if (globalSearchQuery.trim() !== "") {
           const query = globalSearchQuery.toLowerCase();
-          const matchesTracking = s.load_number.toLowerCase().includes(query);
-          const matchesCustomer = s.customer_name.toLowerCase().includes(query);
-          const matchesDriver = s.driver_name.toLowerCase().includes(query);
+          const matchesTracking = s.load_number?.toLowerCase()?.includes(query);
+          const matchesCustomer = s.customer_name
+            ?.toLowerCase()
+            ?.includes(query);
+          const matchesDriver = s.driver_name?.toLowerCase()?.includes(query);
           const matchesCity =
             s.customer_billing_address.toLowerCase().includes(query) ||
             s.destination.toLowerCase().includes(query);
@@ -396,6 +617,7 @@ export default function DispatcherDashboard({
     sortBy,
     sortOrder,
   ]);
+  console.log(filteredWarehouseLoads);
   const handleConsolidateTrips = () => {
     if (!consolidationDriverId) {
       alert("Please select a driver");
@@ -701,7 +923,8 @@ export default function DispatcherDashboard({
   };
   const handleCreateLoad = async (e) => {
     e.preventDefault();
-    if (!customerName || !origin || !destination) return;
+    console.log("ss");
+    if (!customerName || !shipperAddress || !consigneeAddress) return;
     // Robust parsing of load/tracking numbers (supporting custom prefixes like "LOAD " or "L" or "LD-")
     let maxNum = 10005;
     let preferredPrefix = "";
@@ -757,9 +980,17 @@ export default function DispatcherDashboard({
       shipperName: shipperName || `${customerName} Depot`,
       shipperAddress: shipperAddress || origin,
       shipperPhone,
+      shipperDistrict,
+      shipperState,
+      shipperCountry,
+      shipperZipcode,
       consigneeName: consigneeName || `${customerName} Consignee`,
       consigneeAddress: consigneeAddress || destination,
       consigneePhone,
+      consigneeDistrict,
+      consigneeState,
+      consigneeCountry,
+      consigneeZipcode,
       status: "pending",
       // driverId,
       // driverName,
@@ -814,29 +1045,36 @@ export default function DispatcherDashboard({
       // ],
     };
     const success = await addShipment(newShipment);
+    console.log(success);
     if (success) {
       setSelectedShipment(newShipment);
+      setShowAddForm(false);
+      setCustomerId("CUST001");
+      setCustomerName("AeroParts Manufacturing");
+      setCustomerEmail("logistics@aeroparts.com");
+      setCustomerPhone("+1 (416) 555-0100");
+      setCustomerAddress("150 Industrial Pkwy, Sector 4, Toronto, ON");
+
+      setShipperName("");
+      setShipperAddress("");
+      setShipperCountry("");
+      setShipperDistrict("");
+      setShipperState("");
+      setShipperZipcode("");
+
+      setConsigneeName("");
+      setConsigneeAddress("");
+      setConsigneeCountry("");
+      setConsigneeDistrict("");
+      setConsigneeState("");
+      setConsigneeZipcode("");
+      setPriority("Normal Delivery");
+      setCargo("");
+      setFormCommitment("normal");
+      setFormCommitmentDate("");
+      setFormCommitmentTime("");
     }
     // setIsDetailModalOpen(true);
-    setShowAddForm(false);
-    setCustomerId("CUST001");
-    setCustomerName("AeroParts Manufacturing");
-    setCustomerEmail("logistics@aeroparts.com");
-    setCustomerPhone("+1 (416) 555-0100");
-    setCustomerAddress("150 Industrial Pkwy, Sector 4, Toronto, ON");
-    setPbNum("");
-    setShipperName("");
-    setShipperAddress("");
-    setShipperPhone("");
-    setConsigneeName("");
-    setConsigneeAddress("");
-    setConsigneePhone("");
-    setOrigin("");
-    setDestination("");
-    setCargo("");
-    setFormCommitment("normal");
-    setFormCommitmentDate("");
-    setFormCommitmentTime("");
   };
   const activeChatMessages = selectedShipment
     ? messages.filter(
@@ -1137,10 +1375,78 @@ export default function DispatcherDashboard({
 
               {/* Step 2: Bundle Unassigned Shipments */}
               <div className="space-y-3">
-                <h4 className="text-xs font-bold font-mono text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
-                  <Layers className="h-4 w-4 text-indigo-500" />
-                  2. Select Shipments to Bundle
-                </h4>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                  <h4 className="text-xs font-bold font-mono text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
+                    <Layers className="h-4 w-4 text-indigo-500" />
+                    2. Select Shipments to Bundle
+                  </h4>
+                  <span className="text-3xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                    Showing {filteredWarehouseLoads.length} warehouse loads
+                  </span>
+                </div>
+                <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-3xs font-extrabold uppercase font-mono text-indigo-900 tracking-wider flex items-center gap-1">
+                      <MapPin className="h-3.5 w-3.5 text-indigo-600" /> Filter
+                      Loads by Destination Location / US State
+                    </span>
+                    {(plannerDestSearch || plannerSelectedState !== "all") && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPlannerDestSearch("");
+                          setPlannerSelectedState("all");
+                        }}
+                        className="text-3xs font-bold text-rose-600 hover:text-rose-800 underline cursor-pointer"
+                      >
+                        Clear Search
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
+                    {/* US State Selector (51 States/Territories) */}
+                    <div className="sm:col-span-5">
+                      <select
+                        value={plannerSelectedState}
+                        onChange={(e) =>
+                          setPlannerSelectedState(e.target.value)
+                        }
+                        className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                      >
+                        <option value="all">
+                          📍 All US Destination States (51 States)
+                        </option>
+                        {US_STATES.map((st) => (
+                          <option key={st.code} value={st.code}>
+                            {st.code} - {st.name}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+
+                    {/* Search Input & Button */}
+                    <div className="sm:col-span-7 flex gap-1.5">
+                      <div className="relative flex-1">
+                        <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          value={plannerDestSearch}
+                          onChange={(e) => setPlannerDestSearch(e.target.value)}
+                          placeholder="Search destination city, state, zip (e.g. TX, Chicago, 48201)..."
+                          className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
+                      >
+                        <Search className="h-3.5 w-3.5" />
+                        <span>Search</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
 
                 {/* Table of eligible shipments */}
                 <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
@@ -1160,86 +1466,91 @@ export default function DispatcherDashboard({
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-100">
-                        {shipments.filter((s) => s.status === "At Warehouse")
-                          .length === 0 ? (
+                        {filteredWarehouseLoads.length === 0 ? (
                           <tr>
                             <td
                               colSpan={7}
                               className="px-4 py-8 text-center text-slate-500 font-medium"
                             >
-                              No unassigned loads available for consolidation.
+                              {plannerDestSearch ||
+                              plannerSelectedState !== "all"
+                                ? "No warehouse loads found matching destination search criteria."
+                                : "No unassigned loads available for consolidation at warehouse."}
                             </td>
                           </tr>
                         ) : (
-                          shipments
-                            .filter((s) => s.status === "At Warehouse")
-                            .map((s) => {
-                              const isChecked =
-                                selectedConsolidationIds.includes(s.id);
-                              return (
-                                <tr
-                                  key={s.id}
-                                  className={`hover:bg-slate-50 transition-colors ${
-                                    isChecked
-                                      ? "bg-indigo-50/20 font-medium"
-                                      : ""
-                                  }`}
-                                >
-                                  <td className="px-4 py-3 text-center">
-                                    <input
-                                      type="checkbox"
-                                      checked={isChecked}
-                                      onChange={() => {
-                                        if (isChecked) {
-                                          setSelectedConsolidationIds(
-                                            selectedConsolidationIds.filter(
-                                              (id) => id !== s.id
-                                            )
-                                          );
-                                        } else {
-                                          setSelectedConsolidationIds([
-                                            ...selectedConsolidationIds,
-                                            s.id,
-                                          ]);
-                                        }
-                                      }}
-                                      className="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
-                                    />
-                                  </td>
-                                  <td className="px-4 py-3 font-semibold text-slate-900">
-                                    <div>{s.load_number}</div>
-                                    <div className="text-3xs text-slate-500 font-normal truncate max-w-[120px]">
-                                      {s.customer_name}
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3 text-slate-700">
-                                    <div className="flex items-center space-x-1">
-                                      <span>{s.origin}</span>
-                                      <ArrowRight className="h-10 w-10 text-slate-400" />
-                                      <span>{s.destination}</span>
-                                    </div>
-                                  </td>
-                                  <td className="px-4 py-3">
-                                    <span
-                                      className={`px-1.5 py-0.5 rounded text-3xs font-mono font-bold uppercase ${
-                                        (s.loadType || "LTL") === "FTL"
-                                          ? "bg-indigo-100 text-indigo-800"
-                                          : "bg-amber-100 text-amber-800"
-                                      }`}
-                                    >
-                                      {s.loadType || "LTL"}
+                          filteredWarehouseLoads.map((s) => {
+                            const isChecked = selectedConsolidationIds.includes(
+                              s.id
+                            );
+                            return (
+                              <tr
+                                key={s.id}
+                                className={` transition-colors ${
+                                  commitmentBadges[s.commitment]
+                                }`}
+                              >
+                                <td className="px-4 py-3 text-center">
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={() => {
+                                      if (isChecked) {
+                                        setSelectedConsolidationIds(
+                                          selectedConsolidationIds.filter(
+                                            (id) => id !== s.id
+                                          )
+                                        );
+                                      } else {
+                                        setSelectedConsolidationIds([
+                                          ...selectedConsolidationIds,
+                                          s.id,
+                                        ]);
+                                      }
+                                    }}
+                                    className="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
+                                  />
+                                </td>
+                                <td className="px-4 py-3 font-semibold text-slate-900">
+                                  <div>{s.load_number}</div>
+                                  <div className="text-3xs text-slate-500 font-normal truncate max-w-[120px]">
+                                    {s.customer_name}
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3 text-slate-700">
+                                  <div className="flex items-center space-x-1">
+                                    <span>
+                                      {s.shipper_district},{s.shipper_state},
+                                      {s.shipper_country}
                                     </span>
-                                  </td>
-                                  <td className="px-4 py-3 font-mono font-medium text-slate-800">
-                                    {s?.weightLbs?.toLocaleString()} lbs
-                                  </td>
-                                  <td className="px-4 py-3 font-mono font-medium text-slate-800">
-                                    {s.palletCount || 2}
-                                  </td>
-                                  <td className="px-4 py-3">{s.commitment}</td>
-                                </tr>
-                              );
-                            })
+                                    <ArrowRight className="h-10 w-10 text-slate-400" />
+                                    <span>
+                                      {s.consignee_district},{s.consignee_state}
+                                      ,{s.consignee_country}
+                                    </span>
+                                  </div>
+                                </td>
+                                <td className="px-4 py-3">
+                                  <span
+                                    className={`px-1.5 py-0.5 rounded text-3xs font-mono font-bold uppercase ${
+                                      (s.loadType || "LTL") === "FTL"
+                                        ? "bg-indigo-100 text-indigo-800"
+                                        : "bg-amber-100 text-amber-800"
+                                    }`}
+                                  >
+                                    {s.loadType || "LTL"}
+                                  </span>
+                                </td>
+                                <td className="px-4 py-3 font-mono font-medium text-slate-800">
+                                  {s?.weightLbs?.toLocaleString()} lbs
+                                </td>
+                                <td className="px-4 py-3 font-mono font-medium text-slate-800">
+                                  {s.palletCount || 2}
+                                </td>
+                                <td className="px-4 py-3">{s.commitment}</td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
@@ -1875,9 +2186,11 @@ export default function DispatcherDashboard({
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-3xs font-bold text-slate-500 uppercase">
-                              Shipper Name
+                              Shipper Name{" "}
+                              <span className="text-red-800">*</span>
                             </label>
                             <input
+                              required
                               type="text"
                               value={shipperName}
                               onChange={(e) => setShipperName(e.target.value)}
@@ -1885,7 +2198,7 @@ export default function DispatcherDashboard({
                               className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
                             />
                           </div>
-                          <div>
+                          {/* <div>
                             <label className="block text-3xs font-bold text-slate-500 uppercase">
                               Shipper Phone
                             </label>
@@ -1896,13 +2209,15 @@ export default function DispatcherDashboard({
                               placeholder="+1 (416) 555-0199"
                               className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
                             />
-                          </div>
+                          </div> */}
                         </div>
                         <div>
                           <label className="block text-3xs font-bold text-slate-500 uppercase">
-                            Shipper Street Address
+                            Shipper Street Address{" "}
+                            <span className="text-red-800">*</span>
                           </label>
                           <input
+                            required
                             type="text"
                             value={shipperAddress}
                             onChange={(e) => setShipperAddress(e.target.value)}
@@ -1910,15 +2225,59 @@ export default function DispatcherDashboard({
                             className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
                           />
                         </div>
+
                         <div>
                           <label className="block text-3xs font-bold text-slate-500 uppercase">
-                            Origin City & State / Province
+                            Shipper District{" "}
+                            <span className="text-red-800">*</span>
                           </label>
                           <input
                             type="text"
-                            value={origin}
-                            onChange={(e) => setOrigin(e.target.value)}
-                            placeholder="e.g. Toronto, ON"
+                            value={shipperDistrict}
+                            onChange={(e) => setShipperDistrict(e.target.value)}
+                            placeholder="e.g. Montreal"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Shipper State{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={shipperState}
+                            onChange={(e) => setShipperState(e.target.value)}
+                            placeholder="e.g. Montreal"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Shipper Zipcode{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            value={shipperZipcode}
+                            onChange={(e) => setShipperZipcode(e.target.value)}
+                            placeholder="e.g. 12503"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Shipper Country{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={shipperCountry}
+                            onChange={(e) => setShipperCountry(e.target.value)}
+                            placeholder="e.g. Canada"
                             className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
                             required
                           />
@@ -1931,7 +2290,7 @@ export default function DispatcherDashboard({
                       <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                         3. Consignee (Delivery) Details
                       </div>
-                      <div className="space-y-3">
+                      {/* <div className="space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <label className="block text-3xs font-bold text-slate-500 uppercase">
@@ -1983,6 +2342,115 @@ export default function DispatcherDashboard({
                             value={destination}
                             onChange={(e) => setDestination(e.target.value)}
                             placeholder="e.g. Chicago, IL"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                      </div> */}
+                      <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Consignee Name{" "}
+                              <span className="text-red-800">*</span>
+                            </label>
+                            <input
+                              required
+                              type="text"
+                              value={consigneeName}
+                              onChange={(e) => setConsigneeName(e.target.value)}
+                              placeholder="e.g. AeroParts Toronto HQ"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div>
+                          {/* <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Shipper Phone
+                            </label>
+                            <input
+                              type="text"
+                              value={shipperPhone}
+                              onChange={(e) => setShipperPhone(e.target.value)}
+                              placeholder="+1 (416) 555-0199"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div> */}
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee Street Address{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            required
+                            type="text"
+                            value={consigneeAddress}
+                            onChange={(e) =>
+                              setConsigneeAddress(e.target.value)
+                            }
+                            placeholder="e.g. 400 Britannia Rd E, Mississauga, ON"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          />
+                        </div>
+
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee District{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={consigneeDistrict}
+                            onChange={(e) =>
+                              setConsigneeDistrict(e.target.value)
+                            }
+                            placeholder="e.g. Montreal"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee State{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={consigneeState}
+                            onChange={(e) => setConsigneeState(e.target.value)}
+                            placeholder="e.g. Montreal"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee Zipcode{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="number"
+                            value={consigneeZipcode}
+                            onChange={(e) =>
+                              setConsigneeZipcode(e.target.value)
+                            }
+                            placeholder="e.g. 12503"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee Country{" "}
+                            <span className="text-red-800">*</span>
+                          </label>
+                          <input
+                            type="text"
+                            value={consigneeCountry}
+                            onChange={(e) =>
+                              setConsigneeCountry(e.target.value)
+                            }
+                            placeholder="e.g. Canada"
                             className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
                             required
                           />
@@ -2443,9 +2911,17 @@ export default function DispatcherDashboard({
                       className="bg-white border border-slate-300 rounded-lg px-2.5 py-1 text-xs text-slate-700 font-semibold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                     >
                       <option value="all">All Statuses</option>
-                      <option value="pending">Pending</option>
-                      <option value="dispatched">Dispatched</option>
+                      <option value="Driver Assigned For Pickup">
+                        Driver Assigned For Pickup
+                      </option>
+                      <option value="picked_up">Picked Up</option>
+                      <option value="At Warehouse">At Warehouse</option>
+                      <option value="trip_assigned">Trip Assigned</option>
                       <option value="in_transit">In Transit</option>
+                      <option value="at_destination_hub">
+                        At Destination Hub
+                      </option>
+                      <option value="out_for_delivery">Out For Delivery</option>
                       <option value="delivered">Delivered</option>
                     </select>
                   </div>
@@ -2613,9 +3089,15 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="flex items-center space-x-1 text-slate-700">
-                                <span>{s.origin}</span>
+                                <span>
+                                  {s.shipper_district},{s.shipper_state},
+                                  {s.shipper_country}
+                                </span>
                                 <ArrowRight className="h-10 w-10  text-slate-400" />
-                                <span>{s.destination}</span>
+                                <span>
+                                  {s.consignee_district},{s.consignee_state},
+                                  {s.consignee_country}
+                                </span>
                               </div>
                               <div className="text-slate-500 text-2xs mt-0.5">
                                 {s?.waypoints?.length} Total Waypoints
