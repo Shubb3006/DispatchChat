@@ -69,14 +69,14 @@ export default function ShipmentDetailsModal({
     if (isOpen && onMarkMessagesAsRead) {
       onMarkMessagesAsRead(shipment.id, "dispatcher");
     }
-  }, [isOpen, shipment.id, messages.length]);
+  }, [isOpen, shipment.id]);
   useEffect(() => {
     if (activeTab === "chat") {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [activeTab, messages]);
   if (!isOpen) return null;
-  const activeChatMessages = messages.filter(
+  const activeChatMessages = messages?.filter(
     (m) =>
       m.shipmentId === shipment.id ||
       m.recipientId === shipment.driverId ||
@@ -1164,11 +1164,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="number"
-                              value={editedShipment.weightLbs}
+                              value={editedShipment.weight}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  weightLbs: Number(e.target.value),
+                                  weight: Number(e.target.value),
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -1180,11 +1180,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="number"
-                              value={editedShipment.palletCount}
+                              value={editedShipment.pieces}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  palletCount: Number(e.target.value),
+                                  pieces: Number(e.target.value),
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -1196,11 +1196,11 @@ export default function ShipmentDetailsModal({
                             </label>
                             <input
                               type="text"
-                              value={editedShipment.cargoDescription}
+                              value={editedShipment.cargo}
                               onChange={(e) =>
                                 setEditedShipment({
                                   ...editedShipment,
-                                  cargoDescription: e.target.value,
+                                  cargo: e.target.value,
                                 })
                               }
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"

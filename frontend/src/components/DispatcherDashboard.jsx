@@ -1,58 +1,5 @@
 import React, { useState, useEffect } from "react";
 
-const US_STATES = [
-  { code: "AL", name: "Alabama" },
-  { code: "AK", name: "Alaska" },
-  { code: "AZ", name: "Arizona" },
-  { code: "AR", name: "Arkansas" },
-  { code: "CA", name: "California" },
-  { code: "CO", name: "Colorado" },
-  { code: "CT", name: "Connecticut" },
-  { code: "DE", name: "Delaware" },
-  { code: "FL", name: "Florida" },
-  { code: "GA", name: "Georgia" },
-  { code: "HI", name: "Hawaii" },
-  { code: "ID", name: "Idaho" },
-  { code: "IL", name: "Illinois" },
-  { code: "IN", name: "Indiana" },
-  { code: "IA", name: "Iowa" },
-  { code: "KS", name: "Kansas" },
-  { code: "KY", name: "Kentucky" },
-  { code: "LA", name: "Louisiana" },
-  { code: "ME", name: "Maine" },
-  { code: "MD", name: "Maryland" },
-  { code: "MA", name: "Massachusetts" },
-  { code: "MI", name: "Michigan" },
-  { code: "MN", name: "Minnesota" },
-  { code: "MS", name: "Mississippi" },
-  { code: "MO", name: "Missouri" },
-  { code: "MT", name: "Montana" },
-  { code: "NE", name: "Nebraska" },
-  { code: "NV", name: "Nevada" },
-  { code: "NH", name: "New Hampshire" },
-  { code: "NJ", name: "New Jersey" },
-  { code: "NM", name: "New Mexico" },
-  { code: "NY", name: "New York" },
-  { code: "NC", name: "North Carolina" },
-  { code: "ND", name: "North Dakota" },
-  { code: "OH", name: "Ohio" },
-  { code: "OK", name: "Oklahoma" },
-  { code: "OR", name: "Oregon" },
-  { code: "PA", name: "Pennsylvania" },
-  { code: "RI", name: "Rhode Island" },
-  { code: "SC", name: "South Carolina" },
-  { code: "SD", name: "South Dakota" },
-  { code: "TN", name: "Tennessee" },
-  { code: "TX", name: "Texas" },
-  { code: "UT", name: "Utah" },
-  { code: "VT", name: "Vermont" },
-  { code: "VA", name: "Virginia" },
-  { code: "WA", name: "Washington" },
-  { code: "WV", name: "West Virginia" },
-  { code: "WI", name: "Wisconsin" },
-  { code: "WY", name: "Wyoming" },
-  { code: "DC", name: "District of Columbia" },
-];
 import { useDriverStore } from "../stores/useDriverstore";
 import { useAssetStore } from "../stores/useAssetStore";
 import { useCustomerStore } from "../stores/useCustomerStore";
@@ -194,6 +141,7 @@ export default function DispatcherDashboard({
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   const [isUploadingRateCon, setIsUploadingRateCon] = useState(false);
   const [plannerDestSearch, setPlannerDestSearch] = useState("");
+  const [plannerPickSearch, setPlannerPickSearch] = useState("");
   const [plannerSelectedState, setPlannerSelectedState] = useState("all");
 
   const getDriverRecommendations = (loadWeight, loadPallets, loadOrigin) => {
@@ -307,11 +255,13 @@ export default function DispatcherDashboard({
   };
 
   const commitmentBadges = {
-    "Normal Delivery": "bg-slate-100 text-slate-700 border-slate-300",
-    "Guaranteed Delivery": "bg-blue-100 text-blue-900 border-blue-300",
-    "Appointment Delivery": "bg-amber-100 text-amber-900 border-amber-300",
+    "Normal Delivery": "bg-slate-100 text-slate-700 border-slate-200",
+    "Guaranteed Delivery":
+      "bg-amber-100 text-amber-900 border-amber-300 font-bold",
+    "Appointment Delivery":
+      "bg-purple-100 text-purple-900 border-purple-300 font-bold",
     "Guaranteed with Appointment Need":
-      "bg-purple-100 text-purple-900 border-purple-300",
+      "bg-rose-100 text-rose-900 border-rose-300 font-black",
   };
   // const filteredWarehouseLoads = React.useMemo(() => {
   //   return shipments.filter((s) => {
@@ -428,24 +378,30 @@ export default function DispatcherDashboard({
         if (plannerDestSearch.trim()) {
           const q = plannerDestSearch.trim().toLowerCase();
           const searchTarget = (
-            (s.destination || "") +
+            (s.consignee_state || "") +
             " " +
-            (s.destinationCity || "") +
+            (s.consignee_district || "") +
             " " +
-            (s.destinationState || "") +
-            " " +
-            (s.customer_city || "") +
-            " " +
-            (s.consigneeAddress || "") +
-            " " +
-            (s.load_number || "") +
-            " " +
-            (s.tracking_number || "") +
-            " " +
-            (s.customer_name || "")
+            (s.consignee_country || "") +
+            " "
           ).toLowerCase();
 
           if (!searchTarget.includes(q)) return false;
+        }
+
+        if (plannerPickSearch.trim()) {
+          const q = plannerPickSearch.trim().toLowerCase();
+
+          const pickupTarget = (
+            (s.shipper_state || "") +
+            " " +
+            (s.shipper_district || "") +
+            " " +
+            (s.shipper_country || "") +
+            " "
+          ).toLowerCase();
+
+          if (!pickupTarget.includes(q)) return false;
         }
 
         return true;
@@ -456,7 +412,8 @@ export default function DispatcherDashboard({
 
         return aPriority - bPriority;
       });
-  }, [shipments, plannerSelectedState, plannerDestSearch]);
+  }, [shipments, plannerPickSearch, plannerDestSearch]);
+
   const filteredAndSortedShipments = React.useMemo(() => {
     return shipments
       .filter((s) => {
@@ -489,8 +446,8 @@ export default function DispatcherDashboard({
             ?.includes(query);
           const matchesDriver = s.driver_name?.toLowerCase()?.includes(query);
           const matchesCity =
-            s.customer_billing_address.toLowerCase().includes(query) ||
-            s.destination.toLowerCase().includes(query);
+            s.shipper_district.toLowerCase().includes(query) ||
+            s.consignee_district.toLowerCase().includes(query);
           const shipperNames = s?.waypoints
             ?.filter((w) => w.stopType === "pickup")
             ?.map((w) => w.companyName.toLowerCase());
@@ -518,7 +475,7 @@ export default function DispatcherDashboard({
           const matchesPickupLocation = s.customer_billing_address
             .toLowerCase()
             .includes(query);
-          const matchesDeliveryLocation = s.destination
+          const matchesDeliveryLocation = s.consignee_country
             .toLowerCase()
             .includes(query);
           if (searchField === "trackingNumber") return matchesTracking;
@@ -547,21 +504,21 @@ export default function DispatcherDashboard({
       .sort((a, b) => {
         let compareValue = 0;
         if (sortBy === "trackingNumber") {
-          const numA = parseInt(a.trackingNumber, 10) || 0;
-          const numB = parseInt(b.trackingNumber, 10) || 0;
+          const numA = parseInt(a.load_number, 10) || 0;
+          const numB = parseInt(b.load_number, 10) || 0;
           compareValue = numA - numB;
         } else if (sortBy === "weight") {
-          compareValue = a.weightLbs - b.weightLbs;
+          compareValue = a.weight - b.weight;
         } else if (sortBy === "distance") {
           compareValue = a.totalDistanceMiles - b.totalDistanceMiles;
         } else if (sortBy === "eta") {
           compareValue = new Date(a.eta).getTime() - new Date(b.eta).getTime();
         } else if (sortBy === "customerName") {
-          compareValue = a.customerName.localeCompare(b.customerName);
+          compareValue = a.customer_name.localeCompare(b.customer_name);
         } else if (sortBy === "pickupLocation") {
-          compareValue = a.originCity.localeCompare(b.originCity);
+          compareValue = a.shipper_state.localeCompare(b.shipper_state);
         } else if (sortBy === "deliveryLocation") {
-          compareValue = a.destinationCity.localeCompare(b.destinationCity);
+          compareValue = a.consignee_state.localeCompare(b.consignee_state);
         } else if (sortBy === "shipperName") {
           const nameA = a.waypoints
             .filter((w) => w.stopType === "pickup")
@@ -578,9 +535,9 @@ export default function DispatcherDashboard({
             .map((w) => w.address)
             .join(", ");
           const addrB = b.waypoints
-            .filter((w) => w.stopType === "pickup")
-            .map((w) => w.address)
-            .join(", ");
+            ?.filter((w) => w.stopType === "pickup")
+            ?.map((w) => w.address)
+            ?.join(", ");
           compareValue = addrA.localeCompare(addrB);
         } else if (sortBy === "consigneeName") {
           const nameA = a.waypoints
@@ -666,7 +623,7 @@ export default function DispatcherDashboard({
         // driver_name: consolidationDriverName,
         // truck_number: consolidationTruck,
         // trailer_number: consolidationTrailer,
-        // status: "trip_assigned",
+        status: "trip_assigned",
       };
       onUpdateShipment(updatedShipment);
     });
@@ -1387,14 +1344,17 @@ export default function DispatcherDashboard({
                 <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-3 space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="text-3xs font-extrabold uppercase font-mono text-indigo-900 tracking-wider flex items-center gap-1">
-                      <MapPin className="h-3.5 w-3.5 text-indigo-600" /> Filter
-                      Loads by Destination Location / US State
+                      <MapPin className="h-3.5 w-3.5 text-indigo-600" />
+                      Filter Loads by Destination Location / US State
                     </span>
-                    {(plannerDestSearch || plannerSelectedState !== "all") && (
+                    {(plannerDestSearch ||
+                      plannerPickSearch ||
+                      plannerSelectedState !== "all") && (
                       <button
                         type="button"
                         onClick={() => {
                           setPlannerDestSearch("");
+                          setPlannerPickSearch("");
                           setPlannerSelectedState("all");
                         }}
                         className="text-3xs font-bold text-rose-600 hover:text-rose-800 underline cursor-pointer"
@@ -1406,7 +1366,7 @@ export default function DispatcherDashboard({
 
                   <div className="grid grid-cols-1 sm:grid-cols-12 gap-2">
                     {/* US State Selector (51 States/Territories) */}
-                    <div className="sm:col-span-5">
+                    {/* <div className="sm:col-span-5">
                       <select
                         value={plannerSelectedState}
                         onChange={(e) =>
@@ -1423,10 +1383,29 @@ export default function DispatcherDashboard({
                           </option>
                         ))}
                       </select>
-                    </div>
+                    </div> */}
 
                     {/* Search Input & Button */}
-                    <div className="sm:col-span-7 flex gap-1.5">
+                    <div className="sm:col-span-5 flex gap-1.5">
+                      <div className="relative flex-1">
+                        <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400" />
+                        <input
+                          type="text"
+                          value={plannerPickSearch}
+                          onChange={(e) => setPlannerPickSearch(e.target.value)}
+                          placeholder="Search Pickup city, state, zip (e.g. TX, Chicago, 48201)..."
+                          className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                        />
+                      </div>
+                      {/* <button
+                        type="button"
+                        className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
+                      >
+                        <Search className="h-3.5 w-3.5" />
+                        <span>Search</span>
+                      </button> */}
+                    </div>
+                    <div className="sm:col-span-5 flex gap-1.5">
                       <div className="relative flex-1">
                         <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                         <input
@@ -1437,13 +1416,13 @@ export default function DispatcherDashboard({
                           className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
-                      <button
+                      {/* <button
                         type="button"
                         className="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-lg transition-colors flex items-center gap-1 shrink-0 cursor-pointer shadow-xs"
                       >
                         <Search className="h-3.5 w-3.5" />
                         <span>Search</span>
-                      </button>
+                      </button> */}
                     </div>
                   </div>
                 </div>
@@ -1753,36 +1732,32 @@ export default function DispatcherDashboard({
                     const filteredTrips = trips.filter((trip) => {
                       if (!globalSearchQuery.trim()) return true;
                       const query = globalSearchQuery.toLowerCase();
-                      const tripLoads = shipments.filter(
-                        (s) => s.tripId === trip.id
-                      );
-                      const matchesTripNum = trip.trip_number
-                        .toLowerCase()
-                        .includes(query);
-                      const matchesDriver = trip.driver_name
-                        .toLowerCase()
-                        .includes(query);
-                      const matchesTruck =
-                        trip?.truckNumber?.toLowerCase().includes(query) ||
-                        trip?.trailerNumber?.toLowerCase().includes(query);
-                      const matchesLoads = tripLoads.some(
-                        (s) =>
-                          s.tracking_number.toLowerCase().includes(query) ||
-                          s.customer_name.toLowerCase().includes(query) ||
-                          s.customer_city.toLowerCase().includes(query) ||
-                          s.destination.toLowerCase().includes(query) ||
-                          s.waypoints.some(
-                            (w) =>
-                              w.companyName.toLowerCase().includes(query) ||
-                              w.address.toLowerCase().includes(query)
-                          )
-                      );
-                      return (
-                        matchesTripNum ||
-                        matchesDriver ||
-                        matchesTruck ||
-                        matchesLoads
-                      );
+                      // const tripLoads = shipments.filter(
+                      //   (s) => s.tripId === trip.id
+                      // );
+                      const matchesTripNum = trip.trip_number.includes(query);
+                      // const matchesDriver = trip.driver_name
+                      //   .toLowerCase()
+                      //   .includes(query);
+                      // const matchesTruck =
+                      //   trip?.truckNumber?.toLowerCase().includes(query) ||
+                      //   trip?.trailerNumber?.toLowerCase().includes(query);
+                      // const matchesLoads = tripLoads.some(
+                      //   (s) =>
+                      //     s.tracking_number.toLowerCase().includes(query) ||
+                      //     s.customer_name.toLowerCase().includes(query) ||
+                      //     s.customer_city.toLowerCase().includes(query) ||
+                      //     s.destination.toLowerCase().includes(query) ||
+                      //     s.waypoints.some(
+                      //       (w) =>
+                      //         w.companyName.toLowerCase().includes(query) ||
+                      //         w.address.toLowerCase().includes(query)
+                      //     )
+                      // );
+                      return matchesTripNum;
+                      // matchesDriver ||
+                      // matchesTruck ||
+                      // matchesLoads
                     });
                     if (filteredTrips.length === 0) {
                       return (

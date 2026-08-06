@@ -10,6 +10,7 @@ import {
   FilePlus,
   Headphones,
   FileSignature,
+  Warehouse,
 } from "lucide-react";
 
 export default function Navigation({
@@ -23,18 +24,30 @@ export default function Navigation({
   const allTabs = [
     { id: "reporting", label: "Analytics", icon: BarChart3 },
     { id: "data_entry", label: "Data Entry", icon: FilePlus },
-    { id: "dispatcher", label: "Dispatch", icon: Truck, badge: activeShipmentsCount },
+    {
+      id: "dispatcher",
+      label: "Dispatch",
+      icon: Truck,
+      badge: activeShipmentsCount,
+    },
+    { id: "warehouse_manager", label: "Warehouse", icon: Warehouse },
     { id: "driver_manager", label: "Driver Manager", icon: Headphones },
     { id: "customs", label: "Customs", icon: FileSignature },
     { id: "safety", label: "Safety", icon: ShieldCheck },
     { id: "invoicing", label: "Invoicing", icon: FileText },
     { id: "customer", label: "Customer", icon: Globe },
-    { id: "driver", label: "Driver App", icon: NavIcon, badge: unreadMessagesCount },
+    {
+      id: "driver",
+      label: "Driver App",
+      icon: NavIcon,
+      badge: unreadMessagesCount,
+    },
     { id: "hr", label: "HR", icon: Users },
   ];
 
   const filteredTabs = allTabs.filter((tab) => {
-    if (currentUser.role === "super_admin" || currentUser.role === "admin") return true;
+    if (currentUser.role === "super_admin" || currentUser.role === "admin")
+      return true;
     return currentUser.allowed_modules?.includes(tab.id);
   });
 

@@ -2222,7 +2222,7 @@ function NineStepStepper({ rawStatus }) {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-9 gap-2 relative z-10">
+      <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-4 gap-2 relative z-10">
         {NINE_LIFECYCLE_STATUSES.map((step) => {
           const isCompleted = currentRank > step.rank;
           const isActive = currentRank === step.rank;

@@ -327,6 +327,7 @@ import { useShipmentStore } from "./stores/useShipmentStore";
 import { useMessageStore } from "./stores/useMessageStore";
 
 import LoginPage from "./pages/LoginPage";
+
 import DispatcherPage from "./pages/DispatcherPage";
 import DriverManagerPage from "./pages/DriverManagerPage";
 import DriverPage from "./pages/DriverPage";
@@ -338,12 +339,13 @@ import ReportingPage from "./pages/REportingPage";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./ProtectedRoute";
 import { Loader2, UserCircle, Activity } from "lucide-react";
+import WarehouseManagerPage from "./pages/WareHouseManagerPage";
 
 // Isolated clock component — only this tiny component re-renders every second,
 // not the entire app shell.
 function SystemClock() {
-  const [time, setTime] = useState(
-    () => new Date().toLocaleTimeString("en-US", { hour12: true })
+  const [time, setTime] = useState(() =>
+    new Date().toLocaleTimeString("en-US", { hour12: true })
   );
   useEffect(() => {
     const id = setInterval(() => {
@@ -402,6 +404,7 @@ function LogiSyncApp() {
     const validRoles = [
       "dispatcher",
       "driver_manager",
+      "warehouse_manager",
       "driver",
       "safety",
       "invoicing",
@@ -417,7 +420,8 @@ function LogiSyncApp() {
     } else if (currentUser) {
       const isSuperOrAdmin =
         currentUser.role === "super_admin" || currentUser.role === "admin";
-      const modules = currentUser.allowedModules || currentUser.allowed_modules || [];
+      const modules =
+        currentUser.allowedModules || currentUser.allowed_modules || [];
       const defaultRole = isSuperOrAdmin
         ? "reporting"
         : modules[0] || "customer";
@@ -544,16 +548,20 @@ function LogiSyncApp() {
             <Route path="/data_entry" element={<DispatcherPage />} />
             <Route path="/customs" element={<DispatcherPage />} />
             <Route path="/driver_manager" element={<DriverManagerPage />} />
+            <Route
+              path="/warehouse_manager"
+              element={<WarehouseManagerPage />}
+            />
             <Route path="/driver" element={<DriverPage />} />
             <Route path="/safety" element={<SafetyPage />} />
             <Route path="/invoicing" element={<InvoicingPage />} />
             <Route path="/customer" element={<CustomerPage />} />
             <Route path="/hr" element={<HRPage />} />
             <Route path="/reporting" element={<ReportingPage />} />
-            <Route
+            {/* <Route
               path="*"
               element={<Navigate to={`/${currentRole}`} replace />}
-            />
+            /> */}
           </Routes>
         </div>
 
