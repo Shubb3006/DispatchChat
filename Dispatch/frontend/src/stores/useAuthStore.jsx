@@ -176,7 +176,7 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (usernameOrData, password) => {
-    console.log("BACKEND URL:", import.meta.env.VIT_EAPI_URL);
+    console.log("BACKEND URL:", process.env.VITE_API_URL);
     console.log("Logging in user via store...");
     set({ isSigningIn: true, isLoading: true, error: null });
     // Normalize data if it's passed as separate arguments (like login(username, password))
