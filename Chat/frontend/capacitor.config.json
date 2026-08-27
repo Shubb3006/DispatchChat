@@ -1,0 +1,10 @@
+{
+  "appId": "com.fleethub.chatapp",
+  "appName": "Ozack_chat",
+  "webDir": "dist",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "http",
+    "cleartext": true
+  }
+}
