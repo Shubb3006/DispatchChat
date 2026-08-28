@@ -1340,7 +1340,11 @@ export const ingestInboundTenderWebhook = async (req, res) => {
 export const getAutomationStatus = async (req, res) => {
   try {
     const status = getAutomationWorkerStatus();
-    res.status(200).json({ success: true, ...status });
+    res.status(200).json({
+      success: true,
+      geminiConfigured: !!(process.env.GEMINI_API_KEY || "").trim(),
+      ...status,
+    });
   } catch (error) {
     console.error("getAutomationStatus error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -1383,9 +1387,12 @@ export const uploadAndProcessPdfTender = async (req, res) => {
       fileName: file.originalname,
     });
 
+    const usedGemini = result.extraction_source === "gemini-ai";
     res.status(201).json({
       success: true,
-      message: `PDF parsed with Gemini AI! Load #${result.load_number} assigned to ${result.assigned_team}`,
+      message: usedGemini
+        ? `PDF parsed with Gemini AI! Load #${result.load_number} assigned to ${result.assigned_team}`
+        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Gemini unavailable"}`,
       ...result,
     });
   } catch (error) {

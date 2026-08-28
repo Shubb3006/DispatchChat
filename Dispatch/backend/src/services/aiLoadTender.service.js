@@ -1,9 +1,13 @@
 import { GoogleGenAI } from "@google/genai";
 import pool from "../config/db.js";
 
-// Initialize Gemini Client if API key is present
-const apiKey = process.env.GEMINI_API_KEY || "";
-const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
+// Read the key lazily so it works no matter when dotenv/env vars load.
+export const isGeminiConfigured = () => !!(process.env.GEMINI_API_KEY || "").trim();
+
+const getGeminiClient = () => {
+  const apiKey = (process.env.GEMINI_API_KEY || "").trim();
+  return apiKey ? new GoogleGenAI({ apiKey }) : null;
+};
 
 /**
  * Extract structured load tender data from raw email text or PDF buffer using Gemini AI
@@ -69,6 +73,7 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
 }
 `;
 
+  const ai = getGeminiClient();
   try {
     if (ai) {
       let contents = [];
@@ -109,13 +114,21 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
     }
   } catch (err) {
     console.error("Gemini AI extraction error, falling back to heuristic parser:", err);
+    const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
+    return {
+      success: true,
+      source: "heuristic-parser",
+      fallback_reason: `Gemini call failed: ${err.message}`,
+      data: fallbackData,
+    };
   }
 
-  // Heuristic Fallback Parser if Gemini API is offline or key missing
+  // Heuristic Fallback Parser if Gemini API key is missing
   const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
   return {
     success: true,
     source: "heuristic-parser",
+    fallback_reason: "GEMINI_API_KEY is not configured on the backend server",
     data: fallbackData,
   };
 };
