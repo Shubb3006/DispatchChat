@@ -1,4 +1,0 @@
-{
-  "buildCommand": "npm --prefix ./Dispatch/frontend run build",
-  "outputDirectory": "./Dispatch/frontend/dist"
-}
