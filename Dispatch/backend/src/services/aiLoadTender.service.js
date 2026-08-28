@@ -95,7 +95,9 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
       }
 
       const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash",
+        // gemini-2.5-flash was retired for new API keys; Google's error
+        // message directs new users to gemini-3.6-flash.
+        model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
         contents,
       });
 
