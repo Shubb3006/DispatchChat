@@ -94,12 +94,30 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
         contents = [{ text: promptText }];
       }
 
-      const response = await ai.models.generateContent({
-        // gemini-2.5-flash was retired for new API keys; Google's error
-        // message directs new users to gemini-3.6-flash.
-        model: process.env.GEMINI_MODEL || "gemini-3.6-flash",
-        contents,
-      });
+      // gemini-2.5-flash was retired for new API keys; Google's error
+      // message directs new users to gemini-3.6-flash.
+      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
+
+      // Google intermittently returns 503 UNAVAILABLE / 429 under load —
+      // retry with backoff before giving up to the heuristic fallback.
+      const RETRY_DELAYS_MS = [0, 3000, 8000];
+      let response;
+      let lastErr;
+      for (const delay of RETRY_DELAYS_MS) {
+        if (delay) await new Promise((r) => setTimeout(r, delay));
+        try {
+          response = await ai.models.generateContent({ model, contents });
+          lastErr = null;
+          break;
+        } catch (err) {
+          lastErr = err;
+          const msg = String(err.message || "");
+          const transient = /"code":\s*(503|429)|UNAVAILABLE|RESOURCE_EXHAUSTED|overloaded|high demand/i.test(msg);
+          if (!transient) throw err;
+          console.warn(`Gemini transient error, retrying: ${msg.slice(0, 200)}`);
+        }
+      }
+      if (lastErr) throw lastErr;
 
       const responseText = response.text?.trim() || "";
       const cleanedJsonStr = responseText
