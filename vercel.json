@@ -1,6 +1,5 @@
 {
-  "buildCommand": "npm --prefix Dispatch/frontend run build",
+  "buildCommand": "npm run build",
   "outputDirectory": "Dispatch/frontend/dist",
-  "installCommand": "npm --prefix Dispatch/frontend install",
   "framework": "vite"
 }

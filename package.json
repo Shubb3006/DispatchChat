@@ -4,6 +4,7 @@
   "description": "Ozack Main Application runner for Chat and Dispatch (Frontend & Backend)",
   "private": true,
   "scripts": {
+    "build": "npm --prefix Dispatch/frontend run build",
     "dev": "concurrently -n \"CHAT-BE,CHAT-FE,DISPATCH-BE,DISPATCH-FE\" -c \"magenta.bold,cyan.bold,green.bold,yellow.bold\" \"npm --prefix Chat/backend run dev\" \"npm --prefix Chat/frontend run dev\" \"npm --prefix Dispatch/backend run dev\" \"npm --prefix Dispatch/frontend run dev\"",
     "dev:chat": "concurrently -n \"CHAT-BE,CHAT-FE\" -c \"magenta.bold,cyan.bold\" \"npm --prefix Chat/backend run dev\" \"npm --prefix Chat/frontend run dev\"",
     "dev:dispatch": "concurrently -n \"DISPATCH-BE,DISPATCH-FE\" -c \"green.bold,yellow.bold\" \"npm --prefix Dispatch/backend run dev\" \"npm --prefix Dispatch/frontend run dev\"",
