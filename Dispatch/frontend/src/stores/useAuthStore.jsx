@@ -121,7 +121,7 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true, isLoading: true });
     try {
-      const res = await axiosInstance.get("/auth/check", { timeout: 2000 });
+      const res = await axiosInstance.get("/auth/check");
       const user = res.data;
       // Single batched set — one render instead of three
       set({
