@@ -63,7 +63,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-amber-200",
       colorText: "text-amber-700",
       barColor: "bg-amber-400",
-      matchingStatuses: ["pending", "unassigned", "open_tender"],
+      matchingStatuses: ["pending", "unassigned", "open_tender", "entered", "new", "booked"],
     },
     {
       id: "col_dispatched",
