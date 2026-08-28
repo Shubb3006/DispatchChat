@@ -17,6 +17,7 @@ import {
   Phone,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/lib/apiBase";
 
 export default function AIDriverMatcherModal({
   isOpen,
@@ -48,7 +49,7 @@ export default function AIDriverMatcherModal({
 
     try {
       const res = await axios.post(
-        "http://localhost:5555/api/v1/loads/ai-match-drivers",
+        `${API_BASE_URL}/v1/loads/ai-match-drivers`,
         {
           originCity: originToUse,
           destinationCity: destToUse,
@@ -72,7 +73,7 @@ export default function AIDriverMatcherModal({
     setAssigningDriverId(driver.id);
     try {
       const res = await axios.post(
-        "http://localhost:5555/api/v1/loads/auto-assign",
+        `${API_BASE_URL}/v1/loads/auto-assign`,
         {
           loadId: load.id || load.load_number,
           driverId: driver.id,

@@ -43,12 +43,39 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5500;
 
+// Local Vite dev servers, plus any extra origins named in CLIENT_URLS
+// (comma-separated, e.g. CLIENT_URLS="https://tms.example.com").
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  ...(process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
+    .split(",")
+    .map((s) => s.trim().replace(/\/+$/, ""))
+    .filter(Boolean),
+];
+
+// The Vercel frontend, which a fixed list cannot cover: alongside the stable
+// production domain, every push publishes a preview under a generated hostname.
+// The second pattern is scoped to our own Vercel account slug.
+const allowedOriginPatterns = [
+  /^https:\/\/dispatch-app-gamma-eight\.vercel\.app$/,
+  /^https:\/\/[a-z0-9-]+-shubb3006s-projects\.vercel\.app$/,
+];
+
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "http://localhost:5174",
-    ],
+    origin: (origin, callback) => {
+      // No Origin header: curl, the native mobile app, server-to-server.
+      if (!origin) return callback(null, true);
+
+      const ok =
+        allowedOrigins.includes(origin) ||
+        allowedOriginPatterns.some((re) => re.test(origin));
+
+      return ok
+        ? callback(null, true)
+        : callback(new Error(`CORS blocked for origin: ${origin}`));
+    },
     credentials: true,
   })
 ); //
