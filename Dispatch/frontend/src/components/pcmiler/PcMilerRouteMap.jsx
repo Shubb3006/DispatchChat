@@ -33,7 +33,7 @@ export default function PcMilerRouteMap({ route }) {
   // Map Tile Layers
   const TILE_SERVERS = {
     streets: {
-      url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     },
     satellite: {

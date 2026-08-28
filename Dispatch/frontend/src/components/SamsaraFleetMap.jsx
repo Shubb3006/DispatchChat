@@ -16,7 +16,10 @@ L.Icon.Default.mergeOptions({
 const TILE_LAYERS = {
   samsara_light: {
     name: "Samsara Clean (Light)",
-    url: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    // The {s} subdomain scheme is deprecated and rate-limited, which shows up
+    // as grey gaps where tiles failed to load. tile.openstreetmap.org is the
+    // supported host and serves over HTTP/2, so parallel loads are fine.
+    url: "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     maxZoom: 19,
   },
@@ -34,6 +37,130 @@ const TILE_LAYERS = {
   },
 };
 
+// Marker appearance depends only on these values, so a marker can be left
+// untouched between polls whenever its signature is unchanged.
+const iconSignature = (trk, isSelected) =>
+  `${trk.status}|${trk.heading_degrees || 0}|${isSelected ? 1 : 0}`;
+
+const buildMarkerHtml = (trk, isSelected) => {
+  if (trk.status === "DRIVING") {
+    const rot = trk.heading_degrees || 0;
+    return `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+            <div style="
+              width: ${isSelected ? "32px" : "26px"};
+              height: ${isSelected ? "32px" : "26px"};
+              border-radius: 50%;
+              background: #10b981;
+              border: 2px solid #ffffff;
+              box-shadow: 0 0 12px rgba(16,185,129,0.8);
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              transform: rotate(${rot}deg);
+            ">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
+                <polygon points="12 2 19 21 12 17 5 21 12 2"/>
+              </svg>
+            </div>
+            <div style="
+              margin-top: 2px;
+              padding: 1px 4px;
+              background: rgba(15,23,42,0.9);
+              border-radius: 3px;
+              color: #ffffff;
+              font-size: 9px;
+              font-weight: 800;
+              font-family: monospace;
+              white-space: nowrap;
+            ">
+              #${trk.truck_number}
+            </div>
+          </div>
+        `;
+  }
+
+  if (trk.status === "IDLING") {
+    return `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+            <div style="
+              width: 22px;
+              height: 22px;
+              border-radius: 50%;
+              background: #f59e0b;
+              border: 2px solid #ffffff;
+              box-shadow: 0 0 8px rgba(245,158,11,0.7);
+            "></div>
+            <div style="
+              margin-top: 2px;
+              padding: 1px 4px;
+              background: rgba(15,23,42,0.9);
+              border-radius: 3px;
+              color: #ffffff;
+              font-size: 9px;
+              font-weight: 800;
+              font-family: monospace;
+              white-space: nowrap;
+            ">
+              #${trk.truck_number}
+            </div>
+          </div>
+        `;
+  }
+
+  return `
+          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+            <div style="
+              width: 18px;
+              height: 18px;
+              border-radius: 4px;
+              background: #0f172a;
+              border: 2px solid #38bdf8;
+            "></div>
+            <div style="
+              margin-top: 2px;
+              padding: 1px 3px;
+              background: rgba(15,23,42,0.85);
+              border-radius: 3px;
+              color: #94a3b8;
+              font-size: 8px;
+              font-weight: bold;
+              font-family: monospace;
+              white-space: nowrap;
+            ">
+              #${trk.truck_number}
+            </div>
+          </div>
+        `;
+};
+
+const buildIcon = (trk, isSelected) =>
+  L.divIcon({
+    className: "samsara-custom-pin",
+    html: buildMarkerHtml(trk, isSelected),
+    iconSize: [30, 40],
+    iconAnchor: [15, 20],
+    popupAnchor: [0, -20],
+  });
+
+const buildPopup = (trk) => `
+        <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 230px; color: #0f172a; padding: 3px;">
+          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 6px;">
+            <strong style="font-size: 13px; color: #0f172a;">Tractor #${trk.truck_number} (${trk.make || "FREIGHTLINER"})</strong>
+            <span style="font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: ${trk.status === "DRIVING" ? '#dcfce7; color: #15803d' : '#fef3c7; color: #b45309'};">
+              ${trk.status} • ${trk.speed_mph} MPH
+            </span>
+          </div>
+          <div style="font-size: 11px; line-height: 1.5; color: #475569;">
+            <div><strong>Location:</strong> ${trk.location_description}</div>
+            <div><strong>Driver:</strong> ${trk.driver?.name || "Assigned Driver"}</div>
+            <div><strong>Plate:</strong> ${trk.license_plate || "QC"}</div>
+            <div><strong>Fuel Tank:</strong> <span style="color: #0284c7; font-weight: bold;">${trk.telemetry?.fuel_level_percent}%</span> • DEF: ${trk.telemetry?.def_level_percent}%</div>
+            <div><strong>HOS Clock:</strong> <span style="color: #16a34a; font-weight: bold;">${trk.driver?.hos_driving_remaining || "8h"}</span></div>
+          </div>
+        </div>
+      `;
+
 export default function SamsaraFleetMap({
   vehicles = [],
   selectedVehicle,
@@ -45,6 +172,13 @@ export default function SamsaraFleetMap({
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const clusterGroupRef = useRef(null);
+  // truck_number -> { marker, signature, vehicle }, so polls can reuse markers.
+  const markersRef = useRef(new Map());
+  // Read inside the vehicles effect without making it a dependency.
+  const selectedVehicleRef = useRef(selectedVehicle);
+  const onSelectVehicleRef = useRef(onSelectVehicle);
+  const previousSelectedRef = useRef(selectedVehicle?.truck_number);
+
   const routeLayerRef = useRef(null);
 
   const [activeTileLayer, setActiveTileLayer] = useState("samsara_light");
@@ -120,6 +254,10 @@ export default function SamsaraFleetMap({
     return () => {
       map.remove();
       mapInstanceRef.current = null;
+      clusterGroupRef.current = null;
+      // The markers belonged to the cluster group that just went away; keeping
+      // them would make the reconciler skip re-adding vehicles on remount.
+      markersRef.current.clear();
     };
   }, []);
 
@@ -142,144 +280,97 @@ export default function SamsaraFleetMap({
     }).addTo(map);
   }, [activeTileLayer]);
 
-  // Update Markers inside Cluster Group
+  selectedVehicleRef.current = selectedVehicle;
+  onSelectVehicleRef.current = onSelectVehicle;
+
+  // Update markers inside the cluster group.
+  //
+  // Reconciled rather than rebuilt: with 427 vehicles, tearing down and
+  // re-adding every marker on each 15s poll (and again on every click, because
+  // selectedVehicle used to be a dependency here) is what made the map stutter.
+  // Markers are now reused in place and only re-iconed when their appearance
+  // actually changes.
   useEffect(() => {
     if (!mapInstanceRef.current || !clusterGroupRef.current) return;
     const clusterGroup = clusterGroupRef.current;
-    clusterGroup.clearLayers();
+    const markers = markersRef.current;
+    const selectedNumber = selectedVehicleRef.current?.truck_number;
+
+    const seen = new Set();
+    const added = [];
 
     vehicles.forEach((trk) => {
       if (!trk.latitude || !trk.longitude) return;
 
-      const isDriving = trk.status === "DRIVING";
-      const isIdling = trk.status === "IDLING";
-      const isSelected = selectedVehicle?.truck_number === trk.truck_number;
+      const key = String(trk.truck_number);
+      seen.add(key);
 
-      let markerHtml = "";
-      if (isDriving) {
-        const rot = trk.heading_degrees || 0;
-        markerHtml = `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-            <div style="
-              width: ${isSelected ? "32px" : "26px"};
-              height: ${isSelected ? "32px" : "26px"};
-              border-radius: 50%;
-              background: #10b981;
-              border: 2px solid #ffffff;
-              box-shadow: 0 0 12px rgba(16,185,129,0.8);
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              transform: rotate(${rot}deg);
-            ">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffffff">
-                <polygon points="12 2 19 21 12 17 5 21 12 2"/>
-              </svg>
-            </div>
-            <div style="
-              margin-top: 2px;
-              padding: 1px 4px;
-              background: rgba(15,23,42,0.9);
-              border-radius: 3px;
-              color: #ffffff;
-              font-size: 9px;
-              font-weight: 800;
-              font-family: monospace;
-              white-space: nowrap;
-            ">
-              #${trk.truck_number}
-            </div>
-          </div>
-        `;
-      } else if (isIdling) {
-        markerHtml = `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-            <div style="
-              width: 22px;
-              height: 22px;
-              border-radius: 50%;
-              background: #f59e0b;
-              border: 2px solid #ffffff;
-              box-shadow: 0 0 8px rgba(245,158,11,0.7);
-            "></div>
-            <div style="
-              margin-top: 2px;
-              padding: 1px 4px;
-              background: rgba(15,23,42,0.9);
-              border-radius: 3px;
-              color: #ffffff;
-              font-size: 9px;
-              font-weight: 800;
-              font-family: monospace;
-              white-space: nowrap;
-            ">
-              #${trk.truck_number}
-            </div>
-          </div>
-        `;
-      } else {
-        markerHtml = `
-          <div style="position: relative; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
-            <div style="
-              width: 18px;
-              height: 18px;
-              border-radius: 4px;
-              background: #0f172a;
-              border: 2px solid #38bdf8;
-            "></div>
-            <div style="
-              margin-top: 2px;
-              padding: 1px 3px;
-              background: rgba(15,23,42,0.85);
-              border-radius: 3px;
-              color: #94a3b8;
-              font-size: 8px;
-              font-weight: bold;
-              font-family: monospace;
-              white-space: nowrap;
-            ">
-              #${trk.truck_number}
-            </div>
-          </div>
-        `;
+      const isSelected = selectedNumber === trk.truck_number;
+      const signature = iconSignature(trk, isSelected);
+      const existing = markers.get(key);
+
+      if (existing) {
+        // Reuse: move it, and only rebuild the icon if how it looks changed.
+        const { marker } = existing;
+        const pos = marker.getLatLng();
+        if (pos.lat !== trk.latitude || pos.lng !== trk.longitude) {
+          marker.setLatLng([trk.latitude, trk.longitude]);
+        }
+        if (existing.signature !== signature) {
+          marker.setIcon(buildIcon(trk, isSelected));
+          existing.signature = signature;
+        }
+        marker.setPopupContent(buildPopup(trk));
+        existing.vehicle = trk;
+        return;
       }
 
-      const customIcon = L.divIcon({
-        className: "samsara-custom-pin",
-        html: markerHtml,
-        iconSize: [30, 40],
-        iconAnchor: [15, 20],
-        popupAnchor: [0, -20],
+      const marker = L.marker([trk.latitude, trk.longitude], {
+        icon: buildIcon(trk, isSelected),
       });
-
-      const marker = L.marker([trk.latitude, trk.longitude], { icon: customIcon });
-
-      const popupContent = `
-        <div style="font-family: system-ui, -apple-system, sans-serif; min-width: 230px; color: #0f172a; padding: 3px;">
-          <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; margin-bottom: 6px;">
-            <strong style="font-size: 13px; color: #0f172a;">Tractor #${trk.truck_number} (${trk.make || "FREIGHTLINER"})</strong>
-            <span style="font-size: 10px; font-weight: bold; padding: 2px 6px; border-radius: 4px; background: ${isDriving ? '#dcfce7; color: #15803d' : '#fef3c7; color: #b45309'};">
-              ${trk.status} • ${trk.speed_mph} MPH
-            </span>
-          </div>
-          <div style="font-size: 11px; line-height: 1.5; color: #475569;">
-            <div><strong>Location:</strong> ${trk.location_description}</div>
-            <div><strong>Driver:</strong> ${trk.driver?.name || "Assigned Driver"}</div>
-            <div><strong>Plate:</strong> ${trk.license_plate || "QC"}</div>
-            <div><strong>Fuel Tank:</strong> <span style="color: #0284c7; font-weight: bold;">${trk.telemetry?.fuel_level_percent}%</span> • DEF: ${trk.telemetry?.def_level_percent}%</div>
-            <div><strong>HOS Clock:</strong> <span style="color: #16a34a; font-weight: bold;">${trk.driver?.hos_driving_remaining || "8h"}</span></div>
-          </div>
-        </div>
-      `;
-
-      marker.bindPopup(popupContent);
+      marker.bindPopup(buildPopup(trk));
       marker.on("click", () => {
-        if (onSelectVehicle) onSelectVehicle(trk);
+        const handler = onSelectVehicleRef.current;
+        const current = markers.get(key);
+        if (handler) handler(current ? current.vehicle : trk);
       });
 
-      clusterGroup.addLayer(marker);
+      markers.set(key, { marker, signature, vehicle: trk });
+      added.push(marker);
     });
-  }, [vehicles, selectedVehicle, onSelectVehicle]);
+
+    const removed = [];
+    markers.forEach((entry, key) => {
+      if (seen.has(key)) return;
+      removed.push(entry.marker);
+      markers.delete(key);
+    });
+
+    // Batch the cluster mutations — markercluster re-clusters on every call.
+    if (removed.length) clusterGroup.removeLayers(removed);
+    if (added.length) clusterGroup.addLayers(added);
+  }, [vehicles]);
+
+  // Selection highlight: re-icon only the two markers that changed, instead of
+  // rebuilding the whole cluster group.
+  useEffect(() => {
+    const markers = markersRef.current;
+    const previous = previousSelectedRef.current;
+    previousSelectedRef.current = selectedVehicle?.truck_number;
+
+    [previous, selectedVehicle?.truck_number].forEach((truckNumber) => {
+      if (truckNumber === undefined || truckNumber === null) return;
+      const entry = markers.get(String(truckNumber));
+      if (!entry) return;
+
+      const isSelected = selectedVehicle?.truck_number === truckNumber;
+      const signature = iconSignature(entry.vehicle, isSelected);
+      if (entry.signature === signature) return;
+
+      entry.marker.setIcon(buildIcon(entry.vehicle, isSelected));
+      entry.signature = signature;
+    });
+  }, [selectedVehicle]);
 
   // Render BOTH Routes simultaneously (Toll vs AI Eco Route) on the Map
   useEffect(() => {

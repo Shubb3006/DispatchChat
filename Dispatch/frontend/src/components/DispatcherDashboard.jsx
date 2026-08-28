@@ -44,6 +44,7 @@ import {
 
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
+import { useTelematicsStore } from "../stores/useTelematicsStore";
 import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 
@@ -386,9 +387,17 @@ export default function DispatcherDashboard({
   const trips = useTripStore((state) => state.trips);
   const { documents, fetchDocuments } = useDocumentStore();
 
+  // Live Samsara fleet, for the Active Fleet card.
+  const fleetSummary = useTelematicsStore((state) => state.summary);
+  const fetchFleetTelematics = useTelematicsStore((state) => state.fetchFleetTelematics);
+
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  useEffect(() => {
+    fetchFleetTelematics();
+  }, [fetchFleetTelematics]);
 
   // All data is already fetched by DispatcherPage on mount.
   // No duplicate fetch calls here — subscribing to the stores is enough.
@@ -1569,8 +1578,11 @@ export default function DispatcherDashboard({
                   Active Fleet
                 </p>
                 <h4 className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
-                  {shipments.filter((s) => s.status !== "delivered").length}
+                  {fleetSummary.total > 0 ? fleetSummary.total : "—"}
                 </h4>
+                <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                  {fleetSummary.inTransit} moving
+                </p>
               </div>
               <div className="p-2.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-xl shadow-2xs">
                 <Truck className="h-4 w-4" />

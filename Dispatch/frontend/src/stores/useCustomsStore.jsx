@@ -601,33 +601,46 @@ export const useCustomsStore = create((set, get) => ({
     }
   },
 
-  // BorderConnect Integration State & Actions (Nishan Transport)
+  // BorderConnect Integration State & Actions.
+  //
+  // Populated from GET /customs/borderconnect/config. The real API key must
+  // never live here: everything in this store is compiled into the public
+  // browser bundle, so the credentials that used to be inlined below were
+  // readable by anyone who opened the site.
   borderConnectConfig: {
-    hasKey: true,
-    companyKey: "c-22343-3fe6b7e8889fba13",
-    apiKey: "a-22343-3fd3c87b9ff85ca0",
-    companyCode: "NISD",
-    carrierCode: "22GY",
-    companyHandle: "NishanTransport",
-    maskedKey: "a-223••••••••5ca0",
-    maskedCompanyKey: "c-223••••••••ba13",
-    sendUrl: "https://borderconnect.com/api/send/NishanTransport",
-    receiveUrl: "https://borderconnect.com/api/receive/NishanTransport",
-    wsUrl: "wss://borderconnect.com/api/sockets/NishanTransport",
+    hasKey: false,
+    configured: false,
+    status: "UNKNOWN",
+    statusDetail: "",
+    companyKey: "",
+    companyCode: "",
+    carrierCode: "",
+    companyHandle: "",
+    maskedKey: "",
+    maskedCompanyKey: "",
+    sendUrl: "",
+    receiveUrl: "",
+    wsUrl: "",
   },
 
   fetchBorderConnectConfig: async () => {
     try {
       const res = await axiosInstance.get("/customs/borderconnect/config");
       if (res.data?.success && res.data.config) {
-        set({ borderConnectConfig: { ...res.data.config, hasKey: true } });
+        set({ borderConnectConfig: res.data.config });
       }
     } catch (e) {
-      // Fallback
+      set((state) => ({
+        borderConnectConfig: {
+          ...state.borderConnectConfig,
+          status: "UNREACHABLE",
+          statusDetail: "Could not reach the server to read BorderConnect configuration.",
+        },
+      }));
     }
   },
 
-  saveBorderConnectConfig: async (apiKey, companyKey = "c-22343-3fe6b7e8889fba13", companyCode = "NISD") => {
+  saveBorderConnectConfig: async (apiKey, companyKey, companyCode) => {
     try {
       const res = await axiosInstance.post("/customs/borderconnect/config", {
         apiKey,
@@ -635,8 +648,8 @@ export const useCustomsStore = create((set, get) => ({
         companyCode,
       });
       if (res.data?.success && res.data.config) {
-        set({ borderConnectConfig: { ...res.data.config, hasKey: true } });
-        toast.success("BorderConnect API (Nishan Transport) connected!");
+        set({ borderConnectConfig: res.data.config });
+        toast.success("BorderConnect credentials saved.");
         return true;
       }
     } catch (e) {

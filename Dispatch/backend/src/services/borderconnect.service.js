@@ -6,14 +6,37 @@ import { getVehicleLocations } from "./samsara.service.js";
 dotenv.config();
 
 // Nishan Transport BorderConnect Integration Credentials
-let BORDERCONNECT_API_KEY = process.env.BORDERCONNECT_API_KEY || "a-22343-3fd3c87b9ff85ca0";
-let BORDERCONNECT_COMPANY_KEY = process.env.BORDERCONNECT_COMPANY_KEY || "c-22343-3fe6b7e8889fba13";
-let BORDERCONNECT_COMPANY_HANDLE = process.env.BORDERCONNECT_COMPANY_HANDLE || "NishanTransport";
-let BORDERCONNECT_SEND_URL = process.env.BORDERCONNECT_SEND_URL || "https://borderconnect.com/api/send/NishanTransport";
-let BORDERCONNECT_RECEIVE_URL = process.env.BORDERCONNECT_RECEIVE_URL || "https://borderconnect.com/api/receive/NishanTransport";
-let BORDERCONNECT_WS_URL = process.env.BORDERCONNECT_WS_URL || "wss://borderconnect.com/api/sockets/NishanTransport";
-let BORDERCONNECT_SCAC = process.env.BORDERCONNECT_SCAC || "NISD";
-let BORDERCONNECT_CARRIER_CODE = process.env.BORDERCONNECT_CARRIER_CODE || "22GY";
+// Secrets come from the environment only. They used to be hardcoded here as
+// `||` fallbacks, which put a live BorderConnect API key in the repository.
+let BORDERCONNECT_API_KEY = process.env.BORDERCONNECT_API_KEY || "";
+let BORDERCONNECT_COMPANY_KEY = process.env.BORDERCONNECT_COMPANY_KEY || "";
+let BORDERCONNECT_COMPANY_HANDLE = process.env.BORDERCONNECT_COMPANY_HANDLE || "";
+
+// Non-secret endpoints, derived from the company handle when not set explicitly.
+let BORDERCONNECT_SEND_URL =
+  process.env.BORDERCONNECT_SEND_URL ||
+  (BORDERCONNECT_COMPANY_HANDLE ? `https://borderconnect.com/api/send/${BORDERCONNECT_COMPANY_HANDLE}` : "");
+let BORDERCONNECT_RECEIVE_URL =
+  process.env.BORDERCONNECT_RECEIVE_URL ||
+  (BORDERCONNECT_COMPANY_HANDLE ? `https://borderconnect.com/api/receive/${BORDERCONNECT_COMPANY_HANDLE}` : "");
+let BORDERCONNECT_WS_URL =
+  process.env.BORDERCONNECT_WS_URL ||
+  (BORDERCONNECT_COMPANY_HANDLE ? `wss://borderconnect.com/api/sockets/${BORDERCONNECT_COMPANY_HANDLE}` : "");
+
+let BORDERCONNECT_SCAC = process.env.BORDERCONNECT_SCAC || "";
+let BORDERCONNECT_CARRIER_CODE = process.env.BORDERCONNECT_CARRIER_CODE || "";
+
+// Last observed result of a real call to BorderConnect. The config endpoint
+// reports this instead of the hardcoded "ONLINE / VERIFIED" it used to claim.
+let lastProbe = {
+  status: "UNKNOWN",
+  checkedAt: null,
+  detail: "No BorderConnect request has been made since this server started.",
+};
+
+const recordProbe = (status, detail) => {
+  lastProbe = { status, checkedAt: new Date().toISOString(), detail };
+};
 
 /**
  * Update or set BorderConnect API credentials dynamically
@@ -41,8 +64,14 @@ export const getBorderConnectCredentials = () => ({
   sendUrl: BORDERCONNECT_SEND_URL,
   receiveUrl: BORDERCONNECT_RECEIVE_URL,
   wsUrl: BORDERCONNECT_WS_URL,
-  status: "ONLINE / VERIFIED",
-  lastVerified: new Date().toISOString(),
+  configured: Boolean(BORDERCONNECT_API_KEY && BORDERCONNECT_COMPANY_KEY && BORDERCONNECT_SEND_URL),
+  status: !(BORDERCONNECT_API_KEY && BORDERCONNECT_COMPANY_KEY && BORDERCONNECT_SEND_URL)
+    ? "NOT_CONFIGURED"
+    : lastProbe.status,
+  statusDetail: !(BORDERCONNECT_API_KEY && BORDERCONNECT_COMPANY_KEY && BORDERCONNECT_SEND_URL)
+    ? "Set BORDERCONNECT_API_KEY, BORDERCONNECT_COMPANY_KEY and BORDERCONNECT_COMPANY_HANDLE."
+    : lastProbe.detail,
+  lastVerified: lastProbe.checkedAt,
 });
 
 /**
@@ -76,64 +105,110 @@ const isUsaAddress = (addr = "") => {
  */
 export const checkPapsParsStatus = async (leadNumber, leadType = "PAPS") => {
   const cleanNumber = String(leadNumber).trim();
-  let liveResult = null;
 
-  if (BORDERCONNECT_API_KEY && BORDERCONNECT_RECEIVE_URL) {
-    try {
-      const response = await axios.post(
-        BORDERCONNECT_RECEIVE_URL,
-        {
-          requestType: "shipmentStatusLookup",
-          shipmentNumber: cleanNumber,
-          shipmentType: leadType, // PAPS or PARS
-          companyKey: BORDERCONNECT_COMPANY_KEY,
-          carrierCode: leadType === "PARS" ? BORDERCONNECT_CARRIER_CODE : BORDERCONNECT_SCAC,
-        },
-        {
-          headers: getHeaders(),
-          timeout: 6000,
-        }
-      ).catch((err) => {
-        if (err.response?.status === 404) {
-          return { isUnfiled: true, status: 404 };
-        }
-        return null;
-      });
-
-      if (response && response.data && !response.isUnfiled) {
-        liveResult = response.data;
-      }
-    } catch (error) {
-      // Quiet handling
-    }
-  }
-
-  if (liveResult) {
+  if (!BORDERCONNECT_API_KEY || !BORDERCONNECT_RECEIVE_URL) {
     return {
-      success: true,
-      source: "live_borderconnect_nishan",
+      success: false,
+      source: "not_configured",
       leadNumber: cleanNumber,
-      status: liveResult.status || liveResult.customs_status || "ACCEPTED",
-      entryNumber: liveResult.entry_number || liveResult.entryNumber || `ENT-${cleanNumber.slice(-6)}`,
-      brokerName: liveResult.broker_name || (leadType === "PARS" ? "Willson International" : "Livingston International"),
-      message: "Live BorderConnect Status Verified for Nishan Transport",
-      details: liveResult,
-      syncedAt: new Date().toISOString(),
+      leadType,
+      status: "NOT_CONFIGURED",
+      message:
+        "BorderConnect is not configured. Set BORDERCONNECT_API_KEY, BORDERCONNECT_COMPANY_KEY and BORDERCONNECT_COMPANY_HANDLE.",
+      checkedAt: new Date().toISOString(),
     };
   }
 
-  // Fallback verified link response for Nishan Transport
-  return {
-    success: true,
-    source: "borderconnect_live_nishan",
-    leadNumber: cleanNumber,
-    leadType,
-    status: "ACCEPTED",
-    entryNumber: `ENT-BC-${cleanNumber.slice(-6)}`,
-    brokerName: leadType === "PARS" ? "Willson International" : "Livingston International",
-    message: "BorderConnect Active: Barcode verified for Nishan Transport (SCAC: NISD / CBSA: 22GY)",
-    syncedAt: new Date().toISOString(),
-  };
+  try {
+    const response = await axios.post(
+      BORDERCONNECT_RECEIVE_URL,
+      {
+        requestType: "shipmentStatusLookup",
+        shipmentNumber: cleanNumber,
+        shipmentType: leadType, // PAPS or PARS
+        companyKey: BORDERCONNECT_COMPANY_KEY,
+        carrierCode: leadType === "PARS" ? BORDERCONNECT_CARRIER_CODE : BORDERCONNECT_SCAC,
+      },
+      { headers: getHeaders(), timeout: 6000 }
+    );
+
+    const liveResult = response.data;
+    if (!liveResult) {
+      recordProbe("REACHABLE", "BorderConnect responded, but with an empty body.");
+      return {
+        success: false,
+        source: "live_borderconnect",
+        leadNumber: cleanNumber,
+        leadType,
+        status: "NO_DATA",
+        message: "BorderConnect returned an empty response for this barcode.",
+        checkedAt: new Date().toISOString(),
+      };
+    }
+
+    recordProbe("ONLINE", "Last lookup returned a live result.");
+    return {
+      success: true,
+      source: "live_borderconnect",
+      leadNumber: cleanNumber,
+      leadType,
+      status: liveResult.status || liveResult.customs_status || "UNKNOWN",
+      entryNumber: liveResult.entry_number || liveResult.entryNumber || null,
+      brokerName: liveResult.broker_name || liveResult.brokerName || null,
+      message: "Live status returned by BorderConnect.",
+      details: liveResult,
+      syncedAt: new Date().toISOString(),
+    };
+  } catch (error) {
+    // A bad key, a barcode that is not on file, a timeout and an outage each
+    // need a different response from the dispatcher. Previously all four were
+    // swallowed and reported as an ACCEPTED shipment with an invented entry
+    // number, so a broken integration was indistinguishable from a working one.
+    const httpStatus = error.response?.status;
+
+    if (httpStatus === 404) {
+      recordProbe("ONLINE", "Last lookup answered: no shipment on file.");
+      return {
+        success: true,
+        source: "live_borderconnect",
+        leadNumber: cleanNumber,
+        leadType,
+        status: "UNFILED",
+        entryNumber: null,
+        brokerName: null,
+        message: "BorderConnect has no shipment on file for this barcode yet.",
+        checkedAt: new Date().toISOString(),
+      };
+    }
+
+    const status =
+      httpStatus === 401 || httpStatus === 403
+        ? "AUTH_FAILED"
+        : error.code === "ECONNABORTED"
+        ? "TIMEOUT"
+        : "UNREACHABLE";
+
+    const message =
+      status === "AUTH_FAILED"
+        ? "BorderConnect rejected the API credentials."
+        : status === "TIMEOUT"
+        ? "BorderConnect did not respond within 6 seconds."
+        : `BorderConnect request failed: ${error.message}`;
+
+    recordProbe(status, message);
+    console.error("BorderConnect lookup failed:", status, error.message);
+
+    return {
+      success: false,
+      source: "live_borderconnect",
+      leadNumber: cleanNumber,
+      leadType,
+      status,
+      httpStatus: httpStatus || null,
+      message,
+      checkedAt: new Date().toISOString(),
+    };
+  }
 };
 
 /**

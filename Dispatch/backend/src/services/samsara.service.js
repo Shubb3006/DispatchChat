@@ -6,10 +6,16 @@ dotenv.config();
 let SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN 
 let SAMSARA_BASE_URL = process.env.SAMSARA_BASE_URL 
 
-// In-memory cache for live telematics to avoid rate-limiting
+// In-memory cache for live telematics to avoid rate-limiting.
+//
+// Served stale-while-revalidate: once the cache is warm every request returns
+// from memory immediately and the upstream refresh happens in the background.
+// A TTL shorter than the client's poll interval would otherwise mean every
+// single poll waits on five sequential Samsara endpoints.
 let cachedFleetData = null;
 let lastFetchTimestamp = 0;
-const CACHE_TTL_MS = 8000; // 8 seconds cache for high real-time responsiveness
+let inFlightRefresh = null;
+const CACHE_TTL_MS = 8000; // Data older than this triggers a background refresh.
 
 export const getSamsaraConfig = () => ({
   hasKey: Boolean(SAMSARA_API_TOKEN && SAMSARA_API_TOKEN.length > 5),
@@ -52,11 +58,27 @@ const formatDurationMs = (ms) => {
  * 5. Deep J1939 Engine Diagnostics & Sensor Telemetry
  */
 export const getVehicleLocations = async (forceRefresh = false) => {
-  const now = Date.now();
-  if (!forceRefresh && cachedFleetData && now - lastFetchTimestamp < CACHE_TTL_MS) {
-    return cachedFleetData;
+  const isStale = Date.now() - lastFetchTimestamp >= CACHE_TTL_MS;
+
+  // Cold start, or an explicit refresh: the caller has to wait for upstream.
+  if (forceRefresh || !cachedFleetData) {
+    return refreshFleetFromSamsara();
   }
 
+  // Warm cache: answer from memory now, and top it up in the background so the
+  // next poll is current. Errors in that refresh keep the last good payload.
+  if (isStale && !inFlightRefresh) {
+    inFlightRefresh = refreshFleetFromSamsara()
+      .catch((err) => console.error("Samsara background refresh failed:", err.message))
+      .finally(() => {
+        inFlightRefresh = null;
+      });
+  }
+
+  return cachedFleetData;
+};
+
+const refreshFleetFromSamsara = async () => {
   try {
     const STAT_TYPES = [
       "faultCodes",
@@ -289,7 +311,7 @@ export const getVehicleLocations = async (forceRefresh = false) => {
     };
 
     cachedFleetData = result;
-    lastFetchTimestamp = now;
+    lastFetchTimestamp = Date.now();
     return result;
   } catch (err) {
     console.error("Samsara API Fetch Error:", err.message);
