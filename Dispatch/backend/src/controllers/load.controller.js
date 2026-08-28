@@ -690,7 +690,17 @@ export const updateLoad = async (req, res) => {
       rate,
       status,
       driver_id,
-      driver_notes
+      driver_notes,
+      warehouse_location,
+      warehouseBay,
+      warehouse_notes,
+      warehouseNotes,
+      intake_condition,
+      intakeCondition,
+      received_at_warehouse,
+      receivedAtWarehouse,
+      received_at_warehouse_date,
+      receivedAtWarehouseDate
     } = req.body;
 
     const result = await pool.query(`
@@ -707,7 +717,12 @@ export const updateLoad = async (req, res) => {
         rate = COALESCE($8, rate),
         status = COALESCE($9, status),
         driver_id = COALESCE($10, driver_id),
-        driver_notes = COALESCE($11, driver_notes)
+        driver_notes = COALESCE($11, driver_notes),
+        warehouse_location = COALESCE($13, warehouse_location),
+        warehouse_notes = COALESCE($14, warehouse_notes),
+        intake_condition = COALESCE($15, intake_condition),
+        received_at_warehouse = COALESCE($16, received_at_warehouse),
+        received_at_warehouse_date = COALESCE($17, received_at_warehouse_date)
     WHERE id = $12
     RETURNING *
 )
@@ -731,7 +746,12 @@ LEFT JOIN users u
         status || null,
         driver_id || null,
         driver_notes || null,
-        id
+        id,
+        warehouse_location || warehouseBay || null,
+        warehouse_notes || warehouseNotes || null,
+        intake_condition || intakeCondition || null,
+        received_at_warehouse || receivedAtWarehouse || null,
+        received_at_warehouse_date || receivedAtWarehouseDate || null
       ]
     );
 
