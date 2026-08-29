@@ -8,6 +8,7 @@ import authRoutes from "./routes/auth.routes.js";
 import loadRoutes from "./routes/load.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
+import ratesRoutes from "./routes/rates.routes.js";
 import driverRoutes from "./routes/driver.routes.js"
 import trailorRoutes from "./routes/trailor.routes.js"
 import truckRoutes from "./routes/trucks.routes.js"
@@ -29,6 +30,7 @@ import auditRoutes from "./routes/audit.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
+import { ensurePortalSchema } from "./services/portalSchema.service.js";
 
 
 import path from 'path';
@@ -90,6 +92,8 @@ app.use("/api/loads", loadRoutes);
 app.use("/api/v1/loads", loadRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/customers",customerRoutes)
+app.use("/api/rates", ratesRoutes);
+app.use("/api/v1/rates", ratesRoutes);
 app.use("/api/drivers",driverRoutes)
 app.use("/api/trailors",trailorRoutes);
 app.use("/api/trucks",truckRoutes);
@@ -127,4 +131,9 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start autonomous background load confirmation intake worker
   startAutomationWorker();
+  // Apply the customer-portal schema (idempotent) so users.customer_id and
+  // rate_requests exist before any portal traffic arrives.
+  ensurePortalSchema().catch((err) =>
+    console.error("Portal schema startup ensure failed (will retry on first portal request):", err.message)
+  );
 });

@@ -28,13 +28,13 @@ export const protectedRoute = async (req,res,next) => {
         }
 
 
-        const result = await pool.query(
-            `
+        const buildUserSql = (withCustomerId) => `
            SELECT
     u.id,
     u.username,
     u.role,
     u.allowed_modules,
+    ${withCustomerId ? "u.customer_id," : ""}
 
     d.id AS driver_id,
     d.driver_code,
@@ -52,11 +52,20 @@ LEFT JOIN drivers d
 ON u.id = d.user_id
 
 WHERE u.id = $1
-            `,
-            [
-                decoded.userId
-            ]
-        );
+            `;
+
+        let result;
+        try {
+            result = await pool.query(buildUserSql(true), [decoded.userId]);
+        } catch (queryError) {
+            // users.customer_id arrives with the customer-portal migration;
+            // until it has run, keep auth working with the original columns.
+            if (queryError.code === "42703") {
+                result = await pool.query(buildUserSql(false), [decoded.userId]);
+            } else {
+                throw queryError;
+            }
+        }
 
 
 
@@ -77,6 +86,7 @@ req.user = {
   email: user.email,
   role: user.role,
   allowed_modules: user.allowed_modules,
+  customer_id: user.customer_id || null,
 
   driver: user.driver_id
     ? {

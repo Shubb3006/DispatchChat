@@ -20,8 +20,20 @@ import {
   autoAssignDriver,
 } from "../controllers/load.controller.js";
 import { upload } from '../config/multer.js';
+import { requireCustomer } from "../middlewares/customer.middleware.js";
+import {
+  tenderUpload,
+  customsUpload,
+  customerLoads,
+} from "../controllers/portal.controller.js";
 
 const router = Router();
+
+// ---- Customer portal (strict tenant isolation via requireCustomer) ----
+// Registered before the parameterized routes below.
+router.get("/customer-loads", protectedRoute, requireCustomer, customerLoads);
+router.post("/tender-upload", protectedRoute, requireCustomer, upload.single("tender"), tenderUpload);
+router.post("/:id/customs-upload", protectedRoute, requireCustomer, upload.single("document"), customsUpload);
 
 // AI Smart Driver-Load Matcher & Dispatch Optimizer
 router.post("/ai-match-drivers", aiMatchDrivers);

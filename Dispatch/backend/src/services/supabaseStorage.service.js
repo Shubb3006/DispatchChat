@@ -19,7 +19,7 @@ const supabase = (supabaseUrl && supabaseUrl.startsWith("http") && supabaseKey)
 
 /**
  * Uploads a Load Confirmation PDF to Supabase Storage and records it in documents table
- * 
+ *
  * Target Bucket: documents
  * Storage Path: load-confirmations/[Load ID]/[File Name]
  * Document Type: Load Confirmation
@@ -30,8 +30,33 @@ export async function uploadLoadConfirmationDocument({
   fileBuffer,
   mimeType = "application/pdf",
 }) {
-  const sanitizedFileName = (fileName || "load-confirmation.pdf").replace(/[^a-zA-Z0-9._-]/g, "_");
-  const storagePath = `load-confirmations/${loadId}/${sanitizedFileName}`;
+  return uploadLoadDocument({
+    loadId,
+    fileName: fileName || "load-confirmation.pdf",
+    fileBuffer,
+    mimeType,
+    documentType: "Load Confirmation",
+    folder: "load-confirmations",
+  });
+}
+
+/**
+ * General document upload: any document type, any storage folder.
+ * Same best-effort behavior as before — Supabase Storage first, local
+ * disk backup always, documents-table record last; nothing throws.
+ */
+export async function uploadLoadDocument({
+  loadId,
+  fileName,
+  fileBuffer,
+  mimeType = "application/pdf",
+  documentType = "OTHER",
+  folder = "documents",
+  uploadedBy = null,
+  aiParsedStatus = null,
+}) {
+  const sanitizedFileName = (fileName || "document.pdf").replace(/[^a-zA-Z0-9._-]/g, "_");
+  const storagePath = `${folder}/${loadId}/${sanitizedFileName}`;
 
   let publicUrl = "";
   let uploadSuccess = false;
@@ -76,29 +101,39 @@ export async function uploadLoadConfirmationDocument({
     console.warn("Local storage fallback error:", localErr.message);
   }
 
-  // 3. Insert record into Supabase / PostgreSQL 'documents' table
+  // 3. Insert record into Supabase / PostgreSQL 'documents' table.
+  // Try the extended insert first (uploaded_by / ai_parsed_status exist once
+  // the portal migration has run); fall back to the legacy column set so
+  // pre-migration environments keep working exactly as before.
   let documentRecord = null;
   try {
-    const insertSql = `
+    const res = await pool.query(
+      `
       INSERT INTO documents (
-        load_id,
-        document_type,
-        file_name,
-        file_path,
-        created_at
-      ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+        load_id, document_type, file_name, file_path, uploaded_by, ai_parsed_status, created_at
+      ) VALUES ($1, $2, $3, $4, $5, COALESCE($6, 'NOT_APPLICABLE'), CURRENT_TIMESTAMP)
       RETURNING *;
-    `;
-    const res = await pool.query(insertSql, [
-      loadId,
-      "Load Confirmation",
-      sanitizedFileName,
-      publicUrl || storagePath,
-    ]);
+      `,
+      [loadId, documentType, sanitizedFileName, publicUrl || storagePath, uploadedBy, aiParsedStatus]
+    );
     documentRecord = res.rows[0];
     console.log(`📄 Saved document record in database: ${documentRecord.id}`);
-  } catch (dbErr) {
-    console.warn("Database document insert error:", dbErr.message);
+  } catch (extendedErr) {
+    try {
+      const res = await pool.query(
+        `
+        INSERT INTO documents (
+          load_id, document_type, file_name, file_path, created_at
+        ) VALUES ($1, $2, $3, $4, CURRENT_TIMESTAMP)
+        RETURNING *;
+        `,
+        [loadId, documentType, sanitizedFileName, publicUrl || storagePath]
+      );
+      documentRecord = res.rows[0];
+      console.log(`📄 Saved document record in database (legacy columns): ${documentRecord.id}`);
+    } catch (dbErr) {
+      console.warn("Database document insert error:", dbErr.message);
+    }
   }
 
   return {
