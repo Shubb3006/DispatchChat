@@ -469,10 +469,14 @@ function LogiSyncApp() {
     const checkPortalAuth = usePortalStore((state) => state.checkPortalAuth);
 
     useEffect(() => {
-      checkPortalAuth();
-    }, []);
+      // Only check auth if NOT on the login page
+      if (location.pathname !== "/portal/login") {
+        checkPortalAuth();
+      }
+    }, [location.pathname]);
 
-    if (isCheckingPortalAuth) {
+    // Show loading only on protected routes, not on login
+    if (isCheckingPortalAuth && location.pathname !== "/portal/login") {
       return (
         <div className="flex items-center justify-center h-screen bg-slate-50">
           <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
