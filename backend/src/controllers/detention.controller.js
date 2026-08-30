@@ -1,5 +1,5 @@
 import { detentionService } from "../services/detention.service.js";
-import { notificationService } from "../services/notification.service.js";
+import { notify } from "../services/notification.service.js";
 
 // GET /api/detention (list with pagination)
 export async function listDetentionEvents(req, res) {
@@ -64,7 +64,7 @@ export async function generateDetentionInvoice(req, res) {
     const invoice = await detentionService.generateInvoice(detentionId, customerId);
 
     // Notify dispatch
-    await notificationService.notify({
+    await notify({
       userId: req.user.id,
       type: "detention_billed",
       title: `Detention Charge: Load #${event.load_number}`,

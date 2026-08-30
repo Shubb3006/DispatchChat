@@ -1,4 +1,4 @@
-import pool from "../db/pool.js";
+import pool from "../config/db.js";
 
 // List detention events with pagination
 async function listDetentionEvents(limit = 50, offset = 0, status = null) {

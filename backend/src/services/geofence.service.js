@@ -1,5 +1,5 @@
-import pool from "../db/pool.js";
-import { geocodingService } from "./geocoding.service.js";
+import pool from "../config/db.js";
+import { geocodeLocation } from "./geocoding.service.js";
 
 const GEOFENCE_RADIUS_M = parseInt(process.env.GEOFENCE_RADIUS_M || "500", 10);
 
@@ -67,7 +67,7 @@ async function geocodeLoadStops(loadId) {
 
   for (const stop of stops.rows) {
     try {
-      const coords = await geocodingService.geocode(stop.location);
+      const coords = await geocodeLocation(stop.location);
       if (coords) {
         await pool.query(
           `UPDATE load_stops SET lat = $1, lng = $2 WHERE id = $3`,
