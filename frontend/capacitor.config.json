@@ -1,0 +1,11 @@
+{
+  "appId": "com.nishantransport.driver",
+  "appName": "Nishan Driver",
+  "webDir": "dist",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "Geolocation": {}
+  }
+}

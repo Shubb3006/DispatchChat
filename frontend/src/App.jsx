@@ -406,6 +406,12 @@ function LogiSyncApp() {
       return; // Public Magic Tracking Route (Zero-Login)
     }
 
+    // Do not redirect while the session cookie is still being verified —
+    // navigating to /login mid-check caused a login→driver bounce on refresh.
+    if (isCheckingAuth) {
+      return;
+    }
+
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login");
       return;
@@ -455,13 +461,14 @@ function LogiSyncApp() {
       setCurrentRole(defaultRole);
       navigate("/" + defaultRole);
     }
-  }, [location.pathname, isLoggedIn, currentUser, navigate, currentRole]);
+  }, [location.pathname, isLoggedIn, isCheckingAuth, currentUser, navigate, currentRole]);
 
   // Public Tracking Route Bypass (No Login Required)
+  // Route line only — PublicTrackingPage reads `token` via useParams() itself.
   if (location.pathname.startsWith("/track")) {
     return (
       <Routes>
-        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track/:token" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
       </Routes>
     );
@@ -490,9 +497,24 @@ function LogiSyncApp() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track/:token" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // Driver-role users get the standalone full-screen Driver App — no office
+  // shell. IMPORTANT: this block is what fixes the driver redirect loop. The
+  // routing effect above forces drivers onto /driver, but the office <Routes>
+  // below had no /driver route, so its catch-all bounced them back to
+  // /data_entry — an infinite navigate ping-pong. Registering /driver as a
+  // real route (and catch-all → /driver) terminates the cycle.
+  if (currentUser?.role === "driver") {
+    return (
+      <Routes>
+        <Route path="/driver" element={<DriverPage />} />
+        <Route path="*" element={<Navigate to="/driver" replace />} />
       </Routes>
     );
   }
@@ -580,6 +602,10 @@ function LogiSyncApp() {
             <Route path="/eta_radar" element={<EtaWeatherRadarPage />} />
             <Route path="/eta-radar" element={<EtaWeatherRadarPage />} />
             <Route path="/maintenance" element={<MaintenanceRadarPage />} />
+
+            <Route path="/driver" element={<DriverPage />} />
+            <Route path="/driver_manager" element={<DriverManagerPage />} />
+            <Route path="/safety" element={<SafetyPage />} />
 
             <Route path="/customs" element={<CustomsPage />} />
             <Route path="/detention" element={<DetentionPage />} />

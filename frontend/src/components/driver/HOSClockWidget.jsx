@@ -4,24 +4,27 @@ import { Clock, ShieldAlert, CheckCircle2 } from "lucide-react";
 export default function HOSClockWidget({ myHOSLog }) {
   if (!myHOSLog) return null;
 
-  const drivingHours = Math.floor(
-    (myHOSLog.drivingSecondsRemaining || 0) / 3600
-  );
-  const drivingMins = Math.floor(
-    ((myHOSLog.drivingSecondsRemaining || 0) % 3600) / 60
-  );
+  // Backend hos_logs rows are snake_case (driving_seconds_remaining, ...);
+  // keep camelCase fallbacks for any locally-constructed log objects.
+  const drivingSec =
+    Number(myHOSLog.driving_seconds_remaining ?? myHOSLog.drivingSecondsRemaining) || 0;
+  const dutySec =
+    Number(myHOSLog.duty_seconds_remaining ?? myHOSLog.dutySecondsRemaining) || 0;
+  const cycleSec =
+    Number(myHOSLog.cycle_seconds_remaining ?? myHOSLog.cycleSecondsRemaining) || 0;
+  const breakSec =
+    Number(myHOSLog.break_seconds_remaining ?? myHOSLog.breakSecondsRemaining) || 0;
 
-  const dutyHours = Math.floor((myHOSLog.dutySecondsRemaining || 0) / 3600);
-  const dutyMins = Math.floor(
-    ((myHOSLog.dutySecondsRemaining || 0) % 3600) / 60
-  );
+  const drivingHours = Math.floor(drivingSec / 3600);
+  const drivingMins = Math.floor((drivingSec % 3600) / 60);
 
-  const cycleHours = Math.floor((myHOSLog.cycleSecondsRemaining || 0) / 3600);
+  const dutyHours = Math.floor(dutySec / 3600);
+  const dutyMins = Math.floor((dutySec % 3600) / 60);
 
-  const breakHours = Math.floor((myHOSLog.breakSecondsRemaining || 0) / 3600);
-  const breakMins = Math.floor(
-    ((myHOSLog.breakSecondsRemaining || 0) % 3600) / 60
-  );
+  const cycleHours = Math.floor(cycleSec / 3600);
+
+  const breakHours = Math.floor(breakSec / 3600);
+  const breakMins = Math.floor((breakSec % 3600) / 60);
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
@@ -63,10 +66,7 @@ export default function HOSClockWidget({ myHOSLog }) {
             <div
               className="bg-indigo-600 h-full transition-all duration-300"
               style={{
-                width: `${Math.min(
-                  ((myHOSLog.drivingSecondsRemaining || 0) / 39600) * 100,
-                  100
-                )}%`,
+                width: `${Math.min((drivingSec / 39600) * 100, 100)}%`,
               }}
             />
           </div>
@@ -84,10 +84,7 @@ export default function HOSClockWidget({ myHOSLog }) {
             <div
               className="bg-emerald-600 h-full transition-all duration-300"
               style={{
-                width: `${Math.min(
-                  ((myHOSLog.dutySecondsRemaining || 0) / 50400) * 100,
-                  100
-                )}%`,
+                width: `${Math.min((dutySec / 50400) * 100, 100)}%`,
               }}
             />
           </div>
@@ -105,10 +102,7 @@ export default function HOSClockWidget({ myHOSLog }) {
             <div
               className="bg-slate-600 h-full transition-all duration-300"
               style={{
-                width: `${Math.min(
-                  ((myHOSLog.cycleSecondsRemaining || 0) / 252000) * 100,
-                  100
-                )}%`,
+                width: `${Math.min((cycleSec / 252000) * 100, 100)}%`,
               }}
             />
           </div>

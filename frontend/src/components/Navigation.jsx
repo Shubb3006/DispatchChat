@@ -16,6 +16,9 @@ import {
   LayoutGrid,
   DollarSign,
   Map,
+  Truck,
+  UserCog,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function Navigation({
@@ -33,6 +36,9 @@ export default function Navigation({
       icon: FilePlus,
       badge: activeShipmentsCount,
     },
+    { id: "driver_manager", label: "Driver Manager Hub", icon: UserCog },
+    { id: "safety", label: "Safety & HOS Compliance", icon: ShieldCheck },
+    { id: "driver", label: "Driver App (Mobile View)", icon: Truck },
     { id: "kanban", label: "Kanban Freight Pipeline", icon: LayoutGrid },
     { id: "pcmiler", label: "PC*MILER Routing & Tolls", icon: Map },
     { id: "telematics", label: "Samsara Fleet Radar & AI Routing", icon: Radio },
