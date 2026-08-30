@@ -58,6 +58,7 @@ router.post(
 router.get(
     "/",
     protectedRoute,
+    authorize("admin", "super_admin", "dispatcher", "data_entry"),
     getAllLoads
 );
 
@@ -77,6 +78,7 @@ router.put(
 router.put(
     "/:id/status",
     protectedRoute,
+    authorize("admin", "super_admin", "dispatcher"),
     updateLoadStatus
 );
 

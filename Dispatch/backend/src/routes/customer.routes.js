@@ -26,9 +26,9 @@ router.post(
 
 router.post("/",protectedRoute,authorize("admin","dispatcher","super_admin"),createCustomer);
 
-router.get("/",protectedRoute,getCustomers);
+router.get("/", protectedRoute, authorize("admin", "dispatcher", "super_admin"), getCustomers);
 
-router.get("/:id",protectedRoute,getCustomer);
+router.get("/:id", protectedRoute, authorize("admin", "dispatcher", "super_admin"), getCustomer);
 
 router.put(
     "/:id",
