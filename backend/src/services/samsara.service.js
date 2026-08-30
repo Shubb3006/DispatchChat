@@ -3,7 +3,7 @@ import dotenv from "dotenv";
 
 dotenv.config();
 
-let SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN || "samsara_api_2NROu9UiNoNd7NpP1uPNNoXFGianNP";
+let SAMSARA_API_TOKEN = process.env.SAMSARA_API_TOKEN || "";
 let SAMSARA_BASE_URL = process.env.SAMSARA_BASE_URL || "https://api.samsara.com";
 
 // In-memory cache for live telematics to avoid rate-limiting
