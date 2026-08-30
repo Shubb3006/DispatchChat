@@ -16,6 +16,7 @@ import {
   LayoutGrid,
   DollarSign,
   Map,
+  Inbox,
 } from "lucide-react";
 
 export default function Navigation({
@@ -34,6 +35,7 @@ export default function Navigation({
       badge: activeShipmentsCount,
     },
     { id: "kanban", label: "Kanban Freight Pipeline", icon: LayoutGrid },
+    { id: "rates", label: "Customer Rate Requests", icon: Inbox },
     { id: "pcmiler", label: "PC*MILER Routing & Tolls", icon: Map },
     { id: "telematics", label: "Samsara Fleet Radar & AI Routing", icon: Radio },
     { id: "eta_radar", label: "Predictive Live ETA & Weather Radar", icon: Compass },
@@ -52,6 +54,11 @@ export default function Navigation({
 
 
   const filteredTabs = allTabs.filter((tab) => {
+    // Rate requests are a dispatch function — visible to every dispatcher
+    // without needing an allowed_modules entry.
+    if (tab.id === "rates" && currentUser?.role === "dispatcher") {
+      return true;
+    }
     if (tab.id === "reporting") {
       return (
         currentUser?.role === "super_admin" ||

@@ -350,6 +350,7 @@ import AuditLogPage from "./pages/AuditLogPage";
 import KanbanDispatchPage from "./pages/KanbanDispatchPage";
 import SettlementsPage from "./pages/SettlementsPage";
 import PcMilerPage from "./pages/PcMilerPage";
+import RateRequestsPage from "./pages/RateRequestsPage";
 import PortalLoginPage from "./pages/PortalLoginPage";
 import PortalDashboardPage from "./pages/PortalDashboardPage";
 import PortalRateRequestPage from "./pages/PortalRateRequestPage";
@@ -434,6 +435,7 @@ function LogiSyncApp() {
       "reporting",
       "data_entry",
       "kanban",
+      "rates",
       "pcmiler",
       "customs",
       "telematics",
@@ -580,6 +582,7 @@ function LogiSyncApp() {
             <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} />
             <Route path="/data_entry" element={<DispatcherPage />} />
             <Route path="/kanban" element={<KanbanDispatchPage />} />
+            <Route path="/rates" element={<RateRequestsPage />} />
             <Route path="/pcmiler" element={<PcMilerPage />} />
             <Route path="/telematics" element={<SamsaraFleetPage />} />
             <Route path="/eta_radar" element={<EtaWeatherRadarPage />} />
