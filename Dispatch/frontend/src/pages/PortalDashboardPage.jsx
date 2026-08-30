@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePortalStore } from "@/stores/usePortalStore";
+import { usePortalStore } from "../stores/usePortalStore";
 import { Plus, LogOut, MapPin, Truck, FileUp, AlertCircle } from "lucide-react";
 
 export default function PortalDashboardPage() {
@@ -14,6 +14,8 @@ export default function PortalDashboardPage() {
     fetchPortalLoads,
     isLoading,
     respondToRate,
+    uploadTender,
+    isUploadingTender,
   } = usePortalStore();
 
   const [activeTab, setActiveTab] = useState("rates");
@@ -196,13 +198,37 @@ export default function PortalDashboardPage() {
                     )}
 
                     {r.status === "ACCEPTED" && (
-                      <button
-                        onClick={() => navigate(`/portal/loads/${r.id}`)}
-                        className="mt-3 w-full px-3 py-2 text-sm font-medium text-sky-600 bg-sky-50 rounded hover:bg-sky-100 transition-colors flex items-center justify-center gap-2"
-                      >
-                        <FileUp className="w-4 h-4" />
-                        Upload Load Tender
-                      </button>
+                      <label className={`mt-3 w-full px-3 py-2 text-sm font-medium rounded transition-colors flex items-center justify-center gap-2 cursor-pointer ${
+                        isUploadingTender
+                          ? "text-slate-400 bg-slate-50 cursor-wait"
+                          : "text-sky-600 bg-sky-50 hover:bg-sky-100"
+                      }`}>
+                        {isUploadingTender ? (
+                          <>
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                            AI is parsing your tender…
+                          </>
+                        ) : (
+                          <>
+                            <FileUp className="w-4 h-4" />
+                            Upload Load Tender (PDF)
+                          </>
+                        )}
+                        <input
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          disabled={isUploadingTender}
+                          onChange={async (e) => {
+                            const file = e.target.files?.[0];
+                            e.target.value = "";
+                            if (file) {
+                              const result = await uploadTender(file, r.id);
+                              if (result) setActiveTab("loads");
+                            }
+                          }}
+                        />
+                      </label>
                     )}
                   </div>
                 ))}

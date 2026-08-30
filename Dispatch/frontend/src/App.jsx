@@ -462,52 +462,6 @@ function LogiSyncApp() {
     }
   }, [location.pathname, isLoggedIn, currentUser, navigate, currentRole]);
 
-  // Portal routing (customer/broker login — separate surface from staff app)
-  if (location.pathname.startsWith("/portal")) {
-    const portalUser = usePortalStore((state) => state.portalUser);
-    const isCheckingPortalAuth = usePortalStore((state) => state.isCheckingAuth);
-    const checkPortalAuth = usePortalStore((state) => state.checkPortalAuth);
-
-    useEffect(() => {
-      // Only check auth if NOT on the login page
-      if (location.pathname !== "/portal/login") {
-        checkPortalAuth();
-      }
-    }, [location.pathname]);
-
-    // Show loading only on protected routes, not on login
-    if (isCheckingPortalAuth && location.pathname !== "/portal/login") {
-      return (
-        <div className="flex items-center justify-center h-screen bg-slate-50">
-          <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
-        </div>
-      );
-    }
-
-    return (
-      <>
-        <Routes>
-          <Route path="/portal/login" element={<PortalLoginPage />} />
-          <Route
-            path="/portal/dashboard"
-            element={portalUser ? <PortalDashboardPage /> : <Navigate to="/portal/login" replace />}
-          />
-          <Route
-            path="/portal/rate-request"
-            element={portalUser ? <PortalRateRequestPage /> : <Navigate to="/portal/login" replace />}
-          />
-          <Route
-            path="/portal/loads/:id"
-            element={portalUser ? <PortalLoadDetailPage /> : <Navigate to="/portal/login" replace />}
-          />
-          <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
-          <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
-        </Routes>
-        <Toaster position="top-right" />
-      </>
-    );
-  }
-
   // Public Tracking Route Bypass (No Login Required)
   if (location.pathname.startsWith("/track")) {
     return (
@@ -671,7 +625,65 @@ function LogiSyncApp() {
 }
 
 
+// Customer/Broker portal — a fully separate surface from the staff TMS.
+// Rendered INSTEAD of LogiSyncApp for every /portal/* path so none of the
+// staff app's auth redirects or bootstrap fetches ever run for brokers.
+function PortalApp() {
+  const location = useLocation();
+  const portalUser = usePortalStore((state) => state.portalUser);
+  const isCheckingPortalAuth = usePortalStore((state) => state.isCheckingAuth);
+  const checkPortalAuth = usePortalStore((state) => state.checkPortalAuth);
+  const onLoginPage = location.pathname === "/portal/login";
+
+  useEffect(() => {
+    // Restore an existing session on protected pages; the login page renders
+    // immediately (an anonymous visitor's auth check would just 401).
+    if (!onLoginPage) {
+      checkPortalAuth();
+    } else {
+      usePortalStore.setState({ isCheckingAuth: false });
+    }
+  }, []);
+
+  if (isCheckingPortalAuth && !onLoginPage) {
+    return (
+      <div className="flex items-center justify-center h-screen bg-slate-50">
+        <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <Routes>
+        <Route path="/portal/login" element={<PortalLoginPage />} />
+        <Route
+          path="/portal/dashboard"
+          element={portalUser ? <PortalDashboardPage /> : <Navigate to="/portal/login" replace />}
+        />
+        <Route
+          path="/portal/rate-request"
+          element={portalUser ? <PortalRateRequestPage /> : <Navigate to="/portal/login" replace />}
+        />
+        <Route
+          path="/portal/loads/:id"
+          element={portalUser ? <PortalLoadDetailPage /> : <Navigate to="/portal/login" replace />}
+        />
+        <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
+      </Routes>
+      <Toaster position="top-right" />
+    </>
+  );
+}
+
 export default function App() {
+  const location = useLocation();
+
+  // The portal is its own app: separate login, separate store, no staff shell.
+  if (location.pathname.startsWith("/portal")) {
+    return <PortalApp />;
+  }
+
   return (
     <>
       <Toaster />

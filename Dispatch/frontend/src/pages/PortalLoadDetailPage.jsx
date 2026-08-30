@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { usePortalStore } from "@/stores/usePortalStore";
+import { usePortalStore } from "../stores/usePortalStore";
 import { ArrowLeft, FileUp, AlertCircle, CheckCircle, Loader2, Upload } from "lucide-react";
 import toast from "react-hot-toast";
 

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { usePortalStore } from "@/stores/usePortalStore";
+import { usePortalStore } from "../stores/usePortalStore";
 import { Loader2 } from "lucide-react";
 
 export default function PortalLoginPage() {
