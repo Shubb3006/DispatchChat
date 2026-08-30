@@ -1,0 +1,12 @@
+{
+  "mappings": [
+    {
+      "identifier": "driver101@fleet.com",
+      "supabaseUid": "your-supabase-user-uuid-1"
+    },
+    {
+      "identifier": "driver102@fleet.com",
+      "supabaseUid": "your-supabase-user-uuid-2"
+    }
+  ]
+}
