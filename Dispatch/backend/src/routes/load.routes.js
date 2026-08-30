@@ -101,8 +101,9 @@ router.post('/approve-bol',protectedRoute, approveBOL);
 router.post('/reject-bol',protectedRoute, rejectBOL);
 
 // Trip Legs / Relay Legs Management
-// Note: These don't use parameterized routes (/resources/*) to avoid conflicts with /:id
-// Frontend expects GET /drivers and GET /trucks without load context
-// These endpoints can be in a separate route file, but kept here for now
+router.get("/:id/legs", protectedRoute, getLoadLegs);
+router.post("/:id/legs", protectedRoute, createLoadLegs);
+router.patch("/legs/:legId", protectedRoute, updateLoadLeg);
+router.delete("/legs/:legId", protectedRoute, deleteLoadLeg);
 
 export default router;
