@@ -412,6 +412,79 @@ export default function DispatcherDashboard({
   });
   const [isKpiConfigOpen, setIsKpiConfigOpen] = useState(false);
 
+  // Pagination & search state
+  const [searchQ, setSearchQ] = useState("");
+  const [sortBy, setSortBy] = useState("-created_at");
+  const [limit, setLimit] = useState(50);
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(shipments?.length || 0);
+  const [savedFilters, setSavedFilters] = useState([]);
+  const [filteredShipments, setFilteredShipments] = useState(shipments || []);
+
+  // Fetch loads with pagination/search from backend
+  useEffect(() => {
+    const fetchWithParams = async () => {
+      try {
+        const params = new URLSearchParams();
+        if (searchQ) params.append("q", searchQ);
+        params.append("limit", limit);
+        params.append("offset", offset);
+        if (sortBy) params.append("sort", sortBy);
+
+        const res = await axiosInstance.get(`/loads?${params}`);
+        if (res.data.data) {
+          setFilteredShipments(res.data.data);
+          setTotal(res.data.total || res.data.data.length);
+        } else {
+          setFilteredShipments(shipments || []);
+        }
+      } catch (err) {
+        console.warn("Pagination fetch failed, using local data:", err.message);
+        setFilteredShipments(shipments || []);
+        setTotal(shipments?.length || 0);
+      }
+    };
+    fetchWithParams();
+  }, [searchQ, offset, limit, sortBy, shipments]);
+
+  // Fetch saved filters
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
+        setSavedFilters(res.data.filters || []);
+      } catch (err) {
+        console.warn("Failed to load saved filters");
+      }
+    };
+    fetchFilters();
+  }, []);
+
+  // Save a filter
+  const saveCurrentFilter = async (filterName) => {
+    try {
+      await axiosInstance.post("/user/saved-filters", {
+        page_key: "dispatcher_loads",
+        name: filterName,
+        params: { q: searchQ, sort: sortBy },
+      });
+      toast.success(`Filter "${filterName}" saved`);
+      // Refresh filters list
+      const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
+      setSavedFilters(res.data.filters || []);
+    } catch (err) {
+      toast.error("Failed to save filter");
+    }
+  };
+
+  // Apply a saved filter
+  const applySavedFilter = (filter) => {
+    if (filter.params?.q) setSearchQ(filter.params.q);
+    if (filter.params?.sort) setSortBy(filter.params.sort);
+    setOffset(0);
+    toast.success(`Applied filter: ${filter.name}`);
+  };
+
   const toggleKpiCard = (cardKey) => {
     setKpiCards((prev) => {
       const next = prev.includes(cardKey)
