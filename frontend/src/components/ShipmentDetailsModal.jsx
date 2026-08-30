@@ -34,6 +34,7 @@ import {
 import CustomsManifestModal from "./CustomsManifestModal";
 import DocumentTemplateModal from "./DocumentTemplateModal";
 import CustomsOrderProfileTab from "./CustomsOrderProfileTab";
+import TripLegsSection from "./TripLegsSection";
 import { useDriverStore } from "../stores/useDriverstore";
 import { useDocumentStore } from "../stores/useDocumentStore";
 
@@ -585,6 +586,19 @@ export default function ShipmentDetailsModal({
             <span className="text-3xs font-mono bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
               ACE/ACI
             </span>
+          </button>
+          <button
+            onClick={() => {
+              setActiveTab("legs");
+              setIsEditing(false);
+            }}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
+              activeTab === "legs"
+                ? "border-indigo-600 text-indigo-600 font-extrabold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            🚚 Trip Legs
           </button>
         </div>
 
@@ -2810,6 +2824,15 @@ export default function ShipmentDetailsModal({
             <CustomsOrderProfileTab
               shipment={shipment}
               onOpenDocumentModal={(type) => setTemplateDocType(type)}
+            />
+          )}
+
+          {/* TAB 5: TRIP LEGS MANAGEMENT */}
+          {activeTab === "legs" && (
+            <TripLegsSection
+              loadId={shipment?.id || shipment?.loadId}
+              totalCost={shipment?.estimatedRevenue}
+              totalDistance={shipment?.totalDistance}
             />
           )}
         </div>
