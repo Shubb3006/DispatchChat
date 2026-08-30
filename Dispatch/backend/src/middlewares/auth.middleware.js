@@ -28,13 +28,13 @@ export const protectedRoute = async (req,res,next) => {
         }
 
 
-        const buildUserSql = (withCustomerId) => `
+        const result = await pool.query(
+            `
            SELECT
     u.id,
     u.username,
     u.role,
     u.allowed_modules,
-    ${withCustomerId ? "u.customer_id," : ""}
 
     d.id AS driver_id,
     d.driver_code,
@@ -52,20 +52,11 @@ LEFT JOIN drivers d
 ON u.id = d.user_id
 
 WHERE u.id = $1
-            `;
-
-        let result;
-        try {
-            result = await pool.query(buildUserSql(true), [decoded.userId]);
-        } catch (queryError) {
-            // users.customer_id arrives with the customer-portal migration;
-            // until it has run, keep auth working with the original columns.
-            if (queryError.code === "42703") {
-                result = await pool.query(buildUserSql(false), [decoded.userId]);
-            } else {
-                throw queryError;
-            }
-        }
+            `,
+            [
+                decoded.userId
+            ]
+        );
 
 
 
@@ -86,7 +77,6 @@ req.user = {
   email: user.email,
   role: user.role,
   allowed_modules: user.allowed_modules,
-  customer_id: user.customer_id || null,
 
   driver: user.driver_id
     ? {
@@ -119,4 +109,16 @@ req.user = {
 
     }
 
+};
+
+export const authorize = (...allowedRoles) => {
+  return (req, res, next) => {
+    if (!req.user || !req.user.role) {
+      return res.status(403).json({ message: "Forbidden - No user role" });
+    }
+    if (!allowedRoles.includes(req.user.role)) {
+      return res.status(403).json({ message: `Forbidden - Required role: ${allowedRoles.join(" or ")}` });
+    }
+    next();
+  };
 };

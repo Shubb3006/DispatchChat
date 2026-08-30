@@ -15,7 +15,6 @@ export default function LoginPage() {
   const navigate = useNavigate();
   const users = useAuthStore((state) => state.users);
   const fetchUsers = useAuthStore((state) => state.fetchUsers);
-  // Force rebuild with production API URL fix
   const authLogin = useAuthStore((state) => state.login);
   const authSignUp = useAuthStore((state) => state.signUp);
   const isLoading = useAuthStore((state) => state.isLoading);

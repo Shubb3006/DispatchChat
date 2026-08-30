@@ -5,30 +5,23 @@ import {
     getCustomers,
     getCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getMyCustomer
 } from "../controllers/customer.controller.js";
 
 import { protectedRoute } from '../middlewares/auth.middleware.js';
 import { authorize } from '../middlewares/role.middleware.js';
 
-import { provisionCustomerUser } from "../controllers/portal.controller.js";
-
 const router = express.Router();
-
-// Provision a portal login for a customer company (accounts are
-// admin-provisioned — the portal has no self-serve signup).
-router.post(
-    "/:id/portal-user",
-    protectedRoute,
-    authorize("admin", "dispatcher", "super_admin"),
-    provisionCustomerUser
-);
 
 router.post("/",protectedRoute,authorize("admin","dispatcher","super_admin"),createCustomer);
 
-router.get("/", protectedRoute, authorize("admin", "dispatcher", "super_admin"), getCustomers);
+router.get("/",protectedRoute,getCustomers);
 
-router.get("/:id", protectedRoute, authorize("admin", "dispatcher", "super_admin"), getCustomer);
+// Customer record linked to the requesting user (must be before "/:id")
+router.get("/me",protectedRoute,getMyCustomer);
+
+router.get("/:id",protectedRoute,getCustomer);
 
 router.put(
     "/:id",

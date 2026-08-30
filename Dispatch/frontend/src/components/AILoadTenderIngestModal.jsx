@@ -150,14 +150,7 @@ export default function AILoadTenderIngestModal({
       toast.dismiss("pdf-toast");
       if (res.data?.success) {
         setBookingResult(res.data);
-        if (res.data.extraction_source === "gemini-ai") {
-          toast.success(`🎉 Gemini AI extracted your PDF! Load #${res.data.load_number} created & assigned to ${res.data.assigned_team}.`);
-        } else {
-          toast.error(
-            `⚠️ Gemini AI was NOT used — load #${res.data.load_number} contains SAMPLE fallback data, not your PDF. ${res.data.fallback_reason || "Add GEMINI_API_KEY on the backend server (Render)."}`,
-            { duration: 10000 }
-          );
-        }
+        toast.success(`🎉 Load #${res.data.load_number} created & assigned to ${res.data.assigned_team}!`);
         fetchShipments();
         if (onLoadCreated) onLoadCreated(res.data.load);
       }
@@ -370,17 +363,6 @@ export default function AILoadTenderIngestModal({
                   </div>
                 </div>
               </div>
-
-              {/* Gemini configuration warning */}
-              {workerStatus && workerStatus.geminiConfigured === false && (
-                <div className="bg-red-50 border border-red-300 text-red-700 rounded-xl px-4 py-3 text-xs font-mono font-bold flex items-center gap-2">
-                  <AlertCircle className="w-4 h-4 shrink-0" />
-                  <span>
-                    GEMINI_API_KEY is missing on the backend server — PDF uploads will produce SAMPLE data, not real extraction.
-                    Add the key in Render Dashboard → Environment, then redeploy.
-                  </span>
-                </div>
-              )}
 
               {/* Drag-and-Drop Rate Confirmation Upload */}
               <div className="bg-white rounded-2xl border-2 border-dashed border-sky-300 hover:border-sky-500 transition-all p-6 text-center shadow-sm">

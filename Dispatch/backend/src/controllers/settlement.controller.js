@@ -1,5 +1,9 @@
 import pool from "../config/db.js";
-import { ensureSettlementTable, calculateSettlement } from "../services/settlement.service.js";
+import {
+  ensureSettlementTable,
+  calculateSettlement,
+  calculateSettlementWithLegs,
+} from "../services/settlement.service.js";
 import { recordAuditLog } from "../services/auditLogger.service.js";
 
 // GET All Settlements with Filtering & Pagination
@@ -74,7 +78,9 @@ export const getSettlementById = async (req, res) => {
 export const generateSettlement = async (req, res) => {
   try {
     await ensureSettlementTable();
-    const settlementData = calculateSettlement(req.body);
+    // Relay-leg aware: loads with load_legs pay this driver only for their own legs;
+    // loads without legs keep the exact legacy calculateSettlement behavior.
+    const settlementData = await calculateSettlementWithLegs(req.body);
 
     const result = await pool.query(
       `
@@ -85,12 +91,12 @@ export const generateSettlement = async (req, res) => {
         gross_percentage, gross_freight_revenue, base_pay, extra_stop_pay,
         detention_pay, layover_pay, reimbursements, total_gross_pay,
         deductions, total_deductions, net_payout, currency, status,
-        loads_included, notes
+        loads_included, notes, line_items
       ) VALUES (
         $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
         $11, $12, $13, $14, $15, $16, $17, $18,
         $19, $20, $21, $22, $23, $24, $25, $26, $27,
-        $28, $29
+        $28, $29, $30
       ) RETURNING *;
       `,
       [
@@ -123,6 +129,7 @@ export const generateSettlement = async (req, res) => {
         settlementData.status,
         JSON.stringify(settlementData.loads_included),
         req.body.notes || null,
+        JSON.stringify(settlementData.line_items || []),
       ]
     );
 
@@ -234,5 +241,139 @@ export const getSettlementStats = async (req, res) => {
   } catch (error) {
     console.error("Error getting settlement stats:", error);
     res.status(500).json({ success: false, message: "Server error", error: error.message });
+  }
+};
+
+// ---------------------------------------------------------------------------
+// Driver pay transparency — GET /api/settlement/me (FROZEN CONTRACT)
+// The driver mobile app consumes exactly this shape:
+// { ok: true, settlements: [{ id, period_start, period_end, status, gross_pay,
+//   total_deductions, net_pay, deductions: [{type, amount, note}],
+//   lines: [{load_number, leg_seq, origin, destination, miles, rate_type, rate, amount}] }] }
+// ---------------------------------------------------------------------------
+
+const num = (v) => {
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+};
+
+const parseJsonColumn = (value, fallback) => {
+  if (value === null || value === undefined) return fallback;
+  if (typeof value === "string") {
+    try {
+      return JSON.parse(value);
+    } catch {
+      return fallback;
+    }
+  }
+  return value;
+};
+
+// JSONB deductions can be an object ({fuel_advance: 120, ...}) or already an array.
+const deductionsToArray = (raw) => {
+  const parsed = parseJsonColumn(raw, {});
+  if (Array.isArray(parsed)) {
+    return parsed.map((d) => ({
+      type: d?.type || d?.name || "deduction",
+      amount: num(d?.amount),
+      note: d?.note || null,
+    }));
+  }
+  if (parsed && typeof parsed === "object") {
+    return Object.entries(parsed).map(([type, value]) => {
+      if (value && typeof value === "object") {
+        return { type, amount: num(value.amount), note: value.note || null };
+      }
+      return { type, amount: num(value), note: null };
+    });
+  }
+  return [];
+};
+
+const settlementLines = (row) => {
+  const lineItems = parseJsonColumn(row.line_items, []);
+  if (Array.isArray(lineItems) && lineItems.length > 0) {
+    return lineItems.map((li) => ({
+      load_number: li?.load_number ?? null,
+      leg_seq: li?.leg_seq ?? null,
+      origin: li?.origin ?? null,
+      destination: li?.destination ?? null,
+      miles: li?.miles ?? null,
+      rate_type: li?.rate_type ?? null,
+      rate: li?.rate ?? null,
+      amount: li?.amount ?? null,
+    }));
+  }
+
+  // Older settlements (created before line_items existed): synthesize one line per
+  // included load from what was stored, without inventing per-load amounts.
+  const loads = parseJsonColumn(row.loads_included, []);
+  if (!Array.isArray(loads)) return [];
+  const model = String(row.pay_model || "PER_MILE").toUpperCase();
+  const rate_type = model === "PERCENTAGE_OF_GROSS" ? "PERCENT_OF_GROSS" : model;
+  const rate =
+    model === "PERCENTAGE_OF_GROSS" ? num(row.gross_percentage) : num(row.rate_per_loaded_mile);
+  return loads.map((l) => {
+    const load = typeof l === "string" ? { id: l } : l || {};
+    return {
+      load_number: load.load_number || load.loadNumber || load.id || null,
+      leg_seq: null,
+      origin: load.origin || null,
+      destination: load.destination || null,
+      miles: null,
+      rate_type,
+      rate,
+      amount: null,
+    };
+  });
+};
+
+// GET /api/settlement/me — the authenticated driver's own settlements, every
+// lifecycle state (DRAFT/APPROVED/PAID/...), newest first, limit 24.
+export const getMySettlements = async (req, res) => {
+  try {
+    await ensureSettlementTable();
+
+    const driver = req.user?.driver;
+    if (!driver || !driver.id) {
+      return res
+        .status(404)
+        .json({ ok: false, error: "No driver profile is linked to this account" });
+    }
+
+    const params = [String(driver.id)];
+    let where = `driver_id = $1`;
+    if (driver.driver_code) {
+      params.push(String(driver.driver_code));
+      where = `(driver_id = $1 OR driver_code = $2)`;
+    }
+
+    const result = await pool.query(
+      `
+      SELECT *
+      FROM driver_settlements
+      WHERE ${where}
+      ORDER BY created_at DESC
+      LIMIT 24;
+      `,
+      params
+    );
+
+    const settlements = result.rows.map((row) => ({
+      id: row.id,
+      period_start: row.period_start,
+      period_end: row.period_end,
+      status: row.status,
+      gross_pay: num(row.total_gross_pay),
+      total_deductions: num(row.total_deductions),
+      net_pay: num(row.net_payout),
+      deductions: deductionsToArray(row.deductions),
+      lines: settlementLines(row),
+    }));
+
+    res.json({ ok: true, settlements });
+  } catch (error) {
+    console.error("Error fetching driver settlements:", error);
+    res.status(500).json({ ok: false, error: error.message });
   }
 };

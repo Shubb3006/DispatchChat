@@ -124,8 +124,8 @@ export default function CustomsPage() {
     fetchBorderConnectConfig,
     saveBorderConnectConfig,
     syncBorderConnectStatus,
-    transmitBorderConnectAce,
-    transmitBorderConnectAci,
+    fileWithBorderConnect,
+    refreshBorderConnectStatus,
     syncAllShipmentsWithBorderConnect,
     isSyncingBorderConnect,
     liveSyncSummary,
@@ -240,15 +240,17 @@ export default function CustomsPage() {
       if (searchQuery.trim()) {
         const q = searchQuery.toLowerCase();
         const match =
-          String(entry.entry_number || "").toLowerCase().includes(q) ||
-          String(entry.lead_number || "").toLowerCase().includes(q) ||
-          String(entry.load_number || "").toLowerCase().includes(q) ||
-          String(entry.irs_number || "").toLowerCase().includes(q) ||
-          String(entry.ins_number || "").toLowerCase().includes(q) ||
-          String(entry.port_of_entry_name || "").toLowerCase().includes(q) ||
-          String(entry.customs_broker_name || "").toLowerCase().includes(q) ||
-          String(entry.customer_name || "").toLowerCase().includes(q) ||
-          String(entry.driver_name || "").toLowerCase().includes(q);
+          (entry.entry_number && entry.entry_number.toLowerCase().includes(q)) ||
+          (entry.lead_number && entry.lead_number.toLowerCase().includes(q)) ||
+          (entry.load_number && entry.load_number.toLowerCase().includes(q)) ||
+          (entry.irs_number && entry.irs_number.toLowerCase().includes(q)) ||
+          (entry.ins_number && entry.ins_number.toLowerCase().includes(q)) ||
+          (entry.port_of_entry_name &&
+            entry.port_of_entry_name.toLowerCase().includes(q)) ||
+          (entry.customs_broker_name &&
+            entry.customs_broker_name.toLowerCase().includes(q)) ||
+          (entry.customer_name && entry.customer_name.toLowerCase().includes(q)) ||
+          (entry.driver_name && entry.driver_name.toLowerCase().includes(q));
         if (!match) return false;
       }
 
@@ -476,6 +478,50 @@ export default function CustomsPage() {
     }
   };
 
+  // BorderConnect filing lifecycle badge (honest, persisted state):
+  // DRAFT -> QUEUED -> SENT -> ACCEPTED | REJECTED | ERROR
+  const getBcFilingBadge = (bcStatus) => {
+    switch (bcStatus) {
+      case "ACCEPTED":
+        return {
+          label: "BC: Accepted",
+          bg: "bg-emerald-500/10 text-emerald-600 border border-emerald-500/30",
+          dot: "bg-emerald-500",
+        };
+      case "SENT":
+        return {
+          label: "BC: Sent (awaiting customs)",
+          bg: "bg-blue-500/10 text-blue-600 border border-blue-500/30",
+          dot: "bg-blue-500",
+        };
+      case "QUEUED":
+        return {
+          label: "BC: Queued",
+          bg: "bg-amber-500/10 text-amber-600 border border-amber-500/30",
+          dot: "bg-amber-500",
+        };
+      case "REJECTED":
+        return {
+          label: "BC: Rejected",
+          bg: "bg-rose-500/10 text-rose-600 border border-rose-500/30",
+          dot: "bg-rose-500",
+        };
+      case "ERROR":
+        return {
+          label: "BC: Error",
+          bg: "bg-red-500/10 text-red-600 border border-red-500/40",
+          dot: "bg-red-500",
+        };
+      case "DRAFT":
+      default:
+        return {
+          label: bcStatus === "DRAFT" ? "BC: Draft (not filed)" : "BC: Not filed",
+          bg: "bg-slate-100 text-slate-500 border border-slate-300",
+          dot: "bg-slate-400",
+        };
+    }
+  };
+
   return (
     <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-slate-900">
       {/* Top Banner / Hero */}
@@ -507,7 +553,7 @@ export default function CustomsPage() {
             className="px-4 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white text-xs font-bold rounded-xl shadow-xs transition-all flex items-center gap-2 cursor-pointer"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isSyncingBorderConnect ? "animate-spin" : ""}`} />
-            <span>{isSyncingBorderConnect ? "Syncing..." : "⚡ Sync BorderConnect"}</span>
+            <span>{isSyncingBorderConnect ? "Scanning..." : "Scan Cross-Border Loads"}</span>
           </button>
 
           <button
@@ -682,9 +728,15 @@ export default function CustomsPage() {
             }`}
           >
             <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
-            <span>BorderConnect Live EDI & Sync</span>
-            <span className="px-1.5 py-0.2 bg-emerald-100 text-emerald-800 text-[10px] rounded font-extrabold font-mono">
-              LIVE
+            <span>BorderConnect EDI Filing</span>
+            <span
+              className={`px-1.5 py-0.2 text-[10px] rounded font-extrabold font-mono ${
+                borderConnectConfig.configured
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-slate-200 text-slate-600"
+              }`}
+            >
+              {borderConnectConfig.configured ? "READY" : "OFF"}
             </span>
           </button>
 
@@ -784,6 +836,7 @@ export default function CustomsPage() {
             <div className="grid grid-cols-1 gap-4">
               {filteredEntries.map((entry) => {
                 const badge = getStatusBadge(entry.customs_status);
+                const bcBadge = getBcFilingBadge(entry.border_connect_status);
                 const isUS = entry.border_direction === "INBOUND_US";
                 const isSelected = selectedEntry?.id === entry.id;
 
@@ -831,6 +884,15 @@ export default function CustomsPage() {
                               />
                               {badge.label}
                             </span>
+                            <span
+                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold ${bcBadge.bg}`}
+                              title="BorderConnect eManifest filing status (persisted)"
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${bcBadge.dot}`}
+                              />
+                              {bcBadge.label}
+                            </span>
                           </div>
 
                           <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -868,16 +930,24 @@ export default function CustomsPage() {
 
                         <button
                           onClick={async () => {
-                            await syncBorderConnectStatus(
-                              entry.lead_number,
-                              entry.lead_number_type
-                            );
+                            await fileWithBorderConnect(entry.id);
                           }}
-                          title="Sync live status with BorderConnect"
+                          title="File this ACE/ACI eManifest with BorderConnect"
                           className="flex items-center gap-1.5 px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
                         >
+                          <Send className="w-3.5 h-3.5" />
+                          <span>File BC</span>
+                        </button>
+
+                        <button
+                          onClick={async () => {
+                            await refreshBorderConnectStatus(entry.id);
+                          }}
+                          title="Poll BorderConnect for real status updates"
+                          className="flex items-center gap-1.5 px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
+                        >
                           <RefreshCw className="w-3.5 h-3.5" />
-                          <span>BC Sync</span>
+                          <span>Refresh</span>
                         </button>
 
                         <button
@@ -910,6 +980,14 @@ export default function CustomsPage() {
                         </button>
                       </div>
                     </div>
+
+                    {/* Real BorderConnect error message (never hidden) */}
+                    {entry.bc_error_message && (
+                      <div className="mt-3 px-3.5 py-2 bg-rose-50 border border-rose-200 rounded-xl text-xs text-rose-700 font-medium flex items-start gap-2">
+                        <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                        <span>BorderConnect: {entry.bc_error_message}</span>
+                      </div>
+                    )}
 
                     {/* Middle Section: Route & Tax / Broker Data Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
@@ -1013,13 +1091,20 @@ export default function CustomsPage() {
                     <h2 className="text-base font-extrabold text-slate-900">
                       BorderConnect Cloud EDI Gateway
                     </h2>
-                    <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                      LIVE EDI CONNECTED
-                    </span>
+                    {borderConnectConfig.configured ? (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                        API CONFIGURED
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-rose-50 text-rose-700 border border-rose-200">
+                        <span className="w-1.5 h-1.5 rounded-full bg-rose-500" />
+                        NOT CONFIGURED
+                      </span>
+                    )}
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
-                    Direct automated ACE eManifest (US CBP) & ACI eManifest (CBSA Canada) transmission for Nishan Transport
+                    ACE eManifest (US CBP) & ACI eManifest (CBSA Canada) filing via BorderConnect. Statuses shown are the real persisted filing lifecycle.
                   </p>
                 </div>
               </div>
@@ -1038,7 +1123,7 @@ export default function CustomsPage() {
                   className="px-4 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-xs flex items-center gap-2 cursor-pointer transition-all"
                 >
                   <RefreshCw className={`w-3.5 h-3.5 ${isSyncingBorderConnect ? "animate-spin" : ""}`} />
-                  <span>{isSyncingBorderConnect ? "Syncing..." : "⚡ Sync All Shipments"}</span>
+                  <span>{isSyncingBorderConnect ? "Scanning..." : "Scan Loads for Draft Entries"}</span>
                 </button>
               </div>
             </div>
@@ -1047,29 +1132,29 @@ export default function CustomsPage() {
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs font-mono">
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">US CBP SCAC Code</span>
-                <div className="text-sm font-extrabold text-sky-700 mt-0.5">{borderConnectConfig.companyCode || "NISD"}</div>
+                <div className="text-sm font-extrabold text-sky-700 mt-0.5">{borderConnectConfig.companyCode || "Not set"}</div>
                 <div className="text-[10px] text-slate-500 font-sans mt-0.5">Authorized Highway Carrier</div>
               </div>
 
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">CBSA Carrier Code</span>
-                <div className="text-sm font-extrabold text-emerald-700 mt-0.5">{borderConnectConfig.carrierCode || "22GY"}</div>
+                <div className="text-sm font-extrabold text-emerald-700 mt-0.5">{borderConnectConfig.carrierCode || "Not set"}</div>
                 <div className="text-[10px] text-slate-500 font-sans mt-0.5">Canadian Customs Registered</div>
               </div>
 
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Company Handle</span>
-                <div className="text-sm font-bold text-slate-800 mt-0.5 truncate">{borderConnectConfig.companyHandle || "NishanTransport"}</div>
-                <div className="text-[10px] text-slate-500 font-sans mt-0.5">Account Key: {borderConnectConfig.maskedCompanyKey || "c-223••••••••ba13"}</div>
+                <div className="text-sm font-bold text-slate-800 mt-0.5 truncate">{borderConnectConfig.companyHandle || "Not set"}</div>
+                <div className="text-[10px] text-slate-500 font-sans mt-0.5">Account Key: {borderConnectConfig.maskedCompanyKey || "Not set"}</div>
               </div>
 
               <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
-                <span className="text-[10px] font-bold text-slate-400 uppercase">WebSocket Stream</span>
-                <div className="text-xs font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
-                  Active Listener
+                <span className="text-[10px] font-bold text-slate-400 uppercase">API Credentials</span>
+                <div className={`text-xs font-bold mt-0.5 flex items-center gap-1 ${borderConnectConfig.configured ? "text-emerald-600" : "text-rose-600"}`}>
+                  <span className={`w-1.5 h-1.5 rounded-full ${borderConnectConfig.configured ? "bg-emerald-500" : "bg-rose-500"}`} />
+                  {borderConnectConfig.status || "UNKNOWN"}
                 </div>
-                <div className="text-[10px] text-slate-400 font-sans mt-0.5 truncate">wss://borderconnect.com/api/sockets</div>
+                <div className="text-[10px] text-slate-400 font-sans mt-0.5 truncate">API Key: {borderConnectConfig.maskedKey || "Not set"}</div>
               </div>
             </div>
           </div>
@@ -1100,15 +1185,14 @@ export default function CustomsPage() {
                     <th className="px-5 py-3.5">Route & Direction</th>
                     <th className="px-5 py-3.5">Port of Entry & Broker</th>
                     <th className="px-5 py-3.5">eManifest Trip #</th>
-                    <th className="px-5 py-3.5">Clearance Status</th>
+                    <th className="px-5 py-3.5">Filing Status</th>
                     <th className="px-5 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {customsEntries.map((entry) => {
                     const isUs = entry.border_direction === "INBOUND_US";
-                    const isCleared = entry.customs_status === "CLEARED" || entry.customs_status === "ACCEPTED";
-                    const isHold = entry.customs_status === "HOLD_INSPECTION";
+                    const bcBadge = getBcFilingBadge(entry.border_connect_status);
 
                     return (
                       <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
@@ -1154,46 +1238,40 @@ export default function CustomsPage() {
 
                         <td className="px-5 py-4">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                              isHold
-                                ? "bg-rose-50 text-rose-700 border border-rose-200 animate-pulse"
-                                : isCleared
-                                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                                : "bg-amber-50 text-amber-700 border border-amber-200"
-                            }`}
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${bcBadge.bg}`}
+                            title="Persisted BorderConnect filing lifecycle"
                           >
-                            <span className={`w-1.5 h-1.5 rounded-full ${isHold ? "bg-rose-500" : isCleared ? "bg-emerald-500" : "bg-amber-500"}`} />
-                            {isCleared ? "CLEAR TO CROSS" : isHold ? "SECONDARY EXAM HOLD" : "WITH BROKER"}
+                            <span className={`w-1.5 h-1.5 rounded-full ${bcBadge.dot}`} />
+                            {bcBadge.label}
                           </span>
+                          {entry.bc_error_message && (
+                            <div className="text-[11px] text-rose-600 font-medium mt-1 max-w-[220px] truncate" title={entry.bc_error_message}>
+                              {entry.bc_error_message}
+                            </div>
+                          )}
                         </td>
 
                         <td className="px-5 py-4 text-right">
                           <div className="flex items-center justify-end gap-1.5">
                             <button
-                              onClick={() => syncBorderConnectStatus(entry.lead_number, entry.lead_number_type)}
-                              title="Verify Live EDI Status"
+                              onClick={() => refreshBorderConnectStatus(entry.id)}
+                              title="Poll BorderConnect for real status updates"
                               className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs"
                             >
-                              Verify EDI
+                              Refresh Status
                             </button>
 
-                            {isUs ? (
-                              <button
-                                onClick={() => transmitBorderConnectAce(entry.id, entry)}
-                                title="Transmit ACE eManifest"
-                                className="px-2.5 py-1.5 rounded-xl bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold cursor-pointer shadow-2xs"
-                              >
-                                Send ACE
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => transmitBorderConnectAci(entry.id, entry)}
-                                title="Transmit ACI eManifest"
-                                className="px-2.5 py-1.5 rounded-xl bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 text-xs font-bold cursor-pointer shadow-2xs"
-                              >
-                                Send ACI
-                              </button>
-                            )}
+                            <button
+                              onClick={() => fileWithBorderConnect(entry.id)}
+                              title={isUs ? "File ACE eManifest with BorderConnect" : "File ACI eManifest with BorderConnect"}
+                              className={`px-2.5 py-1.5 rounded-xl text-xs font-bold cursor-pointer shadow-2xs border ${
+                                isUs
+                                  ? "bg-sky-50 hover:bg-sky-100 text-sky-700 border-sky-200"
+                                  : "bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border-emerald-200"
+                              }`}
+                            >
+                              File with BorderConnect
+                            </button>
                           </div>
                         </td>
                       </tr>

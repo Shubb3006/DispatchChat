@@ -350,12 +350,6 @@ import AuditLogPage from "./pages/AuditLogPage";
 import KanbanDispatchPage from "./pages/KanbanDispatchPage";
 import SettlementsPage from "./pages/SettlementsPage";
 import PcMilerPage from "./pages/PcMilerPage";
-import RateRequestsPage from "./pages/RateRequestsPage";
-import PortalLoginPage from "./pages/PortalLoginPage";
-import PortalDashboardPage from "./pages/PortalDashboardPage";
-import PortalRateRequestPage from "./pages/PortalRateRequestPage";
-import PortalLoadDetailPage from "./pages/PortalLoadDetailPage";
-import { usePortalStore } from "./stores/usePortalStore";
 
 
 
@@ -412,6 +406,12 @@ function LogiSyncApp() {
       return; // Public Magic Tracking Route (Zero-Login)
     }
 
+    // Do not redirect while the session cookie is still being verified —
+    // navigating to /login mid-check caused a login→driver bounce on refresh.
+    if (isCheckingAuth) {
+      return;
+    }
+
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login");
       return;
@@ -435,7 +435,6 @@ function LogiSyncApp() {
       "reporting",
       "data_entry",
       "kanban",
-      "rates",
       "pcmiler",
       "customs",
       "telematics",
@@ -462,13 +461,14 @@ function LogiSyncApp() {
       setCurrentRole(defaultRole);
       navigate("/" + defaultRole);
     }
-  }, [location.pathname, isLoggedIn, currentUser, navigate, currentRole]);
+  }, [location.pathname, isLoggedIn, isCheckingAuth, currentUser, navigate, currentRole]);
 
   // Public Tracking Route Bypass (No Login Required)
+  // Route line only — PublicTrackingPage reads `token` via useParams() itself.
   if (location.pathname.startsWith("/track")) {
     return (
       <Routes>
-        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track/:token" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
       </Routes>
     );
@@ -497,9 +497,24 @@ function LogiSyncApp() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track/:token" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
+      </Routes>
+    );
+  }
+
+  // Driver-role users get the standalone full-screen Driver App — no office
+  // shell. IMPORTANT: this block is what fixes the driver redirect loop. The
+  // routing effect above forces drivers onto /driver, but the office <Routes>
+  // below had no /driver route, so its catch-all bounced them back to
+  // /data_entry — an infinite navigate ping-pong. Registering /driver as a
+  // real route (and catch-all → /driver) terminates the cycle.
+  if (currentUser?.role === "driver") {
+    return (
+      <Routes>
+        <Route path="/driver" element={<DriverPage />} />
+        <Route path="*" element={<Navigate to="/driver" replace />} />
       </Routes>
     );
   }
@@ -582,12 +597,15 @@ function LogiSyncApp() {
             <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} />
             <Route path="/data_entry" element={<DispatcherPage />} />
             <Route path="/kanban" element={<KanbanDispatchPage />} />
-            <Route path="/rates" element={<RateRequestsPage />} />
             <Route path="/pcmiler" element={<PcMilerPage />} />
             <Route path="/telematics" element={<SamsaraFleetPage />} />
             <Route path="/eta_radar" element={<EtaWeatherRadarPage />} />
             <Route path="/eta-radar" element={<EtaWeatherRadarPage />} />
             <Route path="/maintenance" element={<MaintenanceRadarPage />} />
+
+            <Route path="/driver" element={<DriverPage />} />
+            <Route path="/driver_manager" element={<DriverManagerPage />} />
+            <Route path="/safety" element={<SafetyPage />} />
 
             <Route path="/customs" element={<CustomsPage />} />
             <Route path="/detention" element={<DetentionPage />} />
@@ -628,106 +646,7 @@ function LogiSyncApp() {
 }
 
 
-// A render error anywhere in the portal must never leave a broker staring
-// at a blank white page — show a recoverable message instead.
-class PortalErrorBoundary extends React.Component {
-  constructor(props) {
-    super(props);
-    this.state = { error: null };
-  }
-  static getDerivedStateFromError(error) {
-    return { error };
-  }
-  componentDidCatch(error, info) {
-    console.error("Portal render error:", error, info);
-  }
-  render() {
-    if (this.state.error) {
-      return (
-        <div className="flex flex-col items-center justify-center h-screen bg-slate-50 px-6 text-center">
-          <p className="text-lg font-bold text-slate-900">Something went wrong</p>
-          <p className="text-sm text-slate-600 mt-2 max-w-md">
-            The page hit an unexpected error. Your data is safe — reload to continue.
-          </p>
-          <button
-            onClick={() => {
-              this.setState({ error: null });
-              window.location.href = "/portal/dashboard";
-            }}
-            className="mt-4 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700"
-          >
-            Back to Dashboard
-          </button>
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-// Customer/Broker portal — a fully separate surface from the staff TMS.
-// Rendered INSTEAD of LogiSyncApp for every /portal/* path so none of the
-// staff app's auth redirects or bootstrap fetches ever run for brokers.
-function PortalApp() {
-  const location = useLocation();
-  const portalUser = usePortalStore((state) => state.portalUser);
-  const isCheckingPortalAuth = usePortalStore((state) => state.isCheckingAuth);
-  const checkPortalAuth = usePortalStore((state) => state.checkPortalAuth);
-  const onLoginPage = location.pathname === "/portal/login";
-
-  useEffect(() => {
-    // Restore an existing session on protected pages; the login page renders
-    // immediately (an anonymous visitor's auth check would just 401).
-    if (!onLoginPage) {
-      checkPortalAuth();
-    } else {
-      usePortalStore.setState({ isCheckingAuth: false });
-    }
-  }, []);
-
-  if (isCheckingPortalAuth && !onLoginPage) {
-    return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
-        <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
-      </div>
-    );
-  }
-
-  return (
-    <>
-      <Routes>
-        <Route path="/portal/login" element={<PortalLoginPage />} />
-        <Route
-          path="/portal/dashboard"
-          element={portalUser ? <PortalDashboardPage /> : <Navigate to="/portal/login" replace />}
-        />
-        <Route
-          path="/portal/rate-request"
-          element={portalUser ? <PortalRateRequestPage /> : <Navigate to="/portal/login" replace />}
-        />
-        <Route
-          path="/portal/loads/:id"
-          element={portalUser ? <PortalLoadDetailPage /> : <Navigate to="/portal/login" replace />}
-        />
-        <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
-      </Routes>
-      <Toaster position="top-right" />
-    </>
-  );
-}
-
 export default function App() {
-  const location = useLocation();
-
-  // The portal is its own app: separate login, separate store, no staff shell.
-  if (location.pathname.startsWith("/portal")) {
-    return (
-      <PortalErrorBoundary>
-        <PortalApp />
-      </PortalErrorBoundary>
-    );
-  }
-
   return (
     <>
       <Toaster />

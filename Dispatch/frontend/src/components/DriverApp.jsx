@@ -4497,7 +4497,13 @@ import {
   AlertOctagon,
   PhoneCall,
   ShieldAlert,
+  Wallet,
 } from "lucide-react";
+import { Capacitor } from "@capacitor/core";
+import { Geolocation } from "@capacitor/geolocation";
+
+import { axiosInstance } from "@/lib/axios";
+import { useDocumentStore } from "../stores/useDocumentStore";
 
 import SOSBeaconModal from "./driver/SOSBeaconModal";
 import HOSClockWidget from "./driver/HOSClockWidget";
@@ -4507,6 +4513,7 @@ import DocumentScannerWidget from "./driver/DocumentScannerWidget";
 import CameraBatchModal from "./driver/CameraBatchModal";
 import PickupDeliveryModals from "./driver/PickupDeliveryModals";
 import DriverChatDrawer from "./driver/DriverChatDrawer";
+import PayTab from "./driver/PayTab";
 
 export function getDocumentImage(doc) {
   if (
@@ -4550,20 +4557,20 @@ export default function DriverApp({
   currentUser,
   isMobileMode = false,
 }) {
-  const driverId = currentUser.driver.id;
-  const driverName = currentUser.username;
-  // Active View Tab State: 'load' | 'docs' | 'hos' | 'gps'
+  // currentUser.driver is null for non-driver roles previewing this screen —
+  // never crash on it.
+  const driverId = currentUser?.driver?.id || null;
+  const driverName = currentUser?.username || "Driver";
+  // Active View Tab State: 'load' | 'docs' | 'hos' | 'gps' | 'pay'
   const [activeTab, setActiveTab] = useState("load");
 
-  // const myShipment =
-  //   shipments.find(
-  //     (s) => s.driverId === driverId && s.status !== "delivered"
-  //   ) || shipments[0];
-
   const myShipment = shipments.find(
-    (s) => s.driver_id === currentUser.driver.id && s.status !== "delivered"
+    (s) => s.driver_id === driverId && s.status !== "delivered"
   );
   const myHOSLog = hosLog;
+
+  // Real BOL upload action (POST /api/load/upload-bol — Wave-1 fixed backend).
+  const uploadBOLAction = useDocumentStore((s) => s.uploadBOL);
   const [newMessage, setNewMessage] = useState("");
   const [chatAttachment, setChatAttachment] = useState(null);
   const [driverNotes, setDriverNotes] = useState("");
@@ -4646,6 +4653,8 @@ export default function DriverApp({
     }
   }, [myShipment]);
 
+  // Keep the raw File object alongside the preview dataUrl — the real upload
+  // endpoints are multipart and need the actual file, not a base64 string.
   const handleBolChange = (e) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -4655,6 +4664,7 @@ export default function DriverApp({
           name: file.name,
           size: `${(file.size / 1024).toFixed(1)} KB`,
           dataUrl: event.target?.result,
+          file,
         });
       };
       reader.readAsDataURL(file);
@@ -4670,6 +4680,7 @@ export default function DriverApp({
           name: file.name,
           size: `${(file.size / 1024).toFixed(1)} KB`,
           dataUrl: event.target?.result,
+          file,
         });
       };
       reader.readAsDataURL(file);
@@ -4685,40 +4696,99 @@ export default function DriverApp({
           name: file.name,
           size: `${(file.size / 1024).toFixed(1)} KB`,
           dataUrl: event.target?.result,
+          file,
         });
       };
       reader.readAsDataURL(file);
     }
   };
 
+  // Dev-only demo attachments (import.meta.env.DEV): builds a tiny real File
+  // so the real upload endpoints can be exercised locally. In production this
+  // is an honest no-op with an explanatory error.
+  const DEMO_PNG_B64 =
+    "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==";
+
+  const makeDemoFile = (name) => {
+    const bin = atob(DEMO_PNG_B64);
+    const bytes = new Uint8Array(bin.length);
+    for (let i = 0; i < bin.length; i += 1) {
+      bytes[i] = bin.charCodeAt(i);
+    }
+    return new File([bytes], name, { type: "image/png" });
+  };
+
   const handleLoadDemoPickup = () => {
+    if (!import.meta.env.DEV) {
+      setPickupError("Demo autofill is available in development builds only.");
+      return;
+    }
+    const bolFile = makeDemoFile("DEV_DEMO_BOL.png");
+    const skidFile = makeDemoFile("DEV_DEMO_SKID_CONDITION.png");
     setPickupBolFile({
-      name: "BOL_Samsara_Manifest_SHP101.pdf",
-      size: "245.3 KB",
-      dataUrl:
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      name: bolFile.name,
+      size: `${(bolFile.size / 1024).toFixed(1)} KB`,
+      dataUrl: `data:image/png;base64,${DEMO_PNG_B64}`,
+      file: bolFile,
     });
     setPickupSkidFile({
-      name: "SKID_PALLET_CONDITION_OK.jpg",
-      size: "188.4 KB",
-      dataUrl:
-        "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&q=80&w=400",
+      name: skidFile.name,
+      size: `${(skidFile.size / 1024).toFixed(1)} KB`,
+      dataUrl: `data:image/png;base64,${DEMO_PNG_B64}`,
+      file: skidFile,
     });
     setPickupError(null);
   };
 
   const handleLoadDemoDelivery = () => {
+    if (!import.meta.env.DEV) {
+      setDeliveryError("Demo autofill is available in development builds only.");
+      return;
+    }
+    const podFile = makeDemoFile("DEV_DEMO_POD_SIGNED.png");
     setDeliveryPodFile({
-      name: "POD_Signed_Freight_Bill.pdf",
-      size: "312.1 KB",
-      dataUrl:
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+      name: podFile.name,
+      size: `${(podFile.size / 1024).toFixed(1)} KB`,
+      dataUrl: `data:image/png;base64,${DEMO_PNG_B64}`,
+      file: podFile,
     });
     setConsigneeSignee("Johnathan Mercer (Dock Lead)");
     setDeliveryError(null);
   };
 
-  const handleSubmitPickup = () => {
+  // Resolve the human load number used by POST /api/upload/:load_number
+  // (the backend matches pb_num OR load_number).
+  const resolveLoadNumber = (shipment) =>
+    shipment?.load_number ||
+    shipment?.pb_num ||
+    shipment?.tracking_number ||
+    shipment?.trackingNumber ||
+    null;
+
+  // Generic real document upload: POST /api/upload/:load_number (multipart,
+  // field "file") — Wave-1 fixed backend stores the file in Supabase Storage
+  // and returns { success, document } with a real public URL.
+  const uploadLoadDocument = async (loadNumber, file, documentType) => {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("document_type", documentType);
+    const res = await axiosInstance.post(
+      `/upload/${encodeURIComponent(loadNumber)}`,
+      formData,
+      { headers: { "Content-Type": "multipart/form-data" } }
+    );
+    return res.data?.document || null;
+  };
+
+  const appendDocumentsToStore = (docs) => {
+    const real = (docs || []).filter(Boolean);
+    if (real.length === 0) return;
+    useDocumentStore.setState((state) => ({
+      documents: [...real, ...state.documents],
+    }));
+  };
+
+  const handleSubmitPickup = async () => {
     if (!pickupBolFile || !pickupSkidFile) {
       setPickupError(
         "Both Bill of Lading (BOL) and Skid Condition Picture are required."
@@ -4729,77 +4799,89 @@ export default function DriverApp({
       setPickupError("Please enter a custom Load Number.");
       return;
     }
-    if (!myShipment) return;
-
-    const targetShipment =
-      shipments.find((s) => s.id === pickupLoadId) || myShipment;
-    const resolvedShipmentId =
-      pickupLoadId === "custom"
-        ? "CUSTOM_LOAD"
-        : targetShipment?.id || "SHP101";
-    const resolvedTrackingNumber =
-      pickupLoadId === "custom"
-        ? pickupCustomLoadNumber
-        : targetShipment?.trackingNumber || "LS-90281-CAN";
-
-    const bolDoc = {
-      id: "DOC" + Math.floor(1e4 + Math.random() * 9e4),
-      shipmentId: resolvedShipmentId,
-      trackingNumber: resolvedTrackingNumber,
-      type: "bol",
-      fileName: pickupBolFile.name,
-      fileSize: pickupBolFile.size,
-      uploadedBy: "Marcus Vance (Driver App)",
-      uploadDate: new Date().toISOString(),
-      status: "pending_review",
-      imageUrl: pickupBolFile.dataUrl,
-      extractedData: {
-        shipperName: targetShipment?.shipperName || "AeroParts Hub",
-        consigneeName: targetShipment?.consigneeName || "Midwest Assembly",
-        weightLbs: targetShipment?.weightLbs || 8500,
-        bolNumber:
-          targetShipment?.bolNumber ||
-          "BOL-" + Math.floor(1e5 + Math.random() * 9e5),
-        confidence: 0.98,
-      },
-    };
-
-    const skidDoc = {
-      id: "DOC" + Math.floor(1e4 + Math.random() * 9e4),
-      shipmentId: resolvedShipmentId,
-      trackingNumber: resolvedTrackingNumber,
-      type: "skid_picture",
-      fileName: pickupSkidFile.name,
-      fileSize: pickupSkidFile.size,
-      uploadedBy: "Marcus Vance (Driver App)",
-      uploadDate: new Date().toISOString(),
-      status: "pending_review",
-      skidPictures: [pickupSkidFile.dataUrl],
-    };
-
-    onAddDocument(bolDoc);
-    onAddDocument(skidDoc);
-
-    const targetWptId =
-      pendingPickupWaypointId ||
-      targetShipment?.waypoints.find((w) => w.stopType === "pickup")?.id;
-    if (targetWptId) {
-      handleCompleteStop(targetWptId);
+    if (!pickupBolFile.file || !pickupSkidFile.file) {
+      setPickupError(
+        "Please re-attach the BOL and skid picture — the original files are required for upload."
+      );
+      return;
     }
 
-    onSendMessage(
-      `Marcus Vance here: I have uploaded the BOL (${pickupBolFile.name}) and Skid picture for Load Number ${resolvedTrackingNumber}. Waiting for office team verification/approval.`,
-      driverId,
-      resolvedShipmentId
-    );
+    const targetShipment =
+      pickupLoadId === "custom"
+        ? null
+        : shipments.find((s) => s.id === pickupLoadId) || myShipment;
+    const resolvedLoadNumber =
+      pickupLoadId === "custom"
+        ? pickupCustomLoadNumber.trim()
+        : resolveLoadNumber(targetShipment);
 
-    setPickupBolFile(null);
-    setPickupSkidFile(null);
+    if (!targetShipment?.id && !resolvedLoadNumber) {
+      setPickupError("Could not resolve a load to attach these documents to.");
+      return;
+    }
+
     setPickupError(null);
-    setIsPickupModalOpen(false);
+    try {
+      // 1. BOL → real endpoint POST /api/load/upload-bol when we have the
+      //    load's UUID; otherwise POST /api/upload/:load_number.
+      let bolDocument = null;
+      if (targetShipment?.id) {
+        const result = await uploadBOLAction(
+          targetShipment.id,
+          pickupBolFile.file
+        );
+        if (!result?.success) {
+          throw new Error(result?.error || "BOL upload failed.");
+        }
+        bolDocument = result.data || null;
+      } else {
+        bolDocument = await uploadLoadDocument(
+          resolvedLoadNumber,
+          pickupBolFile.file,
+          "BOL"
+        );
+      }
+
+      // 2. Skid condition picture → POST /api/upload/:load_number
+      let skidDocument = null;
+      if (resolvedLoadNumber) {
+        skidDocument = await uploadLoadDocument(
+          resolvedLoadNumber,
+          pickupSkidFile.file,
+          "SKID_PICTURE"
+        );
+      }
+
+      appendDocumentsToStore([bolDocument, skidDocument]);
+
+      const targetWptId =
+        pendingPickupWaypointId ||
+        targetShipment?.waypoints?.find((w) => w.stopType === "pickup")?.id;
+      if (targetWptId) {
+        handleCompleteStop(targetWptId);
+      }
+
+      onSendMessage(
+        `${driverName} here: I have uploaded the BOL (${pickupBolFile.name}) and Skid picture for Load ${resolvedLoadNumber || targetShipment?.id}. Waiting for office team verification/approval.`,
+        driverId,
+        targetShipment?.id || resolvedLoadNumber
+      );
+
+      setPickupBolFile(null);
+      setPickupSkidFile(null);
+      setPickupError(null);
+      setIsPickupModalOpen(false);
+    } catch (err) {
+      console.error("Pickup document upload failed:", err);
+      setPickupError(
+        err.response?.data?.message ||
+          err.message ||
+          "Document upload failed — nothing was saved."
+      );
+    }
   };
 
-  const handleSubmitDelivery = () => {
+  const handleSubmitDelivery = async () => {
     if (!deliveryPodFile) {
       setDeliveryError(
         "Proof of Delivery (POD) document is required to sign off."
@@ -4816,57 +4898,63 @@ export default function DriverApp({
       setDeliveryError("Please enter a custom Load Number.");
       return;
     }
-    if (!myShipment) return;
-
-    const targetShipment =
-      shipments.find((s) => s.id === deliveryLoadId) || myShipment;
-    const resolvedShipmentId =
-      deliveryLoadId === "custom"
-        ? "CUSTOM_LOAD"
-        : targetShipment?.id || "SHP101";
-    const resolvedTrackingNumber =
-      deliveryLoadId === "custom"
-        ? deliveryCustomLoadNumber
-        : targetShipment?.trackingNumber || "LS-90281-CAN";
-
-    const podDoc = {
-      id: "DOC" + Math.floor(1e4 + Math.random() * 9e4),
-      shipmentId: resolvedShipmentId,
-      trackingNumber: resolvedTrackingNumber,
-      type: "pod",
-      fileName: deliveryPodFile.name,
-      fileSize: deliveryPodFile.size,
-      uploadedBy: "Marcus Vance (Driver App)",
-      uploadDate: new Date().toISOString(),
-      status: "pending_review",
-      imageUrl: deliveryPodFile.dataUrl,
-      extractedData: {
-        consigneeName: targetShipment?.consigneeName || "Midwest Assembly",
-        signatureFound: true,
-        confidence: 0.99,
-        rawText: `Signed by receiver: ${consigneeSignee}`,
-      },
-    };
-
-    onAddDocument(podDoc);
-
-    const targetWptId =
-      pendingDeliveryWaypointId ||
-      targetShipment?.waypoints.find((w) => w.stopType === "delivery")?.id;
-    if (targetWptId) {
-      handleCompleteStop(targetWptId);
+    if (!deliveryPodFile.file) {
+      setDeliveryError(
+        "Please re-attach the POD — the original file is required for upload."
+      );
+      return;
     }
 
-    onSendMessage(
-      `Marcus Vance here: Delivery finalized. POD signed by ${consigneeSignee} uploaded for Load Number ${resolvedTrackingNumber}. Waiting for office verification.`,
-      driverId,
-      resolvedShipmentId
-    );
+    const targetShipment =
+      deliveryLoadId === "custom"
+        ? null
+        : shipments.find((s) => s.id === deliveryLoadId) || myShipment;
+    const resolvedLoadNumber =
+      deliveryLoadId === "custom"
+        ? deliveryCustomLoadNumber.trim()
+        : resolveLoadNumber(targetShipment);
 
-    setDeliveryPodFile(null);
-    setConsigneeSignee("");
+    if (!resolvedLoadNumber) {
+      setDeliveryError("Could not resolve a load number for this POD upload.");
+      return;
+    }
+
     setDeliveryError(null);
-    setIsDeliveryModalOpen(false);
+    try {
+      // POD → real endpoint POST /api/upload/:load_number (Supabase-backed).
+      const podDocument = await uploadLoadDocument(
+        resolvedLoadNumber,
+        deliveryPodFile.file,
+        "POD"
+      );
+
+      appendDocumentsToStore([podDocument]);
+
+      const targetWptId =
+        pendingDeliveryWaypointId ||
+        targetShipment?.waypoints?.find((w) => w.stopType === "delivery")?.id;
+      if (targetWptId) {
+        handleCompleteStop(targetWptId);
+      }
+
+      onSendMessage(
+        `${driverName} here: Delivery finalized. POD signed by ${consigneeSignee} uploaded for Load ${resolvedLoadNumber}. Waiting for office verification.`,
+        driverId,
+        targetShipment?.id || resolvedLoadNumber
+      );
+
+      setDeliveryPodFile(null);
+      setConsigneeSignee("");
+      setDeliveryError(null);
+      setIsDeliveryModalOpen(false);
+    } catch (err) {
+      console.error("POD upload failed:", err);
+      setDeliveryError(
+        err.response?.data?.message ||
+          err.message ||
+          "POD upload failed — nothing was saved."
+      );
+    }
   };
 
   const fileInputRef = useRef(null);
@@ -4977,9 +5065,7 @@ export default function DriverApp({
         );
         ctx.fillStyle = "#94A3B8";
         ctx.fillText(
-          `GPS COORDINATES: Lat ${driverLocation.lat.toFixed(
-            6
-          )}, Lng ${driverLocation.lng.toFixed(6)}`,
+          `GPS COORDINATES: ${coordsText(6)}`,
           20,
           canvas.height - 24
         );
@@ -5070,9 +5156,7 @@ export default function DriverApp({
         );
         ctx.fillStyle = "#94A3B8";
         ctx.fillText(
-          `GPS COORDINATES: Lat ${driverLocation.lat.toFixed(
-            6
-          )}, Lng ${driverLocation.lng.toFixed(6)} | MANIFEST: ${
+          `GPS COORDINATES: ${coordsText(6)} | MANIFEST: ${
             myShipment?.id || "SHP101"
           }`,
           25,
@@ -5103,9 +5187,7 @@ export default function DriverApp({
     setFileText(
       `Sequential capture of ${
         skidPhotos.length
-      } pallet condition photos. Location verified at Lat ${driverLocation.lat.toFixed(
-        6
-      )}, Lng ${driverLocation.lng.toFixed(6)}. Vehicle ${
+      } pallet condition photos. Location: ${coordsText(6)}. Vehicle ${
         myShipment?.truckNumber || "TRK-102"
       }. Status: Secure shrink-wrap, corner guards applied, no skid shift recorded.`
     );
@@ -5146,12 +5228,8 @@ export default function DriverApp({
         myShipment?.truckNumber || "TRK-102"
       } (Trailer: ${
         myShipment?.trailerNumber || "TRL-504"
-      }). Coordinates: Lat ${driverLocation.lat.toFixed(
-        6
-      )}, Lng ${driverLocation.lng.toFixed(6)}.`,
-      location: `Lat ${driverLocation.lat.toFixed(
-        4
-      )}, Lng ${driverLocation.lng.toFixed(4)}`,
+      }). Coordinates: ${coordsText(6)}.`,
+      location: coordsText(4),
       status: "pending_review",
     };
     if (onAddSafetyIncident) {
@@ -5164,9 +5242,7 @@ export default function DriverApp({
 • Vehicle: Truck ${myShipment?.truckNumber || "TRK-102"} / Trailer ${
         myShipment?.trailerNumber || "TRL-504"
       }
-• Coordinates: Lat ${driverLocation.lat.toFixed(
-        6
-      )}, Lng ${driverLocation.lng.toFixed(6)}
+• Coordinates: ${coordsText(6)}
 • Severity: HIGH (Distress Beacon Active)`,
       "DISP_OFFICE",
       myShipment?.id || "SHP101"
@@ -5205,12 +5281,56 @@ export default function DriverApp({
     return () => clearTimeout(timer);
   }, [isSosModalOpen, sosCountdown]);
 
-  const [driverLocation, setDriverLocation] = useState({
-    lat: 42.3314,
-    lng: -83.0458,
-  });
-  const [isLiveGps, setIsLiveGps] = useState(false);
+  // ---------------- REAL GEOLOCATION (replaces the sandbox GPS teleport) ----
+  // No fabricated default position: until a real fix arrives the location is
+  // honestly null and range-gated actions stay disabled.
+  const [driverLocation, setDriverLocation] = useState(null);
+  const [gpsEnabled, setGpsEnabled] = useState(true);
+  const [gpsStatus, setGpsStatus] = useState("starting"); // starting|active|denied|unavailable|error|off|simulated
   const [gpsError, setGpsError] = useState(null);
+  // Dev-only simulate mode (import.meta.env.DEV) — teleport shortcuts for
+  // testing the 500m stop geofence without driving there.
+  const [simulateMode, setSimulateMode] = useState(false);
+  const [lastSyncAt, setLastSyncAt] = useState(null);
+  const [syncError, setSyncError] = useState(null);
+
+  const isNative = Capacitor.isNativePlatform();
+
+  // Position → dispatch sync plumbing (driver-safe endpoint:
+  // PATCH /api/drivers/me/coords, touches only current_lat / current_lng).
+  const lastPostRef = useRef(null);
+  const syncFailureCountRef = useRef(0);
+  const POSITION_SYNC_INTERVAL_MS = 30000;
+
+  const syncPositionToServer = async (lat, lng) => {
+    if (!driverId) return;
+    const now = Date.now();
+    if (lastPostRef.current && now - lastPostRef.current < POSITION_SYNC_INTERVAL_MS) {
+      return; // throttle: at most one report per 30s
+    }
+    if (syncFailureCountRef.current >= 3) {
+      return; // stop hammering the server after repeated failures
+    }
+    lastPostRef.current = now;
+    try {
+      await axiosInstance.patch(`/drivers/me/coords`, { lat, lng });
+      syncFailureCountRef.current = 0;
+      setLastSyncAt(new Date().toISOString());
+      setSyncError(null);
+    } catch (err) {
+      syncFailureCountRef.current += 1;
+      const status = err.response?.status;
+      const paused =
+        syncFailureCountRef.current >= 3
+          ? " Sync paused after repeated failures — toggle GPS off/on to retry."
+          : "";
+      setSyncError(
+        status === 404
+          ? `Position sync rejected: no driver profile is linked to this account.${paused}`
+          : `Position sync to dispatch failed${status ? ` (HTTP ${status})` : ""}.${paused}`
+      );
+    }
+  };
 
   const calculateDistance = (lat1, lon1, lat2, lon2) => {
     const R = 6371e3;
@@ -5227,6 +5347,9 @@ export default function DriverApp({
   };
 
   const getStopDistanceText = (wpt) => {
+    if (!driverLocation || wpt?.lat == null || wpt?.lng == null) {
+      return "—";
+    }
     const dist = calculateDistance(
       driverLocation.lat,
       driverLocation.lng,
@@ -5240,6 +5363,9 @@ export default function DriverApp({
   };
 
   const isStopWithinRange = (wpt) => {
+    if (!driverLocation || wpt?.lat == null || wpt?.lng == null) {
+      return false;
+    }
     const dist = calculateDistance(
       driverLocation.lat,
       driverLocation.lng,
@@ -5249,38 +5375,124 @@ export default function DriverApp({
     return dist <= 500;
   };
 
+  // Human-readable coordinates for SOS / photo overlays — never fabricated.
+  const coordsText = (dp = 6) =>
+    driverLocation
+      ? `Lat ${driverLocation.lat.toFixed(dp)}, Lng ${driverLocation.lng.toFixed(dp)}`
+      : "GPS position unavailable";
+
+  // Real geolocation watcher: Capacitor Geolocation plugin on native builds,
+  // navigator.geolocation.watchPosition on the web. Positions feed both the
+  // in-app geofence checks and the dispatch coords sync above.
   useEffect(() => {
-    let watchId = null;
-    if (isLiveGps) {
-      if ("geolocation" in navigator) {
-        watchId = navigator.geolocation.watchPosition(
-          (position) => {
-            setDriverLocation({
-              lat: position.coords.latitude,
-              lng: position.coords.longitude,
-            });
-            setGpsError(null);
-          },
-          (err) => {
-            console.error(err);
-            setGpsError(
-              "GPS Access Blocked or Denied inside Sandbox. Fallback to Simulation."
-            );
-            setIsLiveGps(false);
-          },
-          { enableHighAccuracy: true, timeout: 1e4, maximumAge: 0 }
-        );
-      } else {
-        setGpsError("HTML5 Geolocation not supported by this browser.");
-        setIsLiveGps(false);
-      }
+    if (!gpsEnabled) {
+      setGpsStatus("off");
+      setGpsError(null);
+      return undefined;
     }
-    return () => {
-      if (watchId !== null) {
-        navigator.geolocation.clearWatch(watchId);
+    if (import.meta.env.DEV && simulateMode) {
+      setGpsStatus("simulated");
+      setGpsError(null);
+      return undefined;
+    }
+
+    let cancelled = false;
+    let webWatchId = null;
+    let capWatchId = null;
+
+    setGpsStatus("starting");
+    setGpsError(null);
+    syncFailureCountRef.current = 0;
+
+    const handleFix = (lat, lng, accuracy) => {
+      if (cancelled) return;
+      setDriverLocation({ lat, lng, accuracy });
+      setGpsStatus("active");
+      setGpsError(null);
+      syncPositionToServer(lat, lng);
+    };
+
+    const handleErr = (err) => {
+      if (cancelled) return;
+      const code = err?.code;
+      if (code === 1) {
+        setGpsStatus("denied");
+        setGpsError(
+          "Location permission denied. Allow location access for this app/site so your position can be tracked and stop check-ins verified."
+        );
+      } else if (code === 2) {
+        setGpsStatus("unavailable");
+        setGpsError("Position unavailable — no GPS or network fix could be obtained.");
+      } else if (code === 3) {
+        setGpsStatus("error");
+        setGpsError("Timed out waiting for a GPS fix. Still watching for a signal…");
+      } else {
+        setGpsStatus("error");
+        setGpsError(err?.message || "Unknown geolocation error.");
       }
     };
-  }, [isLiveGps]);
+
+    if (isNative) {
+      (async () => {
+        try {
+          const perm = await Geolocation.requestPermissions();
+          if (cancelled) return;
+          if (perm?.location === "denied") {
+            handleErr({ code: 1 });
+            return;
+          }
+          capWatchId = await Geolocation.watchPosition(
+            { enableHighAccuracy: true, timeout: 15000 },
+            (position, err) => {
+              if (err) return handleErr(err);
+              if (position) {
+                handleFix(
+                  position.coords.latitude,
+                  position.coords.longitude,
+                  position.coords.accuracy
+                );
+              }
+            }
+          );
+        } catch (err) {
+          handleErr(err);
+        }
+      })();
+    } else if ("geolocation" in navigator) {
+      webWatchId = navigator.geolocation.watchPosition(
+        (position) =>
+          handleFix(
+            position.coords.latitude,
+            position.coords.longitude,
+            position.coords.accuracy
+          ),
+        handleErr,
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 5000 }
+      );
+    } else {
+      setGpsStatus("unavailable");
+      setGpsError("Geolocation is not supported by this browser/webview.");
+    }
+
+    return () => {
+      cancelled = true;
+      if (webWatchId !== null && "geolocation" in navigator) {
+        navigator.geolocation.clearWatch(webWatchId);
+      }
+      if (capWatchId) {
+        Geolocation.clearWatch({ id: capWatchId }).catch(() => {});
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [gpsEnabled, simulateMode, isNative, driverId]);
+
+  // Dev-only teleport (used by GPSMonitorWidget's simulation panel).
+  const setSimulatedLocation = (loc) => {
+    if (!import.meta.env.DEV) return;
+    setSimulateMode(true);
+    setDriverLocation({ lat: loc.lat, lng: loc.lng });
+    setGpsStatus("simulated");
+  };
 
   useEffect(() => {
     if (myShipment && onMarkMessagesAsRead) {
@@ -5577,7 +5789,7 @@ export default function DriverApp({
         <div className="flex items-center space-x-3.5">
           <div className="relative">
             <div className="w-12 h-12 rounded-2xl bg-indigo-600 flex items-center justify-center text-white font-black text-base font-mono shadow-md shadow-indigo-200">
-              {currentUser.username[0]}
+              {driverName[0]?.toUpperCase() || "D"}
             </div>
             <span className="absolute -bottom-1 -right-1 h-4 w-4 rounded-full bg-emerald-500 border-2 border-white" />
           </div>
@@ -5641,6 +5853,7 @@ export default function DriverApp({
           { id: "docs", label: "Document AI Scanner", icon: FileText },
           { id: "hos", label: "HOS & Compliance", icon: Clock },
           { id: "gps", label: "GPS Telemetry", icon: Compass },
+          { id: "pay", label: "Pay & Settlements", icon: Wallet },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -5696,13 +5909,21 @@ export default function DriverApp({
       {activeTab === "gps" && (
         <GPSMonitorWidget
           driverLocation={driverLocation}
-          setDriverLocation={setDriverLocation}
-          isLiveGps={isLiveGps}
-          setIsLiveGps={setIsLiveGps}
+          gpsStatus={gpsStatus}
           gpsError={gpsError}
+          gpsEnabled={gpsEnabled}
+          setGpsEnabled={setGpsEnabled}
+          isNative={isNative}
+          lastSyncAt={lastSyncAt}
+          syncError={syncError}
+          simulateMode={simulateMode}
+          setSimulateMode={setSimulateMode}
+          setSimulatedLocation={setSimulatedLocation}
           myShipment={myShipment}
         />
       )}
+
+      {activeTab === "pay" && <PayTab />}
 
       {/* ----------------- MODALS & DRAWERS ----------------- */}
       <SOSBeaconModal

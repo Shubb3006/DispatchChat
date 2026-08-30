@@ -82,87 +82,24 @@ export const useShipmentStore = create((set, get) => ({
   error: null,
   pendingBOLs: [],
 
-  totalLoads: 0,
-  fetchShipments: async (limit = 100, page = 1) => {
+  fetchShipments: async () => {
     set({ isLoading: true, error: null });
     try {
-      // Fetch loads from backend API with limit
+      // Fetch loads from backend API
       const response = await axiosInstance
-        .get(`/load?limit=${limit}&page=${page}`)
-        .catch(() => ({ data: { loads: [], totalCount: 0 } }));
+        .get("/load")
+        .catch(() => ({ data: { loads: [] } }));
       const fetchedLoads = response.data.loads || [];
-      const totalCount = response.data.totalCount || fetchedLoads.length;
 
-      // Normalize imported TMS loads so all fields map cleanly across Kanban, Hub, Customs & Invoicing
-      const finalShipments = fetchedLoads.map((raw) => {
-        const load = typeof raw.data === "string" ? JSON.parse(raw.data) : (raw.data || raw);
-        const id = load.id || load._id || `LOAD-${load.load_number}`;
-        const load_number = String(load.load_number || load.tracking_number || id);
-        const trackingNumber = load.tracking_number || load_number;
-
-        const shipperName = load.shipper_name || load.shipperName || "Shipper Facility";
-        const shipperState = load.shipper_state || load.shipperState || "";
-        const originCity = load.origin || [load.shipper_district, load.shipper_state || load.shipper_country].filter(Boolean).join(", ") || load.shipper_street_address || "Origin";
-
-        const consigneeName = load.consignee_name || load.consigneeName || "Consignee Facility";
-        const consigneeState = load.consignee_state || load.consigneeState || "";
-        const destinationCity = load.destination || [load.consignee_district, load.consignee_state || load.consignee_country].filter(Boolean).join(", ") || load.consignee_street_address || "Destination";
-
-        const customerName = load.customer_name || load.customerName || load.shipper_name || "Customer";
-        const customerEmail = load.customer_email || load.customerEmail || "";
-        const customerPhone = load.customer_phone || load.customerPhone || "";
-        const customerAddress = load.customer_billing_address || load.customerAddress || "";
-
-        const statusRaw = (load.status || "unassigned").toLowerCase().replace(/\s+/g, "_");
-        let status = statusRaw;
-        if (statusRaw === "pending" || statusRaw === "entered") status = "unassigned";
-
-        const driverName = load.driver_name || load.driverName || "Unassigned Driver";
-        const truckNumber = load.assigned_truck_number || load.truckNumber || load.truck_id || "TRK-Unassigned";
-        const trailerNumber = load.assigned_trailer_number || load.trailerNumber || load.trailer_id || "TRL-Unassigned";
-
-        const priceInvoice = parseFloat(load.rate || load.priceInvoice || 0);
-        const weightLbs = parseFloat(load.weight || load.weightLbs || 0);
-        const palletCount = parseInt(load.pieces || load.pallets || 0);
-
-        const waypoints = load.waypoints && load.waypoints.length > 0 ? load.waypoints : [
-          { id: "W1", companyName: shipperName, stopType: "pickup", address: originCity, status: "completed" },
-          { id: "W2", companyName: consigneeName, stopType: "delivery", address: destinationCity, status: "pending" }
-        ];
-
-        return {
-          ...load,
-          id,
-          load_number,
-          tracking_number: trackingNumber,
-          trackingNumber,
-          customer_name: customerName,
-          customerName,
-          customerEmail,
-          customerPhone,
-          customerAddress,
-          shipperName,
-          shipper_state: shipperState,
-          originCity,
-          origin: originCity,
-          consigneeName,
-          consignee_state: consigneeState,
-          destinationCity,
-          destination: destinationCity,
-          driverName,
-          truckNumber,
-          trailerNumber,
-          status,
-          weightLbs,
-          palletCount,
-          priceInvoice,
-          waypoints
-        };
+      // Map and parse the serialized load objects from data field if needed
+      const finalShipments = fetchedLoads.map((load) => {
+        return typeof load.data === "string"
+          ? JSON.parse(load.data)
+          : load.data || load;
       });
 
       set({
         shipments: finalShipments.length > 0 ? finalShipments : DEFAULT_SHIPMENTS,
-        totalLoads: totalCount,
         isLoading: false,
       });
     } catch (err) {
@@ -220,6 +157,7 @@ export const useShipmentStore = create((set, get) => ({
         commodity: shipment.cargoDescription,
         weight: shipment.weightLbs,
         pieces: shipment.palletCount,
+        cube_volume: shipment.cubeVolume,
         rate: shipment.priceInvoice,
       };
 

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { parseListParams, buildSearchClause, resolveSortClause } from "./customer.controller.js";
 
 // Create Trailer
 export const createTrailer = async (req, res) => {
@@ -65,18 +66,57 @@ export const createTrailer = async (req, res) => {
 // Get All Trailers
 export const getTrailers = async (req, res) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 200, 1000);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const offset = (page - 1) * limit;
+    const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
+
+    // Paginated/searchable shape when list params are present
+    if (hasListParams) {
+      const params = [];
+      const where = [];
+
+      if (q) {
+        where.push(
+          buildSearchClause(
+            q,
+            ["trailer_number", "trailer_type", "plate_number", "status"],
+            params
+          )
+        );
+      }
+
+      const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+      const orderSql = resolveSortClause(
+        sort,
+        {
+          created_at: "created_at",
+          trailer_number: "trailer_number",
+          trailer_type: "trailer_type",
+          status: "status",
+        },
+        "ORDER BY created_at DESC"
+      );
+
+      params.push(limit, offset);
+      const result = await pool.query(
+        `SELECT *, COUNT(*) OVER() AS __total
+         FROM trailers
+         ${whereSql}
+         ${orderSql}
+         LIMIT $${params.length - 1} OFFSET $${params.length}`,
+        params
+      );
+
+      const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+      const data = result.rows.map(({ __total, ...row }) => row);
+
+      return res.json({ data, total, limit, offset });
+    }
 
     const result = await pool.query(
       `
       SELECT *
       FROM trailers
       ORDER BY created_at DESC
-      LIMIT $1 OFFSET $2
-      `,
-      [limit, offset]
+      `
     );
 
     res.json({

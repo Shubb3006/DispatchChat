@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
+import { useState, useEffect } from "react";
+import { axiosInstance } from "../lib/axios";
 import {
   Sparkles,
   X,
@@ -17,7 +17,6 @@ import {
   Phone,
 } from "lucide-react";
 import toast from "react-hot-toast";
-import { API_BASE_URL } from "@/lib/apiBase";
 
 export default function AIDriverMatcherModal({
   isOpen,
@@ -26,72 +25,47 @@ export default function AIDriverMatcherModal({
   onAssignSuccess,
 }) {
   const [loading, setLoading] = useState(false);
-  const [rankingData, setRankingData] = useState(null);
+  const [matches, setMatches] = useState([]);
+  const [factorsUsed, setFactorsUsed] = useState([]);
   const [assigningDriverId, setAssigningDriverId] = useState(null);
-
-  const [customPickup, setCustomPickup] = useState("");
-  const [customDestination, setCustomDestination] = useState("");
 
   useEffect(() => {
     if (isOpen && load) {
-      const initialOrigin = load.originCity || load.shipper_address || load.origin || "Brampton, ON, Canada";
-      const initialDest = load.destinationCity || load.consignee_address || load.destination || "Davenport, FL, USA";
-      setCustomPickup(initialOrigin);
-      setCustomDestination(initialDest);
-      fetchDriverRankings(initialOrigin, initialDest);
+      fetchMatches();
     }
   }, [isOpen, load]);
 
-  const fetchDriverRankings = async (overrideOrigin, overrideDest) => {
+  const fetchMatches = async () => {
     setLoading(true);
-    const originToUse = overrideOrigin !== undefined ? overrideOrigin : customPickup;
-    const destToUse = overrideDest !== undefined ? overrideDest : customDestination;
-
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/v1/loads/ai-match-drivers`,
-        {
-          originCity: originToUse,
-          destinationCity: destToUse,
-          equipmentType: load.equipmentType || load.trailerType || "Dry Van 53ft",
-          isCrossBorder: load.isCrossBorder,
-        },
-        { withCredentials: true }
-      );
-      if (res.data?.success) {
-        setRankingData(res.data);
+      const res = await axiosInstance.post("/load/ai-match-drivers", { loadId: load.id });
+      if (res.data?.ok) {
+        setMatches(res.data.matches || []);
+        setFactorsUsed(res.data.factors_used || []);
+      } else if (res.status === 503) {
+        toast.error("Samsara not configured");
       }
     } catch (err) {
-      console.error("fetchDriverRankings error:", err);
-      toast.error("Failed to calculate AI driver rankings");
+      console.error("fetchMatches error:", err);
+      toast.error(err.response?.data?.message || "Failed to calculate AI driver rankings");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleAutoAssign = async (driver) => {
-    setAssigningDriverId(driver.id);
+  const autoAssign = async (driverId, driverName) => {
+    setAssigningDriverId(driverId);
     try {
-      const res = await axios.post(
-        `${API_BASE_URL}/v1/loads/auto-assign`,
-        {
-          loadId: load.id || load.load_number,
-          driverId: driver.id,
-        },
-        { withCredentials: true }
-      );
-      if (res.data?.success) {
-        toast.success(
-          `⚡ Dispatched! Driver ${driver.name} assigned to Load #${load.load_number || load.id} on Tractor #${driver.assignedTruck}`,
-          { duration: 6000 }
-        );
+      const res = await axiosInstance.post("/load/auto-assign", { loadId: load.id, driverId });
+      if (res.data?.ok) {
+        toast.success(`✓ Assigned to ${driverName}`, { duration: 6000 });
         if (onAssignSuccess) {
-          onAssignSuccess(res.data);
+          onAssignSuccess(res.data.assignment);
         }
         onClose();
       }
     } catch (err) {
-      toast.error("Failed to assign driver to load");
+      toast.error(err.response?.data?.message || "Assignment failed");
     } finally {
       setAssigningDriverId(null);
     }
@@ -100,6 +74,8 @@ export default function AIDriverMatcherModal({
   if (!isOpen || !load) return null;
 
   const loadNum = load.load_number || load.tracking_number || "582516";
+  const origin = load.originCity || load.shipper_address || "Brampton, ON";
+  const destination = load.destinationCity || load.consignee_address || "Chicago, IL";
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -133,49 +109,13 @@ export default function AIDriverMatcherModal({
           </button>
         </div>
 
-        {/* Load Context Bar with Manual Pickup Location Control */}
+        {/* Load Context Bar */}
         <div className="px-6 py-3.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-            <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
-              <MapPin className="w-4 h-4 text-sky-600 shrink-0" />
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Pickup:</label>
-              <input
-                type="text"
-                value={customPickup}
-                onChange={(e) => setCustomPickup(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") fetchDriverRankings(customPickup, customDestination);
-                }}
-                placeholder="Type pickup location (e.g. Brampton, ON)"
-                className="font-bold text-slate-800 bg-transparent outline-none w-48 text-xs placeholder:text-slate-400 font-sans"
-              />
-            </div>
-
-            <span className="text-slate-400 font-bold">➔</span>
-
-            <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Delivery:</label>
-              <input
-                type="text"
-                value={customDestination}
-                onChange={(e) => setCustomDestination(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") fetchDriverRankings(customPickup, customDestination);
-                }}
-                placeholder="Type delivery destination..."
-                className="font-bold text-slate-800 bg-transparent outline-none w-44 text-xs placeholder:text-slate-400 font-sans"
-              />
-            </div>
-
-            <button
-              onClick={() => fetchDriverRankings(customPickup, customDestination)}
-              disabled={loading}
-              className="px-3 py-1.5 rounded-xl bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-700 hover:to-indigo-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-xs transition-all cursor-pointer active:scale-95 disabled:opacity-50"
-              title="Recalculate live Samsara deadhead and driver rankings for this pickup location"
-            >
-              <Zap className="w-3.5 h-3.5" />
-              <span>Update Match</span>
-            </button>
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 text-sky-600 shrink-0" />
+            <span className="font-bold text-slate-800">{origin}</span>
+            <span className="text-slate-400">➔</span>
+            <span className="font-bold text-slate-800">{destination}</span>
           </div>
 
           <div className="flex items-center gap-3 text-slate-600">
@@ -205,13 +145,13 @@ export default function AIDriverMatcherModal({
               </p>
             </div>
           ) : (
-            rankingData?.candidates?.map((candidate, index) => {
-              const isBest = index === 0 && candidate.matchScore >= 80;
-              const isAssigning = assigningDriverId === candidate.id;
+            matches.map((match, index) => {
+              const isBest = index === 0 && match.score >= 80;
+              const isAssigning = assigningDriverId === match.driver_id;
 
               return (
                 <div
-                  key={candidate.id}
+                  key={match.driver_id}
                   className={`rounded-2xl border p-5 transition-all relative ${
                     isBest
                       ? "bg-gradient-to-br from-sky-50/40 via-white to-white border-sky-300 shadow-sm ring-1 ring-sky-300/50"
@@ -231,95 +171,93 @@ export default function AIDriverMatcherModal({
                       {/* Match Score Circle */}
                       <div
                         className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${
-                          candidate.matchScore >= 90
+                          match.score >= 90
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : candidate.matchScore >= 75
+                            : match.score >= 75
                             ? "bg-sky-50 text-sky-700 border-sky-200"
                             : "bg-amber-50 text-amber-700 border-amber-200"
                         }`}
                       >
                         <span className="font-extrabold text-base font-mono leading-none">
-                          {candidate.matchScore}%
+                          {match.score}
                         </span>
                         <span className="text-[9px] font-bold uppercase tracking-tight mt-0.5">
-                          Match
+                          Score
                         </span>
                       </div>
 
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
                           <h3 className="font-extrabold text-slate-900 text-sm">
-                            {candidate.name}
+                            {match.driver_name}
                           </h3>
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-mono font-bold text-slate-700">
-                            Tractor #{candidate.assignedTruck}
+                            {match.truck_number}
                           </span>
                         </div>
 
                         <p className="text-xs text-slate-500 flex items-center gap-2">
-                          <span>{candidate.truckModel}</span>
+                          <span>Position</span>
                           <span>•</span>
                           <span className="flex items-center gap-1 text-slate-700 font-medium">
                             <MapPin className="w-3 h-3 text-slate-400" />
-                            {candidate.currentLocation.city}
+                            {match.current_location || "Unknown"}
                           </span>
                         </p>
 
-                        {/* Reasoning Tag Badges */}
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          {candidate.reasoningTags.map((tag, i) => (
-                            <span
-                              key={i}
-                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
-                                tag.type === "success"
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                  : tag.type === "warning"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : tag.type === "danger"
-                                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                                  : "bg-slate-100 text-slate-700 border-slate-200"
-                              }`}
-                            >
-                              {tag.label}
-                            </span>
+                        {match.position_unknown && (
+                          <p className="text-xs text-amber-600 flex items-center gap-1">
+                            <AlertTriangle className="w-3 h-3" />
+                            Position unknown
+                          </p>
+                        )}
+
+                        {/* Factors Breakdown */}
+                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
+                          {factorsUsed.map((f) => (
+                            <div key={f} className="text-slate-600">
+                              <span className="font-semibold">{f}:</span> {match.breakdown[f]}%
+                            </div>
                           ))}
+                          <div className="text-slate-600">
+                            <span className="font-semibold">Deadhead:</span> {match.deadhead_miles} mi
+                          </div>
+                          <div className="text-slate-600">
+                            <span className="font-semibold">HOS:</span> {match.hos_remaining_hours}h
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Action Button */}
+                    {/* Score & Action Button */}
                     <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-2 shrink-0">
+                      <div className="text-right">
+                        <p className="text-2xl font-bold text-sky-600">{match.score}</p>
+                      </div>
                       <button
-                        onClick={() => handleAutoAssign(candidate)}
+                        onClick={() => autoAssign(match.driver_id, match.driver_name)}
                         disabled={isAssigning}
                         className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
                           isBest
                             ? "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20"
                             : "bg-slate-900 hover:bg-slate-800 text-white"
-                        }`}
+                        } disabled:opacity-50`}
                       >
                         {isAssigning ? (
                           <>
                             <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                            <span>Dispatching...</span>
+                            <span>Assigning...</span>
                           </>
                         ) : (
                           <>
                             <Zap className="w-3.5 h-3.5" />
-                            <span>Assign & Dispatch</span>
+                            <span>Assign</span>
                           </>
                         )}
                       </button>
                     </div>
                   </div>
 
-                  {/* AI Reasoning Summary Footer */}
-                  {candidate.aiSummary && (
-                    <div className="mt-3 pt-3 border-t border-slate-100 text-xs text-slate-600 flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-sky-600 shrink-0" />
-                      <span>{candidate.aiSummary}</span>
-                    </div>
-                  )}
                 </div>
               );
             })

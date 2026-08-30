@@ -1,13 +1,9 @@
 import { GoogleGenAI } from "@google/genai";
 import pool from "../config/db.js";
 
-// Read the key lazily so it works no matter when dotenv/env vars load.
-export const isGeminiConfigured = () => !!(process.env.GEMINI_API_KEY || "").trim();
-
-const getGeminiClient = () => {
-  const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-  return apiKey ? new GoogleGenAI({ apiKey }) : null;
-};
+// Initialize Gemini Client if API key is present
+const apiKey = process.env.GEMINI_API_KEY || "";
+const ai = apiKey ? new GoogleGenAI({ apiKey }) : null;
 
 /**
  * Extract structured load tender data from raw email text or PDF buffer using Gemini AI
@@ -73,7 +69,6 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
 }
 `;
 
-  const ai = getGeminiClient();
   try {
     if (ai) {
       let contents = [];
@@ -94,30 +89,10 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
         contents = [{ text: promptText }];
       }
 
-      // gemini-2.5-flash was retired for new API keys; Google's error
-      // message directs new users to gemini-3.6-flash.
-      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-
-      // Google intermittently returns 503 UNAVAILABLE / 429 under load —
-      // retry with backoff before giving up to the heuristic fallback.
-      const RETRY_DELAYS_MS = [0, 3000, 8000];
-      let response;
-      let lastErr;
-      for (const delay of RETRY_DELAYS_MS) {
-        if (delay) await new Promise((r) => setTimeout(r, delay));
-        try {
-          response = await ai.models.generateContent({ model, contents });
-          lastErr = null;
-          break;
-        } catch (err) {
-          lastErr = err;
-          const msg = String(err.message || "");
-          const transient = /"code":\s*(503|429)|UNAVAILABLE|RESOURCE_EXHAUSTED|overloaded|high demand/i.test(msg);
-          if (!transient) throw err;
-          console.warn(`Gemini transient error, retrying: ${msg.slice(0, 200)}`);
-        }
-      }
-      if (lastErr) throw lastErr;
+      const response = await ai.models.generateContent({
+        model: "gemini-2.5-flash",
+        contents,
+      });
 
       const responseText = response.text?.trim() || "";
       const cleanedJsonStr = responseText
@@ -134,21 +109,13 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
     }
   } catch (err) {
     console.error("Gemini AI extraction error, falling back to heuristic parser:", err);
-    const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
-    return {
-      success: true,
-      source: "heuristic-parser",
-      fallback_reason: `Gemini call failed: ${err.message}`,
-      data: fallbackData,
-    };
   }
 
-  // Heuristic Fallback Parser if Gemini API key is missing
+  // Heuristic Fallback Parser if Gemini API is offline or key missing
   const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
   return {
     success: true,
     source: "heuristic-parser",
-    fallback_reason: "GEMINI_API_KEY is not configured on the backend server",
     data: fallbackData,
   };
 };

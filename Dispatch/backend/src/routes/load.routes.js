@@ -20,31 +20,20 @@ import {
   autoAssignDriver,
 } from "../controllers/load.controller.js";
 import { upload } from '../config/multer.js';
-import { requireCustomer } from "../middlewares/customer.middleware.js";
-import {
-  tenderUpload,
-  customsUpload,
-  customerLoads,
-} from "../controllers/portal.controller.js";
 
 const router = Router();
 
-// ---- Customer portal (strict tenant isolation via requireCustomer) ----
-// Registered before the parameterized routes below.
-router.get("/customer-loads", protectedRoute, requireCustomer, customerLoads);
-router.post("/tender-upload", protectedRoute, requireCustomer, upload.single("tender"), tenderUpload);
-router.post("/:id/customs-upload", protectedRoute, requireCustomer, upload.single("document"), customsUpload);
-
 // AI Smart Driver-Load Matcher & Dispatch Optimizer
-router.post("/ai-match-drivers", aiMatchDrivers);
-router.post("/auto-assign", autoAssignDriver);
+router.post("/ai-match-drivers", protectedRoute, aiMatchDrivers);
+router.post("/auto-assign", protectedRoute, autoAssignDriver);
 
 // Automated Inbound Load Tender Ingestion & Background Worker (100% Native replacing Make.com)
+// NOTE: /inbound-tender stays public by design — it is the external email/webhook ingestion endpoint.
 router.post("/inbound-tender", ingestInboundTenderWebhook);
-router.post("/parse-tender", parseInboundTender);
-router.get("/automation/status", getAutomationStatus);
-router.post("/automation/trigger", triggerAutomationCycle);
-router.post("/automation/upload-pdf", upload.single("pdf"), uploadAndProcessPdfTender);
+router.post("/parse-tender", protectedRoute, parseInboundTender);
+router.get("/automation/status", protectedRoute, getAutomationStatus);
+router.post("/automation/trigger", protectedRoute, triggerAutomationCycle);
+router.post("/automation/upload-pdf", protectedRoute, upload.single("pdf"), uploadAndProcessPdfTender);
 
 
 
@@ -58,7 +47,6 @@ router.post(
 router.get(
     "/",
     protectedRoute,
-    authorize("admin", "super_admin", "dispatcher", "data_entry"),
     getAllLoads
 );
 
@@ -78,7 +66,6 @@ router.put(
 router.put(
     "/:id/status",
     protectedRoute,
-    authorize("admin", "super_admin", "dispatcher"),
     updateLoadStatus
 );
 

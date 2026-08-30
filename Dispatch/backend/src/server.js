@@ -8,7 +8,6 @@ import authRoutes from "./routes/auth.routes.js";
 import loadRoutes from "./routes/load.routes.js";
 import uploadRoutes from "./routes/upload.routes.js";
 import customerRoutes from "./routes/customer.routes.js";
-import ratesRoutes from "./routes/rates.routes.js";
 import driverRoutes from "./routes/driver.routes.js"
 import trailorRoutes from "./routes/trailor.routes.js"
 import truckRoutes from "./routes/trucks.routes.js"
@@ -24,14 +23,15 @@ import customsRoutes from "./routes/customs.routes.js";
 import telematicsRoutes from "./routes/telematics.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import detentionRoutes from "./routes/detention.routes.js";
+import ratesRoutes from "./routes/rates.routes.js";
 import maintenanceRoutes from "./routes/maintenance.routes.js";
 import etaRadarRoutes from "./routes/etaRadar.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
+import { publicTrackLoad, publicTrackRateLimiter } from "./controllers/load.controller.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
-import { ensurePortalSchema } from "./services/portalSchema.service.js";
-
+import { startGeofenceWorker } from "./workers/geofenceWorker.js";
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -45,38 +45,29 @@ const __dirname = path.dirname(__filename);
 const app = express();
 const PORT = process.env.PORT || 5500;
 
-// Local Vite dev servers, plus any extra origins named in CLIENT_URLS
-// (comma-separated, e.g. CLIENT_URLS="https://tms.example.com").
-const allowedOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  ...(process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
-    .split(",")
-    .map((s) => s.trim().replace(/\/+$/, ""))
-    .filter(Boolean),
-];
-
-// The Vercel frontend, which a fixed list cannot cover: alongside the stable
-// production domain, every push publishes a preview under a generated hostname.
-// The second pattern is scoped to our own Vercel account slug.
-const allowedOriginPatterns = [
-  /^https:\/\/dispatch-app-gamma-eight\.vercel\.app$/,
-  /^https:\/\/[a-z0-9-]+-shubb3006s-projects\.vercel\.app$/,
-];
+// Comma-separated list of allowed browser origins for production
+// (e.g. CLIENT_URLS="https://tms.example.com,https://app.example.com").
+const allowedOrigins = (process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      // No Origin header: curl, the native mobile app, server-to-server.
+      // Requests with no Origin header (curl, native mobile app, server-to-server) are allowed.
       if (!origin) return callback(null, true);
 
-      const ok =
-        allowedOrigins.includes(origin) ||
-        allowedOriginPatterns.some((re) => re.test(origin));
+      // Production: only origins explicitly listed in CLIENT_URLS/CLIENT_URL.
+      if (process.env.NODE_ENV === "production") {
+        return allowedOrigins.includes(origin)
+          ? callback(null, true)
+          : callback(new Error(`CORS blocked for origin: ${origin}`));
+      }
 
-      return ok
-        ? callback(null, true)
-        : callback(new Error(`CORS blocked for origin: ${origin}`));
+      // Development: reflect any origin so the Vite dev server (any port),
+      // phones on the LAN, and tunnel URLs all connect without reconfiguration.
+      return callback(null, true);
     },
     credentials: true,
   })
@@ -92,8 +83,7 @@ app.use("/api/loads", loadRoutes);
 app.use("/api/v1/loads", loadRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/customers",customerRoutes)
-app.use("/api/rates", ratesRoutes);
-app.use("/api/v1/rates", ratesRoutes);
+app.use("/api/customer",customerRoutes) // singular alias (GET /api/customer/me)
 app.use("/api/drivers",driverRoutes)
 app.use("/api/trailors",trailorRoutes);
 app.use("/api/trucks",truckRoutes);
@@ -101,6 +91,7 @@ app.use("/api/locations",locationRoutes);
 app.use("/api/load_stops",loadStopsRoutes);
 app.use("/api/user",userRoutes);
 app.use("/api/trips",tripRoutes);
+app.use("/api", tripRoutes.legsRouter); // relay legs (/api/load/:loadId/legs, /api/legs/:id) + driver pay (/api/settlement/me) — router defined in trip.routes.js
 app.use("/api/hos-logs", hosLogRoutes);
 app.use("/api/driver-documents", driverDocumentRoutes);
 app.use("/api/safety-incidents", safetyIncidentRoutes);
@@ -109,6 +100,8 @@ app.use("/api/customs", customsRoutes);
 app.use("/api/telematics", telematicsRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/detention", detentionRoutes);
+app.use("/api/rates", ratesRoutes);
+app.use("/api/v1/rates", ratesRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/v1/maintenance", maintenanceRoutes);
 app.use("/api/eta-radar", etaRadarRoutes);
@@ -119,6 +112,9 @@ app.use("/api/settlements", settlementRoutes);
 app.use("/api/v1/settlements", settlementRoutes);
 app.use("/api/pcmiler", pcmilerRoutes);
 app.use("/api/v1/pcmiler", pcmilerRoutes);
+
+// PUBLIC (no auth): customer-facing load tracking by tracking token or load number
+app.get("/api/public-track/:token", publicTrackRateLimiter, publicTrackLoad);
 
 
 
@@ -131,9 +127,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start autonomous background load confirmation intake worker
   startAutomationWorker();
-  // Apply the customer-portal schema (idempotent) so users.customer_id and
-  // rate_requests exist before any portal traffic arrives.
-  ensurePortalSchema().catch((err) =>
-    console.error("Portal schema startup ensure failed (will retry on first portal request):", err.message)
-  );
+  // Start geofence arrival/departure detection worker (default on)
+  if (process.env.GEOFENCE_ENABLED !== "false") {
+    startGeofenceWorker();
+  }
 });

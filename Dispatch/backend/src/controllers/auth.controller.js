@@ -278,14 +278,12 @@ export const check = async (req, res) => {
 };
 export const logout = async (req, res) => {
   try {
-    // Attributes must match the ones the cookie was set with in generateToken,
-    // otherwise the browser treats this as a different cookie and never clears it.
-    const isProd = process.env.NODE_ENV !== "development";
-    res.cookie("jwt_token", "", {
-      maxAge: 0,
+    // Clear with the same attributes the cookie was set with, otherwise some
+    // browsers won't remove it (attribute mismatch).
+    res.clearCookie("jwt_token", {
       httpOnly: true,
-      sameSite: isProd ? "none" : "lax",
-      secure: isProd,
+      sameSite: process.env.COOKIE_SAMESITE || "lax",
+      secure: process.env.NODE_ENV === "production",
     });
     res.status(200).json({ message: "Logged Out Succesfully" });
   } catch (error) {

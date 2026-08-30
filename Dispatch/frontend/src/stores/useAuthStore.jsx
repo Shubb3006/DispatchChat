@@ -121,7 +121,7 @@ export const useAuthStore = create((set, get) => ({
   checkAuth: async () => {
     set({ isCheckingAuth: true, isLoading: true });
     try {
-      const res = await axiosInstance.get("/auth/check");
+      const res = await axiosInstance.get("/auth/check", { timeout: 2000 });
       const user = res.data;
       // Single batched set — one render instead of three
       set({
@@ -176,7 +176,6 @@ export const useAuthStore = create((set, get) => ({
   },
 
   login: async (usernameOrData, password) => {
-    console.log("BACKEND URL:", import.meta.env.VITE_API_URL);
     console.log("Logging in user via store...");
     set({ isSigningIn: true, isLoading: true, error: null });
     // Normalize data if it's passed as separate arguments (like login(username, password))

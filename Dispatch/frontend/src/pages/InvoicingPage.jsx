@@ -54,10 +54,10 @@ export default function InvoicingPage() {
   const filteredLoads = useMemo(() => {
     return shipments.filter((load) => {
       const q = loadSearch.toLowerCase().trim();
-      const loadNum = String(load.load_number || load.tracking_number || "").toLowerCase();
-      const custName = String(load.customer_name || load.customerName || "").toLowerCase();
-      const origin = String(load.originCity || load.shipperName || "").toLowerCase();
-      const dest = String(load.destinationCity || load.consigneeName || "").toLowerCase();
+      const loadNum = (load.load_number || load.tracking_number || "").toLowerCase();
+      const custName = (load.customer_name || load.customerName || "").toLowerCase();
+      const origin = (load.originCity || load.shipperName || "").toLowerCase();
+      const dest = (load.destinationCity || load.consigneeName || "").toLowerCase();
 
       if (q && !loadNum.includes(q) && !custName.includes(q) && !origin.includes(q) && !dest.includes(q)) {
         return false;

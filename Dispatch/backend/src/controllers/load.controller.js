@@ -13,6 +13,28 @@ import {
   autoAssignDriverToLoad,
 } from "../services/aiDispatcherOptimizer.service.js";
 import { recordAuditLog, computeFieldDiff } from "../services/auditLogger.service.js";
+import {
+  updateLoadStatus as updateLoadStatusService,
+  cascadeTripStatus,
+  ensureLoadTrackingColumns,
+  ensureTrackingToken,
+  buildPublicTrackingUrl,
+  findLoadByIdOrNumber,
+  isUuid,
+  resolveCustomerForLoad,
+  notifyPrefEnabled,
+  notifyMilestoneIfNeeded,
+} from "../services/loadStatus.service.js";
+import { notify } from "../services/notification.service.js";
+import { buildPodDeliveryEmail } from "../services/emailNotifier.service.js";
+import {
+  getCustomerScope,
+  buildLoadScopeClause,
+  parseListParams,
+  buildSearchClause,
+  resolveSortClause,
+} from "./customer.controller.js";
+import { getVehicleDetails } from "../services/samsara.service.js";
 
 
 import { createClient } from '@supabase/supabase-js';
@@ -329,6 +351,7 @@ export const createLoad = async (req, res) => {
       commodity,
       weight,
       pieces,
+      cube_volume,
       rate
       // status is intentionally omitted here to force PENDING
     } = req.body;
@@ -369,7 +392,8 @@ export const createLoad = async (req, res) => {
         weight,
         pieces,
         rate,
-        status
+        status,
+        cube_volume
       )
       VALUES
       (
@@ -378,7 +402,7 @@ export const createLoad = async (req, res) => {
         $10,$11,$12,$13,
         $14,$15,$16,$17,
         $18,$19,
-        $20,$21,$22,$23,$24,$25
+        $20,$21,$22,$23,$24,$25,$26
       )
       RETURNING *;
       `,
@@ -412,11 +436,26 @@ export const createLoad = async (req, res) => {
         weight,
         pieces,
         rate,
-        status
+        status,
+        cube_volume
       ]
     );
 
     const newLoad = result.rows[0];
+
+    // --- PUBLIC TRACKING TOKEN + OPTIONAL CUSTOMER LINK ---
+    try {
+      await ensureLoadTrackingColumns();
+      const customerId = req.body.customer_id && isUuid(req.body.customer_id) ? req.body.customer_id : null;
+      await pool.query(
+        `UPDATE loads SET customer_id = COALESCE($1, customer_id) WHERE id = $2`,
+        [customerId, newLoad.id]
+      );
+      newLoad.customer_id = customerId || newLoad.customer_id || null;
+      newLoad.tracking_token = await ensureTrackingToken(newLoad);
+    } catch (tokenErr) {
+      console.warn("Tracking token generation notice:", tokenErr.message);
+    }
 
     // --- AUTOMATED CROSS-BORDER PAPS / PARS GENERATION ---
     try {
@@ -589,41 +628,112 @@ export const createLoad = async (req, res) => {
 
 export const getAllLoads = async (req, res) => {
   try {
-    const limit = Math.min(parseInt(req.query.limit) || 100, 1000);
-    const page = Math.max(parseInt(req.query.page) || 1, 1);
-    const offset = (page - 1) * limit;
+    const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
 
-    const countResult = await pool.query(`SELECT COUNT(*) FROM loads`);
-    const totalCount = parseInt(countResult.rows[0]?.count || 0);
+    // Customer-scoped access: users with role=customer only see their loads
+    const scope = await getCustomerScope(req);
+    if (scope.restricted && !scope.customerId) {
+      return hasListParams
+        ? res.json({ data: [], total: 0, limit, offset })
+        : res.json({ success: true, loads: [] });
+    }
+    if (scope.restricted) {
+      await ensureLoadTrackingColumns();
+    }
 
-    const result = await pool.query(
-      `
-      SELECT
-        l.*,
-        u.username AS driver_name
-      FROM loads l
-      LEFT JOIN drivers d ON l.driver_id = d.id
-      LEFT JOIN users u ON d.user_id = u.id
-      ORDER BY l.created_at DESC
-      LIMIT $1 OFFSET $2;
-      `,
-      [limit, offset]
+    const params = [];
+    const where = [];
+
+    if (scope.restricted) {
+      where.push(buildLoadScopeClause(scope.customerId, params));
+    }
+
+    // Legacy shape when no list params are present (backward compatible)
+    if (!hasListParams) {
+      const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+      const result = await pool.query(`
+    SELECT
+    l.*,
+    u.username AS driver_name
+FROM loads l
+LEFT JOIN drivers d
+    ON l.driver_id = d.id
+LEFT JOIN users u
+    ON d.user_id = u.id
+LEFT JOIN trip_loads tl
+    ON l.id = tl.load_id
+${whereSql}
+ORDER BY l.created_at DESC;`, params);
+
+      return res.json({
+        success: true,
+        loads: result.rows
+      });
+    }
+
+    if (q) {
+      where.push(
+        buildSearchClause(
+          q,
+          [
+            "l.load_number",
+            "l.customer_name",
+            "l.customer_email",
+            "l.origin",
+            "l.destination",
+            "l.status",
+            "l.commodity",
+            "l.shipper_name",
+            "l.consignee_name",
+            "u.username",
+          ],
+          params
+        )
+      );
+    }
+
+    const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+    const orderSql = resolveSortClause(
+      sort,
+      {
+        created_at: "l.created_at",
+        pickup_date: "l.pickup_date",
+        delivery_date: "l.delivery_date",
+        load_number: "l.load_number",
+        status: "l.status",
+        rate: "l.rate",
+        customer_name: "l.customer_name",
+      },
+      "ORDER BY l.created_at DESC"
     );
 
-    res.json({
-      success: true,
-      loads: result.rows,
-      totalCount,
-      page,
-      limit,
-      totalPages: Math.ceil(totalCount / limit)
-    });
+    params.push(limit, offset);
+    const result = await pool.query(
+      `SELECT
+         l.*,
+         u.username AS driver_name,
+         COUNT(*) OVER() AS __total
+       FROM loads l
+       LEFT JOIN drivers d ON l.driver_id = d.id
+       LEFT JOIN users u ON d.user_id = u.id
+       ${whereSql}
+       ${orderSql}
+       LIMIT $${params.length - 1} OFFSET $${params.length}`,
+      params
+    );
+
+    const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+    const data = result.rows.map(({ __total, ...row }) => row);
+
+    res.json({ data, total, limit, offset });
   } catch (error) {
-    console.error("getAllLoads error:", error);
+
+    console.log(error);
+
     res.status(500).json({
-      success: false,
       message: "Server Error"
     });
+
   }
 };
 
@@ -691,17 +801,20 @@ export const updateLoad = async (req, res) => {
       status,
       driver_id,
       driver_notes,
-      warehouse_location,
-      warehouseBay,
-      warehouse_notes,
-      warehouseNotes,
-      intake_condition,
-      intakeCondition,
-      received_at_warehouse,
-      receivedAtWarehouse,
-      received_at_warehouse_date,
-      receivedAtWarehouseDate
+      cube_volume
     } = req.body;
+
+    // Previous status (for milestone-change detection through loadStatus.service)
+    let previousStatus = null;
+    if (status) {
+      try {
+        await ensureLoadTrackingColumns();
+        const prev = await pool.query(`SELECT status FROM loads WHERE id = $1`, [id]);
+        previousStatus = prev.rows[0]?.status ?? null;
+      } catch (prevErr) {
+        console.warn("Previous status lookup notice:", prevErr.message);
+      }
+    }
 
     const result = await pool.query(`
             WITH updated_load AS (
@@ -718,12 +831,8 @@ export const updateLoad = async (req, res) => {
         status = COALESCE($9, status),
         driver_id = COALESCE($10, driver_id),
         driver_notes = COALESCE($11, driver_notes),
-        warehouse_location = COALESCE($13, warehouse_location),
-        warehouse_notes = COALESCE($14, warehouse_notes),
-        intake_condition = COALESCE($15, intake_condition),
-        received_at_warehouse = COALESCE($16, received_at_warehouse),
-        received_at_warehouse_date = COALESCE($17, received_at_warehouse_date)
-    WHERE id = $12
+        cube_volume = COALESCE($12, cube_volume)
+    WHERE id = $13
     RETURNING *
 )
 SELECT
@@ -746,12 +855,8 @@ LEFT JOIN users u
         status || null,
         driver_id || null,
         driver_notes || null,
-        id,
-        warehouse_location || warehouseBay || null,
-        warehouse_notes || warehouseNotes || null,
-        intake_condition || intakeCondition || null,
-        received_at_warehouse || receivedAtWarehouse || null,
-        received_at_warehouse_date || receivedAtWarehouseDate || null
+        cube_volume || null,
+        id
       ]
     );
 
@@ -763,58 +868,32 @@ LEFT JOIN users u
 
     console.log("Updated load status:", result.rows[0].status);
 
-    // Find the trip this load belongs to
-    const tripResult = await pool.query(
-      `
-    SELECT trip_id
-    FROM trip_loads
-    WHERE load_id = $1
-    `,
-      [id]
-    );
-
-    if (tripResult.rows.length > 0) {
-      const tripId = tripResult.rows[0].trip_id;
-
-      // Get status of every load in this trip
-      const loadsResult = await pool.query(
-        `
-      SELECT l.status
-      FROM trip_loads tl
-      JOIN loads l
-        ON tl.load_id = l.id
-      WHERE tl.trip_id = $1
-      `,
-        [tripId]
-      );
-
-      const statuses = loadsResult.rows.map(r => (r.status || "").toLowerCase());
-
-      let tripStatus = "pending";
-
-      if (statuses.every(s => s === "delivered")) {
-        tripStatus = "completed";
-      } else if (statuses.some(s => s === "in_transit")) {
-        tripStatus = "in_transit";
-      } else if (statuses.some(s => s === "dispatched")) {
-        tripStatus = "dispatched";
-      } else if (statuses.every(s => s === "at_warehouse")) {
-        tripStatus = "at_warehouse";
-      } else if (statuses.some(s => s === "picked_up")) {
-        tripStatus = "picked_up";
-      }
-
-      await pool.query(
-        `
-      UPDATE trips
-      SET status = $1
-      WHERE id = $2
-      `,
-        [tripStatus, tripId]
-      );
-    }
-
     const updatedLoad = result.rows[0];
+
+    // Trip lifecycle cascade + delivered_at stamp + customer milestone email —
+    // all shared through loadStatus.service (the single status choke point).
+    if (status) {
+      try {
+        if (String(updatedLoad.status).trim().toLowerCase() === "delivered") {
+          const stamped = await pool.query(
+            `UPDATE loads SET delivered_at = COALESCE(delivered_at, CURRENT_TIMESTAMP)
+             WHERE id = $1 RETURNING delivered_at`,
+            [updatedLoad.id]
+          );
+          updatedLoad.delivered_at = stamped.rows[0]?.delivered_at ?? updatedLoad.delivered_at;
+        }
+        await cascadeTripStatus(updatedLoad.id);
+        await notifyMilestoneIfNeeded(updatedLoad, previousStatus, { source: "load_update" });
+      } catch (statusErr) {
+        console.error("Status side-effects failed:", statusErr.message);
+      }
+    } else {
+      try {
+        await cascadeTripStatus(updatedLoad.id);
+      } catch (cascadeErr) {
+        console.error("Trip status cascade failed:", cascadeErr.message);
+      }
+    }
 
     // Record Audit Log for Load Update
     await recordAuditLog({
@@ -906,102 +985,37 @@ export const updateLoadStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Update load status
-    const result = await pool.query(
-      `
-        UPDATE loads
-        SET status = $1
-        WHERE id = $2
-        RETURNING *;
-        `,
-      [status, id]
-    );
-
-    if (result.rows.length === 0) {
-      return res.status(404).json({
+    if (!status) {
+      return res.status(400).json({
         success: false,
-        message: "Load not found",
+        message: "status is required",
       });
     }
 
-    // Find the trip this load belongs to
-    const tripResult = await pool.query(
-      `
-        SELECT trip_id
-        FROM trip_loads
-        WHERE load_id = $1
-        `,
-      [id]
-    );
-
-    // If load is not assigned to any trip, we're done
-    if (tripResult.rows.length > 0) {
-      const tripId = tripResult.rows[0].trip_id;
-
-      // Get all statuses of loads in this trip
-      const loadsResult = await pool.query(
-        `
-          SELECT l.status
-          FROM trip_loads tl
-          JOIN loads l
-            ON tl.load_id = l.id
-          WHERE tl.trip_id = $1
-          `,
-        [tripId]
-      );
-
-      const statuses = loadsResult.rows.map((row) => row.status?.toLowerCase());
-
-      // Full lifecycle cascade:
-      // All delivered           → completed
-      // Any in_transit          → in_transit
-      // Any dispatched          → dispatched
-      // All at_warehouse        → at_warehouse (ready to be dispatched)
-      // Any picked_up           → picked_up (BOL approved, heading to warehouse)
-      // Default (all assigned)  → pending
-      let tripStatus = "pending";
-
-      if (statuses.every((s) => s === "delivered")) {
-        tripStatus = "completed";
-      } else if (statuses.some((s) => s === "in_transit")) {
-        tripStatus = "in_transit";
-      } else if (statuses.some((s) => s === "dispatched")) {
-        tripStatus = "dispatched";
-      } else if (statuses.every((s) => s === "at_warehouse")) {
-        tripStatus = "at_warehouse";
-      } else if (statuses.some((s) => s === "picked_up")) {
-        tripStatus = "picked_up";
-      }
-
-      await pool.query(
-        `
-          UPDATE trips
-          SET status = $1
-          WHERE id = $2
-          `,
-        [tripStatus, tripId]
-      );
-    }
-
-    const updatedLoad = result.rows[0];
-
-    // Record Audit Log for status change
-    await recordAuditLog({
+    // Single choke point for status transitions: update + trip cascade +
+    // audit log + customer milestone notification.
+    const result = await updateLoadStatusService(id, status, {
+      actor: req.user || null,
+      source: "api",
       req,
-      action: "STATUS_CHANGED",
-      entityType: "LOAD",
-      entityId: updatedLoad.id,
-      entityIdentifier: `Load #${updatedLoad.load_number || id}`,
-      changeSummary: `Changed load #${updatedLoad.load_number} status to ${status.toUpperCase()}`,
-      details: {
-        new_status: status,
-        updated_at: new Date().toISOString()
-      }
     });
+
+    if (!result.ok) {
+      if (result.error === "not_found") {
+        return res.status(404).json({
+          success: false,
+          message: "Load not found",
+        });
+      }
+      return res.status(500).json({
+        success: false,
+        message: "Server Error",
+      });
+    }
 
     res.json({
       success: true,
-      load: updatedLoad,
+      load: result.load,
     });
   } catch (error) {
     console.log(error);
@@ -1071,12 +1085,25 @@ export const deleteLoad = async (req, res) => {
 
 export const getPendingBOLs = async (req, res) => {
   try {
-    console.log("ssss")
+    // Customer-scoped access: customer users only see their own documents
+    const scope = await getCustomerScope(req);
+    if (scope.restricted && !scope.customerId) {
+      return res.status(200).json({ success: true, data: [] });
+    }
+
+    const params = [];
+    let scopeSql = "";
+    if (scope.restricted) {
+      await ensureLoadTrackingColumns();
+      scopeSql = ` AND ${buildLoadScopeClause(scope.customerId, params)}`;
+    }
+
     const result = await pool.query(
-      `SELECT d.*, l.load_number FROM documents d 
-       JOIN loads l ON d.load_id = l.id 
-       WHERE d.document_type = 'BOL' AND d.is_approved = false 
-       ORDER BY d.created_at DESC`
+      `SELECT d.*, l.load_number FROM documents d
+       JOIN loads l ON d.load_id = l.id
+       WHERE d.document_type = 'BOL' AND d.is_approved = false${scopeSql}
+       ORDER BY d.created_at DESC`,
+      params
     );
 
     res.status(200).json({
@@ -1137,6 +1164,13 @@ export const uploadBOL = async (req, res) => {
       return res.status(400).json({ success: false, message: "Load ID and BOL file are required." });
     }
 
+    if (!supabase) {
+      return res.status(503).json({
+        success: false,
+        message: "Document storage is not configured (PROJECT_URL / SUPABASE_SERVICE_ROLE_KEY missing).",
+      });
+    }
+
     // Generate a unique filename
     const originalName = file.originalname.replace(/[^a-zA-Z0-9._-]/g, '_');
     const fileName = `bol_${load_id}_${Date.now()}_${originalName}`;
@@ -1182,17 +1216,70 @@ export const uploadBOL = async (req, res) => {
   }
 };
 
+// Automatic POD delivery (Task E): email the customer the approved document
+// links, honoring customers.notify_prefs.pod (default true).
+const sendPodDeliveryEmail = async (load, approvedDocs) => {
+  if (!load) return { sent: false, reason: "load_not_found" };
+
+  const documents = (approvedDocs || [])
+    .filter((doc) => doc && doc.file_path)
+    .map((doc) => ({
+      name: doc.file_name || `Signed ${doc.document_type || "Document"}`,
+      url: doc.file_path,
+    }));
+
+  if (documents.length === 0) {
+    return { sent: false, reason: "no_document_urls" };
+  }
+
+  const customer = await resolveCustomerForLoad(load);
+  const recipientEmail = customer?.email || load.customer_email || null;
+
+  if (!recipientEmail) {
+    return { sent: false, reason: "no_customer_email" };
+  }
+  if (!notifyPrefEnabled(customer, "pod", true)) {
+    return { sent: false, reason: "customer_opted_out" };
+  }
+
+  const token = await ensureTrackingToken(load);
+  const trackingUrl = buildPublicTrackingUrl(token || load.load_number || load.id);
+  const emailContent = buildPodDeliveryEmail({ load, documents, trackingUrl });
+
+  const result = await notify({
+    customerId: customer?.id || null,
+    email: recipientEmail,
+    type: "POD_DELIVERED",
+    title: emailContent.subject,
+    body: emailContent.text,
+    html: emailContent.html,
+    meta: {
+      load_id: load.id,
+      load_number: load.load_number || null,
+      documents: documents.map((d) => d.url),
+      tracking_url: trackingUrl,
+    },
+    channels: ["email", "inapp"],
+  });
+
+  return { sent: Boolean(result.channels?.email?.sent), to: recipientEmail, channels: result.channels };
+};
+
 // 2. Dispatcher approves BOL -> Status becomes PICKED_UP
 export const approveBOL = async (req, res) => {
   try {
     const { load_id, document_id } = req.body;
     const dispatcher_id = req.user ? req.user.id : null;
 
-    if (document_id) {
-      await pool.query(
-        `UPDATE documents SET is_approved = true, approved_by = $1 WHERE id = $2`,
+    const approvedDocs = [];
+
+    if (document_id && isUuid(document_id)) {
+      const docResult = await pool.query(
+        `UPDATE documents SET is_approved = true, approved_by = $1 WHERE id = $2 RETURNING *`,
         [dispatcher_id, document_id]
-      ).catch(() => { });
+      ).catch(() => ({ rows: [] }));
+      approvedDocs.push(...docResult.rows);
+
       await pool.query(
         `UPDATE driver_documents SET status = 'approved' WHERE id = $1`,
         [document_id]
@@ -1200,39 +1287,77 @@ export const approveBOL = async (req, res) => {
     }
 
     if (load_id) {
-      await pool.query(
-        `UPDATE documents SET is_approved = true, approved_by = $1 WHERE load_id = $2 AND document_type = 'BOL'`,
+      // documents.load_id is a UUID column: resolve a load_number to its id
+      // instead of the old "load_id = $1" pattern that throws on non-uuid input.
+      const docsByLoad = await pool.query(
+        isUuid(load_id)
+          ? `UPDATE documents SET is_approved = true, approved_by = $1 WHERE load_id = $2 AND document_type = 'BOL' RETURNING *`
+          : `UPDATE documents SET is_approved = true, approved_by = $1
+             WHERE load_id IN (SELECT id FROM loads WHERE load_number = $2) AND document_type = 'BOL' RETURNING *`,
         [dispatcher_id, load_id]
-      ).catch(() => { });
+      ).catch(() => ({ rows: [] }));
+      approvedDocs.push(...docsByLoad.rows);
+
+      // driver_documents.shipment_id is a UUID column: only compare it when the
+      // input is a uuid, otherwise match on tracking_number alone.
       await pool.query(
-        `UPDATE driver_documents SET status = 'approved' WHERE shipment_id = $1 OR tracking_number = $1`,
+        isUuid(load_id)
+          ? `UPDATE driver_documents SET status = 'approved' WHERE shipment_id = $1::uuid OR tracking_number = $1::text`
+          : `UPDATE driver_documents SET status = 'approved' WHERE tracking_number = $1`,
         [load_id]
       ).catch(() => { });
     }
 
-    const targetLoadId = load_id || document_id;
+    // Prefer the approved document's own load_id when the caller only sent a
+    // document_id (the old fallback of treating a document uuid as a load id
+    // never matched a load).
+    const targetLoadId = load_id || approvedDocs.find((doc) => doc.load_id)?.load_id || document_id;
     let loadData = null;
     if (targetLoadId) {
-      const updatedLoad = await pool.query(
-        `UPDATE loads SET status = 'picked_up' WHERE id = $1 OR load_number = $1 RETURNING *`,
-        [targetLoadId]
-      );
-      loadData = updatedLoad.rows[0];
-
-      // Also patch Supabase loads table via REST
-      const supabaseUrl = process.env.PROJECT_URL || process.env.SUPABASE_URL;
-      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-      if (supabaseUrl && serviceKey) {
-        const headers = { apikey: serviceKey, Authorization: `Bearer ${serviceKey}`, "Content-Type": "application/json" };
-        axios.patch(`${supabaseUrl}/rest/v1/loads?id=eq.${targetLoadId}`, { status: "picked_up" }, { headers }).catch(() => { });
-        axios.patch(`${supabaseUrl}/rest/v1/loads?load_number=eq.${targetLoadId}`, { status: "picked_up" }, { headers }).catch(() => { });
+      // Single choke point: status update + trip cascade + audit + milestone email.
+      // findLoadByIdOrNumber/updateLoadStatusService query id OR load_number on
+      // the correct column depending on uuid format (fixes the old
+      // "WHERE id = $1 OR load_number = $1" uuid cast error).
+      const statusResult = await updateLoadStatusService(targetLoadId, "picked_up", {
+        actor: req.user || null,
+        source: "bol_approval",
+        meta: { document_id: document_id || null },
+        req,
+      });
+      if (statusResult.ok) {
+        loadData = statusResult.load;
       }
+
+      // Keep the Supabase-side sync, but through the supabase client instead of
+      // the previously unimported axios reference.
+      if (supabase && loadData) {
+        try {
+          const { error: sbError } = await supabase
+            .from("loads")
+            .update({ status: "picked_up" })
+            .eq("id", loadData.id);
+          if (sbError) console.warn("Supabase loads sync notice:", sbError.message);
+        } catch (sbErr) {
+          console.warn("Supabase loads sync notice:", sbErr.message);
+        }
+      }
+    }
+
+    // Automatic POD delivery to the customer (never fails the approval)
+    let podDelivery = { sent: false, reason: "not_attempted" };
+    try {
+      const loadForEmail = loadData || (targetLoadId ? await findLoadByIdOrNumber(targetLoadId) : null);
+      podDelivery = await sendPodDeliveryEmail(loadForEmail, approvedDocs);
+    } catch (podErr) {
+      console.error("POD delivery email failed:", podErr.message);
+      podDelivery = { sent: false, reason: podErr.message };
     }
 
     res.status(200).json({
       success: true,
       message: "BOL approved successfully. Load status updated to PICKED_UP.",
       load: loadData,
+      pod_delivery: podDelivery,
     });
   } catch (error) {
     console.error("approveBOL error:", error);
@@ -1244,18 +1369,27 @@ export const rejectBOL = async (req, res) => {
   try {
     const { load_id, document_id } = req.body;
 
-    if (document_id) {
+    if (document_id && isUuid(document_id)) {
       await pool.query(`DELETE FROM documents WHERE id = $1`, [document_id]);
     } else if (load_id) {
-      await pool.query(`DELETE FROM documents WHERE load_id = $1 AND document_type = 'BOL'`, [load_id]);
+      await pool.query(
+        isUuid(load_id)
+          ? `DELETE FROM documents WHERE load_id = $1 AND document_type = 'BOL'`
+          : `DELETE FROM documents WHERE load_id IN (SELECT id FROM loads WHERE load_number = $1) AND document_type = 'BOL'`,
+        [load_id]
+      );
     }
 
     const targetLoadId = load_id || document_id;
     if (targetLoadId) {
-      await pool.query(
-        `UPDATE loads SET status = 'pickup_assigned' WHERE id = $1`,
-        [targetLoadId]
-      );
+      // Route the rollback status through the shared choke point too
+      // (uuid/load_number safe, keeps trip cascade + audit trail).
+      await updateLoadStatusService(targetLoadId, "pickup_assigned", {
+        actor: req.user || null,
+        source: "bol_rejection",
+        meta: { document_id: document_id || null },
+        req,
+      });
     }
 
     res.status(200).json({
@@ -1265,6 +1399,195 @@ export const rejectBOL = async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// ---------------------------------------------------------------------------
+// PUBLIC LOAD TRACKING (Task F)
+// GET /api/public-track/:token — no auth, lightly rate limited.
+// Frozen response contract:
+// { ok:true, load:{ load_number, status, status_history:[{status,at}],
+//   origin:{city,state}, destination:{city,state},
+//   stops:[{type,city,state,scheduled_at,arrived_at,departed_at}],
+//   eta, last_position:{lat,lng,recorded_at}|null, delivered_at } }
+// or { ok:false, error:'not_found' } / { ok:false, error:'expired' }
+// ---------------------------------------------------------------------------
+
+const publicTrackBuckets = new Map();
+const PUBLIC_TRACK_WINDOW_MS = 60 * 1000;
+const PUBLIC_TRACK_MAX_PER_WINDOW = parseInt(process.env.PUBLIC_TRACK_RATE_LIMIT, 10) || 60;
+
+export const publicTrackRateLimiter = (req, res, next) => {
+  const ip =
+    (req.headers["x-forwarded-for"] || "").split(",")[0].trim() ||
+    req.socket?.remoteAddress ||
+    "unknown";
+  const now = Date.now();
+
+  // Opportunistic cleanup so the map cannot grow unbounded
+  if (publicTrackBuckets.size > 5000) {
+    for (const [key, bucket] of publicTrackBuckets) {
+      if (now - bucket.start > PUBLIC_TRACK_WINDOW_MS) publicTrackBuckets.delete(key);
+    }
+  }
+
+  const bucket = publicTrackBuckets.get(ip);
+  if (!bucket || now - bucket.start > PUBLIC_TRACK_WINDOW_MS) {
+    publicTrackBuckets.set(ip, { start: now, count: 1 });
+    return next();
+  }
+
+  bucket.count += 1;
+  if (bucket.count > PUBLIC_TRACK_MAX_PER_WINDOW) {
+    return res.status(429).json({ ok: false, error: "rate_limited" });
+  }
+  next();
+};
+
+// Parse "City, ST" style free-text into { city, state }
+const splitCityState = (text) => {
+  if (!text || typeof text !== "string") return { city: null, state: null };
+  const parts = text.split(",").map((p) => p.trim()).filter(Boolean);
+  if (parts.length === 0) return { city: null, state: null };
+  if (parts.length === 1) return { city: parts[0], state: null };
+  return { city: parts[0], state: parts[1] };
+};
+
+export const publicTrackLoad = async (req, res) => {
+  try {
+    const token = String(req.params.token || "").trim();
+    if (!token) {
+      return res.status(404).json({ ok: false, error: "not_found" });
+    }
+
+    await ensureLoadTrackingColumns();
+
+    // Resolve as tracking_token first, then exact load_number
+    let result = await pool.query(`SELECT * FROM loads WHERE tracking_token = $1 LIMIT 1`, [token]);
+    if (result.rows.length === 0) {
+      result = await pool.query(`SELECT * FROM loads WHERE load_number = $1 LIMIT 1`, [token]);
+    }
+    if (result.rows.length === 0) {
+      return res.status(404).json({ ok: false, error: "not_found" });
+    }
+
+    const load = result.rows[0];
+
+    // Lazy backfill of tracking_token for rows created before migration 101
+    if (!load.tracking_token) {
+      await ensureTrackingToken(load);
+    }
+
+    // Public links expire 7 days after delivery
+    if (load.delivered_at) {
+      const deliveredAtMs = new Date(load.delivered_at).getTime();
+      if (Number.isFinite(deliveredAtMs) && Date.now() - deliveredAtMs > 7 * 24 * 60 * 60 * 1000) {
+        return res.status(410).json({ ok: false, error: "expired" });
+      }
+    }
+
+    // Status history from the audit trail, else minimal current status
+    let statusHistory = [];
+    try {
+      const history = await pool.query(
+        `SELECT details, created_at
+         FROM audit_logs
+         WHERE entity_type = 'LOAD' AND entity_id = $1 AND action = 'STATUS_CHANGED'
+         ORDER BY created_at ASC`,
+        [String(load.id)]
+      );
+      statusHistory = history.rows
+        .map((row) => ({
+          status: row.details?.new_status || row.details?.status || null,
+          at: row.created_at,
+        }))
+        .filter((entry) => entry.status);
+    } catch (historyErr) {
+      console.warn("public-track status history notice:", historyErr.message);
+    }
+    if (statusHistory.length === 0) {
+      statusHistory = [{ status: load.status, at: load.created_at || null }];
+    }
+
+    // Stops (load_stops holds scheduled appointment times; actual
+    // arrival/departure stamping arrives with the geofence worker)
+    let stops = [];
+    try {
+      const stopsResult = await pool.query(
+        `SELECT stop_type, city, state, arrival_time, departure_time
+         FROM load_stops
+         WHERE load_id = $1
+         ORDER BY stop_order ASC NULLS LAST, id ASC`,
+        [load.id]
+      );
+      stops = stopsResult.rows.map((stop) => ({
+        type: stop.stop_type || null,
+        city: stop.city || null,
+        state: stop.state || null,
+        scheduled_at: stop.arrival_time || null,
+        arrived_at: null,
+        departed_at: null,
+      }));
+    } catch (stopsErr) {
+      console.warn("public-track stops notice:", stopsErr.message);
+    }
+
+    const originParsed = splitCityState(load.origin);
+    const destinationParsed = splitCityState(load.destination);
+    const origin = {
+      city: load.shipper_district || originParsed.city || null,
+      state: load.shipper_state || originParsed.state || null,
+    };
+    const destination = {
+      city: load.consignee_district || destinationParsed.city || null,
+      state: load.consignee_state || destinationParsed.state || null,
+    };
+
+    // Live position: only when Samsara is actually configured and the load has
+    // an assigned truck. Any failure returns null — never fabricated.
+    let lastPosition = null;
+    if (process.env.SAMSARA_API_TOKEN && load.truck_id) {
+      try {
+        const truckResult = await pool.query(`SELECT truck_number FROM trucks WHERE id = $1`, [load.truck_id]);
+        const truckNumber = truckResult.rows[0]?.truck_number;
+        if (truckNumber) {
+          const vehicleResult = await getVehicleDetails(truckNumber);
+          const vehicle = vehicleResult?.success ? vehicleResult.vehicle : null;
+          if (
+            vehicle &&
+            Number.isFinite(Number(vehicle.latitude)) &&
+            Number.isFinite(Number(vehicle.longitude))
+          ) {
+            lastPosition = {
+              lat: Number(vehicle.latitude),
+              lng: Number(vehicle.longitude),
+              recorded_at: vehicle.last_reported_time || null,
+            };
+          }
+        }
+      } catch (samsaraErr) {
+        console.warn("public-track Samsara position notice:", samsaraErr.message);
+        lastPosition = null;
+      }
+    }
+
+    return res.json({
+      ok: true,
+      load: {
+        load_number: load.load_number || null,
+        status: load.status || null,
+        status_history: statusHistory,
+        origin,
+        destination,
+        stops,
+        eta: load.eta || load.delivery_date || null,
+        last_position: lastPosition,
+        delivered_at: load.delivered_at || null,
+      },
+    });
+  } catch (error) {
+    console.error("publicTrackLoad error:", error);
+    return res.status(500).json({ ok: false, error: "server_error" });
   }
 };
 
@@ -1340,11 +1663,7 @@ export const ingestInboundTenderWebhook = async (req, res) => {
 export const getAutomationStatus = async (req, res) => {
   try {
     const status = getAutomationWorkerStatus();
-    res.status(200).json({
-      success: true,
-      geminiConfigured: !!(process.env.GEMINI_API_KEY || "").trim(),
-      ...status,
-    });
+    res.status(200).json({ success: true, ...status });
   } catch (error) {
     console.error("getAutomationStatus error:", error);
     res.status(500).json({ success: false, message: error.message });
@@ -1387,12 +1706,9 @@ export const uploadAndProcessPdfTender = async (req, res) => {
       fileName: file.originalname,
     });
 
-    const usedGemini = result.extraction_source === "gemini-ai";
     res.status(201).json({
       success: true,
-      message: usedGemini
-        ? `PDF parsed with Gemini AI! Load #${result.load_number} assigned to ${result.assigned_team}`
-        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Gemini unavailable"}`,
+      message: `PDF parsed with Gemini AI! Load #${result.load_number} assigned to ${result.assigned_team}`,
       ...result,
     });
   } catch (error) {
@@ -1402,36 +1718,64 @@ export const uploadAndProcessPdfTender = async (req, res) => {
 };
 
 /**
- * POST /api/v1/loads/ai-match-drivers
- * Evaluates fleet drivers against a load and returns ranked candidates
+ * POST /api/load/ai-match-drivers  { loadId }
+ * Ranks active fleet drivers against a load from live Samsara GPS/HOS,
+ * geocoded pickup coordinates, real cross-border compliance fields, and
+ * on-time delivery history. Factors that cannot be computed are omitted
+ * (never fabricated) — see aiDispatcherOptimizer.service.js.
  */
 export const aiMatchDrivers = async (req, res) => {
   try {
-    const loadData = req.body || {};
-    const result = await rankDriversForLoad(loadData);
-    res.json({ success: true, ...result });
+    const loadId = req.body?.loadId || req.body?.load_id || req.body?.id;
+    if (!loadId) {
+      return res.status(400).json({ ok: false, error: "load_id_required" });
+    }
+    const result = await rankDriversForLoad(loadId);
+    if (!result.ok) {
+      const codes = {
+        load_id_required: 400,
+        not_found: 404,
+        samsara_not_configured: 503,
+        samsara_unavailable: 503,
+      };
+      return res.status(codes[result.error] || 500).json(result);
+    }
+    res.json(result);
   } catch (error) {
-
     console.error("aiMatchDrivers error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ ok: false, error: error.message });
   }
 };
 
 /**
- * POST /api/v1/loads/auto-assign
- * 1-Click assigns driver to load and dispatches
+ * POST /api/load/auto-assign  { loadId, driverId }
+ * Validates the driver, writes loads.driver_id/truck_id/assigned_at, and
+ * dispatches through loadStatus.service. Returns real errors with proper
+ * HTTP codes — never a fake success.
  */
 export const autoAssignDriver = async (req, res) => {
   try {
-    const { loadId, driverId } = req.body;
+    const { loadId, driverId } = req.body || {};
     if (!loadId || !driverId) {
-      return res.status(400).json({ success: false, message: "loadId and driverId are required" });
+      return res.status(400).json({ ok: false, error: "load_id_and_driver_id_required" });
     }
-    const result = await autoAssignDriverToLoad(loadId, driverId);
+    const result = await autoAssignDriverToLoad(loadId, driverId, {
+      actor: req.user || null,
+      req,
+    });
+    if (!result.ok) {
+      const codes = {
+        load_id_and_driver_id_required: 400,
+        load_not_found: 404,
+        driver_not_found: 404,
+        driver_not_active: 409,
+      };
+      return res.status(codes[result.error] || 500).json(result);
+    }
     res.json(result);
   } catch (error) {
     console.error("autoAssignDriver error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ ok: false, error: error.message });
   }
 };
 

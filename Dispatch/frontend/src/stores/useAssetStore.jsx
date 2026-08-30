@@ -41,22 +41,7 @@ export const useAssetStore = create((set, get) => ({
     try {
       const response = await axiosInstance.get('/trucks');
       const data = Array.isArray(response.data) ? response.data : (response.data?.trucks || response.data?.data || []);
-      const parsedData = data.map(raw => {
-        const item = typeof raw.data === 'string' ? JSON.parse(raw.data) : (raw.data || raw);
-        const make = item.make || "Truck";
-        const model = item.model || "Tractor";
-        return {
-          ...item,
-          id: item.id || item.truck_number,
-          truck_number: item.truck_number || item.id,
-          make,
-          model: item.model ? `${make} ${item.model}` : make,
-          status: (item.status || "available").toLowerCase(),
-          year: item.year || 2023,
-          plate_number: item.plate_number || "",
-          terminal: item.terminal || "",
-        };
-      });
+      const parsedData = data.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
       if (parsedData.length > 0) {
         set({ trucks: parsedData, isLoading: false });
       } else {
@@ -122,20 +107,8 @@ export const useAssetStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get('/trailors');
-      const data = Array.isArray(response.data) ? response.data : (response.data?.trailors || response.data?.data || response.data?.trailers || []);
-      const parsedData = data.map(raw => {
-        const item = typeof raw.data === 'string' ? JSON.parse(raw.data) : (raw.data || raw);
-        return {
-          ...item,
-          id: item.id || item.trailer_number,
-          trailer_number: item.trailer_number || item.id,
-          type: item.type_description || item.trailer_type || "Semi trailer",
-          status: (item.status || "available").toLowerCase(),
-          capacityLbs: parseFloat(item.capacity || 45000),
-          plate_number: item.plate_number || "",
-          terminal: item.terminal || "",
-        };
-      });
+      const data = Array.isArray(response.data) ? response.data : (response.data?.trailors || response.data?.data || []);
+      const parsedData = data.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
       if (parsedData.length > 0) {
         set({ trailors: parsedData, isLoading: false });
       } else {

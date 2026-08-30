@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { parseListParams, buildSearchClause, resolveSortClause } from "./customer.controller.js";
 
 // Create Driver
 // export const createDriver = async (req, res) => {
@@ -210,38 +211,100 @@ export const createDriver = async (req, res) => {
 // };
 export const getDrivers = async (req, res) => {
     try {
-      const limit = Math.min(parseInt(req.query.limit) || 200, 1000);
-      const page = Math.max(parseInt(req.query.page) || 1, 1);
-      const offset = (page - 1) * limit;
-  
+      const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
+
+      // Paginated/searchable shape when list params are present
+      if (hasListParams) {
+        const params = [];
+        const where = [];
+
+        if (q) {
+          where.push(
+            buildSearchClause(
+              q,
+              ["u.username", "u.full_name", "d.driver_code", "d.license_number", "d.phone_number", "d.status"],
+              params
+            )
+          );
+        }
+
+        const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+        const orderSql = resolveSortClause(
+          sort,
+          {
+            username: "u.username",
+            full_name: "u.full_name",
+            driver_code: "d.driver_code",
+            status: "d.status",
+            created_at: "d.created_at",
+            license_expiry: "d.license_expiry",
+          },
+          "ORDER BY u.username ASC"
+        );
+
+        params.push(limit, offset);
+        const result = await pool.query(
+          `SELECT
+             d.*,
+             u.username,
+             u.full_name,
+             COUNT(*) OVER() AS __total
+           FROM drivers d
+           INNER JOIN users u ON d.user_id = u.id
+           ${whereSql}
+           ${orderSql}
+           LIMIT $${params.length - 1} OFFSET $${params.length}`,
+          params
+        );
+
+        const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+        const data = result.rows.map(({ __total, ...row }) => row);
+
+        return res.json({ data, total, limit, offset });
+      }
+
       const result = await pool.query(`
         SELECT
+  
           d.id,
           d.driver_code,
+  
           d.user_id,
+  
           d.license_number,
           d.license_expiry,
           d.license_state,
+  
           d.eld_id,
+  
           d.phone_number,
           d.emergency_contact_phone,
+  
           d.assigned_truck_number,
           d.assigned_trailer_number,
+  
           d.current_duty_status,
+  
           d.current_lat,
           d.current_lng,
           d.last_gps_updated_at,
+  
           d.status,
+  
           d.created_at,
           d.updated_at,
+  
           u.username,
           u.full_name
+
+  
         FROM drivers d
+  
         INNER JOIN users u
         ON d.user_id=u.id
+  
         ORDER BY u.username ASC
-        LIMIT $1 OFFSET $2
-      `, [limit, offset]);
+      `);
   
       res.json({
         success: true,
@@ -256,8 +319,9 @@ export const getDrivers = async (req, res) => {
         success: false,
         message: "Server Error",
       });
+  
     }
-};
+  };
 
 // Get Single Driver
 // export const getDriver = async (req, res) => {
@@ -345,14 +409,68 @@ export const getDriver = async (req, res) => {
       });
   
     } catch (err) {
-  
+
       console.error(err);
-  
+
       res.status(500).json({
         success: false,
         message: "Server Error",
       });
-  
+
+    }
+  };
+
+// Update My Coords — driver-safe position sync from the driver app.
+// Resolves the driver row from the authenticated user, touches ONLY
+// current_lat / current_lng so a coords ping can never null other fields.
+export const updateMyCoords = async (req, res) => {
+    try {
+
+      const lat = Number(req.body?.lat);
+      const lng = Number(req.body?.lng);
+
+      if (
+        !Number.isFinite(lat) || !Number.isFinite(lng) ||
+        lat < -90 || lat > 90 || lng < -180 || lng > 180
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "lat and lng must be valid coordinates",
+        });
+      }
+
+      const result = await pool.query(
+        `
+        UPDATE drivers
+        SET current_lat=$1,
+            current_lng=$2
+        WHERE user_id=$3
+        RETURNING id, current_lat, current_lng
+        `,
+        [lat, lng, req.user.id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No driver profile linked to this account",
+        });
+      }
+
+      res.json({
+        success: true,
+        driver: result.rows[0],
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        success: false,
+        message: "Server Error",
+      });
+
     }
   };
 

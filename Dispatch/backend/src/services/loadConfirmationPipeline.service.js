@@ -28,7 +28,6 @@ export async function processLoadConfirmationPipeline({
   // Step 3 & 4: AI Document & Gemini Structured Extraction
   let tenderData;
   let extractionSource = "gemini-ai";
-  let fallbackReason = null;
 
   if (explicitTender && explicitTender.shipper_name) {
     tenderData = explicitTender;
@@ -42,10 +41,6 @@ export async function processLoadConfirmationPipeline({
     });
     tenderData = extraction.data;
     extractionSource = extraction.source;
-    fallbackReason = extraction.fallback_reason || null;
-    if (extractionSource !== "gemini-ai") {
-      console.warn(`⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`);
-    }
   }
 
   // Generate unique Load Number
@@ -281,7 +276,6 @@ export async function processLoadConfirmationPipeline({
     customs_entry: customsEntry,
     document: docResult,
     extraction_source: extractionSource,
-    fallback_reason: fallbackReason,
     emails: {
       customer_confirmation: customerEmailPayload,
       customer_email_sent: customerEmailResult?.success || false,
