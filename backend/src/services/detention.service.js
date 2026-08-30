@@ -1,161 +1,142 @@
-/**
- * Detention Time & Accessorial Revenue Service
- * Automatically tracks facility geofence dwell times against free-time thresholds (default 2 hours).
- * Calculates billable detention rates ($75/hr), layover, TONU ($150 flat fee), and generates invoices.
- */
+import pool from "../db/pool.js";
 
-class DetentionService {
-  constructor() {
-    this.activeDwellEvents = [
-      {
-        id: "DET-101",
-        loadNumber: "NIS-1001",
-        truckNumber: "TRK-104",
-        driverName: "Marcus Vance",
-        customerName: "AeroParts Global Aerospace",
-        facilityName: "AeroParts Toronto Production Plant",
-        facilityType: "SHIPPER_ORIGIN",
-        geofenceArrival: new Date(Date.now() - 3.5 * 3600 * 1000).toISOString(),
-        freeTimeHours: 2.0,
-        dwellHours: 3.5,
-        billableHours: 1.5,
-        hourlyRate: 75.0,
-        detentionAmountDue: 112.50,
-        status: "BILLABLE_ACTIVE",
-        warningLevel: "RED_OVERDUE",
-        gpsCoordinates: { lat: 43.6532, lng: -79.3832 },
-        driverNote: "Dock door 4 blocked by local distributor truck. Loading delayed."
-      },
-      {
-        id: "DET-102",
-        loadNumber: "NIS-1004",
-        truckNumber: "TRK-210",
-        driverName: "Alexandre Tremblay",
-        customerName: "Metro Fresh Foods Cold-Chain",
-        facilityName: "Metro Cold Storage Logistics Hub (Montreal)",
-        facilityType: "CONSIGNEE_DOCK",
-        geofenceArrival: new Date(Date.now() - 1.75 * 3600 * 1000).toISOString(),
-        freeTimeHours: 2.0,
-        dwellHours: 1.75,
-        billableHours: 0.0,
-        hourlyRate: 75.0,
-        detentionAmountDue: 0.0,
-        status: "WARNING_APPROACHING_LIMIT",
-        warningLevel: "YELLOW_WARNING",
-        gpsCoordinates: { lat: 45.4956, lng: -73.7428 },
-        driverNote: "Unloading pallet rows 1-8. Awaiting receiver inspection stamp."
-      },
-      {
-        id: "DET-103",
-        loadNumber: "NIS-1008",
-        truckNumber: "TRK-308",
-        driverName: "Gurpreet Singh",
-        customerName: "Midwest Steel Coil Distribution",
-        facilityName: "Detroit Industrial Steel Processing",
-        facilityType: "RECEIVER_DOCK",
-        geofenceArrival: new Date(Date.now() - 0.75 * 3600 * 1000).toISOString(),
-        freeTimeHours: 2.0,
-        dwellHours: 0.75,
-        billableHours: 0.0,
-        hourlyRate: 75.0,
-        detentionAmountDue: 0.0,
-        status: "WITHIN_FREE_TIME",
-        warningLevel: "GREEN_NORMAL",
-        gpsCoordinates: { lat: 42.3314, lng: -83.0458 },
-        driverNote: "Backed into dock door 2. Unloading started."
-      }
-    ];
+// List detention events with pagination
+async function listDetentionEvents(limit = 50, offset = 0, status = null) {
+  let query = `SELECT de.*, ls.location, l.load_number, l.commodity
+               FROM detention_events de
+               JOIN load_stops ls ON de.stop_id = ls.id
+               JOIN loads l ON de.load_id = l.id`;
+  const params = [];
 
-    this.completedClaims = [
-      {
-        id: "CLAIM-801",
-        loadNumber: "NIS-0988",
-        invoiceNumber: "INV-DET-801",
-        customerName: "C.H. Robinson Brokerage",
-        facilityName: "Walmart Distribution Center (Bentonville, AR)",
-        date: "2026-02-18",
-        type: "Detention Dwell",
-        totalDwellHours: 4.5,
-        freeTimeHours: 2.0,
-        billableHours: 2.5,
-        rate: 75.0,
-        totalClaimAmount: 187.50,
-        status: "APPROVED_PAID",
-        gpsProofAttached: true
-      },
-      {
-        id: "CLAIM-802",
-        loadNumber: "NIS-0974",
-        invoiceNumber: "INV-DET-802",
-        customerName: "TQL Freight",
-        facilityName: "Automotive Stamping Yard (Cleveland, OH)",
-        date: "2026-02-15",
-        type: "Detention Dwell",
-        totalDwellHours: 5.0,
-        freeTimeHours: 2.0,
-        billableHours: 3.0,
-        rate: 75.0,
-        totalClaimAmount: 225.00,
-        status: "PENDING_BROKER_REVIEW",
-        gpsProofAttached: true
-      },
-      {
-        id: "CLAIM-803",
-        loadNumber: "NIS-0960",
-        invoiceNumber: "INV-TONU-803",
-        customerName: "Echo Global Logistics",
-        facilityName: "Chicago Packaging Corp",
-        date: "2026-02-12",
-        type: "TONU (Truck Ordered Not Used)",
-        totalDwellHours: 0,
-        freeTimeHours: 0,
-        billableHours: 0,
-        rate: 0,
-        totalClaimAmount: 150.00,
-        status: "APPROVED_PAID",
-        gpsProofAttached: true
-      }
-    ];
+  if (status) {
+    query += ` WHERE de.status = $1`;
+    params.push(status);
   }
 
-  getActiveDwellEvents() {
-    return this.activeDwellEvents;
-  }
+  query += ` ORDER BY de.created_at DESC LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
+  params.push(limit, offset);
 
-  getCompletedClaims() {
-    return this.completedClaims;
-  }
-
-  generateDetentionInvoice({ loadNumber, dwellHours, hourlyRate = 75.0, freeTimeHours = 2.0, customerName, facilityName }) {
-    const billableHours = Math.max(0, Number((dwellHours - freeTimeHours).toFixed(1)));
-    const totalAmount = Number((billableHours * hourlyRate).toFixed(2));
-    const invoiceId = `INV-DET-${Date.now().toString().slice(-4)}`;
-
-    const newClaim = {
-      id: `CLAIM-${Date.now().toString().slice(-4)}`,
-      loadNumber,
-      invoiceNumber: invoiceId,
-      customerName: customerName || "Freight Customer / Broker",
-      facilityName: facilityName || "Shipper / Receiver Facility",
-      date: new Date().toISOString().split("T")[0],
-      totalDwellHours: dwellHours,
-      freeTimeHours,
-      billableHours,
-      rate: hourlyRate,
-      totalClaimAmount: totalAmount,
-      status: "PENDING_BROKER_REVIEW",
-      gpsProofAttached: true,
-      generatedAt: new Date().toISOString()
-    };
-
-    this.completedClaims.unshift(newClaim);
-    return {
-      success: true,
-      claim: newClaim,
-      message: `Detention Accessorial Invoice ${invoiceId} generated for $${totalAmount} CAD.`
-    };
-  }
+  const res = await pool.query(query, params);
+  return res.rows;
 }
 
-export const detentionService = new DetentionService();
+// Get total count of detention events
+async function getDetentionCount(status = null) {
+  let query = `SELECT COUNT(*) as count FROM detention_events`;
+  const params = [];
+
+  if (status) {
+    query += ` WHERE status = $1`;
+    params.push(status);
+  }
+
+  const res = await pool.query(query, params);
+  return parseInt(res.rows[0].count, 10);
+}
+
+// Update detention event status
+async function updateDetentionStatus(detentionId, newStatus) {
+  const res = await pool.query(
+    `UPDATE detention_events
+     SET status = $1, updated_at = CURRENT_TIMESTAMP
+     WHERE id = $2
+     RETURNING *`,
+    [newStatus, detentionId]
+  );
+  return res.rows[0];
+}
+
+// Create detention event
+async function createDetentionEvent(loadId, stopId, locationName, arrivedAt, freeTimeMinutes, ratePerHour) {
+  const res = await pool.query(
+    `INSERT INTO detention_events
+     (load_id, stop_id, location_name, arrived_at, free_time_minutes, rate_per_hour, status)
+     VALUES ($1, $2, $3, $4, $5, $6, 'active')
+     RETURNING *`,
+    [loadId, stopId, locationName, arrivedAt, freeTimeMinutes, ratePerHour]
+  );
+  return res.rows[0];
+}
+
+// Close a detention event and calculate billable amount
+async function closeDetentionEvent(detentionId, departedAt) {
+  const event = await pool.query(
+    `SELECT * FROM detention_events WHERE id = $1`,
+    [detentionId]
+  );
+
+  if (!event.rows[0]) throw new Error("Detention event not found");
+
+  const evt = event.rows[0];
+  const dwellMs = new Date(departedAt) - new Date(evt.arrived_at);
+  const dwellMinutes = Math.round(dwellMs / 60000);
+  const billableMinutes = Math.max(0, dwellMinutes - evt.free_time_minutes);
+  const amount = (billableMinutes / 60) * evt.rate_per_hour;
+
+  const res = await pool.query(
+    `UPDATE detention_events
+     SET departed_at = $1, dwell_minutes = $2, billable_minutes = $3, amount = $4, status = 'closed', updated_at = CURRENT_TIMESTAMP
+     WHERE id = $5
+     RETURNING *`,
+    [departedAt, dwellMinutes, billableMinutes, amount, detentionId]
+  );
+
+  return res.rows[0];
+}
+
+// Generate an invoice for a detention event
+async function generateInvoice(detentionId, customerId) {
+  const detEvent = await pool.query(
+    `SELECT * FROM detention_events WHERE id = $1`,
+    [detentionId]
+  );
+
+  if (!detEvent.rows[0]) throw new Error("Detention event not found");
+
+  const evt = detEvent.rows[0];
+  if (evt.amount <= 0) throw new Error("Cannot invoice zero/negative detention");
+
+  // Create invoice row
+  const invRes = await pool.query(
+    `INSERT INTO invoices
+     (customer_id, invoice_type, amount, status, meta)
+     VALUES ($1, 'detention', $2, 'draft', $3)
+     RETURNING *`,
+    [customerId, evt.amount, JSON.stringify({ detention_event_id: detentionId })]
+  );
+
+  const invoice = invRes.rows[0];
+
+  // Link detention event to invoice
+  await pool.query(
+    `UPDATE detention_events SET invoice_id = $1, status = 'invoiced', updated_at = CURRENT_TIMESTAMP WHERE id = $2`,
+    [invoice.id, detentionId]
+  );
+
+  return invoice;
+}
+
+// Get a single detention event
+async function getDetentionEvent(id) {
+  const res = await pool.query(
+    `SELECT de.*, ls.location, l.load_number, l.commodity
+     FROM detention_events de
+     JOIN load_stops ls ON de.stop_id = ls.id
+     JOIN loads l ON de.load_id = l.id
+     WHERE de.id = $1`,
+    [id]
+  );
+  return res.rows[0] || null;
+}
+
+export const detentionService = {
+  listDetentionEvents,
+  getDetentionCount,
+  updateDetentionStatus,
+  createDetentionEvent,
+  closeDetentionEvent,
+  generateInvoice,
+  getDetentionEvent,
+};
+
 export default detentionService;

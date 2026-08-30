@@ -23,6 +23,7 @@ import customsRoutes from "./routes/customs.routes.js";
 import telematicsRoutes from "./routes/telematics.routes.js";
 import messageRoutes from "./routes/message.routes.js";
 import detentionRoutes from "./routes/detention.routes.js";
+import ratesRoutes from "./routes/rates.routes.js";
 import maintenanceRoutes from "./routes/maintenance.routes.js";
 import etaRadarRoutes from "./routes/etaRadar.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
@@ -30,7 +31,7 @@ import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
 import { publicTrackLoad, publicTrackRateLimiter } from "./controllers/load.controller.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
-
+import { startGeofenceWorker } from "./workers/geofenceWorker.js";
 
 import path from 'path';
 import { fileURLToPath } from 'url';
@@ -99,6 +100,8 @@ app.use("/api/customs", customsRoutes);
 app.use("/api/telematics", telematicsRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/detention", detentionRoutes);
+app.use("/api/rates", ratesRoutes);
+app.use("/api/v1/rates", ratesRoutes);
 app.use("/api/maintenance", maintenanceRoutes);
 app.use("/api/v1/maintenance", maintenanceRoutes);
 app.use("/api/eta-radar", etaRadarRoutes);
@@ -124,4 +127,6 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start autonomous background load confirmation intake worker
   startAutomationWorker();
+  // Start geofence detection worker
+  startGeofenceWorker();
 });
