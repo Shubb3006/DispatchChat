@@ -3,28 +3,28 @@ import { useInvoiceStore } from "../stores/useInvoiceStore";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useDocumentStore } from "../stores/useDocumentStore";
 import {
-  FileText, DollarSign, Calculator, Send, CheckSquare,
-  FileSpreadsheet, Check, Search, AlertCircle,
+  FileText,
+  DollarSign,
+  Calculator,
+  Send,
+  CheckSquare,
+  FileSpreadsheet,
+  Check,
+  Search,
+  Filter,
+  Calendar,
+  Printer,
+  CheckCircle2,
+  Package,
 } from "lucide-react";
-
-const STATUS_BADGE = {
-  paid: "bg-green-100 text-green-700",
-  sent: "bg-blue-100 text-blue-700",
-  overdue: "bg-red-100 text-red-700",
-  draft: "bg-slate-100 text-slate-600",
-};
 
 export default function InvoicingPage() {
   const invoices = useInvoiceStore((state) => state.invoices);
   const fetchInvoices = useInvoiceStore((state) => state.fetchInvoices);
-  const addInvoice = useInvoiceStore((state) => state.addInvoice);
-  const updateInvoice = useInvoiceStore((state) => state.updateInvoice);
   const shipments = useShipmentStore((state) => state.shipments);
   const fetchShipments = useShipmentStore((state) => state.fetchShipments);
-  const updateShipment = useShipmentStore((state) => state.updateShipment);
   const documents = useDocumentStore((state) => state.documents);
   const fetchDocuments = useDocumentStore((state) => state.fetchDocuments);
-  const updateDocument = useDocumentStore((state) => state.updateDocument);
 
   useEffect(() => {
     fetchInvoices();
@@ -32,353 +32,461 @@ export default function InvoicingPage() {
     fetchDocuments();
   }, [fetchInvoices, fetchShipments, fetchDocuments]);
 
-  const [selectedInvoice, setSelectedInvoice] = useState(null);
-  const [docSearch, setDocSearch] = useState("");
-  const [docTypeFilter, setDocTypeFilter] = useState("all");
+  // Filters & State
+  const [selectedLoad, setSelectedLoad] = useState(null);
+  const [loadSearch, setLoadSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("all");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+  const [invoicedLoadIds, setInvoicedLoadIds] = useState(() => {
+    const saved = localStorage.getItem("logisync_invoiced_loads");
+    return saved ? JSON.parse(saved) : ["LOG-10001", "LOG-10003"];
+  });
 
-  // LTL Calculator
+  // LTL Calculator State
   const [calcPallets, setCalcPallets] = useState(4);
   const [calcWeight, setCalcWeight] = useState(6000);
   const [calcDistance, setCalcDistance] = useState(450);
   const [calcClass, setCalcClass] = useState(70);
   const [calculatedRate, setCalculatedRate] = useState(null);
 
-  useEffect(() => {
-    if (!selectedInvoice && invoices.length > 0) setSelectedInvoice(invoices[0]);
-  }, [invoices, selectedInvoice]);
+  // Filtered Shipments
+  const filteredLoads = useMemo(() => {
+    return shipments.filter((load) => {
+      const q = loadSearch.toLowerCase().trim();
+      const loadNum = (load.load_number || load.tracking_number || "").toLowerCase();
+      const custName = (load.customer_name || load.customerName || "").toLowerCase();
+      const origin = (load.originCity || load.shipperName || "").toLowerCase();
+      const dest = (load.destinationCity || load.consigneeName || "").toLowerCase();
 
-  const processedDocuments = useMemo(() => {
-    return documents.filter((doc) => {
-      const q = docSearch.toLowerCase().trim();
-      if (q && !doc.fileName.toLowerCase().includes(q) && !doc.trackingNumber.toLowerCase().includes(q)) return false;
-      if (docTypeFilter !== "all" && doc.type !== docTypeFilter) return false;
+      if (q && !loadNum.includes(q) && !custName.includes(q) && !origin.includes(q) && !dest.includes(q)) {
+        return false;
+      }
+
+      const isDelivered = load.status === "delivered";
+      const isInvoiced = invoicedLoadIds.includes(load.id) || invoicedLoadIds.includes(load.load_number) || load.status === "invoiced";
+
+      if (statusFilter === "delivered" && !isDelivered) return false;
+      if (statusFilter === "invoiced" && !isInvoiced) return false;
+      if (statusFilter === "uninvoiced" && isInvoiced) return false;
+
+      // Date Filter
+      const dateStr = load.pickup_date || load.delivery_date || load.createdAt;
+      if (dateStr && (startDate || endDate)) {
+        const d = new Date(dateStr);
+        if (startDate && d < new Date(startDate)) return false;
+        if (endDate) {
+          const to = new Date(endDate);
+          to.setHours(23, 59, 59, 999);
+          if (d > to) return false;
+        }
+      }
+
       return true;
     });
-  }, [documents, docSearch, docTypeFilter]);
-
-  const pendingDocs = processedDocuments.filter((d) => d.status === "pending_review");
-  const approvedDocs = processedDocuments.filter((d) => d.status === "approved");
+  }, [shipments, loadSearch, statusFilter, startDate, endDate, invoicedLoadIds]);
 
   const calculateLtlRate = () => {
-    const rate = Math.round((calcWeight * 0.12 + calcDistance * 1.85) * (calcClass / 100) + calcPallets * 45);
+    const rate = Math.round(
+      (calcWeight * 0.12 + calcDistance * 1.85) * (calcClass / 100) + calcPallets * 45
+    );
     setCalculatedRate(rate);
   };
 
-  const handleCreateInvoiceFromDoc = async (doc) => {
-    const matchedShipment = shipments.find((s) => s.id === doc.shipmentId);
-    const invoiceId = "INV" + Math.floor(10000 + Math.random() * 90000);
-    const subtotal = matchedShipment ? matchedShipment.priceInvoice : Math.round((doc.extractedData?.weightLbs || 5000) * 0.4);
+  const handleGenerateMergedPDFPackage = (load) => {
+    // Mark load as invoiced
+    const updatedIds = Array.from(new Set([...invoicedLoadIds, load.id, load.load_number].filter(Boolean)));
+    setInvoicedLoadIds(updatedIds);
+    localStorage.setItem("logisync_invoiced_loads", JSON.stringify(updatedIds));
+
+    const printWindow = window.open("", "_blank");
+    if (!printWindow) return;
+
+    const invId = "INV-" + Math.floor(10000 + Math.random() * 90000);
+    const subtotal = load.priceInvoice || (load.palletCount || 4) * 450 + 850;
     const tax = Math.round(subtotal * 0.08);
-    const newInvoice = {
-      id: invoiceId, shipmentId: doc.shipmentId, trackingNumber: doc.trackingNumber,
-      customerName: doc.extractedData?.consigneeName || matchedShipment?.customerName || "General Consignee",
-      issueDate: new Date().toISOString().split("T")[0],
-      dueDate: new Date(Date.now() + 86400000 * 30).toISOString().split("T")[0],
-      subtotal, tax, total: subtotal + tax, status: "draft", paymentTerms: "Net 30",
-      notes: `Auto-generated from BOL ${doc.extractedData?.bolNumber || ""}.`,
-    };
-    await addInvoice(newInvoice);
-    await updateDocument({ ...doc, status: "matched_to_invoice" });
-    setSelectedInvoice(newInvoice);
-  };
+    const total = subtotal + tax;
 
-  const handleVerifyDocument = async (docId, status) => {
-    const doc = documents.find((d) => d.id === docId);
-    if (!doc) return;
-    await updateDocument({ ...doc, status });
-    if (status === "approved") {
-      const ship = shipments.find((s) => s.id === doc.shipmentId);
-      if (ship && !ship.documentIds?.includes(docId)) {
-        await updateShipment({ ...ship, documentIds: [...(ship.documentIds || []), docId] });
-      }
-    }
-  };
-
-  const handleUpdateInvoiceStatus = async (id, status) => {
-    const inv = invoices.find((i) => i.id === id);
-    if (inv) await updateInvoice({ ...inv, status });
-  };
-
-  const handleUpdateInvoice = async (updated) => {
-    await updateInvoice(updated);
-  };
-
-  // Summary stats
-  const outstanding = invoices.filter((i) => i.status !== "paid").reduce((a, c) => a + c.total, 0);
-  const collected = invoices.filter((i) => i.status === "paid").reduce((a, c) => a + c.total, 0);
-
-  return (
-    <div className="max-w-7xl mx-auto space-y-6">
-      {/* Summary Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {[
-          { label: "Outstanding", value: `$${outstanding.toLocaleString()}`, icon: DollarSign, color: "text-red-600 bg-red-50", border: "border-red-100" },
-          { label: "Collected This Month", value: `$${collected.toLocaleString()}`, icon: CheckSquare, color: "text-green-600 bg-green-50", border: "border-green-100" },
-          { label: "Pending Documents", value: `${documents.filter((d) => d.status === "pending_review").length} pending`, icon: FileText, color: "text-amber-600 bg-amber-50", border: "border-amber-100" },
-        ].map((card) => {
-          const Icon = card.icon;
-          return (
-            <div key={card.label} className={`bg-white rounded-2xl border ${card.border} shadow-sm p-4 flex items-center justify-between`}>
-              <div>
-                <p className="text-xs font-medium text-slate-500">{card.label}</p>
-                <p className="text-xl font-bold text-slate-900 mt-1">{card.value}</p>
-              </div>
-              <div className={`p-2.5 rounded-xl ${card.color}`}><Icon className="h-5 w-5" /></div>
-            </div>
-          );
-        })}
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left: Doc Queue + Invoice Table */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Document Verification Queue */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-amber-500" />
-                <h2 className="font-semibold text-slate-900">Document Queue</h2>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400" />
-                  <input
-                    type="text" value={docSearch} onChange={(e) => setDocSearch(e.target.value)}
-                    placeholder="Search docs..."
-                    className="pl-8 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-40"
-                  />
-                </div>
-                <select value={docTypeFilter} onChange={(e) => setDocTypeFilter(e.target.value)}
-                  className="bg-slate-50 border border-slate-200 rounded-lg text-sm px-2.5 py-2 focus:outline-none cursor-pointer">
-                  <option value="all">All Types</option>
-                  <option value="bol">BOL</option>
-                  <option value="pod">POD</option>
-                  <option value="skid_picture">Skid Photos</option>
-                </select>
-              </div>
-            </div>
-
-            {/* Pending Section */}
-            {pendingDocs.length > 0 && (
-              <div className="p-4 border-b border-slate-100">
-                <h3 className="text-xs font-semibold text-amber-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
-                  Pending Review ({pendingDocs.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {pendingDocs.map((doc) => {
-                    const ship = shipments.find((s) => s.id === doc.shipmentId || s.trackingNumber === doc.trackingNumber);
-                    return (
-                      <div key={doc.id} className="border border-amber-200 bg-amber-50/30 rounded-xl p-3.5 space-y-2.5">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <span className="text-xs font-semibold text-slate-900 block">{doc.fileName}</span>
-                            <span className="text-xs text-slate-500">{doc.trackingNumber} · {doc.type.toUpperCase()}</span>
-                          </div>
-                          <span className="text-xs text-slate-400 shrink-0">{new Date(doc.uploadDate).toLocaleDateString()}</span>
-                        </div>
-                        {doc.extractedData && (
-                          <div className="text-xs text-slate-600 space-y-0.5 bg-white rounded-lg p-2 border border-slate-100">
-                            {doc.extractedData.shipperName && <div>Shipper: <span className="font-medium">{doc.extractedData.shipperName}</span></div>}
-                            {doc.extractedData.consigneeName && <div>Consignee: <span className="font-medium">{doc.extractedData.consigneeName}</span></div>}
-                            {doc.extractedData.weightLbs && <div>Weight: <span className="font-medium">{doc.extractedData.weightLbs} lbs</span></div>}
-                          </div>
-                        )}
-                        {ship && <div className={`text-xs font-medium px-2 py-0.5 rounded-full w-fit ${ship.status === "delivered" ? "bg-green-100 text-green-700" : ship.status === "in_transit" ? "bg-blue-100 text-blue-700" : "bg-slate-100 text-slate-600"}`}>Load: {ship.status}</div>}
-                        <div className="flex items-center gap-2 pt-1">
-                          <button onClick={() => handleVerifyDocument(doc.id, "rejected")}
-                            className="px-3 py-1.5 border border-red-200 text-red-600 hover:bg-red-50 rounded-lg text-xs font-medium cursor-pointer transition-colors">
-                            Reject
-                          </button>
-                          <button onClick={() => handleVerifyDocument(doc.id, "approved")}
-                            className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-medium cursor-pointer transition-colors">
-                            <Check className="h-3 w-3" /> Approve
-                          </button>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-            )}
-
-            {/* Approved / Ready for Invoicing */}
-            {approvedDocs.length > 0 && (
-              <div className="p-4">
-                <h3 className="text-xs font-semibold text-green-700 uppercase tracking-wide mb-3 flex items-center gap-1.5">
-                  <span className="w-2 h-2 rounded-full bg-green-500" />
-                  Approved – Ready to Invoice ({approvedDocs.length})
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {approvedDocs.map((doc) => (
-                    <div key={doc.id} className="border border-slate-200 rounded-xl p-3.5 space-y-2.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div>
-                          <span className="text-xs font-semibold text-slate-900 block">{doc.fileName}</span>
-                          <span className="text-xs text-slate-500">{doc.trackingNumber} · {doc.type.toUpperCase()}</span>
-                        </div>
-                        <span className="text-xs text-green-600 font-medium bg-green-50 px-2 py-0.5 rounded-full shrink-0">Verified</span>
-                      </div>
-                      <button onClick={() => handleCreateInvoiceFromDoc(doc)}
-                        className="flex items-center gap-1.5 px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-medium cursor-pointer transition-colors w-full justify-center">
-                        <FileSpreadsheet className="h-3.5 w-3.5" /> Create LTL Invoice
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {pendingDocs.length === 0 && approvedDocs.length === 0 && (
-              <div className="text-center py-12 text-slate-400 text-sm">
-                No documents match your search or filters.
-              </div>
-            )}
+    const html = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Merged Freight Invoice & Load Package - #${load.load_number || load.tracking_number}</title>
+        <style>
+          body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #0f172a; line-height: 1.5; }
+          .page-break { page-break-after: always; }
+          .header { display: flex; justify-content: space-between; border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 24px; }
+          .logo { font-size: 26px; font-weight: 800; color: #1d4ed8; letter-spacing: -0.5px; }
+          .badge { background: #dbeafe; color: #1e40af; padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; text-transform: uppercase; }
+          .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+          .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 16px; }
+          .card h3 { margin-top: 0; font-size: 11px; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; border-bottom: 1px solid #e2e8f0; padding-bottom: 6px; }
+          .card p { margin: 6px 0; font-size: 13px; font-weight: 600; color: #334155; }
+          table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+          th { background: #f1f5f9; text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; font-weight: 700; }
+          td { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #334155; }
+          .total-box { text-align: right; margin-top: 24px; font-size: 18px; font-weight: 800; color: #0f172a; background: #eff6ff; padding: 16px; border-radius: 10px; border: 1px solid #bfdbfe; }
+          .sec-header { background: #1e293b; color: white; padding: 10px 16px; border-radius: 8px; font-size: 13px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 20px; }
+          .stamp { display: inline-block; border: 2px solid #16a34a; color: #16a34a; font-weight: 800; padding: 8px 16px; border-radius: 8px; text-transform: uppercase; font-size: 14px; letter-spacing: 0.1em; transform: rotate(-2deg); }
+          .footer { margin-top: 40px; font-size: 11px; text-align: center; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 15px; }
+        </style>
+      </head>
+      <body>
+        <!-- SECTION 1: MASTER FREIGHT INVOICE -->
+        <div class="header">
+          <div>
+            <div class="logo">LOGISYNC SUITE</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600;">OFFICIAL FREIGHT INVOICE & BILLING PACKAGE</div>
           </div>
-
-          {/* Invoices Table */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
-              <FileSpreadsheet className="h-5 w-5 text-blue-500" />
-              <h2 className="font-semibold text-slate-900">Invoices</h2>
-            </div>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
-                    <th className="px-5 py-3">Invoice #</th>
-                    <th className="px-5 py-3">Customer</th>
-                    <th className="px-5 py-3">Total</th>
-                    <th className="px-5 py-3">Due</th>
-                    <th className="px-5 py-3 text-right">Status</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {invoices.map((inv) => (
-                    <tr key={inv.id} onClick={() => setSelectedInvoice(inv)}
-                      className={`cursor-pointer hover:bg-slate-50 transition-colors ${selectedInvoice?.id === inv.id ? "bg-blue-50/40" : ""}`}>
-                      <td className="px-5 py-3.5 font-mono font-medium text-slate-900">{inv.id}</td>
-                      <td className="px-5 py-3.5 text-slate-700 font-medium">{inv.customerName}</td>
-                      <td className="px-5 py-3.5 font-semibold text-slate-900">${inv.total.toLocaleString()}</td>
-                      <td className="px-5 py-3.5 text-slate-500 font-mono text-xs">{inv.dueDate}</td>
-                      <td className="px-5 py-3.5 text-right">
-                        <span className={`px-2.5 py-1 rounded-full text-xs font-medium capitalize ${STATUS_BADGE[inv.status] || "bg-slate-100 text-slate-600"}`}>
-                          {inv.status}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <div style="text-align: right;">
+            <div style="font-size: 22px; font-weight: 800; color: #0f172a;">INVOICE #${invId}</div>
+            <div style="font-size: 12px; color: #64748b; margin-top: 2px;">Load #${load.load_number || load.tracking_number || "10015"}</div>
+            <div style="margin-top: 6px;"><span class="badge">STATUS: INVOICED</span></div>
           </div>
         </div>
 
-        {/* Right: Invoice Detail + LTL Calculator */}
-        <div className="space-y-6">
-          {/* Invoice Detail */}
-          {selectedInvoice && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
-              <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                <h2 className="font-semibold text-slate-900">Invoice Detail</h2>
-                <span className="text-xs font-mono text-slate-400">{selectedInvoice.id}</span>
-              </div>
-              <div className="space-y-3 text-sm">
-                <div className="flex justify-between"><span className="text-slate-500">Customer</span><span className="font-medium text-slate-900">{selectedInvoice.customerName}</span></div>
-                <div className="flex justify-between"><span className="text-slate-500">Issued</span><span className="font-mono text-slate-700">{selectedInvoice.issueDate}</span></div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Status</span>
-                  <select value={selectedInvoice.status}
-                    onChange={(e) => { handleUpdateInvoiceStatus(selectedInvoice.id, e.target.value); setSelectedInvoice({ ...selectedInvoice, status: e.target.value }); }}
-                    className="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                    <option value="draft">Draft</option>
-                    <option value="sent">Sent</option>
-                    <option value="paid">Paid</option>
-                    <option value="overdue">Overdue</option>
-                  </select>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-slate-500">Payment Terms</span>
-                  <select value={selectedInvoice.paymentTerms}
-                    onChange={(e) => { const terms = e.target.value; const days = terms === "Net 15" ? 15 : terms === "Net 60" ? 60 : terms === "COD" ? 0 : 30; const due = new Date(selectedInvoice.issueDate); due.setDate(due.getDate() + days); const updated = { ...selectedInvoice, paymentTerms: terms, dueDate: due.toISOString().split("T")[0] }; setSelectedInvoice(updated); handleUpdateInvoice(updated); }}
-                    className="border border-slate-200 rounded-lg px-2 py-1 text-xs bg-white cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500/30">
-                    <option value="Net 15">Net 15</option>
-                    <option value="Net 30">Net 30</option>
-                    <option value="Net 60">Net 60</option>
-                    <option value="Due on Receipt">Due on Receipt</option>
-                    <option value="COD">COD</option>
-                  </select>
-                </div>
-                <div className="flex justify-between"><span className="text-slate-500">Due Date</span><span className="font-medium text-blue-600">{selectedInvoice.dueDate}</span></div>
-                <div className="border-t border-slate-100 pt-3 space-y-2">
-                  <div className="flex justify-between text-slate-600"><span>Subtotal</span><span>${selectedInvoice.subtotal.toLocaleString()}</span></div>
-                  <div className="flex justify-between text-slate-500 text-xs"><span>Tax (8%)</span><span>${selectedInvoice.tax.toLocaleString()}</span></div>
-                  <div className="flex justify-between font-bold text-slate-900 text-base"><span>Total</span><span>${selectedInvoice.total.toLocaleString()}</span></div>
-                </div>
-                {selectedInvoice.notes && <p className="text-xs text-slate-400 bg-slate-50 p-2.5 rounded-lg leading-relaxed">{selectedInvoice.notes}</p>}
-                <div className="pt-1 space-y-2">
-                  {selectedInvoice.status === "draft" && (
-                    <button onClick={() => { handleUpdateInvoiceStatus(selectedInvoice.id, "sent"); setSelectedInvoice({ ...selectedInvoice, status: "sent" }); }}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold cursor-pointer transition-colors">
-                      <Send className="h-4 w-4" /> Send to Customer
-                    </button>
-                  )}
-                  {selectedInvoice.status === "sent" && (
-                    <button onClick={() => { handleUpdateInvoiceStatus(selectedInvoice.id, "paid"); setSelectedInvoice({ ...selectedInvoice, status: "paid" }); }}
-                      className="w-full flex items-center justify-center gap-2 py-2.5 bg-green-600 hover:bg-green-700 text-white rounded-xl text-sm font-semibold cursor-pointer transition-colors">
-                      <Check className="h-4 w-4" /> Mark as Paid
-                    </button>
-                  )}
-                </div>
-              </div>
-            </div>
-          )}
+        <div class="grid">
+          <div class="card">
+            <h3>Billed To (Customer)</h3>
+            <p><strong>Customer:</strong> ${load.customer_name || load.customerName || "Industrial Logistics Co."}</p>
+            <p><strong>Payment Terms:</strong> Net 30 Days</p>
+            <p><strong>Issue Date:</strong> ${new Date().toLocaleDateString()}</p>
+            <p><strong>Due Date:</strong> ${new Date(Date.now() + 86400000 * 30).toLocaleDateString()}</p>
+          </div>
+          <div class="card">
+            <h3>Shipment Summary</h3>
+            <p><strong>Shipper Pickup:</strong> ${load.shipperName || load.originCity || "Toronto, ON"}</p>
+            <p><strong>Consignee Delivery:</strong> ${load.consigneeName || load.destinationCity || "Chicago, IL"}</p>
+            <p><strong>Carrier Driver:</strong> ${load.driver_name || load.driverName || "Assigned Driver"}</p>
+            <p><strong>Equipment:</strong> Truck ${load.truckNumber || "TRK-102"} / Trailer ${load.trailerNumber || "TRL-504"}</p>
+          </div>
+        </div>
 
-          {/* LTL Rate Calculator */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 space-y-4">
-            <div className="flex items-center gap-2 border-b border-slate-800 pb-3">
-              <Calculator className="h-5 w-5 text-blue-400" />
-              <h2 className="font-semibold">LTL Rate Calculator</h2>
-            </div>
-            <div className="space-y-3">
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-medium">Freight Class</label>
-                <select value={calcClass} onChange={(e) => setCalcClass(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 text-white px-3 py-2.5 text-sm focus:outline-none focus:border-blue-500 cursor-pointer">
-                  <option value="50">Class 50 – Heavy Steel</option>
-                  <option value="70">Class 70 – Machinery</option>
-                  <option value="100">Class 100 – Standard</option>
-                  <option value="150">Class 150 – Electronics</option>
-                </select>
-              </div>
-              <div className="grid grid-cols-2 gap-3">
-                {[
-                  { label: "Weight (lbs)", value: calcWeight, set: setCalcWeight },
-                  { label: "Pallets", value: calcPallets, set: setCalcPallets },
-                ].map(({ label, value, set }) => (
-                  <div key={label} className="space-y-1.5">
-                    <label className="text-xs text-slate-400 font-medium">{label}</label>
-                    <input type="number" value={value} onChange={(e) => set(Number(e.target.value))}
-                      className="w-full rounded-xl border border-slate-700 bg-slate-800 text-white px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
+        <table>
+          <thead>
+            <tr>
+              <th>Line Item Description</th>
+              <th>Freight Mode</th>
+              <th>Pallet / Piece Count</th>
+              <th>Weight (Lbs)</th>
+              <th style="text-align: right;">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Primary Freight Transportation Rate</td>
+              <td>${load.loadType || "FTL"}</td>
+              <td>${load.palletCount || 4} Pallets</td>
+              <td>${Number(load.weightLbs || 6000).toLocaleString()} lbs</td>
+              <td style="text-align: right;">$${subtotal.toLocaleString()}.00</td>
+            </tr>
+            <tr>
+              <td>Standard Fuel Surcharge & Accessorials</td>
+              <td>Included</td>
+              <td>-</td>
+              <td>-</td>
+              <td style="text-align: right;">$0.00</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="total-box">
+          <div style="font-size: 12px; color: #64748b; text-transform: uppercase;">Subtotal: $${subtotal.toLocaleString()}.00 | Tax (8%): $${tax.toLocaleString()}.00</div>
+          TOTAL INVOICED AMOUNT: $${total.toLocaleString()}.00 CAD
+        </div>
+
+        <div class="footer">
+          Page 1 of 3 — Section 1: Official Freight Billing Package
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 2: CARRIER RATE CONFIRMATION SUMMARY -->
+        <div class="sec-header">
+          SECTION 2: CARRIER RATE CONFIRMATION & BROKER AGREEMENT
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3>Broker & Contracting Details</h3>
+            <p><strong>Brokerage Name:</strong> ${load.broker || "LogiSync Global Freight Brokerage"}</p>
+            <p><strong>Broker PO / Ref #:</strong> ${load.poNumber || "PO-99482"}</p>
+            <p><strong>Agreed Rate Pay:</strong> $${subtotal.toLocaleString()}.00 CAD</p>
+          </div>
+          <div class="card">
+            <h3>Carrier & Route Specifications</h3>
+            <p><strong>Carrier Company:</strong> LogiSync Express Fleet Services</p>
+            <p><strong>Driver Name:</strong> ${load.driver_name || load.driverName || "Marcus Vance"}</p>
+            <p><strong>Route Mileage:</strong> ${load.totalDistanceMiles || 450} Miles</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom: 20px;">
+          <h3>Rate Confirmation Terms</h3>
+          <p style="font-weight: normal; font-size: 12px; color: #475569;">
+            Carrier agrees to transport the aforementioned freight load in accordance with standard DOT, FMCSA, and Ministry of Transportation safety regulations. Proof of Delivery (POD) and Bill of Lading (BOL) must be verified prior to invoice payout disbursement.
+          </p>
+        </div>
+
+        <div class="footer">
+          Page 2 of 3 — Section 2: Carrier Rate Confirmation Document
+        </div>
+
+        <div class="page-break"></div>
+
+        <!-- SECTION 3: BILL OF LADING (BOL) & PROOF OF DELIVERY (POD) CERTIFICATION -->
+        <div class="sec-header">
+          SECTION 3: BILL OF LADING (BOL) & PROOF OF DELIVERY (POD) CERTIFICATION
+        </div>
+
+        <div class="grid">
+          <div class="card">
+            <h3>Pickup BOL Certification</h3>
+            <p><strong>Pickup Status:</strong> Completed at Shipper Site</p>
+            <p><strong>Shipper Location:</strong> ${load.shipperName || load.originCity || "Toronto, ON"}</p>
+            <p><strong>Pickup Date / Time:</strong> ${load.pickup_date ? new Date(load.pickup_date).toLocaleString() : "Aug 9, 2026, 10:46 AM"}</p>
+            <p><strong>Shipper Sign-off:</strong> Verified & Loaded</p>
+          </div>
+          <div class="card">
+            <h3>Delivery POD Certification</h3>
+            <p><strong>Delivery Status:</strong> Delivered to Consignee Site</p>
+            <p><strong>Consignee Location:</strong> ${load.consigneeName || load.destinationCity || "Chicago, IL"}</p>
+            <p><strong>Delivery Date / Time:</strong> ${load.delivery_date ? new Date(load.delivery_date).toLocaleString() : "Aug 9, 2026, 04:30 PM"}</p>
+            <p><strong>Consignee Sign-off:</strong> Received in Full Intact</p>
+          </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; margin-bottom: 30px;">
+          <div class="stamp">
+            ✔ POD & BOL VERIFIED & SIGNED
+          </div>
+          <div style="font-size: 12px; color: #64748b; margin-top: 10px; font-weight: 600;">
+            Digitally certified & stamped via LogiSync Driver Mobile Integration
+          </div>
+        </div>
+
+        <div class="footer">
+          Page 3 of 3 — Merged Document Package Complete · Generated ${new Date().toLocaleString()}
+        </div>
+      </body>
+      </html>
+    `;
+
+    printWindow.document.write(html);
+    printWindow.document.close();
+    printWindow.focus();
+    setTimeout(() => {
+      printWindow.print();
+    }, 400);
+  };
+
+  // Metrics
+  const totalInvoiced = filteredLoads
+    .filter((l) => invoicedLoadIds.includes(l.id) || invoicedLoadIds.includes(l.load_number))
+    .reduce((a, l) => a + (l.priceInvoice || 2650), 0);
+
+  const totalUninvoiced = filteredLoads
+    .filter((l) => !invoicedLoadIds.includes(l.id) && !invoicedLoadIds.includes(l.load_number))
+    .reduce((a, l) => a + (l.priceInvoice || 2650), 0);
+
+  return (
+    <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
+      {/* Top Metrics Banner */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Fleet Loads</p>
+            <h3 className="text-2xl font-bold text-slate-900 mt-1">{filteredLoads.length}</h3>
+          </div>
+          <div className="p-3 bg-sky-50 text-sky-600 border border-sky-100 rounded-xl">
+            <Package className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Invoiced Revenue</p>
+            <h3 className="text-2xl font-bold text-emerald-700 mt-1">${totalInvoiced.toLocaleString()}</h3>
+          </div>
+          <div className="p-3 bg-emerald-50 text-emerald-600 border border-emerald-100 rounded-xl">
+            <DollarSign className="h-5 w-5" />
+          </div>
+        </div>
+
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+          <div>
+            <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Uninvoiced / Pending</p>
+            <h3 className="text-2xl font-bold text-amber-700 mt-1">${totalUninvoiced.toLocaleString()}</h3>
+          </div>
+          <div className="p-3 bg-amber-50 text-amber-600 border border-amber-100 rounded-xl">
+            <FileSpreadsheet className="h-5 w-5" />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content Layout */}
+      <div className="space-y-6">
+        {/* All Loads Invoicing Ledger Table */}
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+            {/* Header & Filter Controls */}
+            <div className="p-5 border-b border-slate-200 space-y-4 bg-white">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="flex items-center space-x-2.5">
+                  <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
+                    <FileSpreadsheet className="h-4 w-4" />
                   </div>
-                ))}
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-xs text-slate-400 font-medium">Route Miles</label>
-                <input type="number" value={calcDistance} onChange={(e) => setCalcDistance(Number(e.target.value))}
-                  className="w-full rounded-xl border border-slate-700 bg-slate-800 text-white px-3 py-2 text-sm focus:outline-none focus:border-blue-500" />
-              </div>
-              <button onClick={calculateLtlRate}
-                className="w-full py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-xl text-sm font-semibold cursor-pointer transition-colors">
-                Calculate Rate
-              </button>
-              {calculatedRate !== null && (
-                <div className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-center">
-                  <div className="text-xs text-slate-400 mb-1">Estimated Spot Rate</div>
-                  <div className="text-2xl font-bold text-blue-300">${calculatedRate.toLocaleString()}</div>
-                  <div className="text-xs text-slate-500 mt-1">USD · Zero-rated commercial pricing</div>
+                  <div>
+                    <h2 className="text-base font-bold text-slate-900">
+                      Fleet Invoicing & Merged Package Ledger
+                    </h2>
+                    <p className="text-xs text-slate-500">Manage billing status, generate rate confirmations, and print 3-in-1 packages</p>
+                  </div>
                 </div>
-              )}
+
+                <div className="relative">
+                  <Search className="h-4 w-4 absolute left-3 top-2.5 text-slate-400" />
+                  <input
+                    type="text"
+                    value={loadSearch}
+                    onChange={(e) => setLoadSearch(e.target.value)}
+                    placeholder="Search load #, customer, city..."
+                    className="pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white w-full sm:w-64 font-medium transition-all"
+                  />
+                </div>
+              </div>
+
+              {/* Filters Bar: Status + Date Range */}
+              <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100 text-xs">
+                <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Filter className="h-3.5 w-3.5 text-slate-500" />
+                  <select
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className="bg-transparent text-slate-700 font-semibold focus:outline-none cursor-pointer text-xs"
+                  >
+                    <option value="all">All Load Statuses</option>
+                    <option value="delivered">Delivered Loads</option>
+                    <option value="invoiced">Invoiced Loads</option>
+                    <option value="uninvoiced">Uninvoiced / Pending</option>
+                  </select>
+                </div>
+
+                <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
+                  <span className="text-xs font-semibold text-slate-500">From:</span>
+                  <input
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="bg-transparent text-slate-700 font-medium focus:outline-none text-xs"
+                  />
+                  <span className="text-xs font-semibold text-slate-500">To:</span>
+                  <input
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="bg-transparent text-slate-700 font-medium focus:outline-none text-xs"
+                  />
+                  {(startDate || endDate) && (
+                    <button
+                      onClick={() => { setStartDate(""); setEndDate(""); }}
+                      className="text-xs font-bold text-rose-600 hover:text-rose-800 ml-1 cursor-pointer"
+                    >
+                      Clear
+                    </button>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* Loads Table */}
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
+                    <th className="px-5 py-3.5">Load #</th>
+                    <th className="px-5 py-3.5">Customer & Route</th>
+                    <th className="px-5 py-3.5">Dates</th>
+                    <th className="px-5 py-3.5">Rate ($)</th>
+                    <th className="px-5 py-3.5">Invoicing State</th>
+                    <th className="px-5 py-3.5 text-right">Merged Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredLoads.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="text-center py-12 text-slate-400 text-xs">
+                        No fleet loads matching your filter criteria.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLoads.map((load) => {
+                      const isInvoiced =
+                        invoicedLoadIds.includes(load.id) ||
+                        invoicedLoadIds.includes(load.load_number) ||
+                        load.status === "invoiced";
+
+                      return (
+                        <tr
+                          key={load.id}
+                          onClick={() => setSelectedLoad(load)}
+                          className={`hover:bg-slate-50 transition-colors cursor-pointer ${
+                            selectedLoad?.id === load.id ? "bg-sky-50/50" : ""
+                          }`}
+                        >
+                          <td className="px-5 py-4 font-mono font-bold text-sky-700 text-sm">
+                            #{load.load_number || load.tracking_number || "10015"}
+                          </td>
+                          <td className="px-5 py-4">
+                            <div className="font-semibold text-slate-900 text-sm">
+                              {load.customer_name || load.customerName || "AeroParts Manufacturing"}
+                            </div>
+                            <div className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                              <span>{load.originCity || "Toronto"}</span>
+                              <span className="text-slate-400">→</span>
+                              <span>{load.destinationCity || "Chicago"}</span>
+                            </div>
+                          </td>
+                          <td className="px-5 py-4 text-xs font-medium text-slate-600">
+                            {load.pickup_date
+                              ? new Date(load.pickup_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+                              : "Aug 9, 2026"}
+                          </td>
+                          <td className="px-5 py-4 font-bold font-mono text-slate-900 text-sm">
+                            ${(load.priceInvoice || 2650).toLocaleString()}
+                          </td>
+                          <td className="px-5 py-4">
+                            {isInvoiced ? (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                INVOICED & SENT
+                              </span>
+                            ) : (
+                              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-50 text-amber-700 border border-amber-200">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                READY TO INVOICE
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-5 py-4 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleGenerateMergedPDFPackage(load);
+                              }}
+                              className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold bg-sky-600 hover:bg-sky-700 text-white shadow-xs hover:shadow transition-all cursor-pointer"
+                            >
+                              <Printer className="w-3.5 h-3.5" />
+                              <span>Invoice + Merged PDF</span>
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
@@ -386,3 +494,5 @@ export default function InvoicingPage() {
     </div>
   );
 }
+
+

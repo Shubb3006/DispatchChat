@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   Sparkles,
   Check,
@@ -7,7 +7,10 @@ import {
   Shield,
   MapPin,
   FileText,
+  Printer,
+  QrCode,
 } from "lucide-react";
+import DocumentTemplateModal from "../DocumentTemplateModal";
 
 export default function ActiveLoadCard({
   myShipment,
@@ -28,6 +31,7 @@ export default function ActiveLoadCard({
   notesSaved,
   handleSaveNotes,
 }) {
+  const [driverDocType, setDriverDocType] = useState(null);
   if (!myShipment) {
     return (
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-slate-500 text-xs">
@@ -213,6 +217,33 @@ export default function ActiveLoadCard({
                   {myShipment.loadType || "FTL"}
                 </span>
               </div>
+            </div>
+
+            {/* Driver Quick Preset Documents Buttons */}
+            <div className="mt-3 pt-3 border-t border-indigo-500/20 flex flex-wrap items-center gap-2">
+              <span className="text-3xs font-mono font-bold text-slate-400 uppercase">Documents:</span>
+              <button
+                type="button"
+                onClick={() => setDriverDocType("PAPS")}
+                className="px-2.5 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-3xs font-bold font-mono transition-all flex items-center gap-1 shadow-sm"
+              >
+                <span>🇺🇸 PAPS Sheet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDriverDocType("PARS")}
+                className="px-2.5 py-1 bg-sky-700 hover:bg-sky-600 text-white rounded-lg text-3xs font-bold font-mono transition-all flex items-center gap-1 shadow-sm"
+              >
+                <span>🇨🇦 PARS Sheet</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setDriverDocType("BOL")}
+                className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-3xs font-bold font-mono transition-all flex items-center gap-1 border border-slate-700 shadow-sm"
+              >
+                <FileText className="h-3 w-3 text-sky-400" />
+                <span>Official BOL</span>
+              </button>
             </div>
           </div>
         </div>
@@ -485,6 +516,16 @@ export default function ActiveLoadCard({
           </div>
         </div>
       </div>
+
+      {/* Driver Preset Document Template Modal */}
+      {driverDocType && (
+        <DocumentTemplateModal
+          isOpen={Boolean(driverDocType)}
+          onClose={() => setDriverDocType(null)}
+          documentType={driverDocType}
+          shipment={myShipment}
+        />
+      )}
     </div>
   );
 }

@@ -42,7 +42,7 @@ export const useCustomerStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get("/customers");
-      const data = response.data || [];
+      const data = Array.isArray(response.data) ? response.data : (response.data?.customers || response.data?.data || []);
       const parsedData = data.map((item) =>
         typeof item.data === "string"
           ? JSON.parse(item.data)

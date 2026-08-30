@@ -5,7 +5,6 @@ import { useHOSStore } from "../stores/useHOSStore";
 import { useSafetyStore } from "../stores/useSafetyStore";
 import { useAuthStore } from "../stores/useAuthStore";
 import { useDriverStore } from "../stores/useDriverstore";
-import WhatsAppChatHub from "../components/WhatsAppChatHub";
 import {
   Users, ClipboardList, Clock, ShieldAlert, CheckCircle,
   AlertTriangle, Search, MessageSquare, Truck,
@@ -13,7 +12,6 @@ import {
 
 const TABS = [
   { id: "manifests", label: "Active Manifests", icon: ClipboardList },
-  { id: "whatsapp", label: "Driver Chat", icon: MessageSquare },
   { id: "hos", label: "HOS & ELD", icon: Clock },
   { id: "safety", label: "Safety Scores", icon: ShieldAlert },
 ];
@@ -169,42 +167,15 @@ export default function DriverManagerPage() {
                   <p className="text-xs text-slate-400 italic">No active load assigned</p>
                 )}
 
-                {/* HOS + Chat */}
+                {/* HOS */}
                 <div className="flex items-center justify-between pt-1 border-t border-slate-100">
                   <div className="flex items-center gap-1.5 text-xs text-slate-600">
                     <Clock className="h-3.5 w-3.5 text-blue-500" />
                     <span>{drv.hosLog.statusLabel} · {drv.hosLog.hoursRemainingToday}h left</span>
                   </div>
-                  <button
-                    onClick={() => setActiveTab("whatsapp")}
-                    className="p-1.5 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors cursor-pointer"
-                    title="Open Chat"
-                  >
-                    <MessageSquare className="h-4 w-4" />
-                  </button>
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      )}
-
-      {/* Chat Tab */}
-      {activeTab === "whatsapp" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-3 border-b border-slate-100 flex items-center gap-2">
-            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-            <h2 className="font-semibold text-slate-900">Driver Chat Hub</h2>
-          </div>
-          <div className="h-[600px]">
-            <WhatsAppChatHub
-              messages={messages}
-              onSendMessage={handleSendMessage}
-              onMarkMessagesAsRead={handleMarkMessagesAsRead}
-              currentRole="driver_manager"
-              currentUser={currentUser}
-              shipments={shipments}
-            />
           </div>
         </div>
       )}

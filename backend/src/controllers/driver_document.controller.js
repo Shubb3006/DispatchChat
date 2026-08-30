@@ -57,7 +57,47 @@ export const getDriverDocuments = async (req, res) => {
     query += ` ORDER BY created_at DESC`;
 
     const result = await pool.query(query, params);
-    res.json({ success: true, documents: result.rows });
+    let driverDocs = result.rows || [];
+
+    // Also query the 'documents' table (joined with loads) so any document saved via Chat / Supabase is included
+    try {
+      const docQuery = await pool.query(
+        `SELECT d.*, l.load_number 
+         FROM documents d 
+         LEFT JOIN loads l ON d.load_id = l.id 
+         ORDER BY d.created_at DESC`
+      );
+      if (docQuery.rows && docQuery.rows.length > 0) {
+        const mappedDocs = docQuery.rows.map((d) => ({
+          id: d.id,
+          shipment_id: d.load_id,
+          load_id: d.load_id,
+          tracking_number: d.load_number || "",
+          load_number: d.load_number || "",
+          type: (d.document_type || "BOL").toUpperCase(),
+          document_type: (d.document_type || "BOL").toUpperCase(),
+          file_name: d.file_name || `Carrier_${(d.document_type || "BOL").toUpperCase()}_Primary.pdf`,
+          file_size: "240 KB",
+          file_path: d.file_path,
+          image_url: d.file_path,
+          status: d.is_approved ? "approved" : "pending_review",
+          uploaded_by: d.uploaded_by,
+          created_at: d.created_at,
+        }));
+
+        const existingPaths = new Set(driverDocs.map((item) => item.file_path || item.image_url));
+        for (const mDoc of mappedDocs) {
+          if (mDoc.file_path && !existingPaths.has(mDoc.file_path)) {
+            driverDocs.push(mDoc);
+            existingPaths.add(mDoc.file_path);
+          }
+        }
+      }
+    } catch (docErr) {
+      console.warn("Could not fetch documents table in getDriverDocuments:", docErr.message);
+    }
+
+    res.json({ success: true, documents: driverDocs });
   } catch (error) {
     console.error("Error fetching driver documents:", error);
     res.status(500).json({ success: false, message: "Server Error fetching documents" });

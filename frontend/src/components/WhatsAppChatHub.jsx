@@ -25,6 +25,42 @@ import {
   Mic,
   MicOff,
 } from "lucide-react";
+
+const FormatCargoOrLink = ({ text }) => {
+  if (!text) return null;
+  const str = String(text);
+  const urlMatch = str.match(/(https?:\/\/[^\s]+)/gi);
+
+  if (urlMatch && urlMatch[0]) {
+    const rawUrl = urlMatch[0];
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 my-1">
+        <a
+          href={rawUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-mono font-bold text-indigo-600 hover:text-indigo-800 underline break-all"
+          title="Click to open or copy link"
+        >
+          {rawUrl}
+        </a>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(rawUrl, "_blank");
+          }}
+          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-3xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+        >
+          <span>👁 View Document</span>
+        </button>
+      </div>
+    );
+  }
+
+  return <span>{str}</span>;
+};
+
 export default function WhatsAppChatHub({
   currentRole,
   currentUser,
@@ -33,6 +69,7 @@ export default function WhatsAppChatHub({
   onMarkMessagesAsRead,
   shipments = [],
 }) {
+  const [viewingDocument, setViewingDocument] = useState(null);
   const [groups, setGroups] = useState([
     {
       id: "DRV001",
@@ -1274,49 +1311,60 @@ export default function WhatsAppChatHub({
                         {/* Render attachment */}
                         {msg.attachment && (
                           <div
-                            className={`mt-2 p-1.5 rounded-lg border text-2xs overflow-hidden ${
+                            onClick={() => {
+                              if (msg.attachment.url && msg.attachment.url.startsWith("http")) {
+                                window.open(msg.attachment.url, "_blank");
+                              } else {
+                                setViewingDocument(msg.attachment);
+                              }
+                            }}
+                            className={`mt-2 p-2 rounded-xl border text-2xs overflow-hidden cursor-pointer transition-all hover:opacity-95 hover:scale-[1.01] ${
                               isMyMessage
-                                ? "bg-[#004e3f]/80 border-[#027e66]/40 text-slate-100"
-                                : "bg-[#182229] border-[#2a3942] text-slate-100"
+                                ? "bg-[#004e3f]/90 border-[#027e66]/50 text-slate-100 shadow-sm"
+                                : "bg-[#182229] border-[#2a3942] text-slate-100 shadow-sm"
                             }`}
+                            title="Click to view/open document"
                           >
                             {msg.attachment.type === "photo" ? (
                               <div className="space-y-1 group/item">
-                                <div className="relative overflow-hidden rounded">
+                                <div className="relative overflow-hidden rounded-lg">
                                   <img
                                     src={msg.attachment.url}
                                     alt={msg.attachment.name}
-                                    className="rounded max-h-44 object-cover w-full transition-transform hover:scale-102"
+                                    className="rounded-lg max-h-44 object-cover w-full transition-transform hover:scale-102"
                                     referrerPolicy="no-referrer"
                                   />
                                 </div>
-                                <div className="flex items-center justify-between text-[8px] text-slate-400 font-mono mt-1">
+                                <div className="flex items-center justify-between text-[8px] text-slate-300 font-mono mt-1 px-1">
                                   <span
-                                    className="truncate max-w-[150px]"
+                                    className="truncate max-w-[150px] font-bold"
                                     title={msg.attachment.name}
                                   >
-                                    {msg.attachment.name}
+                                    🖼️ {msg.attachment.name}
                                   </span>
-                                  <span className="shrink-0 font-bold bg-[#111b21] px-1 rounded text-slate-300">
-                                    {msg.attachment.size || "Size unknown"}
+                                  <span className="shrink-0 font-bold bg-[#111b21] px-1.5 py-0.5 rounded text-emerald-400">
+                                    Click to Expand 👁
                                   </span>
                                 </div>
                               </div>
                             ) : (
-                              <div className="flex items-center justify-between gap-3 py-1">
+                              <div className="flex items-center justify-between gap-3 py-1 px-1">
                                 <div className="flex items-center space-x-2 min-w-0">
-                                  <FileText className="h-5 w-5 text-indigo-400 shrink-0" />
+                                  <div className="p-1.5 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 rounded-lg">
+                                    <FileText className="h-5 w-5 shrink-0" />
+                                  </div>
                                   <div className="min-w-0">
-                                    <p className="font-mono truncate font-bold text-slate-200 text-3xs">
+                                    <p className="font-mono truncate font-bold text-white text-xs">
                                       {msg.attachment.name}
                                     </p>
-                                    <span className="text-[7px] text-slate-400 font-mono uppercase font-black">
-                                      Digital BOL Manifest
+                                    <span className="text-[9px] text-emerald-400 font-mono font-bold flex items-center gap-1">
+                                      ● Digital BOL Document (Click to Open)
                                     </span>
                                   </div>
                                 </div>
-                                <span className="text-[8px] font-mono text-slate-400 shrink-0 bg-[#111b21] px-1 rounded font-bold">
-                                  {msg.attachment.size || "PDF"}
+                                <span className="text-[9px] font-mono text-emerald-300 bg-[#111b21] px-2 py-1 rounded-lg border border-emerald-500/30 font-extrabold flex items-center space-x-1">
+                                  <span>View</span>
+                                  <span>👁</span>
                                 </span>
                               </div>
                             )}
@@ -1790,6 +1838,136 @@ export default function WhatsAppChatHub({
           </div>
         )}
       </div>
+
+      {/* Document Viewer Modal Overlay */}
+      {viewingDocument && (
+        <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white font-sans">
+                    {viewingDocument.name || "Carrier_BOL_Primary.pdf"}
+                  </h3>
+                  <p className="text-xs text-emerald-400 font-mono">
+                    ● Digital BOL Document • {viewingDocument.size || "240 KB"} • Verified Sign-off
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg font-bold transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Document Viewer Content Body */}
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+              {/* Document Banner */}
+              <div className="bg-emerald-950 text-emerald-100 p-4 rounded-2xl border border-emerald-800 flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                  <div>
+                    <span className="font-bold text-white">Official Freight Bill of Lading (BOL)</span>
+                    <p className="text-3xs text-emerald-300 font-mono mt-0.5">
+                      Carrier Sign-off Complete • Timestamp: {new Date().toLocaleTimeString()}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 bg-emerald-800 text-emerald-200 rounded-full font-mono text-3xs font-bold uppercase">
+                  VERIFIED
+                </span>
+              </div>
+
+              {/* Simulated Paper Manifest Preview */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
+                <div className="flex justify-between items-start border-b border-slate-200 pb-3">
+                  <div>
+                    <div className="text-sm font-extrabold text-slate-900 font-sans">LOGISYNC FREIGHT MANIFEST</div>
+                    <div className="text-3xs text-slate-500">Bill of Lading #BOL-2026-9812</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xs text-slate-500">ISSUED DATE</div>
+                    <div className="text-xs font-bold text-indigo-600">{new Date().toLocaleDateString()}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-3xs">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
+                    <div className="font-bold text-slate-900">AeroParts Mfg Facility</div>
+                    <div>100 Logistics Way, Toronto, ON</div>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-slate-500 uppercase">Consignee / Destination</div>
+                    <div className="font-bold text-slate-900">Midwest Distribution Hub</div>
+                    <div>500 Freight Blvd, Chicago, IL</div>
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 rounded-xl overflow-hidden text-3xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                      <tr>
+                        <th className="p-2">Item Description</th>
+                        <th className="p-2">Pallets</th>
+                        <th className="p-2">Weight</th>
+                        <th className="p-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="p-2 font-bold"><FormatCargoOrLink text={viewingDocument?.name || "Industrial Cargo Components"} /></td>
+                        <td className="p-2 font-mono">4 Pallets</td>
+                        <td className="p-2 font-mono">6,000 Lbs</td>
+                        <td className="p-2 text-emerald-600 font-bold">INSPECTED & OK</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-3xs">
+                  <div className="space-y-0.5">
+                    <div className="text-slate-500 font-bold">DRIVER SIGN-OFF STAMP</div>
+                    <div className="font-bold text-slate-900 font-sans">Marcus Vance (Driver License Verified)</div>
+                  </div>
+                  <div className="px-3 py-1 bg-emerald-600 text-white font-mono font-bold rounded-lg text-3xs">
+                    SIGNED & ATTACHED
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  if (viewingDocument?.url && viewingDocument.url.startsWith("http")) {
+                    window.open(viewingDocument.url, "_blank");
+                  } else {
+                    alert("Opening full resolution document link...");
+                  }
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <Download className="h-4 w-4 text-slate-600" />
+                <span>Download File</span>
+              </button>
+              <button
+                onClick={() => setViewingDocument(null)}
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md"
+              >
+                Close Viewer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

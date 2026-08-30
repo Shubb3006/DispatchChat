@@ -340,6 +340,18 @@ import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./ProtectedRoute";
 import { Loader2, UserCircle, Activity } from "lucide-react";
 import WarehouseManagerPage from "./pages/WareHouseManagerPage";
+import CustomsPage from "./pages/CustomsPage";
+import SamsaraFleetPage from "./pages/SamsaraFleetPage";
+import PublicTrackingPage from "./pages/PublicTrackingPage";
+import DetentionPage from "./pages/DetentionPage";
+import MaintenanceRadarPage from "./pages/MaintenanceRadarPage";
+import EtaWeatherRadarPage from "./pages/EtaWeatherRadarPage";
+import AuditLogPage from "./pages/AuditLogPage";
+import KanbanDispatchPage from "./pages/KanbanDispatchPage";
+import SettlementsPage from "./pages/SettlementsPage";
+import PcMilerPage from "./pages/PcMilerPage";
+
+
 
 // Isolated clock component — only this tiny component re-renders every second,
 // not the entire app shell.
@@ -375,7 +387,7 @@ function LogiSyncApp() {
   const shipments = useShipmentStore((state) => state.shipments);
   const messages = useMessageStore((state) => state.messages);
 
-  const [currentRole, setCurrentRole] = useState("dispatcher");
+  const [currentRole, setCurrentRole] = useState("data_entry");
 
   // Bootstrap Data — run once on mount only
   useEffect(() => {
@@ -390,6 +402,10 @@ function LogiSyncApp() {
 
   // Role & Routing Logic
   useEffect(() => {
+    if (location.pathname.startsWith("/track")) {
+      return; // Public Magic Tracking Route (Zero-Login)
+    }
+
     if (!isLoggedIn && location.pathname !== "/login") {
       navigate("/login");
       return;
@@ -412,8 +428,19 @@ function LogiSyncApp() {
       "hr",
       "reporting",
       "data_entry",
+      "kanban",
+      "pcmiler",
       "customs",
+      "telematics",
+      "detention",
+      "settlements",
+      "maintenance",
+      "eta_radar",
+      "eta-radar",
+      "audit_logs",
+      "audit-logs",
     ];
+
 
     if (validRoles.includes(cleanPath)) {
       if (currentRole !== cleanPath) setCurrentRole(cleanPath);
@@ -430,6 +457,16 @@ function LogiSyncApp() {
     }
   }, [location.pathname, isLoggedIn, currentUser, navigate, currentRole]);
 
+  // Public Tracking Route Bypass (No Login Required)
+  if (location.pathname.startsWith("/track")) {
+    return (
+      <Routes>
+        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track" element={<PublicTrackingPage />} />
+      </Routes>
+    );
+  }
+
   // Badges
   const unreadMessagesCount = messages.filter(
     (m) =>
@@ -443,8 +480,8 @@ function LogiSyncApp() {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen bg-[#F8FAFC]">
-        <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+      <div className="flex items-center justify-center h-screen bg-slate-50">
+        <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
       </div>
     );
   }
@@ -453,13 +490,15 @@ function LogiSyncApp() {
     return (
       <Routes>
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
+        <Route path="/track" element={<PublicTrackingPage />} />
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     );
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-50 text-slate-900 font-sans antialiased">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 text-slate-900 font-sans antialiased selection:bg-sky-100 selection:text-sky-900">
       {/* Sidebar Navigation */}
       <Navigation
         currentRole={currentRole}
@@ -477,102 +516,101 @@ function LogiSyncApp() {
       />
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden shadow-[-4px_0_24px_-10px_rgba(0,0,0,0.1)] z-10 rounded-l-2xl bg-white">
-        {/* Simplified Top Header */}
-        <header className="h-16 border-b border-slate-100 flex items-center justify-between px-8 shrink-0 bg-white select-none">
-          {/* Left: Page Title */}
-          <div className="flex items-center gap-4">
-            <h1 className="font-semibold text-lg text-slate-800 capitalize">
-              {currentRole.replace("_", " ")} Dashboard
-            </h1>
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-50">
+        {/* Modern Clean Crisp Top Header */}
+        <header className="h-14 border-b border-slate-200 flex items-center justify-between px-6 shrink-0 bg-white select-none z-20 shadow-xs">
+          {/* Left: Clean Breadcrumb */}
+          <div className="flex items-center gap-2.5 text-xs">
+            <span className="font-bold text-sky-700 tracking-wider">
+              NISHAN TMS
+            </span>
+            <span className="text-slate-300">/</span>
+            <span className="font-extrabold text-slate-900 capitalize text-sm">
+              {currentRole.replace("_", " ")}
+            </span>
           </div>
 
-          {/* Right: Status & Dev Tools */}
-          <div className="flex items-center gap-6">
-            {/* System Status Indicators (Simplified) */}
-            <div className="hidden md:flex items-center gap-4 text-xs font-medium text-slate-500">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" /> Samsara
+          {/* Right: Cloud Status, Time & User */}
+          <div className="flex items-center gap-4">
+            {/* Cloud Status Badges */}
+            <div className="hidden lg:flex items-center gap-2 text-xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-semibold">Samsara</span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500" />{" "}
-                BorderConnect
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[11px] font-semibold">BorderConnect</span>
               </div>
             </div>
 
-            <div className="h-6 w-[1px] bg-slate-200 hidden md:block" />
+            {/* System Clock */}
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 rounded-lg border border-slate-200 text-xs font-mono text-slate-600 shadow-2xs">
+              <SystemClock />
+            </div>
 
-            {/* Clean User/Role Selector for Dev */}
-            {/* <div className="flex items-center gap-3">
-              <UserCircle className="w-5 h-5 text-slate-400" />
-              <select
-                value={currentUser?.id}
-                onChange={(e) => {
-                  const found = users.find((u) => u.id === e.target.value);
-                  if (found) {
-                    setCurrentUser(found);
-                    const target =
-                      found.role === "super_admin" || found.role === "admin"
-                        ? "reporting"
-                        : found.allowedModules[0] || "customer";
-                    navigate("/" + target);
-                  }
-                }}
-                className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-1.5 cursor-pointer transition-colors outline-none"
-              >
-                {users.map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.username} ({u.role})
-                  </option>
-                ))}
-              </select>
-            </div> */}
-            <div className="flex items-center gap-3">
-              <UserCircle className="w-5 h-5 text-slate-400" />
-              <div className="text-right">
-                <div className="text-sm font-semibold text-slate-800">
-                  {currentUser.username}
+            <div className="h-4 w-[1px] bg-slate-200 hidden sm:block" />
+
+            {/* User Profile */}
+            <div className="flex items-center gap-2.5">
+              <div className="text-right hidden sm:block">
+                <div className="text-xs font-bold text-slate-800">
+                  {currentUser?.username || "Nishan Admin"}
                 </div>
-                <div className="text-xs text-slate-500 capitalize">
-                  {currentUser.role.replace("_", " ")}
+                <div className="text-[10px] text-slate-500 font-medium capitalize">
+                  {currentUser?.role ? currentUser.role.replace("_", " ") : "Administrator"}
                 </div>
+              </div>
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-xs font-black shadow-sm">
+                {currentUser?.username?.[0]?.toUpperCase() || "N"}
               </div>
             </div>
           </div>
         </header>
 
         {/* Primary Content Grid */}
-        <div className="flex-1 overflow-auto bg-slate-50/50 p-6">
+        <div className="flex-1 overflow-auto bg-slate-50/70 p-4 sm:p-6 text-slate-900">
           <Routes>
-            <Route path="/dispatcher" element={<DispatcherPage />} />
+            <Route path="/" element={<Navigate to="/data_entry" replace />} />
+            <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} />
             <Route path="/data_entry" element={<DispatcherPage />} />
-            <Route path="/customs" element={<DispatcherPage />} />
-            <Route path="/driver_manager" element={<DriverManagerPage />} />
+            <Route path="/kanban" element={<KanbanDispatchPage />} />
+            <Route path="/pcmiler" element={<PcMilerPage />} />
+            <Route path="/telematics" element={<SamsaraFleetPage />} />
+            <Route path="/eta_radar" element={<EtaWeatherRadarPage />} />
+            <Route path="/eta-radar" element={<EtaWeatherRadarPage />} />
+            <Route path="/maintenance" element={<MaintenanceRadarPage />} />
+
+            <Route path="/customs" element={<CustomsPage />} />
+            <Route path="/detention" element={<DetentionPage />} />
+            <Route path="/settlements" element={<SettlementsPage />} />
+            <Route path="/audit_logs" element={<AuditLogPage />} />
+            <Route path="/audit-logs" element={<AuditLogPage />} />
             <Route
               path="/warehouse_manager"
               element={<WarehouseManagerPage />}
             />
-            <Route path="/driver" element={<DriverPage />} />
-            <Route path="/safety" element={<SafetyPage />} />
             <Route path="/invoicing" element={<InvoicingPage />} />
             <Route path="/customer" element={<CustomerPage />} />
             <Route path="/hr" element={<HRPage />} />
             <Route path="/reporting" element={<ReportingPage />} />
-            {/* <Route
+            <Route
               path="*"
-              element={<Navigate to={`/${currentRole}`} replace />}
-            /> */}
+              element={<Navigate to="/data_entry" replace />}
+            />
           </Routes>
         </div>
 
+
         {/* Subtle Footer */}
-        <footer className="h-8 bg-white border-t border-slate-100 text-slate-400 text-xs flex items-center justify-between px-6 shrink-0 select-none">
+        <footer className="h-8 bg-white border-t border-slate-200 text-slate-500 text-xs flex items-center justify-between px-6 shrink-0 select-none">
           <div className="flex gap-4">
-            <span>LogiSync v4.2.1</span>
+            <span className="font-mono text-[11px] font-medium text-slate-600">NISHAN TMS Enterprise v5.1</span>
           </div>
-          <div className="flex gap-4 items-center">
-            <Activity className="w-3 h-3" />
-            <span>Server: US-EAST-1</span>
+          <div className="flex gap-4 items-center font-mono text-[11px] text-slate-600">
+            <Activity className="w-3.5 h-3.5 text-emerald-500" />
+            <span>Samsara Radar: ONLINE</span>
+            <div className="h-3 w-[1px] bg-slate-200" />
             <SystemClock />
           </div>
         </footer>
@@ -580,6 +618,7 @@ function LogiSyncApp() {
     </div>
   );
 }
+
 
 export default function App() {
   return (

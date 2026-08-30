@@ -1,9 +1,29 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
+import nishanFleetData from "../data/nishanFleetData.json";
+
+const FALLBACK_DRIVERS = (nishanFleetData.drivers || []).map((d) => ({
+  id: d.driver_code,
+  driver_code: d.driver_code,
+  name: d.name,
+  first_name: d.first_name,
+  last_name: d.last_name,
+  email: d.email,
+  phone_number: d.phone_number,
+  license_number: d.license_number,
+  license_state: d.license_state,
+  license_expiry: d.license_expiry,
+  citizenship: d.citizenship,
+  fast_id: d.fast_id,
+  travel_doc_number: d.travel_doc_number,
+  terminal: d.terminal,
+  status: d.status.toLowerCase(),
+  current_duty_status: d.current_duty_status,
+}));
 
 export const useDriverStore = create((set, get) => ({
-  drivers: [],
+  drivers: FALLBACK_DRIVERS,
   isLoading: false,
   error: null,
 
@@ -11,16 +31,22 @@ export const useDriverStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get("/drivers");
-      const data = response.data.drivers || [];
-      const parsedData = data.map((item) =>
-        typeof item.data === "string"
-          ? JSON.parse(item.data)
-          : item.data || item
-      );
-      set({ drivers: parsedData, isLoading: false });
+      const data = response.data.drivers || response.data || [];
+      const parsedData = Array.isArray(data)
+        ? data.map((item) =>
+            typeof item.data === "string"
+              ? JSON.parse(item.data)
+              : item.data || item
+          )
+        : [];
+      if (parsedData.length > 0) {
+        set({ drivers: parsedData, isLoading: false });
+      } else {
+        set({ drivers: FALLBACK_DRIVERS, isLoading: false });
+      }
     } catch (err) {
       console.warn("Failed to fetch drivers, using fallback:", err.message);
-      set({ isLoading: false });
+      set({ drivers: FALLBACK_DRIVERS, isLoading: false });
     }
   },
 

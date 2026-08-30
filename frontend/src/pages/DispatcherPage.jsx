@@ -109,26 +109,6 @@ export default function DispatcherPage() {
     await markAsRead(shipmentId, role);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  if (isLoading && shipments.length === 0) {
-    return (
-      <div
-        className="flex flex-col items-center justify-center min-h-screen bg-slate-950 text-white p-6"
-        id="dispatcher-loading-screen"
-      >
-        <div className="relative flex items-center justify-center mb-6">
-          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
-          <div className="absolute h-8 w-8 bg-blue-500/10 rounded-full animate-ping"></div>
-        </div>
-        <h3 className="text-lg font-semibold tracking-wide text-slate-200">
-          Synchronizing Logistics Portal
-        </h3>
-        <p className="text-slate-400 text-sm mt-2 animate-pulse">
-          Fetching active loads, manifests and assets...
-        </p>
-      </div>
-    );
-  }
-
   return (
     <>
       <DispatcherDashboard

@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import WhatsAppChatHub from "./WhatsAppChatHub";
 import {
   Headphones,
   Users,
@@ -133,18 +132,6 @@ export default function DriverManagerHub({
           >
             <ClipboardList className="h-3.5 w-3.5" />
             <span>Active Manifests</span>
-          </button>
-
-          <button
-            onClick={() => setActiveTab("whatsapp")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 ${
-              activeTab === "whatsapp"
-                ? "bg-white text-cyan-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
-          >
-            <MessageSquare className="h-3.5 w-3.5" />
-            <span>WhatsApp Chat</span>
           </button>
 
           <button
@@ -299,34 +286,7 @@ export default function DriverManagerHub({
         </div>
       )}
 
-      {activeTab === "whatsapp" && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-1">
-          <div className="bg-slate-50 px-5 py-3 border-b border-slate-150 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <span className="flex h-2 w-2 relative">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-              </span>
-              <h3 className="text-xs font-bold font-mono text-slate-800 uppercase">
-                Driver Support WhatsApp Hub
-              </h3>
-            </div>
-            <span className="text-3xs text-slate-400 font-mono">
-              Real-time driver group messaging center active
-            </span>
-          </div>
-          <div className="h-[600px]">
-            <WhatsAppChatHub
-              messages={messages}
-              onSendMessage={onSendMessage}
-              onMarkMessagesAsRead={onMarkMessagesAsRead}
-              currentRole={currentRole}
-              currentUser={currentUser}
-              shipments={shipments}
-            />
-          </div>
-        </div>
-      )}
+
 
       {activeTab === "hos" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">

@@ -86,7 +86,7 @@ export interface Shipment {
   documentIds: string[];
   loadType?: 'LTL' | 'FTL';
   tripId?: string;
-  deliveryCommitment?: 'normal' | 'guaranteed' | 'guaranteed_appointment';
+  deliveryCommitment?: 'normal' | 'guaranteed' | 'appointment' | 'guaranteed_appointment';
   commitmentDate?: string;
   commitmentTime?: string;
   shipperName?: string;

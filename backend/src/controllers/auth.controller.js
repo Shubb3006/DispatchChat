@@ -278,7 +278,13 @@ export const check = async (req, res) => {
 };
 export const logout = async (req, res) => {
   try {
-    res.cookie("jwt_token", "", { maxAge: 0 });
+    // Clear with the same attributes the cookie was set with, otherwise some
+    // browsers won't remove it (attribute mismatch).
+    res.clearCookie("jwt_token", {
+      httpOnly: true,
+      sameSite: process.env.COOKIE_SAMESITE || "lax",
+      secure: process.env.NODE_ENV === "production",
+    });
     res.status(200).json({ message: "Logged Out Succesfully" });
   } catch (error) {
     console.log(error.message);

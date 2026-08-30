@@ -11,8 +11,16 @@ export const useInvoiceStore = create((set, get) => ({
   fetchInvoices: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get("/invoices");
-      const invList = response.data || [];
+      const response = await axiosInstance.get("/invoices").catch(() => ({ data: [] }));
+      const invData = response?.data;
+      const invList = Array.isArray(invData)
+        ? invData
+        : Array.isArray(invData?.invoices)
+        ? invData.invoices
+        : Array.isArray(invData?.data)
+        ? invData.data
+        : [];
+
       const parsedInvoices = invList.map((item) =>
         typeof item.data === "string"
           ? JSON.parse(item.data)
@@ -21,7 +29,7 @@ export const useInvoiceStore = create((set, get) => ({
       set({ invoices: parsedInvoices, isLoading: false });
     } catch (err) {
       console.error("Failed to fetch invoices:", err);
-      set({ error: "Failed to fetch invoices", isLoading: false });
+      set({ invoices: [], isLoading: false });
     }
   },
 

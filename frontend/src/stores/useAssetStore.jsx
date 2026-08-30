@@ -1,23 +1,34 @@
 import { create } from 'zustand';
 import toast from 'react-hot-toast';
 import { axiosInstance } from "../../lib/axios";
+import nishanFleetData from "../data/nishanFleetData.json";
 
+const FALLBACK_TRUCKS = (nishanFleetData.trucks || []).map(t => ({
+  id: t.truck_number,
+  truck_number: t.truck_number,
+  model: `${t.make} ${t.model}`,
+  make: t.make,
+  vin: t.vin,
+  dot_number: t.dot_number,
+  plate_number: t.plate_number,
+  state_province: t.state_province,
+  terminal: t.terminal,
+  status: t.status.toLowerCase(),
+  year: t.year || 2023,
+}));
 
-const FALLBACK_TRUCKS = [
-  { id: 'TRK-102', model: 'Peterbilt 579', status: 'active', year: '2024' },
-  { id: 'TRK-215', model: 'Kenworth T680', status: 'active', year: '2023' },
-  { id: 'TRK-145', model: 'Freightliner Cascadia', status: 'active', year: '2024' },
-  { id: 'TRK-302', model: 'Volvo VNL 860', status: 'active', year: '2022' },
-  { id: 'TRK-188', model: 'Peterbilt 389', status: 'active', year: '2023' }
-];
-
-const FALLBACK_TRAILORS = [
-  { id: 'TRL-504', type: 'Dry Van 53ft', status: 'active', capacityLbs: 45000 },
-  { id: 'TRL-309', type: 'Flatbed 48ft', status: 'active', capacityLbs: 48000 },
-  { id: 'TRL-802', type: 'Reefer 53ft', status: 'active', capacityLbs: 44000 },
-  { id: 'TRL-220', type: 'Step Deck 53ft', status: 'active', capacityLbs: 46000 },
-  { id: 'TRL-415', type: 'Dry Van 53ft', status: 'active', capacityLbs: 45000 }
-];
+const FALLBACK_TRAILORS = (nishanFleetData.trailers || []).map(t => ({
+  id: t.trailer_number,
+  trailer_number: t.trailer_number,
+  type: t.type_description,
+  trailer_type: t.trailer_type,
+  type_code: t.type_code,
+  plate_number: t.plate_number,
+  state_province: t.state_province,
+  terminal: t.terminal,
+  status: t.status.toLowerCase(),
+  capacityLbs: t.capacity || 45000,
+}));
 
 export const useAssetStore = create((set, get) => ({
   trucks: FALLBACK_TRUCKS,
@@ -29,7 +40,7 @@ export const useAssetStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get('/trucks');
-      const data = response.data || [];
+      const data = Array.isArray(response.data) ? response.data : (response.data?.trucks || response.data?.data || []);
       const parsedData = data.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
       if (parsedData.length > 0) {
         set({ trucks: parsedData, isLoading: false });
@@ -96,7 +107,7 @@ export const useAssetStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance.get('/trailors');
-      const data = response.data || [];
+      const data = Array.isArray(response.data) ? response.data : (response.data?.trailors || response.data?.data || []);
       const parsedData = data.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
       if (parsedData.length > 0) {
         set({ trailors: parsedData, isLoading: false });

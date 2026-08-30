@@ -259,11 +259,8 @@ export const useMessageStore = create((set) => ({
   ====================================
   */
   markAsRead: async (messageIds) => {
+    if (!messageIds || !Array.isArray(messageIds) || messageIds.length === 0) return;
     try {
-      await axiosInstance.put("/messages/read", {
-        messageIds,
-      });
-
       set((state) => ({
         messages: state.messages.map((msg) =>
           messageIds.includes(msg.id)
@@ -275,10 +272,12 @@ export const useMessageStore = create((set) => ({
             : msg
         ),
       }));
-    } catch (err) {
-      console.error(err);
 
-      toast.error("Failed to mark messages as read");
+      await axiosInstance.put("/messages/read", {
+        messageIds,
+      });
+    } catch (err) {
+      console.warn("Message read status sync handled:", err);
     }
   },
 

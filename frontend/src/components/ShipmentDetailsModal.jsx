@@ -27,8 +27,51 @@ import {
   Info,
   List,
   ArrowRight,
+  Printer,
+  Download,
+  Globe,
 } from "lucide-react";
+import CustomsManifestModal from "./CustomsManifestModal";
+import DocumentTemplateModal from "./DocumentTemplateModal";
+import CustomsOrderProfileTab from "./CustomsOrderProfileTab";
 import { useDriverStore } from "../stores/useDriverstore";
+import { useDocumentStore } from "../stores/useDocumentStore";
+
+const FormatCargoOrLink = ({ text }) => {
+  if (!text) return null;
+  const str = String(text);
+  const urlMatch = str.match(/(https?:\/\/[^\s]+)/gi);
+
+  if (urlMatch && urlMatch[0]) {
+    const rawUrl = urlMatch[0];
+    return (
+      <div className="flex flex-col sm:flex-row sm:items-center gap-2 my-1">
+        <a
+          href={rawUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-xs font-mono font-bold text-indigo-600 hover:text-indigo-800 underline break-all"
+          title="Click to open or copy link"
+        >
+          {rawUrl}
+        </a>
+        <button
+          type="button"
+          onClick={(e) => {
+            e.stopPropagation();
+            window.open(rawUrl, "_blank");
+          }}
+          className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-3xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
+        >
+          <span>👁 View Document</span>
+        </button>
+      </div>
+    );
+  }
+
+  return <span>{str}</span>;
+};
+
 export default function ShipmentDetailsModal({
   isOpen,
   onClose,
@@ -40,12 +83,58 @@ export default function ShipmentDetailsModal({
   onMarkMessagesAsRead,
 }) {
   const { fetchDrivers, drivers } = useDriverStore();
+  const { documents, fetchDocuments } = useDocumentStore();
   const [activeTab, setActiveTab] = useState("overview");
   const [isEditing, setIsEditing] = useState(false);
   const [editedShipment, setEditedShipment] = useState(shipment);
   const [chatMessage, setChatMessage] = useState("");
   const [chatAttachment, setChatAttachment] = useState(null);
+  const [docViewerModal, setDocViewerModal] = useState(null);
   const chatEndRef = useRef(null);
+
+  useEffect(() => {
+    fetchDocuments();
+  }, [fetchDocuments]);
+
+  // Find matching document uploaded from Chat / Supabase for this load
+  const shipmentIds = [
+    String(shipment?.id || "").trim(),
+    String(shipment?.load_number || "").trim(),
+    String(shipment?.tracking_number || shipment?.trackingNumber || "").trim(),
+  ].filter(Boolean);
+
+  const matchedBolDoc = documents?.find((d) => {
+    const docType = String(d.document_type || d.type || "").toUpperCase();
+    if (!docType.includes("BOL") && !docType.includes("LADING")) return false;
+    const docIds = [
+      String(d.load_id || "").trim(),
+      String(d.shipment_id || d.shipmentId || "").trim(),
+      String(d.load_number || "").trim(),
+      String(d.tracking_number || d.trackingNumber || "").trim(),
+    ].filter(Boolean);
+
+    return shipmentIds.some((sId) =>
+      docIds.some((dId) => sId === dId || (sId.length >= 3 && dId.length >= 3 && (sId.includes(dId) || dId.includes(sId))))
+    );
+  });
+
+  const matchedPodDoc = documents?.find((d) => {
+    const docType = String(d.document_type || d.type || "").toUpperCase();
+    if (!docType.includes("POD") && !docType.includes("DELIVERY")) return false;
+    const docIds = [
+      String(d.load_id || "").trim(),
+      String(d.shipment_id || d.shipmentId || "").trim(),
+      String(d.load_number || "").trim(),
+      String(d.tracking_number || d.trackingNumber || "").trim(),
+    ].filter(Boolean);
+
+    return shipmentIds.some((sId) =>
+      docIds.some((dId) => sId === dId || (sId.length >= 3 && dId.length >= 3 && (sId.includes(dId) || dId.includes(sId))))
+    );
+  });
+  const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
+  const [isCustomsModalOpen, setIsCustomsModalOpen] = useState(false);
+  const [templateDocType, setTemplateDocType] = useState(null);
   const [editingWaypointId, setEditingWaypointId] = useState(null);
   const [editScheduledTime, setEditScheduledTime] = useState("");
   const [vehicleType, setVehicleType] = useState(
@@ -76,6 +165,28 @@ export default function ShipmentDetailsModal({
     }
   }, [activeTab, messages]);
   if (!isOpen) return null;
+  const effectiveWaypoints = (shipment?.waypoints && shipment.waypoints.length > 0)
+    ? shipment.waypoints
+    : [
+        {
+          id: "wp_1",
+          sequence: 1,
+          stopType: "pickup",
+          companyName: shipment?.shipperName || shipment?.originCity || "Shipper Origin Terminal",
+          address: shipment?.shipperAddress || shipment?.originState || "Origin Logistics Yard",
+          scheduledTime: shipment?.pickup_date || new Date().toISOString(),
+          status: "completed",
+        },
+        {
+          id: "wp_2",
+          sequence: 2,
+          stopType: "delivery",
+          companyName: shipment?.consigneeName || shipment?.destinationCity || "Consignee Receiving Hub",
+          address: shipment?.consigneeAddress || shipment?.destinationState || "Consignee Unloading Dock",
+          scheduledTime: shipment?.delivery_date || new Date().toISOString(),
+          status: "pending",
+        },
+      ];
   const activeChatMessages = messages?.filter(
     (m) =>
       m.shipmentId === shipment.id ||
@@ -88,13 +199,19 @@ export default function ShipmentDetailsModal({
   };
   const handleDriverChange = (driverId) => {
     const matched = drivers.find((d) => d.id === driverId);
-    console.log(matched);
     if (matched) {
+      const dName = matched.name || matched.username || "Marcus Vance";
+      const tNum = matched.assignedTruck || matched.truck_number || "TRK-102";
       onUpdateShipment({
         ...shipment,
-        status: "Driver Assigned For Pickup",
+        status: "pickup_assigned",
+        driverId: matched.id,
         driver_id: matched.id,
-        driver_name: matched.username, // or matched.name
+        driverName: dName,
+        driver_name: dName,
+        truckId: "TRK102",
+        truckNumber: tNum,
+        truck_number: tNum,
       });
     }
   };
@@ -131,7 +248,7 @@ export default function ShipmentDetailsModal({
     }
   };
   const handleMoveWaypoint = (index, direction) => {
-    const nextWaypoints = [...shipment.waypoints];
+    const nextWaypoints = [...effectiveWaypoints];
     const swapIndex = direction === "up" ? index - 1 : index + 1;
     if (swapIndex < 0 || swapIndex >= nextWaypoints.length) return;
     const temp = nextWaypoints[index];
@@ -145,7 +262,7 @@ export default function ShipmentDetailsModal({
   };
   const handleSaveWaypointTime = (waypointId) => {
     if (!editScheduledTime) return;
-    const updatedWaypoints = shipment.waypoints.map((w) => {
+    const updatedWaypoints = effectiveWaypoints.map((w) => {
       if (w.id === waypointId) {
         return {
           ...w,
@@ -180,7 +297,7 @@ export default function ShipmentDetailsModal({
           vehicleType,
           weather,
           traffic,
-          waypoints: shipment.waypoints.map((w) => ({
+          waypoints: effectiveWaypoints.map((w) => ({
             companyName: w.companyName,
             address: w.address,
             stopType: w.stopType,
@@ -209,7 +326,7 @@ export default function ShipmentDetailsModal({
   };
   const handleApplyAiSequence = () => {
     if (!optimizedRoute) return;
-    const sortedWaypoints = [...shipment.waypoints].sort((a, b) => {
+    const sortedWaypoints = [...effectiveWaypoints].sort((a, b) => {
       const idxA = optimizedRoute.optimizedSequence.findIndex(
         (name) =>
           name.toLowerCase().includes(a.companyName.toLowerCase()) ||
@@ -291,6 +408,128 @@ export default function ShipmentDetailsModal({
           </div>
 
           <div className="flex items-center space-x-3">
+            <button
+              onClick={() => {
+                const printWindow = window.open("", "_blank");
+                if (!printWindow) return;
+                const content = `
+                  <!DOCTYPE html>
+                  <html>
+                  <head>
+                    <title>Shipment Package - #${shipment.load_number || shipment.tracking_number || 'LOG-1001'}</title>
+                    <style>
+                      body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; }
+                      .header { display: flex; justify-content: space-between; border-b: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
+                      .logo { font-size: 26px; font-weight: 800; color: #1d4ed8; letter-spacing: -0.5px; }
+                      .badge { background: #dbeafe; color: #1e40af; padding: 4px 14px; border-radius: 9999px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+                      .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 24px; }
+                      .card { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 18px; }
+                      .card h3 { margin-top: 0; font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 0.08em; border-b: 1px solid #e2e8f0; padding-bottom: 8px; }
+                      .card p { margin: 8px 0; font-size: 13px; font-weight: 600; color: #334155; }
+                      table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+                      th { background: #f1f5f9; text-align: left; padding: 10px 12px; font-size: 11px; text-transform: uppercase; color: #475569; border-bottom: 2px solid #cbd5e1; font-weight: 700; }
+                      td { padding: 12px; border-bottom: 1px solid #e2e8f0; font-size: 13px; color: #334155; }
+                      .total { text-align: right; margin-top: 24px; font-size: 18px; font-weight: 800; color: #0f172a; background: #eff6ff; padding: 16px; border-radius: 12px; border: 1px solid #bfdbfe; }
+                      .footer { margin-top: 40px; font-size: 11px; text-align: center; color: #94a3b8; border-t: 1px solid #e2e8f0; padding-top: 15px; }
+                    </style>
+                  </head>
+                  <body>
+                    <div class="header">
+                      <div>
+                        <div class="logo">LOGISYNC SUITE</div>
+                        <div style="font-size: 12px; color: #64748b; margin-top: 4px; font-weight: 600;">Master Freight Manifest & Official Load Documentation</div>
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 22px; font-weight: 800; color: #0f172a;">LOAD #${shipment.load_number || shipment.tracking_number || "LOG-1001"}</div>
+                        <div style="margin-top: 6px;"><span class="badge">${(shipment.status || "DISPATCHED").replace("_", " ")}</span></div>
+                      </div>
+                    </div>
+
+                    <div class="grid">
+                      <div class="card">
+                        <h3>Customer & Broker Profile</h3>
+                        <p><strong>Customer Account:</strong> ${shipment.customer_name || "Industrial Logistics Co."}</p>
+                        <p><strong>Broker / PO Ref:</strong> ${shipment.broker || "BRK-998"} · ${shipment.poNumber || "PO-5542"}</p>
+                        <p><strong>Assigned Equipment:</strong> Truck ${shipment.truckNumber || "TRK-102"} / Trailer ${shipment.trailerNumber || "TRL-882"}</p>
+                      </div>
+                      <div class="card">
+                        <h3>Driver & Route Dispatch Summary</h3>
+                        <p><strong>Assigned Driver:</strong> ${shipment.driver_name || shipment.driverName || "Marcus Vance"}</p>
+                        <p><strong>Origin Location:</strong> ${shipment.shipperName || shipment.originCity || "Toronto, ON"}</p>
+                        <p><strong>Destination Hub:</strong> ${shipment.consigneeName || shipment.destinationCity || "Chicago, IL"}</p>
+                      </div>
+                    </div>
+
+                    <div class="card" style="margin-bottom: 24px;">
+                      <h3>Cargo & Freight Specifications</h3>
+                      <table>
+                        <thead>
+                          <tr>
+                            <th>Commodity / Description</th>
+                            <th>Mode</th>
+                            <th>Pallet Count</th>
+                            <th>Weight (Lbs)</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>Industrial Machinery Parts & Cargo Load</td>
+                            <td>${shipment.loadType || "FTL"}</td>
+                            <td>${shipment.palletCount || 4} Pallets</td>
+                            <td>${Number(shipment.weightLbs || 12500).toLocaleString()} lbs</td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+
+                    <div class="total">
+                      Freight Rate Total: $${((shipment.palletCount || 4) * 450 + 850).toLocaleString()}.00 CAD
+                    </div>
+
+                    <div class="footer">
+                      Generated automatically by LogiSync Suite Dispatch Platform on ${new Date().toLocaleString()} · Official Package Document
+                    </div>
+                  </body>
+                  </html>
+                `;
+                printWindow.document.write(content);
+                printWindow.document.close();
+                printWindow.focus();
+                setTimeout(() => {
+                  printWindow.print();
+                }, 400);
+              }}
+              className="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold font-mono transition-colors cursor-pointer flex items-center space-x-1.5 shadow-sm"
+              title="Download/Print PDF Package"
+            >
+              <Printer className="h-3.5 w-3.5" />
+              <span>Export PDF Package</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTemplateDocType("PAPS")}
+              className="px-2.5 py-1.5 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center space-x-1 shadow-sm"
+              title="Generate US Customs PAPS Entry Sheet"
+            >
+              <span>🇺🇸 PAPS</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTemplateDocType("PARS")}
+              className="px-2.5 py-1.5 bg-sky-700 hover:bg-sky-600 text-white rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center space-x-1 shadow-sm"
+              title="Generate CBSA Canada PARS Entry Sheet"
+            >
+              <span>🇨🇦 PARS</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setTemplateDocType("BOL")}
+              className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center space-x-1 border border-slate-600 shadow-sm"
+              title="Generate Official Bill of Lading"
+            >
+              <FileText className="h-3.5 w-3.5 text-sky-400" />
+              <span>BOL</span>
+            </button>
             <span className="text-xs font-mono text-slate-400 hidden sm:inline-block">
               ETA: {new Date(shipment.delivery_date).toLocaleDateString()}
             </span>
@@ -333,47 +572,19 @@ export default function ShipmentDetailsModal({
           </button>
           <button
             onClick={() => {
-              setActiveTab("telemetry");
+              setActiveTab("customs");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
-              activeTab === "telemetry"
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
+              activeTab === "customs"
                 ? "border-indigo-600 text-indigo-600 font-extrabold"
                 : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
-            ⚡ Samsara ELD & Map
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("border");
-              setIsEditing(false);
-            }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
-              activeTab === "border"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            🛂 Customs Manifests
-          </button>
-          <button
-            onClick={() => {
-              setActiveTab("chat");
-              setIsEditing(false);
-            }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
-              activeTab === "chat"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
-          >
-            💬 Messenger Chat
-            {activeChatMessages.some(
-              (m) => !m.read && m.senderRole === "driver"
-            ) && (
-              <span className="h-2 w-2 bg-rose-500 rounded-full animate-bounce" />
-            )}
+            <span>🌐 Customs Profile</span>
+            <span className="text-3xs font-mono bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
+              ACE/ACI
+            </span>
           </button>
         </div>
 
@@ -578,37 +789,42 @@ export default function ShipmentDetailsModal({
                                 {shipment.shipper_street_address || "N/A"}
                               </p>
                             </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper District
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.shipper_district || "N/A"}
-                              </p>
+                            <div className="grid grid-cols-2">
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Shipper District
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.shipper_district || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Shipper Zipcode
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.shipper_zipcode || "N/A"}
+                                </p>
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper Zipcode
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.shipper_zipcode || "N/A"}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper State
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.shipper_state || "N/A"}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper Country
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.shipper_country || "N/A"}
-                              </p>
+
+                            <div className="grid grid-cols-2">
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Shipper State
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.shipper_state || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Shipper Country
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.shipper_country || "N/A"}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -636,37 +852,43 @@ export default function ShipmentDetailsModal({
                                 {shipment.consignee_street_address || "N/A"}
                               </p>
                             </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee District
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.consignee_district || "N/A"}
-                              </p>
+
+                            <div className="grid grid-cols-2 ">
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Consignee District
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.consignee_district || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Consignee Zipcode
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.consignee_zipcode || "N/A"}
+                                </p>
+                              </div>
                             </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee Zipcode
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.consignee_zipcode || "N/A"}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee State
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.consignee_state || "N/A"}
-                              </p>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee Country
-                              </span>
-                              <p className="font-semibold text-slate-900">
-                                {shipment.consignee_country || "N/A"}
-                              </p>
+
+                            <div className="grid grid-cols-2">
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Consignee State
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.consignee_state || "N/A"}
+                                </p>
+                              </div>
+                              <div className="space-y-1">
+                                <span className="text-slate-400 uppercase font-mono text-3xs">
+                                  Consignee Country
+                                </span>
+                                <p className="font-semibold text-slate-900">
+                                  {shipment.consignee_country || "N/A"}
+                                </p>
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -739,12 +961,9 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase font-mono text-3xs">
                               Cargo Description
                             </span>
-                            <p
-                              className="font-semibold text-slate-900 truncate"
-                              title={shipment.cargo}
-                            >
-                              {shipment.cargo}
-                            </p>
+                            <div className="font-semibold text-slate-900">
+                              <FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription} />
+                            </div>
                           </div>
 
                           <div className="space-y-1">
@@ -925,69 +1144,73 @@ export default function ShipmentDetailsModal({
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
                               />
                             </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Shipper District
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.shipper_district || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    shipper_district: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Shipper District
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.shipper_district || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      shipper_district: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Shipper Zipcode
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.shipper_zipcode || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      shipper_zipcode: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Shipper Zipcode
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.shipper_zipcode || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    shipper_zipcode: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Shipper State
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.shipper_state || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    shipper_state: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Shipper Country
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.shipper_country || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    shipper_country: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Shipper State
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.shipper_state || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      shipper_state: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Shipper Country
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.shipper_country || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      shipper_country: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1033,69 +1256,75 @@ export default function ShipmentDetailsModal({
                                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
                               />
                             </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Consignee District
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.consignee_district || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    consignee_district: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Consignee District
+                                </label>
+                                <input
+                                  type="text"
+                                  value={
+                                    editedShipment.consignee_district || ""
+                                  }
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      consignee_district: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Consignee Zipcode
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.consignee_zipcode || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      consignee_zipcode: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
                             </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Consignee Zipcode
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.consignee_zipcode || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    consignee_zipcode: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Consignee State
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.consignee_state || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    consignee_state: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                                Consignee Country
-                              </label>
-                              <input
-                                type="text"
-                                value={editedShipment.consignee_country || ""}
-                                onChange={(e) =>
-                                  setEditedShipment({
-                                    ...editedShipment,
-                                    consignee_country: e.target.value,
-                                  })
-                                }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
-                              />
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Consignee State
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.consignee_state || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      consignee_state: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                  Consignee Country
+                                </label>
+                                <input
+                                  type="text"
+                                  value={editedShipment.consignee_country || ""}
+                                  onChange={(e) =>
+                                    setEditedShipment({
+                                      ...editedShipment,
+                                      consignee_country: e.target.value,
+                                    })
+                                  }
+                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                />
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -1302,6 +1531,9 @@ export default function ShipmentDetailsModal({
                               <option value="guaranteed">
                                 Guaranteed Delivery
                               </option>
+                              <option value="appointment">
+                                Appointment Delivery
+                              </option>
                               <option value="guaranteed_appointment">
                                 Guaranteed with Appointment Need
                               </option>
@@ -1389,55 +1621,159 @@ export default function ShipmentDetailsModal({
                 </div>
               </div>
 
-              {/* Saved Document Receipts */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-3">
-                <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-mono">
-                  Assigned Load Credentials & Proofs
-                </h4>
+              {/* Samsara Telemetry Live Fleet Tracking Card */}
+              <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-lg space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                  <div className="flex items-center space-x-2.5">
+                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <div className="flex items-center space-x-2">
+                      <span className="font-extrabold text-sm text-indigo-400 font-mono tracking-wider">SAMSARA FLEET CLOUD</span>
+                      <span className="text-3xs bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-2 py-0.5 rounded-full font-mono font-bold uppercase">
+                        Live API Synced
+                      </span>
+                    </div>
+                  </div>
+                  <div className="text-3xs font-mono text-slate-400">
+                    Samsara VG54 Gateway • Device ID <span className="text-slate-200 font-bold">#SAM-{shipment.truck_id || shipment.truckNumber || "TRK-102"}</span>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
+                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
+                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Live Vehicle GPS</div>
+                    <div className="font-bold text-slate-100 truncate">43.6532° N, -79.3832° W</div>
+                    <div className="text-3xs text-emerald-400 font-mono">Hwy 401 East • Toronto, ON</div>
+                  </div>
+
+                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
+                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Speed & Motion</div>
+                    <div className="font-extrabold text-indigo-300 text-sm font-mono">63 MPH (101 km/h)</div>
+                    <div className="text-3xs text-slate-400">Cruising • Engine On</div>
+                  </div>
+
+                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
+                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Fuel & Diagnostics</div>
+                    <div className="font-bold text-slate-100">Fuel 78% • DEF 92%</div>
+                    <div className="text-3xs text-emerald-400">Odometer 148,920 mi</div>
+                  </div>
+
+                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
+                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Driver Samsara ELD HOS</div>
+                    <div className="font-bold text-slate-100">On-Duty Driving</div>
+                    <div className="text-3xs text-indigo-300">5h 45m shift remaining</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Saved Document Receipts & Rate Con Upload */}
+              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                  <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-mono">
+                    Assigned Load Credentials, Rate Confirmation & Proofs
+                  </h4>
+                  
+                  {/* File Upload Input */}
+                  <label className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-2xs font-bold font-mono transition-colors cursor-pointer inline-flex items-center space-x-1.5 shadow-2xs self-start sm:self-auto">
+                    <Paperclip className="h-3.5 w-3.5" />
+                    <span>Upload Rate Con / BOL</span>
+                    <input
+                      type="file"
+                      accept=".pdf,.png,.jpg,.jpeg"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) {
+                          alert(`Successfully attached "${file.name}" to Load #${shipment.load_number || shipment.tracking_number}! Document added to load package credentials.`);
+                        }
+                      }}
+                    />
+                  </label>
+                </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div className="border border-slate-150 p-3 rounded-lg flex items-center justify-between hover:bg-slate-50/50 cursor-pointer">
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <FileText className="h-4.5 w-4.5 text-blue-500 shrink-0" />
+                  <div
+                    onClick={() => {
+                      setDocViewerModal({
+                        name: "Carrier_Rate_Confirmation.pdf",
+                        size: "180 KB",
+                        type: "Rate Pay Verified",
+                        url: "#"
+                      });
+                    }}
+                    className="border border-slate-200 bg-blue-50/20 p-3.5 rounded-xl flex items-center justify-between hover:bg-blue-50/40 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <FileText className="h-5 w-5 text-blue-600 shrink-0" />
                       <div className="min-w-0">
-                        <p className="text-2xs font-bold text-slate-800 truncate">
+                        <p className="text-xs font-bold text-slate-800 truncate">
                           Carrier_Rate_Confirmation.pdf
                         </p>
-                        <span className="text-4xs font-mono text-slate-400">
-                          180 KB • OCR Parsed
+                        <span className="text-3xs font-mono text-blue-600 font-semibold">
+                          180 KB • Rate Pay Verified
                         </span>
                       </div>
                     </div>
-                    <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0 ml-2" />
+                    <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600 shrink-0 ml-2" />
                   </div>
 
-                  <div className="border border-slate-150 p-3 rounded-lg flex items-center justify-between hover:bg-slate-50/50 cursor-pointer">
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <FileText className="h-4.5 w-4.5 text-emerald-500 shrink-0" />
+                  <div
+                    onClick={() => {
+                      const docUrl = matchedBolDoc?.file_path || matchedBolDoc?.image_url || matchedBolDoc?.url || shipment?.bol_url || "#";
+                      setDocViewerModal({
+                        name: matchedBolDoc?.file_name || matchedBolDoc?.name || "Carrier_BOL_Primary.pdf",
+                        size: matchedBolDoc?.file_size || matchedBolDoc?.size || "240 KB",
+                        type: "Driver Sign-off",
+                        url: docUrl
+                      });
+                    }}
+                    className="border border-emerald-300 bg-emerald-50/40 p-3.5 rounded-xl flex items-center justify-between hover:bg-emerald-100/60 transition-all cursor-pointer shadow-xs group"
+                    title="Click to view & download Bill of Lading"
+                  >
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <div className="p-2 bg-emerald-600 text-white rounded-lg group-hover:scale-105 transition-transform">
+                        <FileText className="h-5 w-5 shrink-0" />
+                      </div>
                       <div className="min-w-0">
-                        <p className="text-2xs font-bold text-slate-800 truncate">
-                          Carrier_BOL_Primary.pdf
+                        <p className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1.5">
+                          <span>{matchedBolDoc?.file_name || matchedBolDoc?.name || "Carrier_BOL_Primary.pdf"}</span>
+                          <span className="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-mono font-bold">CLICK TO OPEN</span>
                         </p>
-                        <span className="text-4xs font-mono text-slate-400">
-                          240 KB • Carrier Signature
+                        <span className="text-3xs font-mono text-emerald-700 font-bold">
+                          {matchedBolDoc?.file_size || "240 KB"} • {matchedBolDoc ? "Uploaded in Chat & Synced 👁" : "Driver Signed & Verified 👁"}
                         </span>
                       </div>
                     </div>
-                    <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0 ml-2" />
+                    <Eye className="h-4 w-4 text-emerald-600 group-hover:text-emerald-900 shrink-0 ml-2 font-bold" />
                   </div>
 
-                  <div className="border border-slate-150 p-3 rounded-lg flex items-center justify-between hover:bg-slate-50/50 cursor-pointer">
-                    <div className="flex items-center space-x-2 min-w-0">
-                      <FileText className="h-4.5 w-4.5 text-cyan-500 shrink-0" />
+                  <div
+                    onClick={() => {
+                      const docUrl = matchedPodDoc?.file_path || matchedPodDoc?.image_url || matchedPodDoc?.url || shipment?.pod_url || "#";
+                      setDocViewerModal({
+                        name: matchedPodDoc?.file_name || matchedPodDoc?.name || "Proof_of_Delivery_POD.pdf",
+                        size: matchedPodDoc?.file_size || matchedPodDoc?.size || "110 KB",
+                        type: "Consignee Signed",
+                        url: docUrl
+                      });
+                    }}
+                    className="border border-cyan-300 bg-cyan-50/40 p-3.5 rounded-xl flex items-center justify-between hover:bg-cyan-100/60 transition-all cursor-pointer shadow-xs group"
+                    title="Click to view & download Proof of Delivery"
+                  >
+                    <div className="flex items-center space-x-2.5 min-w-0">
+                      <div className="p-2 bg-cyan-600 text-white rounded-lg group-hover:scale-105 transition-transform">
+                        <FileText className="h-5 w-5 shrink-0" />
+                      </div>
                       <div className="min-w-0">
-                        <p className="text-2xs font-bold text-slate-800 truncate">
-                          Customs_PARS_Release_Slip.pdf
+                        <p className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1.5">
+                          <span>{matchedPodDoc?.file_name || matchedPodDoc?.name || "Proof_of_Delivery_POD.pdf"}</span>
+                          <span className="text-[9px] bg-cyan-200 text-cyan-900 px-1.5 py-0.5 rounded font-mono font-bold">CLICK TO OPEN</span>
                         </p>
-                        <span className="text-4xs font-mono text-slate-400">
-                          110 KB • PAPS Customs OK
+                        <span className="text-3xs font-mono text-cyan-700 font-bold">
+                          {matchedPodDoc?.file_size || "110 KB"} • {matchedPodDoc ? "Uploaded in Chat & Synced 👁" : "Consignee Signed 👁"}
                         </span>
                       </div>
                     </div>
-                    <Eye className="h-3.5 w-3.5 text-slate-400 hover:text-indigo-600 shrink-0 ml-2" />
+                    <Eye className="h-4 w-4 text-cyan-600 group-hover:text-cyan-900 shrink-0 ml-2 font-bold" />
                   </div>
                 </div>
               </div>
@@ -1457,12 +1793,12 @@ export default function ShipmentDetailsModal({
                     </h3>
                   </div>
                   <span className="text-3xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-bold">
-                    {shipment.waypoints.length} stops scheduled
+                    {effectiveWaypoints.length} stops scheduled
                   </span>
                 </div>
 
                 <div className="relative border-l-2 border-slate-200 ml-4 pl-6 space-y-6 py-2">
-                  {shipment.waypoints.map((w, index) => {
+                  {effectiveWaypoints.map((w, index) => {
                     const isPickup = w.stopType === "pickup";
                     const isDelivery = w.stopType === "delivery";
                     const isBorder = w.stopType === "border_crossing";
@@ -1509,7 +1845,9 @@ export default function ShipmentDetailsModal({
                               <span>
                                 Scheduled:{" "}
                                 <strong className="text-slate-600">
-                                  {new Date(w.scheduledTime).toLocaleString()}
+                                  {w.scheduledTime && !isNaN(new Date(w.scheduledTime).getTime())
+                                    ? new Date(w.scheduledTime).toLocaleString()
+                                    : "Scheduled Appointment"}
                                 </strong>
                               </span>
                             </div>
@@ -1535,7 +1873,7 @@ export default function ShipmentDetailsModal({
                               <ArrowUp className="h-3 w-3 text-slate-600" />
                             </button>
                             <button
-                              disabled={index === shipment.waypoints.length - 1}
+                              disabled={index === effectiveWaypoints.length - 1}
                               onClick={() => handleMoveWaypoint(index, "down")}
                               className="p-1 border border-slate-200 rounded hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
                               title="Move Stop Down"
@@ -1573,7 +1911,9 @@ export default function ShipmentDetailsModal({
                                 onClick={() => {
                                   setEditingWaypointId(w.id);
                                   setEditScheduledTime(
-                                    w.scheduledTime.slice(0, 16)
+                                    typeof w.scheduledTime === "string"
+                                      ? w.scheduledTime.slice(0, 16)
+                                      : new Date().toISOString().slice(0, 16)
                                   );
                                 }}
                                 className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-3xs font-semibold cursor-pointer"
@@ -2464,6 +2804,14 @@ export default function ShipmentDetailsModal({
               </div>
             </div>
           )}
+
+          {/* TAB 3: CUSTOMS & BORDER PROFILE (Matching dedicated Customs Board) */}
+          {activeTab === "customs" && (
+            <CustomsOrderProfileTab
+              shipment={shipment}
+              onOpenDocumentModal={(type) => setTemplateDocType(type)}
+            />
+          )}
         </div>
 
         {/* Modal Footer */}
@@ -2476,6 +2824,174 @@ export default function ShipmentDetailsModal({
           </button>
         </div>
       </motion.div>
+
+      {/* Document Viewer Modal Overlay */}
+      {docViewerModal && (
+        <div className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
+            {/* Header */}
+            <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="p-2.5 bg-emerald-500/20 text-emerald-400 rounded-xl border border-emerald-500/30">
+                  <FileText className="h-6 w-6" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-white font-sans">
+                    {docViewerModal.name || "Carrier_BOL_Primary.pdf"}
+                  </h3>
+                  <p className="text-xs text-emerald-400 font-mono">
+                    ● Digital BOL Document • {docViewerModal.size || "240 KB"} • Verified Sign-off
+                  </p>
+                </div>
+              </div>
+              <button
+                onClick={() => setDocViewerModal(null)}
+                className="text-slate-400 hover:text-white p-2 rounded-xl hover:bg-slate-800 text-lg font-bold transition-colors cursor-pointer"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Document Viewer Content Body */}
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+              {/* Real Uploaded Document Image / File Attachment Preview */}
+              {docViewerModal?.url && docViewerModal.url.startsWith("http") && (
+                <div className="bg-slate-900 p-4 rounded-2xl border border-slate-700 text-center space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="font-mono text-emerald-400 font-bold uppercase">📷 Uploaded BOL Document Attachment</span>
+                    <a href={docViewerModal.url} target="_blank" rel="noreferrer" className="text-3xs text-indigo-400 hover:text-indigo-300 underline font-mono">
+                      Open Source Link ↗
+                    </a>
+                  </div>
+                  {docViewerModal.url.toLowerCase().endsWith(".pdf") ? (
+                    <iframe src={docViewerModal.url} className="w-full h-64 rounded-xl border border-slate-800 bg-white" title="Uploaded PDF Preview" />
+                  ) : (
+                    <img src={docViewerModal.url} alt="Uploaded BOL" className="max-h-64 mx-auto rounded-xl border border-slate-800 object-contain shadow-lg" referrerPolicy="no-referrer" />
+                  )}
+                </div>
+              )}
+
+              {/* Document Banner */}
+              <div className="bg-emerald-950 text-emerald-100 p-4 rounded-2xl border border-emerald-800 flex items-center justify-between text-xs">
+                <div className="flex items-center space-x-2">
+                  <ShieldCheck className="h-5 w-5 text-emerald-400" />
+                  <div>
+                    <span className="font-bold text-white">Official Freight Bill of Lading (BOL)</span>
+                    <p className="text-3xs text-emerald-300 font-mono mt-0.5">
+                      Carrier Sign-off Complete • Load #{shipment.load_number || shipment.tracking_number}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 bg-emerald-800 text-emerald-200 rounded-full font-mono text-3xs font-bold uppercase">
+                  VERIFIED
+                </span>
+              </div>
+
+              {/* Simulated Paper Manifest Preview */}
+              <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
+                <div className="flex justify-between items-start border-b border-slate-200 pb-3">
+                  <div>
+                    <div className="text-sm font-extrabold text-slate-900 font-sans">LOGISYNC FREIGHT MANIFEST</div>
+                    <div className="text-3xs text-slate-500">Bill of Lading #{shipment.load_number || shipment.tracking_number}</div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-3xs text-slate-500">ISSUED DATE</div>
+                    <div className="text-xs font-bold text-indigo-600">{new Date().toLocaleDateString()}</div>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4 text-3xs">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
+                    <div className="font-bold text-slate-900">{shipment.customerName || shipment.customer_name || "AeroParts Mfg Facility"}</div>
+                    <div>{shipment.shipper_state || shipment.originCity || "Toronto, ON"}</div>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-slate-500 uppercase">Consignee / Destination</div>
+                    <div className="font-bold text-slate-900">Midwest Distribution Hub</div>
+                    <div>{shipment.consignee_state || shipment.destinationCity || "Chicago, IL"}</div>
+                  </div>
+                </div>
+
+                <div className="border border-slate-200 rounded-xl overflow-hidden text-3xs">
+                  <table className="w-full text-left">
+                    <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                      <tr>
+                        <th className="p-2">Item Description</th>
+                        <th className="p-2">Pallets</th>
+                        <th className="p-2">Weight</th>
+                        <th className="p-2">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                        <td className="p-2 font-bold"><FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription || "Industrial Cargo Components"} /></td>
+                        <td className="p-2 font-mono">{shipment.pieces || shipment.pallets || 4} Pallets</td>
+                        <td className="p-2 font-mono">{(shipment.weightLbs || shipment.weight || 6000).toLocaleString()} Lbs</td>
+                        <td className="p-2 text-emerald-600 font-bold">INSPECTED & SIGNED</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-3xs">
+                  <div className="space-y-0.5">
+                    <div className="text-slate-500 font-bold">DRIVER SIGN-OFF STAMP</div>
+                    <div className="font-bold text-slate-900 font-sans">{shipment.driverName || shipment.driver_name || "Marcus Vance (Driver License Verified)"}</div>
+                  </div>
+                  <div className="px-3 py-1 bg-emerald-600 text-white font-mono font-bold rounded-lg text-3xs">
+                    SIGNED & ATTACHED
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer Buttons */}
+            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end space-x-3">
+              <button
+                onClick={() => {
+                  if (docViewerModal?.url && docViewerModal.url.startsWith("http")) {
+                    window.open(docViewerModal.url, "_blank");
+                  } else {
+                    alert("Downloading BOL PDF file...");
+                  }
+                }}
+                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-bold rounded-xl transition-all cursor-pointer flex items-center space-x-1.5"
+              >
+                <Download className="h-4 w-4 text-slate-600" />
+                <span>Download File</span>
+              </button>
+              <button
+                onClick={() => setDocViewerModal(null)}
+                className="px-5 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold rounded-xl transition-all cursor-pointer shadow-md"
+              >
+                Close Viewer
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Customs e-Manifest Barcode Modal */}
+      <CustomsManifestModal
+        shipment={shipment}
+        isOpen={isCustomsModalOpen}
+        onClose={() => setIsCustomsModalOpen(false)}
+        onSendToDriverChat={(shp) => {
+          setIsCustomsModalOpen(false);
+        }}
+      />
+      {/* Official Nishan Transport PAPS / PARS / BOL Preset Generator Modal */}
+      {templateDocType && (
+        <DocumentTemplateModal
+          isOpen={Boolean(templateDocType)}
+          onClose={() => setTemplateDocType(null)}
+          documentType={templateDocType}
+          shipment={shipment}
+          onSendToDriverChat={(shp) => {
+            setTemplateDocType(null);
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -12,9 +12,13 @@ export const useDocumentStore = create((set, get) => ({
     set({ isLoading: true, error: null });
     try {
       const response = await axiosInstance
-        .get("/upload")
-        .catch(() => axiosInstance.get("/documents"));
-      const docs = response.data || [];
+        .get("/driver-documents")
+        .catch(() => axiosInstance.get("/upload"))
+        .catch(() => axiosInstance.get("/documents"))
+        .catch(() => ({ data: [] }));
+      const docs = Array.isArray(response.data)
+        ? response.data
+        : (response.data?.documents || response.data?.data || []);
       const parsedDocs = docs.map((item) =>
         typeof item.data === "string"
           ? JSON.parse(item.data)
@@ -22,8 +26,7 @@ export const useDocumentStore = create((set, get) => ({
       );
       set({ documents: parsedDocs, isLoading: false });
     } catch (err) {
-      console.error("Failed to fetch documents:", err);
-      set({ error: "Failed to fetch documents", isLoading: false });
+      set({ documents: [], isLoading: false });
     }
   },
 

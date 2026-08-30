@@ -144,7 +144,9 @@ export const initialShipments: Shipment[] = [
     documentIds: [],
     loadType: 'LTL',
     tripId: 'TRIP-10002',
-    deliveryCommitment: 'normal',
+    deliveryCommitment: 'appointment',
+    commitmentDate: '2026-07-09',
+    commitmentTime: '11:00',
     waypoints: [
       {
         id: 'WPT102_1',
