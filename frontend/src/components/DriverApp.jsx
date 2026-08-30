@@ -5296,9 +5296,8 @@ export default function DriverApp({
 
   const isNative = Capacitor.isNativePlatform();
 
-  // Position → dispatch sync plumbing (existing driver-coords endpoint:
-  // PUT /api/drivers/:id, columns current_lat / current_lng on drivers).
-  const driverRecordRef = useRef(null);
+  // Position → dispatch sync plumbing (driver-safe endpoint:
+  // PATCH /api/drivers/me/coords, touches only current_lat / current_lng).
   const lastPostRef = useRef(null);
   const syncFailureCountRef = useRef(0);
   const POSITION_SYNC_INTERVAL_MS = 30000;
@@ -5314,28 +5313,7 @@ export default function DriverApp({
     }
     lastPostRef.current = now;
     try {
-      // PUT /drivers/:id rewrites every bound column — fetch the driver's full
-      // record once and merge, so a coords ping never nulls other fields.
-      if (!driverRecordRef.current) {
-        const res = await axiosInstance.get(`/drivers/${driverId}`);
-        driverRecordRef.current = res.data?.driver || {};
-      }
-      const rec = driverRecordRef.current;
-      await axiosInstance.put(`/drivers/${driverId}`, {
-        license_number: rec.license_number ?? null,
-        license_expiry: rec.license_expiry ?? null,
-        license_state: rec.license_state ?? null,
-        eld_id: rec.eld_id ?? null,
-        phone_number: rec.phone_number ?? null,
-        emergency_contact_phone: rec.emergency_contact_phone ?? null,
-        assigned_truck_number: rec.assigned_truck_number ?? null,
-        assigned_trailer_number: rec.assigned_trailer_number ?? null,
-        current_duty_status: rec.current_duty_status ?? null,
-        status: rec.status ?? null,
-        current_lat: lat,
-        current_lng: lng,
-      });
-      driverRecordRef.current = { ...rec, current_lat: lat, current_lng: lng };
+      await axiosInstance.patch(`/drivers/me/coords`, { lat, lng });
       syncFailureCountRef.current = 0;
       setLastSyncAt(new Date().toISOString());
       setSyncError(null);
@@ -5347,8 +5325,8 @@ export default function DriverApp({
           ? " Sync paused after repeated failures — toggle GPS off/on to retry."
           : "";
       setSyncError(
-        status === 403
-          ? `Position sync rejected by server (HTTP 403 — this account's role is not authorized to update driver coordinates).${paused}`
+        status === 404
+          ? `Position sync rejected: no driver profile is linked to this account.${paused}`
           : `Position sync to dispatch failed${status ? ` (HTTP ${status})` : ""}.${paused}`
       );
     }

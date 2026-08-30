@@ -409,14 +409,68 @@ export const getDriver = async (req, res) => {
       });
   
     } catch (err) {
-  
+
       console.error(err);
-  
+
       res.status(500).json({
         success: false,
         message: "Server Error",
       });
-  
+
+    }
+  };
+
+// Update My Coords — driver-safe position sync from the driver app.
+// Resolves the driver row from the authenticated user, touches ONLY
+// current_lat / current_lng so a coords ping can never null other fields.
+export const updateMyCoords = async (req, res) => {
+    try {
+
+      const lat = Number(req.body?.lat);
+      const lng = Number(req.body?.lng);
+
+      if (
+        !Number.isFinite(lat) || !Number.isFinite(lng) ||
+        lat < -90 || lat > 90 || lng < -180 || lng > 180
+      ) {
+        return res.status(400).json({
+          success: false,
+          message: "lat and lng must be valid coordinates",
+        });
+      }
+
+      const result = await pool.query(
+        `
+        UPDATE drivers
+        SET current_lat=$1,
+            current_lng=$2
+        WHERE user_id=$3
+        RETURNING id, current_lat, current_lng
+        `,
+        [lat, lng, req.user.id]
+      );
+
+      if (result.rows.length === 0) {
+        return res.status(404).json({
+          success: false,
+          message: "No driver profile linked to this account",
+        });
+      }
+
+      res.json({
+        success: true,
+        driver: result.rows[0],
+      });
+
+    } catch (err) {
+
+      console.error(err);
+
+      res.status(500).json({
+        success: false,
+        message: "Server Error",
+      });
+
     }
   };
 
