@@ -350,6 +350,11 @@ import AuditLogPage from "./pages/AuditLogPage";
 import KanbanDispatchPage from "./pages/KanbanDispatchPage";
 import SettlementsPage from "./pages/SettlementsPage";
 import PcMilerPage from "./pages/PcMilerPage";
+import PortalLoginPage from "./pages/PortalLoginPage";
+import PortalDashboardPage from "./pages/PortalDashboardPage";
+import PortalRateRequestPage from "./pages/PortalRateRequestPage";
+import PortalLoadDetailPage from "./pages/PortalLoadDetailPage";
+import { usePortalStore } from "./stores/usePortalStore";
 
 
 
@@ -456,6 +461,48 @@ function LogiSyncApp() {
       navigate("/" + defaultRole);
     }
   }, [location.pathname, isLoggedIn, currentUser, navigate, currentRole]);
+
+  // Portal routing (customer/broker login — separate surface from staff app)
+  if (location.pathname.startsWith("/portal")) {
+    const portalUser = usePortalStore((state) => state.portalUser);
+    const isCheckingPortalAuth = usePortalStore((state) => state.isCheckingAuth);
+    const checkPortalAuth = usePortalStore((state) => state.checkPortalAuth);
+
+    useEffect(() => {
+      checkPortalAuth();
+    }, []);
+
+    if (isCheckingPortalAuth) {
+      return (
+        <div className="flex items-center justify-center h-screen bg-slate-50">
+          <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
+        </div>
+      );
+    }
+
+    return (
+      <>
+        <Routes>
+          <Route path="/portal/login" element={<PortalLoginPage />} />
+          <Route
+            path="/portal/dashboard"
+            element={portalUser ? <PortalDashboardPage /> : <Navigate to="/portal/login" replace />}
+          />
+          <Route
+            path="/portal/rate-request"
+            element={portalUser ? <PortalRateRequestPage /> : <Navigate to="/portal/login" replace />}
+          />
+          <Route
+            path="/portal/loads/:id"
+            element={portalUser ? <PortalLoadDetailPage /> : <Navigate to="/portal/login" replace />}
+          />
+          <Route path="/portal" element={<Navigate to="/portal/dashboard" replace />} />
+          <Route path="/portal/*" element={<Navigate to="/portal/dashboard" replace />} />
+        </Routes>
+        <Toaster position="top-right" />
+      </>
+    );
+  }
 
   // Public Tracking Route Bypass (No Login Required)
   if (location.pathname.startsWith("/track")) {
