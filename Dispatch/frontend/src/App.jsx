@@ -628,6 +628,43 @@ function LogiSyncApp() {
 }
 
 
+// A render error anywhere in the portal must never leave a broker staring
+// at a blank white page — show a recoverable message instead.
+class PortalErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { error: null };
+  }
+  static getDerivedStateFromError(error) {
+    return { error };
+  }
+  componentDidCatch(error, info) {
+    console.error("Portal render error:", error, info);
+  }
+  render() {
+    if (this.state.error) {
+      return (
+        <div className="flex flex-col items-center justify-center h-screen bg-slate-50 px-6 text-center">
+          <p className="text-lg font-bold text-slate-900">Something went wrong</p>
+          <p className="text-sm text-slate-600 mt-2 max-w-md">
+            The page hit an unexpected error. Your data is safe — reload to continue.
+          </p>
+          <button
+            onClick={() => {
+              this.setState({ error: null });
+              window.location.href = "/portal/dashboard";
+            }}
+            className="mt-4 px-4 py-2 bg-sky-600 text-white text-sm font-semibold rounded-lg hover:bg-sky-700"
+          >
+            Back to Dashboard
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 // Customer/Broker portal — a fully separate surface from the staff TMS.
 // Rendered INSTEAD of LogiSyncApp for every /portal/* path so none of the
 // staff app's auth redirects or bootstrap fetches ever run for brokers.
@@ -684,7 +721,11 @@ export default function App() {
 
   // The portal is its own app: separate login, separate store, no staff shell.
   if (location.pathname.startsWith("/portal")) {
-    return <PortalApp />;
+    return (
+      <PortalErrorBoundary>
+        <PortalApp />
+      </PortalErrorBoundary>
+    );
   }
 
   return (

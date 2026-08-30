@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { usePortalStore } from "../stores/usePortalStore";
-import { Plus, LogOut, MapPin, Truck, FileUp, AlertCircle } from "lucide-react";
+import { Plus, LogOut, MapPin, Truck, FileUp, AlertCircle, Loader2 } from "lucide-react";
 
 export default function PortalDashboardPage() {
   const navigate = useNavigate();
