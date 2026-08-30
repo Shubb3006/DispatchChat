@@ -1438,6 +1438,120 @@ export const autoAssignDriver = async (req, res) => {
 
 
 
+// ===== Trip Legs / Relay Legs Management =====
+
+export const getActiveDrivers = async (req, res) => {
+  try {
+    const query = `
+      SELECT id, name, driver_code, driver_name, status, hos_remaining_hours
+      FROM drivers
+      WHERE status = 'active'
+      LIMIT 100
+    `;
+    const result = await pool.query(query);
+    res.json({ drivers: result.rows || [] });
+  } catch (err) {
+    console.error("getActiveDrivers error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getAvailableTrucks = async (req, res) => {
+  try {
+    const query = `
+      SELECT id, truck_number, name, status
+      FROM trucks
+      WHERE status IN ('available', 'idle')
+      LIMIT 100
+    `;
+    const result = await pool.query(query);
+    res.json({ trucks: result.rows || [] });
+  } catch (err) {
+    console.error("getAvailableTrucks error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const getLoadLegs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const query = `
+      SELECT id, load_id, seq, driver_id, truck_id, miles, rate_per_mile, status, created_at
+      FROM load_legs
+      WHERE load_id = $1
+      ORDER BY seq ASC
+    `;
+    const result = await pool.query(query, [id]);
+    res.json({ legs: result.rows || [] });
+  } catch (err) {
+    console.error("getLoadLegs error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const createLoadLegs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { legs } = req.body;
+
+    if (!Array.isArray(legs)) {
+      return res.status(400).json({ error: "legs must be an array" });
+    }
+
+    const created = [];
+    for (const leg of legs) {
+      const query = `
+        INSERT INTO load_legs (load_id, seq, driver_id, truck_id, miles, rate_per_mile, status)
+        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        RETURNING *
+      `;
+      const result = await pool.query(query, [
+        id, leg.seq, leg.driver_id, leg.truck_id, leg.miles, leg.rate_per_mile, leg.status || 'pending'
+      ]);
+      created.push(result.rows[0]);
+    }
+    res.json({ legs: created });
+  } catch (err) {
+    console.error("createLoadLegs error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const updateLoadLeg = async (req, res) => {
+  try {
+    const { legId } = req.params;
+    const { driver_id, truck_id, miles, rate_per_mile, status } = req.body;
+
+    const query = `
+      UPDATE load_legs
+      SET driver_id = COALESCE($1, driver_id),
+          truck_id = COALESCE($2, truck_id),
+          miles = COALESCE($3, miles),
+          rate_per_mile = COALESCE($4, rate_per_mile),
+          status = COALESCE($5, status)
+      WHERE id = $6
+      RETURNING *
+    `;
+    const result = await pool.query(query, [driver_id, truck_id, miles, rate_per_mile, status, legId]);
+    res.json({ leg: result.rows[0] });
+  } catch (err) {
+    console.error("updateLoadLeg error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+export const deleteLoadLeg = async (req, res) => {
+  try {
+    const { legId } = req.params;
+    const query = `DELETE FROM load_legs WHERE id = $1 RETURNING id`;
+    const result = await pool.query(query, [legId]);
+    res.json({ deleted: result.rows[0]?.id });
+  } catch (err) {
+    console.error("deleteLoadLeg error:", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
 // (            `
 //             UPDATE loads
 //             SET

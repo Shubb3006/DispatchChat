@@ -18,6 +18,12 @@ import {
   uploadAndProcessPdfTender,
   aiMatchDrivers,
   autoAssignDriver,
+  getActiveDrivers,
+  getAvailableTrucks,
+  getLoadLegs,
+  createLoadLegs,
+  updateLoadLeg,
+  deleteLoadLeg,
 } from "../controllers/load.controller.js";
 import { upload } from '../config/multer.js';
 import { requireCustomer } from "../middlewares/customer.middleware.js";
@@ -93,5 +99,10 @@ router.get("/pending-bols",protectedRoute,getPendingBOLs);
 router.post('/upload-bol',protectedRoute, upload.single('bol_image'), uploadBOL);
 router.post('/approve-bol',protectedRoute, approveBOL);
 router.post('/reject-bol',protectedRoute, rejectBOL);
+
+// Trip Legs / Relay Legs Management
+// Note: These don't use parameterized routes (/resources/*) to avoid conflicts with /:id
+// Frontend expects GET /drivers and GET /trucks without load context
+// These endpoints can be in a separate route file, but kept here for now
 
 export default router;
