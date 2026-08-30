@@ -127,6 +127,8 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start autonomous background load confirmation intake worker
   startAutomationWorker();
-  // Start geofence detection worker
-  startGeofenceWorker();
+  // Start geofence arrival/departure detection worker (default on)
+  if (process.env.GEOFENCE_ENABLED !== "false") {
+    startGeofenceWorker();
+  }
 });
