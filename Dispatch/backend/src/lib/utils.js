@@ -5,15 +5,17 @@ export const generateToken = (userId, res) => {
     expiresIn: "7d",
   });
 
+  // The frontend (Vercel) and this API (Render) are on different sites, so the
+  // browser only sends the cookie back when it is SameSite=None, which in turn
+  // requires Secure. Locally both are on localhost, where Lax is fine and Secure
+  // would stop the cookie being stored over plain http.
+  const isProd = process.env.NODE_ENV !== "development";
+
   res.cookie("jwt_token", token, {
-    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days in ms
+    maxAge: 7 * 24 * 60 * 60 * 1000 , //milliesecond;
     httpOnly: true,
-    // "lax" works for same-site dev (localhost:5174 -> localhost:5555) and normal use.
-    // For a cross-site HTTPS deployment (separate frontend domain), set COOKIE_SAMESITE=none.
-    sameSite: process.env.COOKIE_SAMESITE || "lax",
-    // Only mark Secure in production (HTTPS). In dev over http://localhost a Secure
-    // cookie is silently dropped by the browser, which breaks the whole auth flow.
-    secure: process.env.NODE_ENV === "production",
+    sameSite: isProd ? "none" : "lax",
+    secure: isProd,
   });
 
   return token;

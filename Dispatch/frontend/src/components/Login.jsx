@@ -92,22 +92,15 @@ export default function Login() {
       const loggedIn = await authLogin({ username, password });
       if (loggedIn) {
         const currentUser = useAuthStore.getState().authUser;
+        console.log(currentUser);
         if (currentUser) {
           if (
             currentUser.role === "super_admin" ||
             currentUser.role === "admin"
           ) {
             navigate("/reporting");
-          } else if (currentUser.role === "driver") {
-            // Drivers always land on the standalone Driver App.
-            navigate("/driver");
           } else {
-            // The backend returns snake_case `allowed_modules` — the old
-            // `currentUser.allowedModules[0]` threw a TypeError here for every
-            // non-admin login, leaving the redirect to App.jsx's effect.
-            const modules =
-              currentUser.allowed_modules || currentUser.allowedModules || [];
-            navigate("/" + (modules[0] || "customer"));
+            navigate("/" + currentUser.allowedModules[0]);
           }
         }
       } else {

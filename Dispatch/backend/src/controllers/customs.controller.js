@@ -736,8 +736,6 @@ const ensureCustomsTable = async () => {
           updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       );
     `);
-    // BorderConnect filing lifecycle columns (mirrors migration 110).
-    await ensureFilingColumns();
   } catch (err) {
     console.warn("Customs entries table check:", err.message);
   }
@@ -1234,9 +1232,6 @@ import {
   getBorderConnectCredentials,
   setBorderConnectCredentials,
   syncAllCrossBorderShipments,
-  sendManifest,
-  refreshManifestStatus,
-  ensureFilingColumns,
 } from "../services/borderconnect.service.js";
 
 // GET BorderConnect Connection Info
@@ -1256,128 +1251,82 @@ export const saveBorderConnectConfig = (req, res) => {
   });
 };
 
-// GET Stored PAPS / PARS Filing Status (honest — from our database)
+// GET Live PAPS / PARS Status from BorderConnect
 export const checkBorderConnectStatus = async (req, res) => {
   try {
     const { barcode } = req.params;
     const { type = "PAPS" } = req.query;
 
-    // Returns the stored, honest filing state. No fabricated statuses and no
-    // blind DB overwrites — real updates come from /:id/refresh-status.
     const result = await checkPapsParsStatus(barcode, type);
-    res.status(result.success ? 200 : result.error === "entry_not_found" ? 404 : 400).json(result);
+
+    // If entry exists in database, update status accordingly
+    if (result.status) {
+      await pool.query(
+        `UPDATE customs_entries 
+         SET customs_status = $1, 
+             broker_entry_number = COALESCE($2, broker_entry_number),
+             updated_at = CURRENT_TIMESTAMP
+         WHERE lead_number = $3`,
+        [result.status, result.entryNumber || null, barcode]
+      ).catch(() => {});
+    }
+
+    res.json(result);
   } catch (error) {
     console.error("BorderConnect status check error:", error);
     res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// POST Submit ACE eManifest via BorderConnect (honest lifecycle)
+// POST Submit ACE eManifest via BorderConnect
 export const submitBorderConnectAce = async (req, res) => {
   try {
     const { entryId, manifestData } = req.body || {};
-    const result = await transmitAceManifest({ entryId, ...(manifestData || {}) });
-    res.status(result.ok ? 200 : result.error === "entry_id_required" ? 400 : 502).json(result);
+    const payload = manifestData || req.body || {};
+    const result = await transmitAceManifest(payload);
+
+    const tripNum = result.tripNumber || result.aceTripNumber;
+    if (entryId && tripNum) {
+      await pool.query(
+        `UPDATE customs_entries
+         SET ace_trip_number = $1,
+             customs_status = 'ACCEPTED',
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2`,
+        [tripNum, entryId]
+      ).catch(() => {});
+    }
+
+    res.json(result);
   } catch (error) {
     console.error("BorderConnect ACE submission error:", error);
-    res.status(500).json({ ok: false, success: false, message: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
-// POST Submit ACI eManifest via BorderConnect (honest lifecycle)
+// POST Submit ACI eManifest via BorderConnect
 export const submitBorderConnectAci = async (req, res) => {
   try {
     const { entryId, manifestData } = req.body || {};
-    const result = await transmitAciManifest({ entryId, ...(manifestData || {}) });
-    res.status(result.ok ? 200 : result.error === "entry_id_required" ? 400 : 502).json(result);
+    const payload = manifestData || req.body || {};
+    const result = await transmitAciManifest(payload);
+
+    const tripNum = result.tripNumber || result.aciCargoControlNumber;
+    if (entryId && tripNum) {
+      await pool.query(
+        `UPDATE customs_entries
+         SET aci_cargo_control_number = $1,
+             customs_status = 'ACCEPTED',
+             updated_at = CURRENT_TIMESTAMP
+         WHERE id = $2`,
+        [tripNum, entryId]
+      ).catch(() => {});
+    }
+
+    res.json(result);
   } catch (error) {
     console.error("BorderConnect ACI submission error:", error);
-    res.status(500).json({ ok: false, success: false, message: error.message });
-  }
-};
-
-/**
- * POST /api/customs/:id/file
- * File the eManifest (ACE or ACI, based on the entry's direction) with
- * BorderConnect. Persists request, response, and honest lifecycle status.
- */
-export const fileBorderConnectManifest = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await sendManifest(id);
-
-    if (result.ok) {
-      await recordAuditLog({
-        req,
-        action: "CUSTOMS_EMANIFEST_FILED",
-        entityType: "CUSTOMS",
-        entityId: id,
-        entityIdentifier: result.tripNumber || id,
-        changeSummary: `eManifest (${result.manifestType}) filed via BorderConnect — status ${result.status}`,
-        details: { status: result.status, tripNumber: result.tripNumber },
-      }).catch(() => {});
-      return res.json(result);
-    }
-
-    const httpStatus =
-      result.error === "customs_entry_not_found"
-        ? 404
-        : result.error === "borderconnect_not_configured" || result.error === "missing_required_fields"
-        ? 400
-        : 502;
-    res.status(httpStatus).json(result);
-  } catch (error) {
-    console.error("fileBorderConnectManifest error:", error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-};
-
-/**
- * POST /api/customs/:id/refresh-status
- * Poll BorderConnect's receive endpoint for real customs responses and
- * persist any update that pertains to this manifest.
- */
-export const refreshBorderConnectStatus = async (req, res) => {
-  try {
-    const { id } = req.params;
-    const result = await refreshManifestStatus(id);
-    if (result.ok) return res.json(result);
-    const httpStatus =
-      result.error === "customs_entry_not_found"
-        ? 404
-        : result.error === "borderconnect_not_configured"
-        ? 400
-        : 502;
-    res.status(httpStatus).json(result);
-  } catch (error) {
-    console.error("refreshBorderConnectStatus error:", error);
-    res.status(500).json({ ok: false, error: error.message });
-  }
-};
-
-/**
- * GET /api/customs/:id/filing
- * Expose the stored, honest filing state for one customs entry.
- */
-export const getBorderConnectFilingState = async (req, res) => {
-  try {
-    await ensureFilingColumns();
-    const { id } = req.params;
-    const result = await pool.query(
-      `SELECT id, lead_number, lead_number_type, border_direction,
-              customs_status, border_connect_status, bc_request_payload,
-              bc_response_payload, bc_error_message, filed_at,
-              last_status_check_at, ace_trip_number, aci_cargo_control_number
-       FROM customs_entries WHERE id = $1;`,
-      [id]
-    );
-    if (result.rows.length === 0) {
-      return res.status(404).json({ ok: false, error: "customs_entry_not_found" });
-    }
-    res.json({ ok: true, filing: result.rows[0] });
-  } catch (error) {
-    console.error("getBorderConnectFilingState error:", error);
-    res.status(500).json({ ok: false, error: error.message });
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 
@@ -1401,7 +1350,6 @@ export const syncAllBorderConnectShipments = async (req, res) => {
  */
 export const getBorderConnectSyncSummary = async (req, res) => {
   try {
-    await ensureCustomsTable();
     const config = getBorderConnectCredentials();
     let entries = [];
     try {
@@ -1409,29 +1357,14 @@ export const getBorderConnectSyncSummary = async (req, res) => {
         `SELECT * FROM customs_entries ORDER BY created_at DESC LIMIT 50;`
       );
       entries = resDb.rows || [];
-    } catch (e) {
-      console.warn("getBorderConnectSyncSummary query failed:", e.message);
-    }
-
-    const byFilingStatus = entries.reduce((acc, e) => {
-      const s = e.border_connect_status || "DRAFT";
-      acc[s] = (acc[s] || 0) + 1;
-      return acc;
-    }, {});
+    } catch (e) {}
 
     res.json({
       success: true,
       config,
       totalEntries: entries.length,
-      // Honest counts based on the persisted BorderConnect filing lifecycle.
-      byFilingStatus,
-      acceptedCount: entries.filter((e) => e.border_connect_status === "ACCEPTED").length,
-      pendingCount: entries.filter((e) =>
-        ["DRAFT", "QUEUED", "SENT"].includes(e.border_connect_status || "DRAFT")
-      ).length,
-      rejectedCount: entries.filter((e) =>
-        ["REJECTED", "ERROR"].includes(e.border_connect_status)
-      ).length,
+      acceptedCount: entries.filter((e) => e.customs_status === "ACCEPTED" || e.customs_status === "CLEARED").length,
+      pendingCount: entries.filter((e) => e.customs_status === "PAPS_PARS_ACTIVE" || e.customs_status === "SUBMITTED_TO_BROKER").length,
       entries,
     });
   } catch (error) {

@@ -1,8 +1,9 @@
 import { create } from "zustand";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { API_BASE_URL } from "@/lib/apiBase";
 
-const API_BASE = "http://localhost:5555/api/audit-logs";
+const API_BASE = `${API_BASE_URL}/audit-logs`;
 
 export const useAuditStore = create((set, get) => ({
   auditLogs: [],

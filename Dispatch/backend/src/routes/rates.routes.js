@@ -1,32 +1,42 @@
-import express from "express";
-import { protectedRoute, authorize } from "../middlewares/auth.middleware.js";
+import { Router } from "express";
+import { protectedRoute } from "../middlewares/auth.middleware.js";
+import { authorize } from "../middlewares/role.middleware.js";
+import { requireCustomer } from "../middlewares/customer.middleware.js";
 import {
-  listRateRequests,
-  getRateRequest,
   createRateRequest,
+  listRateRequests,
   quoteRateRequest,
   respondToRateRequest,
   dispatcherNotificationStream,
   myNotifications,
 } from "../controllers/portal.controller.js";
 
-const router = express.Router();
+const router = Router();
 
-// Public rate request endpoint (customer portal)
-router.post("/", protectedRoute, createRateRequest);
+// Customer portal: submit a rate request (strictly scoped to own tenant)
+router.post("/request", protectedRoute, requireCustomer, createRateRequest);
 
-// Dispatcher rate request management (requires auth)
-router.get("/", protectedRoute, authorize("dispatcher", "admin", "super_admin"), listRateRequests);
-router.get("/:id", protectedRoute, getRateRequest);
-router.patch("/:id/quote", protectedRoute, authorize("dispatcher", "admin", "super_admin"), quoteRateRequest);
+// Both sides list rate requests (customers see only their own)
+router.get("/", protectedRoute, listRateRequests);
 
-// Customer accepts/rejects quotes
-router.post("/:id/respond", protectedRoute, respondToRateRequest);
+// Dispatcher real-time alerts (SSE) + polling fallback
+router.get(
+  "/notifications/stream",
+  protectedRoute,
+  authorize("dispatcher", "admin", "super_admin"),
+  dispatcherNotificationStream
+);
+router.get("/notifications", protectedRoute, myNotifications);
 
-// Real-time dispatcher alerts (SSE stream)
-router.get("/notifications/stream", protectedRoute, authorize("dispatcher", "admin", "super_admin"), dispatcherNotificationStream);
+// Dispatcher quotes a price
+router.patch(
+  "/:id/quote",
+  protectedRoute,
+  authorize("dispatcher", "admin", "super_admin"),
+  quoteRateRequest
+);
 
-// Customer portal: list my notifications
-router.get("/notifications/my", protectedRoute, myNotifications);
+// Customer accepts or rejects the quote
+router.patch("/:id/respond", protectedRoute, requireCustomer, respondToRateRequest);
 
 export default router;

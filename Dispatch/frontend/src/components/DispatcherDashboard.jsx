@@ -44,6 +44,7 @@ import {
 
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
+import { useTelematicsStore } from "../stores/useTelematicsStore";
 import { axiosInstance } from "@/lib/axios";
 import toast from "react-hot-toast";
 
@@ -386,9 +387,17 @@ export default function DispatcherDashboard({
   const trips = useTripStore((state) => state.trips);
   const { documents, fetchDocuments } = useDocumentStore();
 
+  // Live Samsara fleet, for the Active Fleet card.
+  const fleetSummary = useTelematicsStore((state) => state.summary);
+  const fetchFleetTelematics = useTelematicsStore((state) => state.fetchFleetTelematics);
+
   useEffect(() => {
     fetchDocuments();
   }, [fetchDocuments]);
+
+  useEffect(() => {
+    fetchFleetTelematics();
+  }, [fetchFleetTelematics]);
 
   // All data is already fetched by DispatcherPage on mount.
   // No duplicate fetch calls here — subscribing to the stores is enough.
@@ -412,79 +421,6 @@ export default function DispatcherDashboard({
   });
   const [isKpiConfigOpen, setIsKpiConfigOpen] = useState(false);
 
-  // Pagination & search state
-  const [searchQ, setSearchQ] = useState("");
-  const [sortBy, setSortBy] = useState("-created_at");
-  const [limit, setLimit] = useState(50);
-  const [offset, setOffset] = useState(0);
-  const [total, setTotal] = useState(shipments?.length || 0);
-  const [savedFilters, setSavedFilters] = useState([]);
-  const [filteredShipments, setFilteredShipments] = useState(shipments || []);
-
-  // Fetch loads with pagination/search from backend
-  useEffect(() => {
-    const fetchWithParams = async () => {
-      try {
-        const params = new URLSearchParams();
-        if (searchQ) params.append("q", searchQ);
-        params.append("limit", limit);
-        params.append("offset", offset);
-        if (sortBy) params.append("sort", sortBy);
-
-        const res = await axiosInstance.get(`/loads?${params}`);
-        if (res.data.data) {
-          setFilteredShipments(res.data.data);
-          setTotal(res.data.total || res.data.data.length);
-        } else {
-          setFilteredShipments(shipments || []);
-        }
-      } catch (err) {
-        console.warn("Pagination fetch failed, using local data:", err.message);
-        setFilteredShipments(shipments || []);
-        setTotal(shipments?.length || 0);
-      }
-    };
-    fetchWithParams();
-  }, [searchQ, offset, limit, sortBy, shipments]);
-
-  // Fetch saved filters
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
-        setSavedFilters(res.data.filters || []);
-      } catch (err) {
-        console.warn("Failed to load saved filters");
-      }
-    };
-    fetchFilters();
-  }, []);
-
-  // Save a filter
-  const saveCurrentFilter = async (filterName) => {
-    try {
-      await axiosInstance.post("/user/saved-filters", {
-        page_key: "dispatcher_loads",
-        name: filterName,
-        params: { q: searchQ, sort: sortBy },
-      });
-      toast.success(`Filter "${filterName}" saved`);
-      // Refresh filters list
-      const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
-      setSavedFilters(res.data.filters || []);
-    } catch (err) {
-      toast.error("Failed to save filter");
-    }
-  };
-
-  // Apply a saved filter
-  const applySavedFilter = (filter) => {
-    if (filter.params?.q) setSearchQ(filter.params.q);
-    if (filter.params?.sort) setSortBy(filter.params.sort);
-    setOffset(0);
-    toast.success(`Applied filter: ${filter.name}`);
-  };
-
   const toggleKpiCard = (cardKey) => {
     setKpiCards((prev) => {
       const next = prev.includes(cardKey)
@@ -501,6 +437,7 @@ export default function DispatcherDashboard({
   const [statusFilter, setStatusFilter] = useState("all");
   const [loadTypeFilter, setLoadTypeFilter] = useState("all");
   const [commitmentFilter, setCommitmentFilter] = useState("all");
+  const [sortBy, setSortBy] = useState("trackingNumber");
   const [sortOrder, setSortOrder] = useState("asc");
   const [formCommitment, setFormCommitment] = useState("normal");
   const [formCommitmentDate, setFormCommitmentDate] = useState("");
@@ -1641,8 +1578,11 @@ export default function DispatcherDashboard({
                   Active Fleet
                 </p>
                 <h4 className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
-                  {shipments.filter((s) => s.status !== "delivered").length}
+                  {fleetSummary.total > 0 ? fleetSummary.total : "—"}
                 </h4>
+                <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
+                  {fleetSummary.inTransit} moving
+                </p>
               </div>
               <div className="p-2.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-xl shadow-2xs">
                 <Truck className="h-4 w-4" />
@@ -2127,76 +2067,6 @@ export default function DispatcherDashboard({
                   <span>Approve BOL & Mark Picked Up</span>
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Search & Pagination Controls for Grid View */}
-      {activeView === "grid" && (
-        <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 space-y-4">
-          {/* Search + Sort */}
-          <div className="flex flex-col sm:flex-row gap-3">
-            <input
-              type="text"
-              placeholder="Search loads (origin, destination, load number, etc)..."
-              value={searchQ}
-              onChange={(e) => {
-                setSearchQ(e.target.value);
-                setOffset(0);
-              }}
-              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
-            />
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-slate-300 rounded-lg text-sm"
-            >
-              <option value="-created_at">Newest first</option>
-              <option value="created_at">Oldest first</option>
-              <option value="-status">Status (z-a)</option>
-            </select>
-          </div>
-
-          {/* Saved Filters */}
-          {savedFilters.length > 0 && (
-            <div className="flex flex-wrap gap-2">
-              {savedFilters.map((f) => (
-                <button
-                  key={f.id}
-                  onClick={() => {
-                    if (f.params?.q) setSearchQ(f.params.q);
-                    if (f.params?.sort) setSortBy(f.params.sort);
-                    setOffset(0);
-                  }}
-                  className="px-3 py-1.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full text-sm hover:bg-sky-100"
-                >
-                  {f.name}
-                </button>
-              ))}
-            </div>
-          )}
-
-          {/* Pagination */}
-          <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-600">
-              {Math.min(offset + 1, total)}–{Math.min(offset + limit, total)} of {total}
-            </span>
-            <div className="flex gap-2">
-              <button
-                onClick={() => setOffset(Math.max(0, offset - limit))}
-                disabled={offset === 0}
-                className="px-3 py-1 border border-slate-300 rounded disabled:opacity-50 hover:bg-slate-50"
-              >
-                ← Prev
-              </button>
-              <button
-                onClick={() => setOffset(offset + limit)}
-                disabled={offset + limit >= total}
-                className="px-3 py-1 border border-slate-300 rounded disabled:opacity-50 hover:bg-slate-50"
-              >
-                Next →
-              </button>
             </div>
           </div>
         </div>

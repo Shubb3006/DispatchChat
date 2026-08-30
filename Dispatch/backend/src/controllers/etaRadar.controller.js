@@ -1,7 +1,7 @@
 import {
   getPredictiveRadarOverview,
-  getBorderWaitTimesLive,
-  getWeatherCorridorsLive,
+  BORDER_CROSSING_PORTS,
+  HIGHWAY_WEATHER_CORRIDORS,
 } from "../services/predictiveEtaWeather.service.js";
 
 // GET /api/v1/eta-radar/overview
@@ -16,29 +16,17 @@ export const getRadarOverview = async (req, res) => {
 };
 
 // GET /api/v1/eta-radar/border-wait-times
-export const getBorderWaitTimes = async (req, res) => {
+export const getBorderWaitTimes = (req, res) => {
   try {
-    const { usBound, canadaBound } = await getBorderWaitTimesLive();
-
-    const portsWithWaits = usBound.ports.filter((p) => p.currentWaitMinutes !== null);
-    const avg =
-      portsWithWaits.length > 0
-        ? Math.round(
-            portsWithWaits.reduce((acc, p) => acc + p.currentWaitMinutes, 0) /
-              portsWithWaits.length
-          )
-        : null;
-
+    const avg = Math.round(
+      BORDER_CROSSING_PORTS.reduce((acc, p) => acc + p.currentWaitMinutes, 0) /
+        BORDER_CROSSING_PORTS.length
+    );
     res.json({
       success: true,
-      available: usBound.available,
-      ...(usBound.reason ? { reason: usBound.reason } : {}),
-      source: usBound.source,
-      fetched_at: usBound.fetched_at,
-      portsCount: usBound.ports.length,
+      portsCount: BORDER_CROSSING_PORTS.length,
       averageWaitMinutes: avg,
-      ports: usBound.ports,
-      canadaBound,
+      ports: BORDER_CROSSING_PORTS,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -48,20 +36,17 @@ export const getBorderWaitTimes = async (req, res) => {
 };
 
 // GET /api/v1/eta-radar/weather-corridors
-export const getWeatherCorridors = async (req, res) => {
+export const getWeatherCorridors = (req, res) => {
   try {
-    const corridors = await getWeatherCorridorsLive();
-    const totalAlerts = corridors.reduce(
+    const totalAlerts = HIGHWAY_WEATHER_CORRIDORS.reduce(
       (acc, c) => acc + (c.severeAlerts?.length || 0),
       0
     );
     res.json({
       success: true,
-      corridorsCount: corridors.length,
+      corridorsCount: HIGHWAY_WEATHER_CORRIDORS.length,
       totalSevereAlerts: totalAlerts,
-      alertsSource: "NOAA NWS (api.weather.gov)",
-      corridors,
-      fetched_at: corridors[0]?.fetched_at || new Date().toISOString(),
+      corridors: HIGHWAY_WEATHER_CORRIDORS,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -70,7 +55,7 @@ export const getWeatherCorridors = async (req, res) => {
   }
 };
 
-// POST /api/v1/eta-radar/recalculate
+// POST /api/v1/eta-radar/simulate-recalculation
 export const recalculateRadar = async (req, res) => {
   try {
     const data = await getPredictiveRadarOverview();

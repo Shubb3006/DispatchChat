@@ -33,11 +33,23 @@ export const useDriverStore = create((set, get) => ({
       const response = await axiosInstance.get("/drivers");
       const data = response.data.drivers || response.data || [];
       const parsedData = Array.isArray(data)
-        ? data.map((item) =>
-            typeof item.data === "string"
-              ? JSON.parse(item.data)
-              : item.data || item
-          )
+        ? data.map((raw) => {
+            const item = typeof raw.data === "string" ? JSON.parse(raw.data) : (raw.data || raw);
+            const fullName = item.name || item.full_name || [item.first_name, item.last_name].filter(Boolean).join(" ") || item.username || item.driver_code || "Driver";
+            return {
+              ...item,
+              id: item.id || item.driver_code,
+              driver_code: item.driver_code || item.id,
+              name: fullName,
+              full_name: fullName,
+              phone_number: item.phone_number || item.phone || "",
+              email: item.email || "",
+              status: (item.status || "available").toLowerCase(),
+              current_duty_status: item.current_duty_status || "OFF",
+              assigned_truck_number: item.assigned_truck_number || "TRK-Unassigned",
+              assigned_trailer_number: item.assigned_trailer_number || "TRL-Unassigned",
+            };
+          })
         : [];
       if (parsedData.length > 0) {
         set({ drivers: parsedData, isLoading: false });

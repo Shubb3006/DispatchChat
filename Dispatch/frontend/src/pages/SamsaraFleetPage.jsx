@@ -128,11 +128,12 @@ export default function SamsaraFleetPage() {
 
   // Filtered vehicles
   const filteredVehicles = vehicles.filter((v) => {
+    const term = (searchTerm || "").toLowerCase();
     const matchesSearch =
-      v.truck_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.driver?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.location_description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      v.trailer?.number?.toLowerCase().includes(searchTerm.toLowerCase());
+      (v.truck_number || "").toLowerCase().includes(term) ||
+      (v.driver?.name || "").toLowerCase().includes(term) ||
+      (v.location_description || "").toLowerCase().includes(term) ||
+      (v.trailer?.number || "").toLowerCase().includes(term);
     const matchesStatus =
       statusFilter === "ALL" || v.status === statusFilter;
     return matchesSearch && matchesStatus;

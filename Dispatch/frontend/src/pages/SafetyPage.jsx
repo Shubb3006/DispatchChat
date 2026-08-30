@@ -23,9 +23,7 @@ export default function SafetyPage() {
   const updateSafetyIncident = useSafetyStore((state) => state.updateSafetyIncident);
   const updateSafetyScore = useSafetyStore((state) => state.updateSafetyScore);
   const hosLogs = useHOSStore((state) => state.hosLogs);
-  // Store action was renamed fetchHOSLogs → fetchAllHOSLogs; the old name no
-  // longer exists on the store and calling it crashed this page on mount.
-  const fetchAllHOSLogs = useHOSStore((state) => state.fetchAllHOSLogs);
+  const fetchHOSLogs = useHOSStore((state) => state.fetchHOSLogs);
 
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -33,19 +31,16 @@ export default function SafetyPage() {
   useEffect(() => {
     fetchSafetyIncidents();
     fetchSafetyScores();
-    fetchAllHOSLogs();
-  }, [fetchSafetyIncidents, fetchSafetyScores, fetchAllHOSLogs]);
+    fetchHOSLogs();
+  }, [fetchSafetyIncidents, fetchSafetyScores, fetchHOSLogs]);
 
   const handleResolveIncident = async (incidentId) => {
     const inc = safetyIncidents.find((i) => i.id === incidentId);
     if (!inc) return;
     await updateSafetyIncident({ ...inc, status: "resolved" });
-    const incDriverId = inc.driver_id || inc.driverId;
-    const score = safetyScores.find(
-      (s) => (s.driver_id || s.driverId) === incDriverId
-    );
+    const score = safetyScores.find((s) => s.driverId === inc.driverId);
     if (score) {
-      await updateSafetyScore(incDriverId, {
+      await updateSafetyScore(inc.driverId, {
         ...score,
         score: Math.min(100, score.score + 5),
         totalViolations: Math.max(0, score.totalViolations - 1),
@@ -53,15 +48,13 @@ export default function SafetyPage() {
     }
   };
 
-  // Backend rows are snake_case (driver_name, truck_number, created_at) —
-  // tolerate both shapes and never call .toLowerCase() on undefined.
   const filteredIncidents = safetyIncidents.filter((inc) => {
     const matchesSeverity = filterSeverity === "all" || inc.severity === filterSeverity;
     const q = searchQuery.toLowerCase();
     const matchesSearch =
-      (inc.driver_name || inc.driverName || "").toLowerCase().includes(q) ||
-      (inc.description || "").toLowerCase().includes(q) ||
-      (inc.location || "").toLowerCase().includes(q);
+      inc.driverName.toLowerCase().includes(q) ||
+      inc.description.toLowerCase().includes(q) ||
+      inc.location.toLowerCase().includes(q);
     return matchesSeverity && matchesSearch;
   });
 
@@ -120,23 +113,23 @@ export default function SafetyPage() {
                         </div>
                         <div className="space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-semibold text-sm text-slate-900">{inc.driver_name || inc.driverName || "Unknown Driver"}</span>
+                            <span className="font-semibold text-sm text-slate-900">{inc.driverName}</span>
                             <span className="text-slate-400 text-xs">·</span>
-                            <span className="text-xs text-slate-500">Truck {inc.truck_number || inc.truckNumber || "—"}</span>
+                            <span className="text-xs text-slate-500">Truck {inc.truckNumber}</span>
                             <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${styles.badge}`}>
                               {inc.severity}
                             </span>
                           </div>
                           <p className="text-sm text-slate-600">{inc.description}</p>
                           <div className="flex items-center gap-4 text-xs text-slate-400 pt-0.5">
-                            <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{inc.location || "Unknown location"}</span>
-                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{(inc.created_at || inc.timestamp) ? new Date(inc.created_at || inc.timestamp).toLocaleString() : "—"}</span>
+                            <span className="flex items-center gap-1"><MapPin className="h-3 w-3" />{inc.location}</span>
+                            <span className="flex items-center gap-1"><Clock className="h-3 w-3" />{new Date(inc.timestamp).toLocaleString()}</span>
                           </div>
                         </div>
                       </div>
                       <div className="flex items-center gap-2 shrink-0 self-start">
                         <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${STATUS_STYLES[inc.status] || "bg-slate-100 text-slate-600"}`}>
-                          {(inc.status || "pending_review").replace(/_/g, " ")}
+                          {inc.status.replace(/_/g, " ")}
                         </span>
                         {inc.status !== "resolved" && (
                           <button
@@ -173,67 +166,45 @@ export default function SafetyPage() {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {hosLogs.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-5 py-10 text-center text-slate-400 text-sm">
-                        No HOS logs recorded yet.
-                      </td>
-                    </tr>
-                  ) : (
-                    hosLogs.map((log) => {
-                      // Real backend columns (hos_logs joined with drivers/users):
-                      // current_status ('D'|'ON'|'SB'|'OFF'), driving_seconds_remaining,
-                      // duty_seconds_remaining, cycle_seconds_remaining, username,
-                      // driver_code, assigned_truck_number, updated_at.
-                      const secToHours = (sec) =>
-                        Number(((Number(sec) || 0) / 3600).toFixed(1));
-                      const driveLeft = secToHours(log.driving_seconds_remaining);
-                      const dutyLeft = secToHours(log.duty_seconds_remaining);
-                      const cycleLeft = secToHours(log.cycle_seconds_remaining);
-                      const isViolated = driveLeft <= 0 || dutyLeft <= 0 || cycleLeft <= 0;
-                      const statusCode = log.current_status || "OFF";
-                      const statusLabel =
-                        statusCode === "D" ? "Driving" :
-                        statusCode === "ON" ? "On Duty" :
-                        statusCode === "SB" ? "Sleeper" :
-                        "Off Duty";
-                      const statusColor =
-                        statusCode === "D" ? "bg-indigo-100 text-indigo-700" :
-                        statusCode === "ON" ? "bg-green-100 text-green-700" :
-                        statusCode === "SB" ? "bg-amber-100 text-amber-700" :
-                        "bg-slate-100 text-slate-600";
-                      return (
-                        <tr key={log.id || log.driver_id} className="hover:bg-slate-50">
-                          <td className="px-5 py-3.5">
-                            <div className="font-medium text-slate-900">{log.username || log.driver_name || "N/A"}</div>
-                            <div className="text-xs text-slate-400">
-                              {log.driver_code || "—"}
-                              {log.assigned_truck_number ? ` · TRK ${log.assigned_truck_number}` : ""}
-                            </div>
-                          </td>
-                          <td className="px-5 py-3.5">
-                            <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColor}`}>{statusLabel}</span>
-                          </td>
-                          <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                            {driveLeft}h
-                          </td>
-                          <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                            {dutyLeft}h
-                          </td>
-                          <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                            {cycleLeft}h
-                          </td>
-                          <td className="px-5 py-3.5 text-right">
-                            {isViolated ? (
-                              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">⚠ Alert</span>
-                            ) : (
-                              <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">✓ Compliant</span>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
-                  )}
+                  {hosLogs.map((log) => {
+                    const isViolated = log.drivingSecondsRemaining <= 0 || log.dutySecondsRemaining <= 0;
+                    const statusLabel =
+                      log.currentStatus === "D" ? "Driving" :
+                      log.currentStatus === "ON" ? "On Duty" :
+                      log.currentStatus === "SB" ? "Sleeper" : "Off Duty";
+                    const statusColor =
+                      log.currentStatus === "D" ? "bg-indigo-100 text-indigo-700" :
+                      log.currentStatus === "ON" ? "bg-green-100 text-green-700" :
+                      log.currentStatus === "SB" ? "bg-amber-100 text-amber-700" :
+                      "bg-slate-100 text-slate-600";
+                    return (
+                      <tr key={log.driverId} className="hover:bg-slate-50">
+                        <td className="px-5 py-3.5">
+                          <div className="font-medium text-slate-900">{log.driverName}</div>
+                          <div className="text-xs text-slate-400">{log.driverId}</div>
+                        </td>
+                        <td className="px-5 py-3.5">
+                          <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColor}`}>{statusLabel}</span>
+                        </td>
+                        <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
+                          {Math.floor(log.drivingSecondsRemaining / 3600)}h {Math.floor((log.drivingSecondsRemaining % 3600) / 60)}m
+                        </td>
+                        <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
+                          {Math.floor(log.dutySecondsRemaining / 3600)}h {Math.floor((log.dutySecondsRemaining % 3600) / 60)}m
+                        </td>
+                        <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
+                          {Math.floor(log.cycleSecondsRemaining / 3600)}h
+                        </td>
+                        <td className="px-5 py-3.5 text-right">
+                          {isViolated ? (
+                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Violation</span>
+                          ) : (
+                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Compliant</span>
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -249,11 +220,6 @@ export default function SafetyPage() {
             </div>
 
             <div className="space-y-5">
-              {safetyScores.length === 0 && (
-                <div className="text-center py-8 text-slate-400 text-sm">
-                  No driver safety score data available.
-                </div>
-              )}
               {safetyScores.map((score) => {
                 const color = score.score >= 90 ? "bg-green-500" : score.score >= 80 ? "bg-blue-500" : "bg-red-500";
                 const textColor = score.score >= 90 ? "text-green-600" : score.score >= 80 ? "text-blue-600" : "text-red-600";

@@ -47,6 +47,9 @@ export default function KanbanDispatchPage() {
 
   useEffect(() => {
     fetchShipments();
+    // Auto-refresh every 10s to sync with warehouse intake and other updates
+    const interval = setInterval(fetchShipments, 10000);
+    return () => clearInterval(interval);
   }, [fetchShipments]);
 
   // Define 7 Freight Lifecycle Kanban Columns
@@ -60,7 +63,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-amber-200",
       colorText: "text-amber-700",
       barColor: "bg-amber-400",
-      matchingStatuses: ["pending", "unassigned", "open_tender"],
+      matchingStatuses: ["pending", "unassigned", "open_tender", "entered", "new", "booked"],
     },
     {
       id: "col_dispatched",
@@ -108,14 +111,14 @@ export default function KanbanDispatchPage() {
     },
     {
       id: "col_at_delivery",
-      title: "6. At Receiver / Unloading",
+      title: "6. At Receiver / Warehouse Intake",
       statusKey: "at_delivery",
       icon: Clock,
       colorBg: "bg-orange-50",
       colorBorder: "border-orange-200",
       colorText: "text-orange-700",
       barColor: "bg-orange-500",
-      matchingStatuses: ["at_delivery", "at_consignee", "unloading", "dock_wait"],
+      matchingStatuses: ["at_delivery", "at_consignee", "at_warehouse", "unloading", "dock_wait", "received_at_warehouse"],
     },
     {
       id: "col_delivered",
