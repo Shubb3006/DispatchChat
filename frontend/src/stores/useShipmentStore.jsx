@@ -3,79 +3,6 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
 import { useCustomsStore } from "./useCustomsStore";
 
-const DEFAULT_SHIPMENTS = [
-  {
-    id: "LOAD-10016",
-    load_number: "10016",
-    tracking_number: "10016",
-    customer_name: "AeroParts Manufacturing",
-    customerName: "AeroParts Manufacturing",
-    customerEmail: "logistics@aeroparts.com",
-    customerPhone: "+1 (416) 555-0100",
-    customerAddress: "150 Industrial Pkwy, Toronto, ON",
-    shipperName: "AeroParts Warehouse",
-    shipper_state: "ON",
-    originCity: "Toronto, ON",
-    consigneeName: "Chicago Auto Assembly",
-    consignee_state: "IL",
-    destinationCity: "Chicago, IL",
-    driverId: "DRV001",
-    driverName: "Marcus Vance",
-    truckId: "TRK102",
-    truckNumber: "TRK-102",
-    trailerNumber: "TRL-504",
-    status: "in_transit",
-    loadType: "LTL",
-    priority: "Normal",
-    weight: 6000,
-    weightLbs: 6000,
-    pallets: 4,
-    palletCount: 4,
-    priceInvoice: 2650,
-    costEstimate: 1900,
-    eta: "2026-08-10T14:00:00Z",
-    waypoints: [
-      { id: "W1", companyName: "AeroParts Plant", stopType: "pickup", address: "Toronto, ON", status: "completed" },
-      { id: "W2", companyName: "Consignee Dock", stopType: "delivery", address: "Chicago, IL", status: "pending" }
-    ]
-  },
-  {
-    id: "LOAD-10015",
-    load_number: "10015",
-    tracking_number: "10015",
-    customer_name: "Industrial Logistics Corp",
-    customerName: "Industrial Logistics Corp",
-    customerEmail: "ap@industriallogistics.com",
-    customerPhone: "+1 (312) 555-0199",
-    customerAddress: "900 Logistics Blvd, Chicago, IL",
-    shipperName: "Chicago Inland Port",
-    shipper_state: "IL",
-    originCity: "Chicago, IL",
-    consigneeName: "Detroit Motor Works",
-    consignee_state: "MI",
-    destinationCity: "Detroit, MI",
-    driverId: "DRV004",
-    driverName: "Sarah Jenkins",
-    truckId: "TRK105",
-    truckNumber: "TRK-105",
-    trailerNumber: "TRL-302",
-    status: "dispatched",
-    loadType: "FTL",
-    priority: "Expedited",
-    weight: 12000,
-    weightLbs: 12000,
-    pallets: 10,
-    palletCount: 10,
-    priceInvoice: 3400,
-    costEstimate: 2450,
-    eta: "2026-08-11T10:00:00Z",
-    waypoints: [
-      { id: "W1", companyName: "Inland Depot", stopType: "pickup", address: "Chicago, IL", status: "completed" },
-      { id: "W2", companyName: "Detroit Plant", stopType: "delivery", address: "Detroit, MI", status: "pending" }
-    ]
-  }
-];
-
 export const useShipmentStore = create((set, get) => ({
   shipments: [],
   isLoading: false,
@@ -99,13 +26,35 @@ export const useShipmentStore = create((set, get) => ({
       });
 
       set({
-        shipments: finalShipments.length > 0 ? finalShipments : DEFAULT_SHIPMENTS,
+        shipments: finalShipments,
         isLoading: false,
       });
     } catch (err) {
       console.error("Failed to fetch loads:", err);
-      set({ shipments: DEFAULT_SHIPMENTS, isLoading: false });
+      set({ shipments: [], error: "Failed to fetch loads", isLoading: false });
     }
+  },
+
+  // Applies a successful auto-assign result (from POST /load/auto-assign) to
+  // the matching load row in place — no refetch, no fabricated fields.
+  applyAssignment: (assignment) => {
+    if (!assignment?.load_id) return;
+    set((state) => ({
+      shipments: state.shipments.map((s) =>
+        s.id === assignment.load_id
+          ? {
+              ...s,
+              driver_id: assignment.driver_id,
+              driver_name: assignment.driver_name,
+              driverName: assignment.driver_name,
+              truck_id: assignment.truck_id ?? s.truck_id,
+              truck_number: assignment.truck_number ?? s.truck_number,
+              status: assignment.status || s.status,
+              assigned_at: assignment.assigned_at || s.assigned_at,
+            }
+          : s
+      ),
+    }));
   },
 
   addShipment: async (shipment) => {
@@ -226,7 +175,7 @@ export const useShipmentStore = create((set, get) => ({
             invoice_total_value: shipment.priceInvoice || 45000,
             currency: "USD",
             country_of_origin: "CA",
-            driver_name: shipment.driverName || "Marcus Vance",
+            driver_name: shipment.driverName || null,
             hts_items: [
               {
                 hts_code: "8708.29.5060",
@@ -271,7 +220,7 @@ export const useShipmentStore = create((set, get) => ({
             invoice_total_value: shipment.priceInvoice || 52000,
             currency: "CAD",
             country_of_origin: "US",
-            driver_name: shipment.driverName || "Sarah Jenkins",
+            driver_name: shipment.driverName || null,
             hts_items: [
               {
                 hts_code: "8471.30.0100",

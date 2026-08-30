@@ -421,65 +421,103 @@ export default function DispatcherDashboard({
   const [savedFilters, setSavedFilters] = useState([]);
   const [filteredShipments, setFilteredShipments] = useState(shipments || []);
 
+  // Server-side pagination/search only kicks in when the user actually uses a
+  // list param — otherwise the legacy store-fed data path stays untouched.
+  // (The legacy grid sorter reuses sortBy with client-only keys, so only the
+  // backend-whitelisted sort values count as server params.)
+  const SERVER_SORTS = ["-created_at", "created_at", "-status", "status"];
+  const usingListParams =
+    Boolean(searchQ.trim()) ||
+    offset > 0 ||
+    limit !== 50 ||
+    (SERVER_SORTS.includes(sortBy) && sortBy !== "-created_at");
+
   // Fetch loads with pagination/search from backend
   useEffect(() => {
-    const fetchWithParams = async () => {
+    if (!usingListParams) {
+      setFilteredShipments(shipments || []);
+      setTotal(shipments?.length || 0);
+      return;
+    }
+    let cancelled = false;
+    const timer = setTimeout(async () => {
       try {
         const params = new URLSearchParams();
-        if (searchQ) params.append("q", searchQ);
+        if (searchQ.trim()) params.append("q", searchQ.trim());
         params.append("limit", limit);
         params.append("offset", offset);
-        if (sortBy) params.append("sort", sortBy);
+        if (SERVER_SORTS.includes(sortBy)) params.append("sort", sortBy);
 
         const res = await axiosInstance.get(`/loads?${params}`);
-        if (res.data.data) {
+        if (cancelled) return;
+        if (Array.isArray(res.data?.data)) {
           setFilteredShipments(res.data.data);
-          setTotal(res.data.total || res.data.data.length);
-        } else {
-          setFilteredShipments(shipments || []);
+          setTotal(Number(res.data.total) || res.data.data.length);
+        } else if (Array.isArray(res.data?.loads)) {
+          // Legacy shape (should not happen when params are sent, but be safe)
+          setFilteredShipments(res.data.loads);
+          setTotal(res.data.loads.length);
         }
       } catch (err) {
-        console.warn("Pagination fetch failed, using local data:", err.message);
-        setFilteredShipments(shipments || []);
-        setTotal(shipments?.length || 0);
+        if (cancelled) return;
+        console.warn("Paginated loads fetch failed:", err.message);
+        toast.error("Failed to search loads on the server");
       }
+    }, 300); // debounce typing in the search box
+    return () => {
+      cancelled = true;
+      clearTimeout(timer);
     };
-    fetchWithParams();
-  }, [searchQ, offset, limit, sortBy, shipments]);
+  }, [usingListParams, searchQ, offset, limit, sortBy, shipments]);
 
-  // Fetch saved filters
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
-        setSavedFilters(res.data.filters || []);
-      } catch (err) {
-        console.warn("Failed to load saved filters");
-      }
-    };
-    fetchFilters();
-  }, []);
-
-  // Save a filter
-  const saveCurrentFilter = async (filterName) => {
+  // Fetch saved filters (page_key: dispatcher_loads)
+  const refreshSavedFilters = async () => {
     try {
-      await axiosInstance.post("/user/saved-filters", {
-        page_key: "dispatcher_loads",
-        name: filterName,
-        params: { q: searchQ, sort: sortBy },
-      });
-      toast.success(`Filter "${filterName}" saved`);
-      // Refresh filters list
       const res = await axiosInstance.get("/user/saved-filters?page_key=dispatcher_loads");
       setSavedFilters(res.data.filters || []);
     } catch (err) {
-      toast.error("Failed to save filter");
+      console.warn("Failed to load saved filters:", err.message);
+    }
+  };
+
+  useEffect(() => {
+    refreshSavedFilters();
+  }, []);
+
+  // Save the current search/sort as a named filter chip
+  const saveCurrentFilter = async () => {
+    const filterName = window.prompt(
+      "Name this filter (saves current search & sort):",
+      searchQ.trim() ? `Search: ${searchQ.trim()}` : ""
+    );
+    if (!filterName || !filterName.trim()) return;
+    try {
+      await axiosInstance.post("/user/saved-filters", {
+        page_key: "dispatcher_loads",
+        name: filterName.trim(),
+        params: { q: searchQ.trim(), sort: sortBy },
+      });
+      toast.success(`Filter "${filterName.trim()}" saved`);
+      await refreshSavedFilters();
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to save filter");
+    }
+  };
+
+  // Delete a saved filter chip
+  const deleteSavedFilter = async (filter) => {
+    try {
+      await axiosInstance.delete(`/user/saved-filters/${filter.id}`);
+      setSavedFilters((prev) => prev.filter((f) => f.id !== filter.id));
+      toast.success(`Filter "${filter.name}" deleted`);
+    } catch (err) {
+      toast.error(err.response?.data?.message || "Failed to delete filter");
     }
   };
 
   // Apply a saved filter
   const applySavedFilter = (filter) => {
-    if (filter.params?.q) setSearchQ(filter.params.q);
+    setSearchQ(filter.params?.q || "");
     if (filter.params?.sort) setSortBy(filter.params.sort);
     setOffset(0);
     toast.success(`Applied filter: ${filter.name}`);
@@ -547,7 +585,7 @@ export default function DispatcherDashboard({
   const [origin, setOrigin] = useState("");
   const [destination, setDestination] = useState("");
   const [driverId, setDriverId] = useState("");
-  const [driverName, setDriverName] = useState("Marcus Vance");
+  const [driverName, setDriverName] = useState("");
   const [truck, setTruck] = useState("TRK-102");
   const [trailer, setTrailer] = useState("TRL-504");
   const [cargo, setCargo] = useState("");
@@ -857,7 +895,9 @@ export default function DispatcherDashboard({
   }, [shipments, plannerPickSearch, plannerDestSearch]);
 
   const filteredAndSortedShipments = React.useMemo(() => {
-    return shipments
+    // Server-driven rows when list params (q/limit/offset/sort) are in play,
+    // legacy store-fed rows otherwise. Local quick-filters still apply on top.
+    return filteredShipments
       .filter((s) => {
         if (statusFilter !== "all" && s.status !== statusFilter) return false;
         if (loadTypeFilter !== "all" && s.loadType !== loadTypeFilter)
@@ -905,36 +945,36 @@ export default function DispatcherDashboard({
             ?.includes(query);
           const matchesDriver = s.driver_name?.toLowerCase()?.includes(query);
           const matchesCity =
-            s.shipper_district.toLowerCase().includes(query) ||
-            s.consignee_district.toLowerCase().includes(query);
+            String(s.shipper_district || "").toLowerCase().includes(query) ||
+            String(s.consignee_district || "").toLowerCase().includes(query);
           const shipperNames = s?.waypoints
             ?.filter((w) => w.stopType === "pickup")
-            ?.map((w) => w.companyName.toLowerCase());
+            ?.map((w) => String(w.companyName || "").toLowerCase());
           const matchesShipperName = shipperNames?.some((name) =>
             name.includes(query)
           );
           const shipperAddresses = s?.waypoints
             ?.filter((w) => w.stopType === "pickup")
-            ?.map((w) => w.address.toLowerCase());
+            ?.map((w) => String(w.address || "").toLowerCase());
           const matchesShipperAddress = shipperAddresses?.some((addr) =>
             addr.includes(query)
           );
           const consigneeNames = s?.waypoints
             ?.filter((w) => w.stopType === "delivery")
-            ?.map((w) => w.companyName.toLowerCase());
+            ?.map((w) => String(w.companyName || "").toLowerCase());
           const matchesConsigneeName = consigneeNames?.some((name) =>
             name.includes(query)
           );
           const consigneeAddresses = s?.waypoints
             ?.filter((w) => w.stopType === "delivery")
-            ?.map((w) => w.address.toLowerCase());
+            ?.map((w) => String(w.address || "").toLowerCase());
           const matchesConsigneeAddress = consigneeAddresses?.some((addr) =>
             addr.includes(query)
           );
-          const matchesPickupLocation = s.customer_billing_address
+          const matchesPickupLocation = String(s.customer_billing_address || "")
             .toLowerCase()
             .includes(query);
-          const matchesDeliveryLocation = s.consignee_country
+          const matchesDeliveryLocation = String(s.consignee_country || "")
             .toLowerCase()
             .includes(query);
           if (searchField === "trackingNumber") return matchesTracking;
@@ -1024,7 +1064,7 @@ export default function DispatcherDashboard({
         return sortOrder === "asc" ? compareValue : -compareValue;
       });
   }, [
-    shipments,
+    filteredShipments,
     statusFilter,
     loadTypeFilter,
     commitmentFilter,
@@ -1336,69 +1376,30 @@ export default function DispatcherDashboard({
       setAiLoading(false);
     }
   };
+  // Uploads a rate confirmation PDF to the real AI tender-ingestion pipeline
+  // (POST /api/load/automation/upload-pdf). No fabricated shipments — the
+  // server parses the PDF and creates the load, then the list is refetched.
   const handleUploadRateCon = async (e) => {
-    if (!e.target.files?.length) return;
+    const file = e.target.files?.[0];
+    if (!file) return;
     setIsUploadingRateCon(true);
     try {
-      await new Promise((r) => setTimeout(r, 1500));
-      const trackingNumber = "LD-" + Math.floor(1e3 + Math.random() * 9e3);
-      const newShipment = {
-        id: "SHP_AUTO_" + trackingNumber,
-        trackingNumber,
-        customerName: "Auto-Extracted Corp",
-        customerEmail: "shipping@auto-extracted.com",
-        dispatcherName: "System User",
-        broker: "C.H. Robinson",
-        poNumber: "PO-" + trackingNumber,
-        bolNumber: "BOL-" + trackingNumber,
-        status: "pending",
-        driverId: "DRV001",
-        driverName: "Marcus Vance",
-        truckNumber: "TRK-102",
-        trailerNumber: "TRL-504",
-        originCity: "Dallas, TX",
-        destinationCity: "Atlanta, GA",
-        cargoDescription: "Industrial Parts (Auto-parsed)",
-        weightLbs: 12500,
-        palletCount: 10,
-        totalDistanceMiles: 800,
-        costEstimate: 1600,
-        priceInvoice: 2400,
-        eta: new Date(Date.now() + 864e5 * 3).toISOString(),
-        borderConnectStatus: "none",
-        documentIds: [],
-        waypoints: [
-          {
-            id: `WPT_AUTO_1`,
-            companyName: `Auto-Extracted Corp`,
-            address: "Dallas, TX",
-            lat: 32.7,
-            lng: -96.8,
-            stopType: "pickup",
-            sequence: 1,
-            status: "pending",
-            scheduledTime: new Date(Date.now() + 36e5 * 4).toISOString(),
-          },
-          {
-            id: `WPT_AUTO_2`,
-            companyName: `Consignee Warehouse`,
-            address: "Atlanta, GA",
-            lat: 33.7,
-            lng: -84.3,
-            stopType: "delivery",
-            sequence: 2,
-            status: "pending",
-            scheduledTime: new Date(Date.now() + 864e5 * 2.5).toISOString(),
-          },
-        ],
-      };
-      onAddShipment(newShipment);
-      setSelectedShipment(newShipment);
-      setIsDetailModalOpen(true);
+      const formData = new FormData();
+      formData.append("pdf", file);
+      const res = await axiosInstance.post("/load/automation/upload-pdf", formData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      if (res.data?.success) {
+        toast.success(res.data.message || "Rate confirmation parsed and load created");
+        await fetchShipments();
+      } else {
+        toast.error(res.data?.message || "Rate confirmation parsing failed");
+      }
     } catch (err) {
-      console.error(err);
+      toast.error(err.response?.data?.message || "Failed to process the rate confirmation PDF");
     } finally {
       setIsUploadingRateCon(false);
+      e.target.value = "";
     }
   };
   const handleCreateLoad = async (e) => {
@@ -1752,13 +1753,11 @@ export default function DispatcherDashboard({
           <button
             type="button"
             onClick={() => {
-              const targetLoad = selectedShipment || shipments[0] || {
-                originCity: "Brampton, ON",
-                destinationCity: "Chicago, IL",
-                equipmentType: "Dry Van 53ft",
-                isCrossBorder: true,
-                load_number: "582516",
-              };
+              const targetLoad = selectedShipment || shipments[0] || null;
+              if (!targetLoad || !targetLoad.id) {
+                toast.error("Select a load first — there is nothing to match against.");
+                return;
+              }
               setAiMatchLoad(targetLoad);
               setIsAiMatchModalOpen(true);
             }}
@@ -1838,7 +1837,7 @@ export default function DispatcherDashboard({
                         #{loadNum}
                       </td>
                       <td className="p-3 font-semibold text-slate-900">
-                        {s.driverName || s.driver_name || "Marcus Vance"}
+                        {s.driverName || s.driver_name || "Unknown driver"}
                       </td>
                       <td className="p-3 font-mono">
                         <button
@@ -1848,7 +1847,7 @@ export default function DispatcherDashboard({
                               name: fileName,
                               url: docUrl || "#",
                               loadNumber: loadNum,
-                              driverName: s.driverName || s.driver_name || "Marcus Vance",
+                              driverName: s.driverName || s.driver_name || "Unknown driver",
                               loadItem: s,
                             })
                           }
@@ -1867,7 +1866,7 @@ export default function DispatcherDashboard({
                               name: fileName,
                               url: docUrl || "#",
                               loadNumber: loadNum,
-                              driverName: s.driverName || s.driver_name || "Marcus Vance",
+                              driverName: s.driverName || s.driver_name || "Unknown driver",
                               loadItem: s,
                             })
                           }
@@ -2021,7 +2020,7 @@ export default function DispatcherDashboard({
                       SHIPPER (FROM / ORIGIN)
                     </div>
                     <div className="text-xs font-bold text-slate-900 font-sans">
-                      {pendingDocPreview.loadItem?.shipper_name || pendingDocPreview.loadItem?.customer_name || pendingDocPreview.loadItem?.customerName || "AeroParts Manufacturing Yard"}
+                      {pendingDocPreview.loadItem?.shipper_name || pendingDocPreview.loadItem?.customer_name || pendingDocPreview.loadItem?.customerName || "Unknown shipper"}
                     </div>
                     <div className="text-3xs text-slate-600 leading-relaxed">
                       {pendingDocPreview.loadItem?.shipper_address || pendingDocPreview.loadItem?.origin || "150 Industrial Pkwy, Sector 4, Toronto, ON"}
@@ -2156,23 +2155,41 @@ export default function DispatcherDashboard({
               <option value="created_at">Oldest first</option>
               <option value="-status">Status (z-a)</option>
             </select>
+            <button
+              onClick={saveCurrentFilter}
+              title="Save the current search & sort as a filter chip"
+              className="px-4 py-2 bg-sky-600 text-white rounded-lg text-sm font-semibold hover:bg-sky-700 whitespace-nowrap"
+            >
+              + Save Filter
+            </button>
           </div>
 
           {/* Saved Filters */}
           {savedFilters.length > 0 && (
             <div className="flex flex-wrap gap-2">
               {savedFilters.map((f) => (
-                <button
+                <span
                   key={f.id}
-                  onClick={() => {
-                    if (f.params?.q) setSearchQ(f.params.q);
-                    if (f.params?.sort) setSortBy(f.params.sort);
-                    setOffset(0);
-                  }}
-                  className="px-3 py-1.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full text-sm hover:bg-sky-100"
+                  className="inline-flex items-center gap-1 pl-3 pr-1.5 py-1 bg-sky-50 text-sky-700 border border-sky-200 rounded-full text-sm hover:bg-sky-100"
                 >
-                  {f.name}
-                </button>
+                  <button
+                    onClick={() => applySavedFilter(f)}
+                    className="font-medium cursor-pointer"
+                    title={`Apply filter "${f.name}"`}
+                  >
+                    {f.name}
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteSavedFilter(f);
+                    }}
+                    title={`Delete filter "${f.name}"`}
+                    className="w-4 h-4 rounded-full flex items-center justify-center text-sky-500 hover:text-white hover:bg-sky-600 text-xs leading-none cursor-pointer"
+                  >
+                    ×
+                  </button>
+                </span>
               ))}
             </div>
           )}
@@ -4028,11 +4045,11 @@ export default function DispatcherDashboard({
                             <td className="px-5 py-4">
                               <div className="flex items-center space-x-1.5 text-slate-800 font-bold">
                                 <span>
-                                  {s.shipper_district || s.origin || "Toronto"}, {s.shipper_state || "ON"}
+                                  {[s.shipper_district || s.origin, s.shipper_state].filter(Boolean).join(", ") || "—"}
                                 </span>
                                 <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                                 <span>
-                                  {s.consignee_district || s.destination || "Chicago"}, {s.consignee_state || "IL"}
+                                  {[s.consignee_district || s.destination, s.consignee_state].filter(Boolean).join(", ") || "—"}
                                 </span>
                               </div>
                               <div className="text-slate-400 text-xs mt-0.5 font-medium">
@@ -4049,10 +4066,12 @@ export default function DispatcherDashboard({
                             </td>
                             <td className="px-5 py-4">
                               <div className="text-slate-900 font-bold">
-                                {s.driver_id ? s.driver_name : "Marcus Vance"}
+                                {s.driver_id
+                                  ? s.driver_name || s.driverName || "Assigned"
+                                  : "Unassigned"}
                               </div>
                               <div className="text-slate-500 text-xs mt-0.5 font-mono">
-                                {s.truck_number || s.truck || "TRK-104"} • {s.trailer_number || s.trailer || "53ft Dry Van"}
+                                {s.truck_number || s.truck || "—"} • {s.trailer_number || s.trailer || "—"}
                               </div>
                             </td>
                             <td className="px-5 py-4">
@@ -4076,20 +4095,25 @@ export default function DispatcherDashboard({
                               )}
                             </td>
                             <td className="px-5 py-4">
-                              {s.status === "in_transit" ? (
+                              {String(s.status || "").toLowerCase() === "in_transit" &&
+                              (s.speedMph != null || s.fuelLevelPercent != null) ? (
                                 <div className="space-y-1">
-                                  <div className="flex items-center text-slate-800 text-xs font-mono font-bold">
-                                    <Gauge className="h-3.5 w-3.5 text-sky-600 mr-1" />
-                                    <span>{s.speedMph || 62} MPH</span>
-                                  </div>
-                                  <div className="flex items-center text-slate-500 text-[11px] font-mono">
-                                    <Fuel className="h-3 w-3 text-slate-400 mr-1" />
-                                    <span>Fuel {s.fuelLevelPercent || 84}%</span>
-                                  </div>
+                                  {s.speedMph != null && (
+                                    <div className="flex items-center text-slate-800 text-xs font-mono font-bold">
+                                      <Gauge className="h-3.5 w-3.5 text-sky-600 mr-1" />
+                                      <span>{s.speedMph} MPH</span>
+                                    </div>
+                                  )}
+                                  {s.fuelLevelPercent != null && (
+                                    <div className="flex items-center text-slate-500 text-[11px] font-mono">
+                                      <Fuel className="h-3 w-3 text-slate-400 mr-1" />
+                                      <span>Fuel {s.fuelLevelPercent}%</span>
+                                    </div>
+                                  )}
                                 </div>
                               ) : (
                                 <span className="text-slate-600 capitalize text-xs font-semibold">
-                                  {s?.status?.replace("_", " ") || "In Transit"}
+                                  {s?.status ? String(s.status).replace(/_/g, " ") : "—"}
                                 </span>
                               )}
                             </td>
@@ -4559,8 +4583,29 @@ export default function DispatcherDashboard({
             setAiMatchLoad(null);
           }}
           load={aiMatchLoad}
-          onAssignSuccess={() => {
-            fetchShipments();
+          onAssignSuccess={(assignment) => {
+            if (!assignment?.load_id) return;
+            // Update the load row in place — real assignment data only.
+            // Status arrives lowercase ('dispatched'); stored as-is and all
+            // status comparisons are done case-insensitively.
+            const applyToRow = (s) =>
+              s.id === assignment.load_id
+                ? {
+                    ...s,
+                    driver_id: assignment.driver_id,
+                    driver_name: assignment.driver_name,
+                    driverName: assignment.driver_name,
+                    truck_id: assignment.truck_id ?? s.truck_id,
+                    truck_number: assignment.truck_number ?? s.truck_number,
+                    status: assignment.status || s.status,
+                    assigned_at: assignment.assigned_at,
+                  }
+                : s;
+            setFilteredShipments((prev) => (prev || []).map(applyToRow));
+            useShipmentStore.getState().applyAssignment(assignment);
+            setSelectedShipment((prev) =>
+              prev && prev.id === assignment.load_id ? applyToRow(prev) : prev
+            );
           }}
         />
       )}

@@ -1,6 +1,8 @@
 import { useState, useEffect, useMemo } from "react";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useMessageStore } from "../stores/useMessageStore";
+import { useAuthStore } from "../stores/useAuthStore";
+import CustomerDashboard from "../components/CustomerDashboard";
 import {
   Search,
   MapPin,
@@ -37,6 +39,13 @@ export default function CustomerPage() {
   const fetchShipments = useShipmentStore((state) => state.fetchShipments);
   const messages = useMessageStore((state) => state.messages);
   const fetchMessages = useMessageStore((state) => state.fetchMessages);
+  const authUser = useAuthStore((state) => state.authUser);
+
+  // Customer-role users get the scoped portal sections (identity from
+  // GET /api/customer/me, their invoices, their document links). The list
+  // endpoints are already scoped server-side, so the same store works for
+  // admins/dispatchers (all loads) and customers (their loads only).
+  const isCustomerRole = String(authUser?.role || "").toLowerCase() === "customer";
 
   const [searchNumber, setSearchNumber] = useState("");
   const [activeShipment, setActiveShipment] = useState(null);
@@ -117,13 +126,27 @@ export default function CustomerPage() {
   const displayDriverName =
     activeShipment?.driverName ||
     activeShipment?.driver_name ||
-    (hasDriverAssigned ? "Marcus Vance (Assigned)" : "Unassigned");
+    (hasDriverAssigned ? "Assigned" : "Unassigned");
 
   const displayTruckNumber =
     activeShipment?.truckNumber ||
     activeShipment?.truck_number ||
     activeShipment?.truckId ||
-    (hasDriverAssigned ? "TRK-102" : "TRK-Pending");
+    "—";
+
+  // Real ETA only — the load's eta or delivery_date; never a fabricated one.
+  const etaValue = activeShipment?.eta || activeShipment?.delivery_date || null;
+  const etaDate = etaValue ? new Date(etaValue) : null;
+  const etaIsValid = etaDate && !Number.isNaN(etaDate.getTime());
+  const etaRemainingMs = etaIsValid ? etaDate.getTime() - Date.now() : null;
+  const etaRemainingText =
+    etaRemainingMs != null && etaRemainingMs > 0
+      ? `${Math.floor(etaRemainingMs / 3600000)}h ${Math.round((etaRemainingMs % 3600000) / 60000)}m remaining`
+      : null;
+
+  // Real POD link only.
+  const podUrl =
+    activeShipment?.pod_url || activeShipment?.podUrl || activeShipment?.image_url || null;
 
   // Compute 4-Step Stepper Progress
   const stepperProgressPct = currentRank >= 9 ? 100 : currentRank >= 6 ? 66 : currentRank >= 3 ? 33 : currentRank >= 2 ? 15 : 0;
@@ -207,47 +230,59 @@ export default function CustomerPage() {
                 </span>
               </div>
               <div className="flex items-center space-x-2 text-xs text-slate-600 mt-1 font-medium">
-                <span>{activeShipment.shipper_state || activeShipment.originCity || "Toronto, ON"}</span>
+                <span>
+                  {activeShipment.origin ||
+                    [activeShipment.shipper_district, activeShipment.shipper_state].filter(Boolean).join(", ") ||
+                    activeShipment.originCity ||
+                    "—"}
+                </span>
                 <ArrowRight className="h-3.5 w-3.5 text-indigo-500" />
-                <span>{activeShipment.consignee_state || activeShipment.destinationCity || "Chicago, IL"}</span>
+                <span>
+                  {activeShipment.destination ||
+                    [activeShipment.consignee_district, activeShipment.consignee_state].filter(Boolean).join(", ") ||
+                    activeShipment.destinationCity ||
+                    "—"}
+                </span>
               </div>
               <p className="text-xs text-slate-500 mt-1 font-medium">
-                Customer: <strong className="text-slate-800">{activeShipment.customer_name || activeShipment.customerName || "AeroParts Manufacturing"}</strong>
+                Customer: <strong className="text-slate-800">{activeShipment.customer_name || activeShipment.customerName || "—"}</strong>
               </p>
             </div>
 
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 self-start sm:self-auto">
-              {/* Instant Proof-of-Delivery (POD) Download Button */}
-              {(currentRank >= 9 || activeShipment?.pod_url || activeShipment?.podUrl || activeShipment?.hasPod || activeShipment?.status === "delivered") && (
+              {/* Proof-of-Delivery link — only when a real document URL exists */}
+              {podUrl && podUrl !== "#" && (
                 <button
                   type="button"
-                  onClick={() => {
-                    const podFile = activeShipment?.pod_url || activeShipment?.podUrl || activeShipment?.image_url;
-                    if (podFile && podFile !== "#") {
-                      window.open(podFile, "_blank");
-                    } else {
-                      alert(`Downloading Verified Proof of Delivery (POD) Document Package for Load #${activeShipment.load_number || activeShipment.tracking_number}...`);
-                    }
-                  }}
+                  onClick={() => window.open(podUrl, "_blank")}
                   className="px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-mono text-xs font-bold rounded-2xl transition-all shadow-md flex items-center space-x-2 cursor-pointer shrink-0"
                 >
                   <Download className="h-4 w-4" />
-                  <span>Download Signed POD 📄</span>
+                  <span>View Signed POD</span>
                 </button>
               )}
 
-              {/* ETA Countdown Card */}
+              {/* ETA card — real load ETA / delivery date, honest when absent */}
               <div className="bg-blue-50/60 border border-blue-200 rounded-2xl p-4 text-right space-y-0.5 min-w-[200px]">
                 <div className="text-3xs font-mono font-bold text-blue-600 uppercase flex items-center justify-end space-x-1">
                   <Clock className="h-3.5 w-3.5" />
-                  <span>Estimated Arrival</span>
+                  <span>{currentRank >= 9 ? "Delivered" : "Estimated Arrival"}</span>
                 </div>
                 <div className="text-sm font-extrabold text-slate-900 font-mono">
-                  Aug 11, 10:53 AM
+                  {etaIsValid
+                    ? etaDate.toLocaleString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })
+                    : "Not available"}
                 </div>
-                <div className="text-3xs text-blue-600 font-mono font-semibold">
-                  45h 53m remaining
-                </div>
+                {currentRank < 9 && etaRemainingText && (
+                  <div className="text-3xs text-blue-600 font-mono font-semibold">
+                    {etaRemainingText}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -387,7 +422,9 @@ export default function CustomerPage() {
               <div>
                 <div className="text-3xs font-mono font-bold text-slate-400 uppercase">Weight</div>
                 <div className="text-xs font-extrabold text-slate-900 font-mono">
-                  {(activeShipment.weightLbs || activeShipment.weight || 6000).toLocaleString()} lbs
+                  {activeShipment.weightLbs || activeShipment.weight
+                    ? `${Number(activeShipment.weightLbs || activeShipment.weight).toLocaleString()} lbs`
+                    : "—"}
                 </div>
               </div>
             </div>
@@ -405,6 +442,12 @@ export default function CustomerPage() {
           </div>
         </div>
       ) : null}
+
+      {/* Customer-role portal: identity (GET /api/customer/me), scoped
+          shipments, invoices and document links — all server-scoped. */}
+      {isCustomerRole && (
+        <CustomerDashboard onSelectShipment={(load) => setActiveShipment(load)} />
+      )}
     </div>
   );
 }

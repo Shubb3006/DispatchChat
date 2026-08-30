@@ -1,22 +1,45 @@
-import { useState, useEffect } from "react";
-import { axiosInstance } from "../lib/axios";
+import { useState, useEffect, useCallback } from "react";
+import { axiosInstance } from "@/lib/axios";
 import {
   Sparkles,
   X,
-  Truck,
   MapPin,
-  Clock,
-  ShieldCheck,
-  Zap,
-  CheckCircle2,
   AlertTriangle,
-  Send,
   Loader2,
-  TrendingUp,
-  User,
-  Phone,
+  Zap,
+  Clock,
+  RefreshCw,
 } from "lucide-react";
 import toast from "react-hot-toast";
+
+// Human labels for the factor keys the backend can emit. Only factors that are
+// actually present in a match's breakdown are ever rendered — never fake 100s.
+const FACTOR_LABELS = {
+  proximity: "Proximity",
+  hos: "HOS",
+  cross_border: "Cross-Border",
+  performance: "On-Time Performance",
+};
+
+const ERROR_MESSAGES = {
+  load_id_required: "No load id was provided to the matcher.",
+  not_found: "This load could not be found on the server.",
+  samsara_not_configured:
+    "Samsara telematics is not configured — live driver positions are unavailable, so AI matching cannot run.",
+  samsara_unavailable:
+    "Samsara telematics is currently unreachable. Try again in a few minutes.",
+};
+
+function formatLocation(loc) {
+  if (!loc) return null;
+  if (loc.description) return loc.description;
+  const lat = Number(loc.lat);
+  const lng = Number(loc.lng);
+  if (Number.isFinite(lat) && Number.isFinite(lng)) {
+    return `${lat.toFixed(3)}, ${lng.toFixed(3)}`;
+  }
+  return null;
+}
 
 export default function AIDriverMatcherModal({
   isOpen,
@@ -27,45 +50,81 @@ export default function AIDriverMatcherModal({
   const [loading, setLoading] = useState(false);
   const [matches, setMatches] = useState([]);
   const [factorsUsed, setFactorsUsed] = useState([]);
+  const [excludedFactors, setExcludedFactors] = useState([]);
+  const [loadInfo, setLoadInfo] = useState(null);
+  const [matchError, setMatchError] = useState(null);
+  const [assignError, setAssignError] = useState(null);
   const [assigningDriverId, setAssigningDriverId] = useState(null);
+
+  const fetchMatches = useCallback(async () => {
+    if (!load?.id) {
+      setMatchError("This load has no server id, so drivers cannot be matched.");
+      return;
+    }
+    setLoading(true);
+    setMatchError(null);
+    setAssignError(null);
+    try {
+      const res = await axiosInstance.post("/load/ai-match-drivers", {
+        loadId: load.id,
+      });
+      if (res.data?.ok) {
+        setMatches(res.data.matches || []);
+        setFactorsUsed(res.data.factors_used || []);
+        setExcludedFactors(res.data.excluded_factors || []);
+        setLoadInfo(res.data.load || null);
+      } else {
+        setMatches([]);
+        setMatchError(
+          ERROR_MESSAGES[res.data?.error] || res.data?.error || "AI matching failed."
+        );
+      }
+    } catch (err) {
+      const code = err.response?.data?.error;
+      setMatches([]);
+      setMatchError(
+        ERROR_MESSAGES[code] ||
+          code ||
+          err.response?.data?.message ||
+          "Failed to reach the AI matching service."
+      );
+    } finally {
+      setLoading(false);
+    }
+  }, [load?.id]);
 
   useEffect(() => {
     if (isOpen && load) {
       fetchMatches();
     }
-  }, [isOpen, load]);
-
-  const fetchMatches = async () => {
-    setLoading(true);
-    try {
-      const res = await axiosInstance.post("/load/ai-match-drivers", { loadId: load.id });
-      if (res.data?.ok) {
-        setMatches(res.data.matches || []);
-        setFactorsUsed(res.data.factors_used || []);
-      } else if (res.status === 503) {
-        toast.error("Samsara not configured");
-      }
-    } catch (err) {
-      console.error("fetchMatches error:", err);
-      toast.error(err.response?.data?.message || "Failed to calculate AI driver rankings");
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [isOpen, load, fetchMatches]);
 
   const autoAssign = async (driverId, driverName) => {
+    if (!load?.id) return;
     setAssigningDriverId(driverId);
+    setAssignError(null);
     try {
-      const res = await axiosInstance.post("/load/auto-assign", { loadId: load.id, driverId });
-      if (res.data?.ok) {
-        toast.success(`✓ Assigned to ${driverName}`, { duration: 6000 });
-        if (onAssignSuccess) {
-          onAssignSuccess(res.data.assignment);
-        }
+      const res = await axiosInstance.post("/load/auto-assign", {
+        loadId: load.id,
+        driverId,
+      });
+      if (res.data?.ok && res.data.assignment) {
+        toast.success(`Assigned to ${driverName || "driver"}`, { duration: 6000 });
+        if (onAssignSuccess) onAssignSuccess(res.data.assignment);
         onClose();
+      } else {
+        const code = res.data?.error;
+        setAssignError(ERROR_MESSAGES[code] || code || "Assignment failed.");
       }
     } catch (err) {
-      toast.error(err.response?.data?.message || "Assignment failed");
+      const code = err.response?.data?.error;
+      const msg =
+        ERROR_MESSAGES[code] ||
+        code ||
+        err.response?.data?.message ||
+        "Assignment failed.";
+      setAssignError(msg);
+      toast.error(msg);
     } finally {
       setAssigningDriverId(null);
     }
@@ -73,9 +132,11 @@ export default function AIDriverMatcherModal({
 
   if (!isOpen || !load) return null;
 
-  const loadNum = load.load_number || load.tracking_number || "582516";
-  const origin = load.originCity || load.shipper_address || "Brampton, ON";
-  const destination = load.destinationCity || load.consignee_address || "Chicago, IL";
+  const loadNum = loadInfo?.load_number || load.load_number || load.tracking_number || load.id;
+  const origin =
+    loadInfo?.origin || load.origin || load.originCity || load.shipper_address || null;
+  const destination =
+    loadInfo?.destination || load.destination || load.destinationCity || load.consignee_address || null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
@@ -96,7 +157,7 @@ export default function AIDriverMatcherModal({
                 </span>
               </div>
               <p className="text-xs text-slate-500 mt-0.5">
-                Evaluates live Samsara telematics, deadhead proximity, remaining HOS, and cross-border FAST credentials
+                Ranks drivers on live Samsara telemetry — only the factors actually computed are shown
               </p>
             </div>
           </div>
@@ -113,27 +174,56 @@ export default function AIDriverMatcherModal({
         <div className="px-6 py-3.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-sky-600 shrink-0" />
-            <span className="font-bold text-slate-800">{origin}</span>
+            <span className="font-bold text-slate-800">{origin || "Origin unknown"}</span>
             <span className="text-slate-400">➔</span>
-            <span className="font-bold text-slate-800">{destination}</span>
+            <span className="font-bold text-slate-800">{destination || "Destination unknown"}</span>
           </div>
 
           <div className="flex items-center gap-3 text-slate-600">
-            {rankingData?.loadInfo?.estimatedTripMiles && (
+            {loadInfo?.estimated_trip_miles != null && (
               <span className="font-mono font-medium">
-                ~{rankingData.loadInfo.estimatedTripMiles} Total Miles
+                ~{loadInfo.estimated_trip_miles} Total Miles
               </span>
             )}
-            <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold text-[11px] text-slate-700">
-              {load.equipmentType || "Dry Van 53ft"}
-            </span>
-            {rankingData?.loadInfo?.isCrossBorder && (
+            {loadInfo?.is_cross_border && (
               <span className="px-2 py-0.5 rounded-md bg-indigo-50 border border-indigo-200 font-bold text-[11px] text-indigo-700">
-                🇺🇸 US Inbound (PAPS)
+                Cross-Border
               </span>
             )}
           </div>
         </div>
+
+        {/* Factors used */}
+        {!loading && !matchError && factorsUsed.length > 0 && (
+          <div className="px-6 py-2.5 border-b border-slate-100 flex flex-wrap items-center gap-2 text-[11px]">
+            <span className="font-bold text-slate-500 uppercase tracking-wide">Factors used:</span>
+            {factorsUsed.map((f) => (
+              <span
+                key={f}
+                className="px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 font-semibold"
+              >
+                {FACTOR_LABELS[f] || f}
+              </span>
+            ))}
+            {excludedFactors.map((ex) => (
+              <span
+                key={ex.factor}
+                title={ex.reason}
+                className="px-2 py-0.5 rounded-full bg-slate-100 text-slate-500 border border-slate-200 font-semibold line-through"
+              >
+                {FACTOR_LABELS[ex.factor] || ex.factor}
+              </span>
+            ))}
+          </div>
+        )}
+
+        {/* Assignment error (visible, honest) */}
+        {assignError && (
+          <div className="mx-6 mt-4 px-4 py-3 rounded-xl bg-rose-50 border border-rose-200 text-rose-700 text-xs font-semibold flex items-center gap-2">
+            <AlertTriangle className="w-4 h-4 shrink-0" />
+            <span>{assignError}</span>
+          </div>
+        )}
 
         {/* Candidate List */}
         <div className="flex-1 overflow-y-auto p-6 space-y-4">
@@ -141,13 +231,36 @@ export default function AIDriverMatcherModal({
             <div className="py-16 flex flex-col items-center justify-center text-slate-400 gap-3">
               <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
               <p className="text-xs font-semibold text-slate-600">
-                Analyzing fleet GPS proximity, driver shift timers, and compliance...
+                Analyzing fleet GPS proximity, HOS clocks, and compliance...
+              </p>
+            </div>
+          ) : matchError ? (
+            <div className="py-16 flex flex-col items-center justify-center gap-4 text-center">
+              <AlertTriangle className="w-10 h-10 text-amber-500" />
+              <p className="text-sm font-semibold text-slate-700 max-w-md">{matchError}</p>
+              <button
+                onClick={fetchMatches}
+                className="px-4 py-2 bg-sky-600 hover:bg-sky-700 text-white text-xs font-bold rounded-xl flex items-center gap-2"
+              >
+                <RefreshCw className="w-3.5 h-3.5" />
+                <span>Retry</span>
+              </button>
+            </div>
+          ) : matches.length === 0 ? (
+            <div className="py-16 flex flex-col items-center justify-center gap-3 text-center">
+              <AlertTriangle className="w-8 h-8 text-slate-300" />
+              <p className="text-sm font-semibold text-slate-600">
+                No available drivers could be ranked for this load.
               </p>
             </div>
           ) : (
             matches.map((match, index) => {
               const isBest = index === 0 && match.score >= 80;
               const isAssigning = assigningDriverId === match.driver_id;
+              const presentFactors = factorsUsed.filter(
+                (f) => match.breakdown && match.breakdown[f] !== undefined
+              );
+              const locationText = formatLocation(match.current_location);
 
               return (
                 <div
@@ -187,56 +300,67 @@ export default function AIDriverMatcherModal({
                       </div>
 
                       <div className="space-y-1">
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 flex-wrap">
                           <h3 className="font-extrabold text-slate-900 text-sm">
                             {match.driver_name}
                           </h3>
-                          <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-mono font-bold text-slate-700">
-                            {match.truck_number}
-                          </span>
+                          {match.truck_number && (
+                            <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-mono font-bold text-slate-700">
+                              {match.truck_number}
+                            </span>
+                          )}
+                          {match.position_unknown && (
+                            <span className="px-2 py-0.5 rounded-md bg-amber-50 border border-amber-200 text-[10px] font-bold text-amber-700 flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3" />
+                              Position unknown
+                            </span>
+                          )}
                         </div>
 
-                        <p className="text-xs text-slate-500 flex items-center gap-2">
-                          <span>Position</span>
-                          <span>•</span>
-                          <span className="flex items-center gap-1 text-slate-700 font-medium">
+                        {locationText && (
+                          <p className="text-xs text-slate-500 flex items-center gap-1.5">
                             <MapPin className="w-3 h-3 text-slate-400" />
-                            {match.current_location || "Unknown"}
-                          </span>
-                        </p>
-
-                        {match.position_unknown && (
-                          <p className="text-xs text-amber-600 flex items-center gap-1">
-                            <AlertTriangle className="w-3 h-3" />
-                            Position unknown
+                            <span className="text-slate-700 font-medium">{locationText}</span>
                           </p>
                         )}
 
-                        {/* Factors Breakdown */}
-                        <div className="grid grid-cols-2 gap-2 mt-2 text-xs">
-                          {factorsUsed.map((f) => (
+                        {/* Factors Breakdown — only factors the backend computed */}
+                        <div className="grid grid-cols-2 gap-x-4 gap-y-1 mt-2 text-xs">
+                          {presentFactors.map((f) => (
                             <div key={f} className="text-slate-600">
-                              <span className="font-semibold">{f}:</span> {match.breakdown[f]}%
+                              <span className="font-semibold">{FACTOR_LABELS[f] || f}:</span>{" "}
+                              {match.breakdown[f]}
                             </div>
                           ))}
-                          <div className="text-slate-600">
-                            <span className="font-semibold">Deadhead:</span> {match.deadhead_miles} mi
-                          </div>
-                          <div className="text-slate-600">
-                            <span className="font-semibold">HOS:</span> {match.hos_remaining_hours}h
-                          </div>
+                          {match.deadhead_miles != null && (
+                            <div className="text-slate-600">
+                              <span className="font-semibold">Deadhead:</span>{" "}
+                              {Math.round(match.deadhead_miles)} mi
+                            </div>
+                          )}
+                          {match.hos_remaining_hours != null && (
+                            <div className="text-slate-600 flex items-center gap-1">
+                              <Clock className="w-3 h-3 text-slate-400" />
+                              <span className="font-semibold">HOS:</span>{" "}
+                              {Number(match.hos_remaining_hours).toFixed(1)}h remaining
+                            </div>
+                          )}
                         </div>
+                        {presentFactors.length === 0 &&
+                          match.deadhead_miles == null &&
+                          match.hos_remaining_hours == null && (
+                            <p className="text-[11px] text-slate-400 italic mt-1">
+                              No live scoring factors available for this driver.
+                            </p>
+                          )}
                       </div>
                     </div>
 
-                    {/* Score & Action Button */}
-                    <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-2 shrink-0">
-                      <div className="text-right">
-                        <p className="text-2xl font-bold text-sky-600">{match.score}</p>
-                      </div>
+                    {/* Action Button */}
+                    <div className="flex sm:flex-col items-end justify-end gap-2 shrink-0">
                       <button
                         onClick={() => autoAssign(match.driver_id, match.driver_name)}
-                        disabled={isAssigning}
+                        disabled={assigningDriverId !== null}
                         className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
                           isBest
                             ? "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20"
@@ -257,7 +381,6 @@ export default function AIDriverMatcherModal({
                       </button>
                     </div>
                   </div>
-
                 </div>
               );
             })

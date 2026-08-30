@@ -3,8 +3,11 @@ import { useParams, useSearchParams } from "react-router-dom";
 import { Truck, MapPin, Clock, CheckCircle2, AlertCircle, Loader2, Search } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import toast from "react-hot-toast";
-import { API_BASE_URL } from "../lib/apiBase";
+
+// PUBLIC endpoint — no auth cookie required, so plain fetch is used here (and
+// only here). The shared axios instance redirects to /login on 401, which must
+// never happen on the public tracking page.
+const API_BASE_URL = import.meta.env?.VITE_API_URL || "http://localhost:5555/api";
 
 export default function PublicTrackingPage() {
   const { token } = useParams();
@@ -24,25 +27,36 @@ export default function PublicTrackingPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API_BASE_URL}/public-track/${trackToken.trim()}`);
-      if (res.status === 404) {
+      const res = await fetch(`${API_BASE_URL}/public-track/${encodeURIComponent(trackToken.trim())}`);
+      let json = null;
+      try {
+        json = await res.json();
+      } catch {
+        json = null;
+      }
+      if (res.status === 404 || json?.error === "not_found") {
         setError("Load not found. Please check the tracking link.");
         setData(null);
         setLoading(false);
         return;
       }
-      if (res.status === 410) {
-        setError("This shipment was delivered more than 7 days ago and is no longer trackable.");
+      if (res.status === 410 || json?.error === "expired") {
+        setError("This tracking link has expired (shipments stop being trackable 7 days after delivery).");
         setData(null);
         setLoading(false);
         return;
       }
-      const json = await res.json();
-      if (json.ok) {
+      if (res.status === 429) {
+        setError("Too many tracking requests. Please wait a moment and try again.");
+        setData(null);
+        setLoading(false);
+        return;
+      }
+      if (json?.ok && json.load) {
         setData(json.load);
         setError(null);
       } else {
-        setError(json.error || "Failed to fetch tracking");
+        setError(json?.error || "Failed to fetch tracking information.");
         setData(null);
       }
     } catch (err) {
@@ -58,24 +72,21 @@ export default function PublicTrackingPage() {
     if (token) fetchTracking(token);
   }, [token]);
 
-  // Map rendering
+  // Map rendering — the public contract only carries coordinates for the
+  // truck's last known position, so that is the only marker drawn (no
+  // fabricated origin/destination pins).
   useEffect(() => {
-    if (!data?.last_position || !mapContainerRef.current) return;
+    const lat = parseFloat(data?.last_position?.lat);
+    const lng = parseFloat(data?.last_position?.lng);
+    if (!Number.isFinite(lat) || !Number.isFinite(lng) || !mapContainerRef.current) return;
     if (mapInstanceRef.current) {
       mapInstanceRef.current.remove();
       mapInstanceRef.current = null;
     }
 
-    const originLat = parseFloat(data.origin?.lat) || 43.65;
-    const originLng = parseFloat(data.origin?.lng) || -79.38;
-    const destLat = parseFloat(data.destination?.lat) || 41.88;
-    const destLng = parseFloat(data.destination?.lng) || -87.63;
-    const truckLat = data.last_position?.lat || originLat;
-    const truckLng = data.last_position?.lng || originLng;
-
     const map = L.map(mapContainerRef.current, {
-      center: [truckLat, truckLng],
-      zoom: 6,
+      center: [lat, lng],
+      zoom: 7,
       scrollWheelZoom: true,
     });
 
@@ -84,49 +95,28 @@ export default function PublicTrackingPage() {
       maxZoom: 19,
     }).addTo(map);
 
-    // Origin
-    const originIcon = L.divIcon({
-      html: `<div style="background:#3b82f6;color:white;font-weight:900;border:2px solid white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 4px 6px rgba(0,0,0,0.4);">A</div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13],
+    const truckIcon = L.divIcon({
+      html: `<div style="background:#f59e0b;color:white;border:2px solid white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 6px rgba(0,0,0,0.4);">🚛</div>`,
+      iconSize: [32, 32],
+      iconAnchor: [16, 16],
     });
-    L.marker([originLat, originLng], { icon: originIcon })
-      .bindPopup(`<b>Pickup</b><br/>${data.origin?.city || "Unknown"}, ${data.origin?.state || ""}`)
+    L.marker([lat, lng], { icon: truckIcon })
+      .bindPopup(
+        `<b>Last Known Position</b><br/>As of ${
+          data.last_position.recorded_at
+            ? new Date(data.last_position.recorded_at).toLocaleString()
+            : "unknown time"
+        }`
+      )
       .addTo(map);
-
-    // Destination
-    const destIcon = L.divIcon({
-      html: `<div style="background:#10b981;color:white;font-weight:900;border:2px solid white;border-radius:50%;width:26px;height:26px;display:flex;align-items:center;justify-content:center;font-size:11px;box-shadow:0 4px 6px rgba(0,0,0,0.4);">B</div>`,
-      iconSize: [26, 26],
-      iconAnchor: [13, 13],
-    });
-    L.marker([destLat, destLng], { icon: destIcon })
-      .bindPopup(`<b>Delivery</b><br/>${data.destination?.city || "Unknown"}, ${data.destination?.state || ""}`)
-      .addTo(map);
-
-    // Truck
-    if (data.last_position?.lat) {
-      const truckIcon = L.divIcon({
-        html: `<div style="background:#f59e0b;color:white;border:2px solid white;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 4px 6px rgba(0,0,0,0.4);">🚛</div>`,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-      });
-      L.marker([truckLat, truckLng], { icon: truckIcon })
-        .bindPopup(
-          `<b>Current Position</b><br/>Updated: ${new Date(data.last_position.recorded_at).toLocaleString()}`
-        )
-        .addTo(map);
-    }
-
-    // Route polyline
-    L.polyline([[originLat, originLng], [truckLat, truckLng], [destLat, destLng]], {
-      color: "#3b82f6",
-      weight: 3,
-      opacity: 0.7,
-      dashArray: "5, 5",
-    }).addTo(map);
 
     mapInstanceRef.current = map;
+    return () => {
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
+    };
   }, [data]);
 
   if (loading && !data) {
@@ -220,10 +210,18 @@ export default function PublicTrackingPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
-        {/* Map */}
+        {/* Last known position (only when the backend has real telemetry) */}
         {data.last_position && (
           <div className="bg-white rounded-lg border border-slate-200 overflow-hidden shadow-sm">
             <div ref={mapContainerRef} className="h-96 w-full" />
+            <div className="px-4 py-2 border-t border-slate-100 text-xs text-slate-500 flex items-center gap-1.5">
+              <Clock className="w-3.5 h-3.5" />
+              <span>
+                Last position: {Number(data.last_position.lat).toFixed(4)}, {Number(data.last_position.lng).toFixed(4)}
+                {data.last_position.recorded_at &&
+                  ` — as of ${new Date(data.last_position.recorded_at).toLocaleString()}`}
+              </span>
+            </div>
           </div>
         )}
 
