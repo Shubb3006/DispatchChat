@@ -78,10 +78,34 @@ export default function CustomsManifestModal({
   isOpen,
   onClose,
   onSendToDriverChat,
+  customsEntry = null,
 }) {
   const [isSending, setIsSending] = useState(false);
 
   if (!isOpen || !shipment) return null;
+
+  // Honest filing state: DRAFT -> QUEUED -> SENT -> ACCEPTED | REJECTED | ERROR.
+  // Without a persisted customs entry, this manifest has NOT been filed.
+  const bcStatus = customsEntry?.border_connect_status || "NOT_FILED";
+  const bcError = customsEntry?.bc_error_message || null;
+  const isAccepted = bcStatus === "ACCEPTED";
+  const statusLabel =
+    {
+      NOT_FILED: "NOT FILED",
+      DRAFT: "DRAFT - NOT FILED",
+      QUEUED: "QUEUED AT BORDERCONNECT",
+      SENT: "SENT - AWAITING CUSTOMS",
+      ACCEPTED: "ACCEPTED BY CUSTOMS",
+      REJECTED: "REJECTED BY CUSTOMS",
+      ERROR: "FILING ERROR",
+    }[bcStatus] || bcStatus;
+  const statusTone = isAccepted
+    ? "emerald"
+    : bcStatus === "REJECTED" || bcStatus === "ERROR"
+    ? "rose"
+    : bcStatus === "SENT" || bcStatus === "QUEUED"
+    ? "amber"
+    : "slate";
 
   const loadNumber =
     shipment.load_number || shipment.tracking_number || shipment.trackingNumber || "10002";
@@ -150,9 +174,19 @@ export default function CustomsManifestModal({
             </div>
             <div>
               <h3 className="text-base font-extrabold text-white font-mono flex items-center gap-2">
-                <span>OFFICIAL CUSTOMS e-MANIFEST ({manifestType})</span>
-                <span className="text-xs bg-emerald-500/20 text-emerald-300 px-2.5 py-0.5 rounded border border-emerald-400/30 font-mono">
-                  APPROVED BY {manifestType === "ACE" ? "US CBP" : "CBSA"}
+                <span>CUSTOMS e-MANIFEST ({manifestType})</span>
+                <span
+                  className={`text-xs px-2.5 py-0.5 rounded border font-mono ${
+                    statusTone === "emerald"
+                      ? "bg-emerald-500/20 text-emerald-300 border-emerald-400/30"
+                      : statusTone === "rose"
+                      ? "bg-rose-500/20 text-rose-300 border-rose-400/30"
+                      : statusTone === "amber"
+                      ? "bg-amber-500/20 text-amber-300 border-amber-400/30"
+                      : "bg-slate-500/20 text-slate-300 border-slate-400/30"
+                  }`}
+                >
+                  {statusLabel}
                 </span>
               </h3>
               <p className="text-xs text-slate-400 font-mono mt-0.5">
@@ -173,10 +207,16 @@ export default function CustomsManifestModal({
         <div className="p-6 space-y-6 overflow-y-auto bg-slate-100/80 flex-1 font-mono text-xs text-slate-800">
           {/* Printable Official Manifest Paper Sheet */}
           <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-300 shadow-md space-y-6 relative">
-            {/* Approval Stamp Seal */}
-            <div className="absolute top-6 right-6 border-2 border-emerald-600 text-emerald-700 rounded-xl px-3 py-1 text-3xs font-extrabold uppercase tracking-widest rotate-2 bg-emerald-50/90 shadow-xs pointer-events-none">
-              ✔ {agencyName} APPROVED
-            </div>
+            {/* Status Stamp Seal — reflects the real persisted filing state */}
+            {isAccepted ? (
+              <div className="absolute top-6 right-6 border-2 border-emerald-600 text-emerald-700 rounded-xl px-3 py-1 text-3xs font-extrabold uppercase tracking-widest rotate-2 bg-emerald-50/90 shadow-xs pointer-events-none">
+                {agencyName} ACCEPTED
+              </div>
+            ) : (
+              <div className="absolute top-6 right-6 border-2 border-slate-400 text-slate-500 rounded-xl px-3 py-1 text-3xs font-extrabold uppercase tracking-widest rotate-2 bg-slate-50/90 shadow-xs pointer-events-none">
+                {statusLabel}
+              </div>
+            )}
 
             {/* Document Header */}
             <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
@@ -194,7 +234,9 @@ export default function CustomsManifestModal({
                   {manifestType}-MANIFEST-{loadNumber}
                 </div>
                 <div className="text-3xs text-slate-500">
-                  Transmitted: {new Date().toLocaleDateString()}
+                  {customsEntry?.filed_at
+                    ? `Filed: ${new Date(customsEntry.filed_at).toLocaleDateString()}`
+                    : `Generated: ${new Date().toLocaleDateString()}`}
                 </div>
               </div>
             </div>
@@ -237,7 +279,10 @@ export default function CustomsManifestModal({
                   Tractor: {truckNum} • Trailer: {trailerNum}
                 </div>
                 <div className="text-3xs text-slate-600">
-                  Truck VIN: <strong className="font-mono text-slate-800">1FUJGLDR8NL109281</strong>
+                  Truck VIN:{" "}
+                  <strong className="font-mono text-slate-800">
+                    {shipment.truck_vin || shipment.truckVin || "Not on file"}
+                  </strong>
                 </div>
               </div>
             </div>
@@ -252,7 +297,12 @@ export default function CustomsManifestModal({
                   {driverName}
                 </div>
                 <div className="text-3xs text-slate-600">
-                  FAST Card: <strong className="font-mono text-slate-800">FAST-890123-CAN</strong> (Citizenship: Canada)
+                  FAST Card:{" "}
+                  <strong className="font-mono text-slate-800">
+                    {customsEntry?.driver_fast_card_number ||
+                      shipment.driver_fast_card_number ||
+                      "Not on file"}
+                  </strong>
                 </div>
               </div>
 
@@ -269,14 +319,64 @@ export default function CustomsManifestModal({
               </div>
             </div>
 
-            {/* Security Stamp Banner */}
-            <div className="bg-emerald-50 p-4 rounded-xl border border-emerald-200 flex flex-col sm:flex-row items-center justify-between gap-2 text-3xs">
-              <div className="flex items-center space-x-2 text-emerald-900 font-bold">
-                <ShieldCheck className="h-4 w-4 text-emerald-600" />
-                <span>ELECTRONIC MANIFEST PRE-CLEARED FOR BORDER CROSSING</span>
+            {/* Honest Filing Status Banner */}
+            <div
+              className={`p-4 rounded-xl border flex flex-col sm:flex-row items-center justify-between gap-2 text-3xs ${
+                statusTone === "emerald"
+                  ? "bg-emerald-50 border-emerald-200"
+                  : statusTone === "rose"
+                  ? "bg-rose-50 border-rose-200"
+                  : statusTone === "amber"
+                  ? "bg-amber-50 border-amber-200"
+                  : "bg-slate-50 border-slate-200"
+              }`}
+            >
+              <div
+                className={`flex items-center space-x-2 font-bold ${
+                  statusTone === "emerald"
+                    ? "text-emerald-900"
+                    : statusTone === "rose"
+                    ? "text-rose-900"
+                    : statusTone === "amber"
+                    ? "text-amber-900"
+                    : "text-slate-700"
+                }`}
+              >
+                <ShieldCheck
+                  className={`h-4 w-4 ${
+                    statusTone === "emerald"
+                      ? "text-emerald-600"
+                      : statusTone === "rose"
+                      ? "text-rose-600"
+                      : statusTone === "amber"
+                      ? "text-amber-600"
+                      : "text-slate-500"
+                  }`}
+                />
+                <span>
+                  {isAccepted
+                    ? "ELECTRONIC MANIFEST ACCEPTED BY CUSTOMS"
+                    : bcStatus === "REJECTED"
+                    ? `MANIFEST REJECTED${bcError ? `: ${bcError}` : ""}`
+                    : bcStatus === "ERROR"
+                    ? `FILING ERROR${bcError ? `: ${bcError}` : ""}`
+                    : bcStatus === "SENT" || bcStatus === "QUEUED"
+                    ? "MANIFEST TRANSMITTED - AWAITING CUSTOMS DECISION"
+                    : "MANIFEST NOT YET FILED WITH CUSTOMS"}
+                </span>
               </div>
-              <span className="bg-emerald-600 text-white font-mono font-bold px-3 py-1 rounded-lg uppercase">
-                STATUS: CBP / CBSA READY
+              <span
+                className={`font-mono font-bold px-3 py-1 rounded-lg uppercase text-white ${
+                  statusTone === "emerald"
+                    ? "bg-emerald-600"
+                    : statusTone === "rose"
+                    ? "bg-rose-600"
+                    : statusTone === "amber"
+                    ? "bg-amber-600"
+                    : "bg-slate-500"
+                }`}
+              >
+                STATUS: {statusLabel}
               </span>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import express from "express";
+import { protectedRoute } from "../middlewares/auth.middleware.js";
 import {
   getRadarOverview,
   getBorderWaitTimes,
@@ -8,9 +9,9 @@ import {
 
 const router = express.Router();
 
-router.get("/overview", getRadarOverview);
-router.get("/border-wait-times", getBorderWaitTimes);
-router.get("/weather-corridors", getWeatherCorridors);
-router.post("/recalculate", recalculateRadar);
+router.get("/overview", protectedRoute, getRadarOverview);
+router.get("/border-wait-times", protectedRoute, getBorderWaitTimes);
+router.get("/weather-corridors", protectedRoute, getWeatherCorridors);
+router.post("/recalculate", protectedRoute, recalculateRadar);
 
 export default router;

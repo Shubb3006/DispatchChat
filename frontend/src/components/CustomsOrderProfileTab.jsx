@@ -36,9 +36,8 @@ export default function CustomsOrderProfileTab({
     updateCustomsEntry,
     createCustomsEntry,
     updateCustomsStatus,
-    syncBorderConnectStatus,
-    transmitBorderConnectAce,
-    transmitBorderConnectAci,
+    fileWithBorderConnect,
+    refreshBorderConnectStatus,
   } = useCustomsStore();
 
   const [isSyncing, setIsSyncing] = useState(false);
@@ -116,49 +115,30 @@ export default function CustomsOrderProfileTab({
       ? "Detroit Ambassador Bridge (3801)"
       : "Windsor Ambassador Bridge (453)",
     port_country: isUS ? "US" : "CA",
-    customs_status: "ACCEPTED",
-    irs_number: "36-4928174",
-    ins_number: "892019482RM0001",
+    // Honest default: an unsaved profile is a DRAFT, not an accepted filing.
+    customs_status: "DRAFT",
+    border_connect_status: "DRAFT",
+    irs_number: "",
+    ins_number: "",
     customer_name: shipment.customer_name || "Industrial Logistics Co.",
     shipper_name: shipment.shipper_name || "Weston Wood Solutions",
     consignee_name: shipment.consignee_name || "Woodgrain",
     origin: shipment.origin || "Toronto, ON, Canada",
     destination: shipment.destination || "Chicago, IL, USA",
-    customs_broker_name: shipment.customs_broker || "Livingston International",
-    customs_broker_filer_code: "LVN-9021",
-    broker_entry_number: `ENT-US-${cleanLoadNumber}`,
-    commercial_invoice_number: `INV-${cleanLoadNumber}`,
-    invoice_total_value: 68450.0,
+    customs_broker_name: shipment.customs_broker || "",
+    customs_broker_filer_code: "",
+    broker_entry_number: "",
+    commercial_invoice_number: "",
+    invoice_total_value: 0,
     currency: isUS ? "USD" : "CAD",
     country_of_origin: isUS ? "CA" : "US",
-    hts_items: [
-      {
-        hts_code: "8708.29.5060",
-        description: "Stamped aluminum automotive brackets & stampings",
-        quantity: 1200,
-        unit: "PCS",
-        unit_price: 38.5,
-        total_value: 46200.0,
-        weight_lbs: 3800,
-        duty_rate_pct: 2.5,
-      },
-      {
-        hts_code: "7318.15.2095",
-        description: "High-tensile Grade 8 steel mounting fasteners",
-        quantity: 5000,
-        unit: "PCS",
-        unit_price: 4.45,
-        total_value: 22250.0,
-        weight_lbs: 2200,
-        duty_rate_pct: 0.0,
-      },
-    ],
-    driver_name: shipment.driver_name || shipment.driverName || "Marcus Vance",
-    driver_fast_card_number: "FAST-USA-8829104",
-    truck_number: shipment.truck_number || shipment.truckNumber || "TRK-102",
-    trailer_number: shipment.trailer_number || shipment.trailerNumber || "TRL-504",
-    ace_trip_number: `ACE-TRIP-${cleanLoadNumber}`,
-    inspection_notes: "ACE eManifest 304 accepted. Driver assigned to FAST commercial lane.",
+    hts_items: [],
+    driver_name: shipment.driver_name || shipment.driverName || "",
+    driver_fast_card_number: "",
+    truck_number: shipment.truck_number || shipment.truckNumber || "",
+    trailer_number: shipment.trailer_number || shipment.trailerNumber || "",
+    ace_trip_number: "",
+    inspection_notes: "",
   };
 
   const [editData, setEditData] = useState(entry);
@@ -195,12 +175,38 @@ export default function CustomsOrderProfileTab({
           bg: "bg-rose-500/10 text-rose-400 border border-rose-500/30 animate-pulse",
           dot: "bg-rose-400 shadow-[0_0_8px_#f43f5e]",
         };
-      default:
+      case "DRAFT":
         return {
-          label: status?.replace(/_/g, " ") || "ACE/ACI Accepted",
-          bg: "bg-blue-500/10 text-blue-400 border border-blue-500/30",
-          dot: "bg-blue-400",
+          label: "Draft (not filed)",
+          bg: "bg-slate-500/10 text-slate-400 border border-slate-500/30",
+          dot: "bg-slate-400",
         };
+      default:
+        // Honest: show the actual status, never a fabricated "Accepted".
+        return {
+          label: status?.replace(/_/g, " ") || "Draft (not filed)",
+          bg: "bg-slate-500/10 text-slate-400 border border-slate-500/30",
+          dot: "bg-slate-400",
+        };
+    }
+  };
+
+  // BorderConnect filing lifecycle: DRAFT -> QUEUED -> SENT -> ACCEPTED | REJECTED | ERROR
+  const getBcBadge = (bcStatus) => {
+    switch (bcStatus) {
+      case "ACCEPTED":
+        return { label: "BC Filing: Accepted", cls: "bg-emerald-500/10 text-emerald-400 border-emerald-500/30" };
+      case "SENT":
+        return { label: "BC Filing: Sent (awaiting customs)", cls: "bg-blue-500/10 text-blue-400 border-blue-500/30" };
+      case "QUEUED":
+        return { label: "BC Filing: Queued", cls: "bg-amber-500/10 text-amber-400 border-amber-500/30" };
+      case "REJECTED":
+        return { label: "BC Filing: Rejected", cls: "bg-rose-500/10 text-rose-400 border-rose-500/30" };
+      case "ERROR":
+        return { label: "BC Filing: Error", cls: "bg-red-500/10 text-red-400 border-red-500/40" };
+      case "DRAFT":
+      default:
+        return { label: "BC Filing: Not filed", cls: "bg-slate-500/10 text-slate-400 border-slate-500/30" };
     }
   };
 
@@ -208,34 +214,38 @@ export default function CustomsOrderProfileTab({
     if (matchedEntry?.id) {
       await updateCustomsStatus(matchedEntry.id, newStatus);
     } else {
-      toast.success(`Customs status updated to ${newStatus.replace(/_/g, " ")}`);
+      // Honest: nothing is saved yet, so nothing was updated.
+      toast.error("No saved customs entry for this load yet — save the customs profile first.");
     }
   };
 
   const handleSyncBC = async () => {
+    if (!matchedEntry?.id) {
+      toast.error("No saved customs entry to check — save the customs profile first.");
+      return;
+    }
     setIsSyncing(true);
     try {
-      await syncBorderConnectStatus(entry.lead_number, entry.lead_number_type);
-      toast.success(`Live BorderConnect status synced for ${entry.lead_number}`);
+      // The store surfaces the honest result (or error) itself.
+      await refreshBorderConnectStatus(matchedEntry.id);
     } catch (err) {
-      toast.success(`BorderConnect EDI status: ACCEPTED for ${entry.lead_number}`);
+      toast.error(`BorderConnect status check failed: ${err.message}`);
     } finally {
       setIsSyncing(false);
     }
   };
 
   const handleTransmitEmanifest = async () => {
+    if (!matchedEntry?.id) {
+      toast.error("No saved customs entry for this load — save the customs profile before filing.");
+      return;
+    }
     setIsTransmitting(true);
     try {
-      if (isUS) {
-        await transmitBorderConnectAce(entry.id, entry);
-        toast.success(`ACE e-Manifest transmitted to US CBP for Load #${cleanLoadNumber}!`);
-      } else {
-        await transmitBorderConnectAci(entry.id, entry);
-        toast.success(`ACI e-Manifest transmitted to CBSA for Load #${cleanLoadNumber}!`);
-      }
+      // The store surfaces the honest lifecycle result (or error) itself.
+      await fileWithBorderConnect(matchedEntry.id);
     } catch (err) {
-      toast.success(`e-Manifest transmitted successfully (EDI Reference: BC-${cleanLoadNumber})`);
+      toast.error(`BorderConnect filing failed: ${err.message}`);
     } finally {
       setIsTransmitting(false);
     }
@@ -253,6 +263,7 @@ export default function CustomsOrderProfileTab({
   };
 
   const badge = getStatusBadge(entry.customs_status);
+  const bcBadge = getBcBadge(entry.border_connect_status);
 
   return (
     <div className="space-y-6">
@@ -289,7 +300,19 @@ export default function CustomsOrderProfileTab({
                   <span className={`w-1.5 h-1.5 rounded-full ${badge.dot}`} />
                   {badge.label}
                 </span>
+                <span
+                  className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold border ${bcBadge.cls}`}
+                  title="Persisted BorderConnect eManifest filing status"
+                >
+                  {bcBadge.label}
+                </span>
               </div>
+
+              {entry.bc_error_message && (
+                <div className="text-[11px] text-rose-400 font-medium mt-1">
+                  BorderConnect: {entry.bc_error_message}
+                </div>
+              )}
 
               <div className="flex flex-wrap items-center gap-3 text-xs text-slate-400">
                 <span className="font-bold text-cyan-400 font-mono">
@@ -387,10 +410,10 @@ export default function CustomsOrderProfileTab({
               TAX & IMPORTER IDS
             </div>
             <div className="text-xs font-mono font-semibold text-slate-300 mt-0.5">
-              IRS/EIN: {entry.irs_number || "36-4928174"}
+              IRS/EIN: {entry.irs_number || "Not specified"}
             </div>
             <div className="text-xs font-mono font-semibold text-slate-300">
-              INS/CRA: {entry.ins_number || "892019482RM0001"}
+              INS/CRA: {entry.ins_number || "Not specified"}
             </div>
           </div>
 
@@ -400,10 +423,10 @@ export default function CustomsOrderProfileTab({
               CUSTOMS BROKER
             </div>
             <div className="text-xs font-bold text-slate-200 mt-0.5 truncate">
-              {entry.customs_broker_name || "Livingston International"}
+              {entry.customs_broker_name || "Not assigned"}
             </div>
             <div className="text-[11px] text-slate-400">
-              Filer: {entry.customs_broker_filer_code || "LVN-9021"} • {entry.broker_entry_number || "ENT-US-992014"}
+              Filer: {entry.customs_broker_filer_code || "N/A"} • {entry.broker_entry_number || "Pending"}
             </div>
           </div>
 
@@ -413,10 +436,10 @@ export default function CustomsOrderProfileTab({
               HTS ITEMS & VALUATION
             </div>
             <div className="text-xs font-bold text-emerald-400 mt-0.5">
-              ${parseFloat(entry.invoice_total_value || 68450).toLocaleString()} {entry.currency || "USD"}
+              ${parseFloat(entry.invoice_total_value || 0).toLocaleString()} {entry.currency || "USD"}
             </div>
             <div className="text-[11px] text-slate-400 truncate">
-              {entry.hts_items?.length || 2} HTS classification(s)
+              {entry.hts_items?.length || 0} HTS classification(s)
             </div>
           </div>
         </div>
@@ -457,26 +480,32 @@ export default function CustomsOrderProfileTab({
                 Border Crossing & Equipment Clearance
               </h3>
             </div>
-            <span className="text-3xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-              FAST CERTIFIED
-            </span>
+            {entry.driver_fast_card_number ? (
+              <span className="text-3xs font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                FAST CARD ON FILE
+              </span>
+            ) : (
+              <span className="text-3xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                NO FAST CARD ON FILE
+              </span>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Assigned Tractor</span>
-              <div className="font-mono font-bold text-slate-900">{entry.truck_number || "TRK-102"}</div>
+              <div className="font-mono font-bold text-slate-900">{entry.truck_number || "Not assigned"}</div>
             </div>
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Trailer & Seal</span>
               <div className="font-mono font-bold text-slate-900">
-                {entry.trailer_number || "TRL-504"} • {shipment.seal_number || "SEAL-904812"}
+                {entry.trailer_number || "Not assigned"} • {shipment.seal_number || "No seal on file"}
               </div>
             </div>
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">FAST Card / Driver</span>
-              <div className="font-mono font-bold text-slate-900">{entry.driver_name || "Marcus Vance"}</div>
-              <div className="text-3xs text-slate-500 font-mono">{entry.driver_fast_card_number || "FAST-8829104"}</div>
+              <div className="font-mono font-bold text-slate-900">{entry.driver_name || "Not assigned"}</div>
+              <div className="text-3xs text-slate-500 font-mono">{entry.driver_fast_card_number || "No FAST card on file"}</div>
             </div>
             <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Target Crossing ETA</span>
@@ -510,7 +539,7 @@ export default function CustomsOrderProfileTab({
               className="px-4 py-2 bg-indigo-600 hover:bg-indigo-500 active:bg-indigo-700 text-white rounded-xl text-xs font-bold font-mono transition-all flex items-center space-x-2 shadow-md cursor-pointer"
             >
               <Send className="h-3.5 w-3.5" />
-              <span>{isTransmitting ? "Transmitting to Border..." : "Transmit e-Manifest 🚀"}</span>
+              <span>{isTransmitting ? "Filing with BorderConnect..." : "File e-Manifest with BorderConnect"}</span>
             </button>
 
             <button

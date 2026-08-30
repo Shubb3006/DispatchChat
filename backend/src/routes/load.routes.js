@@ -24,15 +24,16 @@ import { upload } from '../config/multer.js';
 const router = Router();
 
 // AI Smart Driver-Load Matcher & Dispatch Optimizer
-router.post("/ai-match-drivers", aiMatchDrivers);
-router.post("/auto-assign", autoAssignDriver);
+router.post("/ai-match-drivers", protectedRoute, aiMatchDrivers);
+router.post("/auto-assign", protectedRoute, autoAssignDriver);
 
 // Automated Inbound Load Tender Ingestion & Background Worker (100% Native replacing Make.com)
+// NOTE: /inbound-tender stays public by design — it is the external email/webhook ingestion endpoint.
 router.post("/inbound-tender", ingestInboundTenderWebhook);
-router.post("/parse-tender", parseInboundTender);
-router.get("/automation/status", getAutomationStatus);
-router.post("/automation/trigger", triggerAutomationCycle);
-router.post("/automation/upload-pdf", upload.single("pdf"), uploadAndProcessPdfTender);
+router.post("/parse-tender", protectedRoute, parseInboundTender);
+router.get("/automation/status", protectedRoute, getAutomationStatus);
+router.post("/automation/trigger", protectedRoute, triggerAutomationCycle);
+router.post("/automation/upload-pdf", protectedRoute, upload.single("pdf"), uploadAndProcessPdfTender);
 
 
 

@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { parseListParams, buildSearchClause, resolveSortClause } from "./customer.controller.js";
 
 // Create Driver
 // export const createDriver = async (req, res) => {
@@ -210,7 +211,58 @@ export const createDriver = async (req, res) => {
 // };
 export const getDrivers = async (req, res) => {
     try {
-  
+      const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
+
+      // Paginated/searchable shape when list params are present
+      if (hasListParams) {
+        const params = [];
+        const where = [];
+
+        if (q) {
+          where.push(
+            buildSearchClause(
+              q,
+              ["u.username", "u.full_name", "d.driver_code", "d.license_number", "d.phone_number", "d.status"],
+              params
+            )
+          );
+        }
+
+        const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+        const orderSql = resolveSortClause(
+          sort,
+          {
+            username: "u.username",
+            full_name: "u.full_name",
+            driver_code: "d.driver_code",
+            status: "d.status",
+            created_at: "d.created_at",
+            license_expiry: "d.license_expiry",
+          },
+          "ORDER BY u.username ASC"
+        );
+
+        params.push(limit, offset);
+        const result = await pool.query(
+          `SELECT
+             d.*,
+             u.username,
+             u.full_name,
+             COUNT(*) OVER() AS __total
+           FROM drivers d
+           INNER JOIN users u ON d.user_id = u.id
+           ${whereSql}
+           ${orderSql}
+           LIMIT $${params.length - 1} OFFSET $${params.length}`,
+          params
+        );
+
+        const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+        const data = result.rows.map(({ __total, ...row }) => row);
+
+        return res.json({ data, total, limit, offset });
+      }
+
       const result = await pool.query(`
         SELECT
   

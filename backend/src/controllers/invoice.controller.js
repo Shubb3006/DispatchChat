@@ -1,4 +1,10 @@
 import pool from "../config/db.js";
+import {
+  getCustomerScope,
+  parseListParams,
+  buildSearchClause,
+  resolveSortClause,
+} from "./customer.controller.js";
 
 // Ensure table exists helper
 const ensureInvoicesTable = async () => {
@@ -33,17 +39,30 @@ export const getInvoices = async (req, res) => {
   await ensureInvoicesTable();
   try {
     const { status, customer_id, load_id, tracking_number } = req.query;
+    const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
+
+    // Customer-scoped access: customer users only see their own invoices
+    const scope = await getCustomerScope(req);
+    if (scope.restricted && !scope.customerId) {
+      return hasListParams
+        ? res.json({ data: [], total: 0, limit, offset })
+        : res.json({ success: true, invoices: [] });
+    }
 
     let query = `SELECT * FROM invoices WHERE 1=1`;
     const params = [];
 
+    if (scope.restricted) {
+      // Scoped users cannot request another customer's invoices
+      params.push(scope.customerId);
+      query += ` AND customer_id = $${params.length}`;
+    } else if (customer_id) {
+      params.push(customer_id);
+      query += ` AND customer_id = $${params.length}`;
+    }
     if (status) {
       params.push(status);
       query += ` AND status = $${params.length}`;
-    }
-    if (customer_id) {
-      params.push(customer_id);
-      query += ` AND customer_id = $${params.length}`;
     }
     if (load_id) {
       params.push(load_id);
@@ -54,10 +73,43 @@ export const getInvoices = async (req, res) => {
       query += ` AND tracking_number = $${params.length}`;
     }
 
-    query += ` ORDER BY created_at DESC`;
+    // Legacy shape when no list params are present (backward compatible)
+    if (!hasListParams) {
+      query += ` ORDER BY created_at DESC`;
+      const result = await pool.query(query, params);
+      return res.json({ success: true, invoices: result.rows });
+    }
+
+    if (q) {
+      query += ` AND ${buildSearchClause(
+        q,
+        ["customer_name", "tracking_number", "shipment_id", "status", "notes"],
+        params
+      )}`;
+    }
+
+    const orderSql = resolveSortClause(
+      sort,
+      {
+        created_at: "created_at",
+        issue_date: "issue_date",
+        due_date: "due_date",
+        total: "total",
+        status: "status",
+        customer_name: "customer_name",
+      },
+      "ORDER BY created_at DESC"
+    );
+
+    query = query.replace("SELECT *", "SELECT *, COUNT(*) OVER() AS __total");
+    params.push(limit, offset);
+    query += ` ${orderSql} LIMIT $${params.length - 1} OFFSET $${params.length}`;
 
     const result = await pool.query(query, params);
-    res.json({ success: true, invoices: result.rows });
+    const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+    const data = result.rows.map(({ __total, ...row }) => row);
+
+    res.json({ data, total, limit, offset });
   } catch (error) {
     console.error("Error fetching invoices:", error);
     res.status(500).json({ success: false, message: "Server Error fetching invoices" });
@@ -69,7 +121,21 @@ export const getInvoiceById = async (req, res) => {
   await ensureInvoicesTable();
   try {
     const { id } = req.params;
-    const result = await pool.query(`SELECT * FROM invoices WHERE id = $1`, [id]);
+
+    // Customer-scoped access on detail reads
+    const scope = await getCustomerScope(req);
+    if (scope.restricted && !scope.customerId) {
+      return res.status(404).json({ success: false, message: "Invoice not found" });
+    }
+
+    const params = [id];
+    let query = `SELECT * FROM invoices WHERE id = $1`;
+    if (scope.restricted) {
+      params.push(scope.customerId);
+      query += ` AND customer_id = $2`;
+    }
+
+    const result = await pool.query(query, params);
     if (result.rows.length === 0) {
       return res.status(404).json({ success: false, message: "Invoice not found" });
     }

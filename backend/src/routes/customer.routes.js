@@ -5,7 +5,8 @@ import {
     getCustomers,
     getCustomer,
     updateCustomer,
-    deleteCustomer
+    deleteCustomer,
+    getMyCustomer
 } from "../controllers/customer.controller.js";
 
 import { protectedRoute } from '../middlewares/auth.middleware.js';
@@ -16,6 +17,9 @@ const router = express.Router();
 router.post("/",protectedRoute,authorize("admin","dispatcher","super_admin"),createCustomer);
 
 router.get("/",protectedRoute,getCustomers);
+
+// Customer record linked to the requesting user (must be before "/:id")
+router.get("/me",protectedRoute,getMyCustomer);
 
 router.get("/:id",protectedRoute,getCustomer);
 

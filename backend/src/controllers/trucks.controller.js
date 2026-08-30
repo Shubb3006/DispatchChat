@@ -1,4 +1,5 @@
 import pool from "../config/db.js";
+import { parseListParams, buildSearchClause, resolveSortClause } from "./customer.controller.js";
 
 export const createTruck = async (req, res) => {
     try {
@@ -74,6 +75,52 @@ export const createTruck = async (req, res) => {
 export const getAllTrucks = async (req, res) => {
 
     try {
+        const { hasListParams, limit, offset, q, sort } = parseListParams(req.query);
+
+        // Paginated/searchable shape when list params are present
+        if (hasListParams) {
+            const params = [];
+            const where = [];
+
+            if (q) {
+                where.push(
+                    buildSearchClause(
+                        q,
+                        ["truck_number", "vin", "make", "model", "plate_number", "status"],
+                        params
+                    )
+                );
+            }
+
+            const whereSql = where.length ? `WHERE ${where.join(" AND ")}` : "";
+            const orderSql = resolveSortClause(
+                sort,
+                {
+                    created_at: "created_at",
+                    truck_number: "truck_number",
+                    make: "make",
+                    model: "model",
+                    year: "year",
+                    status: "status",
+                },
+                "ORDER BY created_at DESC"
+            );
+
+            params.push(limit, offset);
+            const result = await pool.query(
+                `SELECT *, COUNT(*) OVER() AS __total
+                 FROM trucks
+                 ${whereSql}
+                 ${orderSql}
+                 LIMIT $${params.length - 1} OFFSET $${params.length}`,
+                params
+            );
+
+            const total = result.rows.length ? Number(result.rows[0].__total) : 0;
+            const data = result.rows.map(({ __total, ...row }) => row);
+
+            return res.status(200).json({ data, total, limit, offset });
+        }
 
         const result = await pool.query(
             `

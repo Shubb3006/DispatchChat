@@ -28,6 +28,7 @@ import etaRadarRoutes from "./routes/etaRadar.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
+import { publicTrackLoad, publicTrackRateLimiter } from "./controllers/load.controller.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
 
 
@@ -81,6 +82,7 @@ app.use("/api/loads", loadRoutes);
 app.use("/api/v1/loads", loadRoutes);
 app.use("/api/upload", uploadRoutes);
 app.use("/api/customers",customerRoutes)
+app.use("/api/customer",customerRoutes) // singular alias (GET /api/customer/me)
 app.use("/api/drivers",driverRoutes)
 app.use("/api/trailors",trailorRoutes);
 app.use("/api/trucks",truckRoutes);
@@ -88,6 +90,7 @@ app.use("/api/locations",locationRoutes);
 app.use("/api/load_stops",loadStopsRoutes);
 app.use("/api/user",userRoutes);
 app.use("/api/trips",tripRoutes);
+app.use("/api", tripRoutes.legsRouter); // relay legs (/api/load/:loadId/legs, /api/legs/:id) + driver pay (/api/settlement/me) — router defined in trip.routes.js
 app.use("/api/hos-logs", hosLogRoutes);
 app.use("/api/driver-documents", driverDocumentRoutes);
 app.use("/api/safety-incidents", safetyIncidentRoutes);
@@ -106,6 +109,9 @@ app.use("/api/settlements", settlementRoutes);
 app.use("/api/v1/settlements", settlementRoutes);
 app.use("/api/pcmiler", pcmilerRoutes);
 app.use("/api/v1/pcmiler", pcmilerRoutes);
+
+// PUBLIC (no auth): customer-facing load tracking by tracking token or load number
+app.get("/api/public-track/:token", publicTrackRateLimiter, publicTrackLoad);
 
 
 
