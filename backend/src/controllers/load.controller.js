@@ -1718,36 +1718,64 @@ export const uploadAndProcessPdfTender = async (req, res) => {
 };
 
 /**
- * POST /api/v1/loads/ai-match-drivers
- * Evaluates fleet drivers against a load and returns ranked candidates
+ * POST /api/load/ai-match-drivers  { loadId }
+ * Ranks active fleet drivers against a load from live Samsara GPS/HOS,
+ * geocoded pickup coordinates, real cross-border compliance fields, and
+ * on-time delivery history. Factors that cannot be computed are omitted
+ * (never fabricated) — see aiDispatcherOptimizer.service.js.
  */
 export const aiMatchDrivers = async (req, res) => {
   try {
-    const loadData = req.body || {};
-    const result = await rankDriversForLoad(loadData);
-    res.json({ success: true, ...result });
+    const loadId = req.body?.loadId || req.body?.load_id || req.body?.id;
+    if (!loadId) {
+      return res.status(400).json({ ok: false, error: "load_id_required" });
+    }
+    const result = await rankDriversForLoad(loadId);
+    if (!result.ok) {
+      const codes = {
+        load_id_required: 400,
+        not_found: 404,
+        samsara_not_configured: 503,
+        samsara_unavailable: 503,
+      };
+      return res.status(codes[result.error] || 500).json(result);
+    }
+    res.json(result);
   } catch (error) {
-
     console.error("aiMatchDrivers error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ ok: false, error: error.message });
   }
 };
 
 /**
- * POST /api/v1/loads/auto-assign
- * 1-Click assigns driver to load and dispatches
+ * POST /api/load/auto-assign  { loadId, driverId }
+ * Validates the driver, writes loads.driver_id/truck_id/assigned_at, and
+ * dispatches through loadStatus.service. Returns real errors with proper
+ * HTTP codes — never a fake success.
  */
 export const autoAssignDriver = async (req, res) => {
   try {
-    const { loadId, driverId } = req.body;
+    const { loadId, driverId } = req.body || {};
     if (!loadId || !driverId) {
-      return res.status(400).json({ success: false, message: "loadId and driverId are required" });
+      return res.status(400).json({ ok: false, error: "load_id_and_driver_id_required" });
     }
-    const result = await autoAssignDriverToLoad(loadId, driverId);
+    const result = await autoAssignDriverToLoad(loadId, driverId, {
+      actor: req.user || null,
+      req,
+    });
+    if (!result.ok) {
+      const codes = {
+        load_id_and_driver_id_required: 400,
+        load_not_found: 404,
+        driver_not_found: 404,
+        driver_not_active: 409,
+      };
+      return res.status(codes[result.error] || 500).json(result);
+    }
     res.json(result);
   } catch (error) {
     console.error("autoAssignDriver error:", error);
-    res.status(500).json({ success: false, message: error.message });
+    res.status(500).json({ ok: false, error: error.message });
   }
 };
 
