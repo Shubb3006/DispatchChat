@@ -178,7 +178,7 @@ export default function PortalDashboardPage() {
                     {r.status === "QUOTED" && (
                       <div className="mt-3 pt-3 border-t border-slate-200 flex items-center justify-between">
                         <p className="font-bold text-lg text-slate-900">
-                          ${r.quoted_price?.toFixed(2)} {r.quote_currency || "USD"}
+                          ${Number(r.quoted_price || 0).toFixed(2)} {r.quote_currency || "USD"}
                         </p>
                         <div className="flex gap-2">
                           <button
