@@ -9,13 +9,15 @@ export const useSafetyStore = create((set, get) => ({
   isLoading: false,
   error: null,
 
+  // Real backend routes are mounted at /api/safety-incidents (see
+  // Dispatch/backend/src/server.js) — the old '/safety/incidents' paths 404'd,
+  // so SafetyPage never rendered real incident rows.
   fetchSafetyIncidents: async () => {
     set({ isLoading: true, error: null });
     try {
-      const response = await axiosInstance.get('/safety/incidents');
-      const incList = response.data || [];
-      const parsedIncidents = incList.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
-      set({ safetyIncidents: parsedIncidents, isLoading: false });
+      const response = await axiosInstance.get('/safety-incidents');
+      const incList = response.data?.incidents || [];
+      set({ safetyIncidents: incList, isLoading: false });
     } catch (err) {
       console.error('Failed to fetch safety incidents:', err);
       set({ error: 'Failed to fetch safety incidents', isLoading: false });
@@ -23,26 +25,19 @@ export const useSafetyStore = create((set, get) => ({
   },
 
   fetchSafetyScores: async () => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await axiosInstance.get('/safety/scores');
-      const scList = response.data || [];
-      const parsedScores = scList.map(item => typeof item.data === 'string' ? JSON.parse(item.data) : item.data || item);
-      set({ safetyScores: parsedScores, isLoading: false });
-    } catch (err) {
-      console.error('Failed to fetch safety scores:', err);
-      set({ error: 'Failed to fetch safety scores', isLoading: false });
-    }
+    // Honest state: the backend has no driver safety-score endpoint yet.
+    // Do not fabricate scores — the UI renders its empty state instead.
+    set({ safetyScores: [], isLoading: false });
   },
 
   addSafetyIncident: async (incident) => {
     set({ isLoading: true });
     try {
-      const response = await axiosInstance.post('/safety/incidents', incident);
-      const savedInc = response.data || incident;
-      set((state) => ({ 
+      const response = await axiosInstance.post('/safety-incidents', incident);
+      const savedInc = response.data?.incident || incident;
+      set((state) => ({
         safetyIncidents: [savedInc, ...state.safetyIncidents],
-        isLoading: false 
+        isLoading: false
       }));
       toast.success('Safety incident logged');
     } catch (err) {
@@ -55,8 +50,11 @@ export const useSafetyStore = create((set, get) => ({
   updateSafetyIncident: async (incident) => {
     set({ isLoading: true });
     try {
-      const response = await axiosInstance.put(`/safety/incidents/${incident.id}`, incident);
-      const updated = response.data || incident;
+      const response = await axiosInstance.put(`/safety-incidents/${incident.id}/status`, {
+        status: incident.status,
+        resolution_notes: incident.resolution_notes || incident.resolutionNotes || null,
+      });
+      const updated = response.data?.incident || incident;
       set((state) => ({
         safetyIncidents: state.safetyIncidents.map((inc) => (inc.id === incident.id ? updated : inc)),
         isLoading: false
@@ -70,19 +68,13 @@ export const useSafetyStore = create((set, get) => ({
   },
 
   updateSafetyScore: async (driverId, score) => {
-    set({ isLoading: true });
-    try {
-      const response = await axiosInstance.put(`/safety/scores/${driverId}`, score);
-      const updated = response.data || score;
-      set((state) => ({
-        safetyScores: state.safetyScores.map((sc) => (sc.driverId === driverId ? updated : sc)),
-        isLoading: false
-      }));
-      toast.success('Safety score updated');
-    } catch (err) {
-      console.error('Failed to update safety score:', err);
-      set({ error: 'Failed to update safety score', isLoading: false });
-      toast.error('Failed to update safety score');
-    }
+    // No safety-score endpoint exists on the backend — update local state only
+    // so incident resolution flows don't error, without faking a server write.
+    set((state) => ({
+      safetyScores: state.safetyScores.map((sc) =>
+        (sc.driver_id || sc.driverId) === driverId ? { ...sc, ...score } : sc
+      ),
+      isLoading: false,
+    }));
   }
 }));
