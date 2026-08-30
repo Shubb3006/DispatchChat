@@ -167,39 +167,37 @@ export default function SafetyPage() {
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {hosLogs.map((log) => {
-                    const isViolated = log.drivingSecondsRemaining <= 0 || log.dutySecondsRemaining <= 0;
-                    const statusLabel =
-                      log.currentStatus === "D" ? "Driving" :
-                      log.currentStatus === "ON" ? "On Duty" :
-                      log.currentStatus === "SB" ? "Sleeper" : "Off Duty";
+                    const remainingHours = log.hos_remaining_hours || 0;
+                    const isViolated = remainingHours <= 0;
+                    const statusLabel = log.hos_status || "Unknown";
                     const statusColor =
-                      log.currentStatus === "D" ? "bg-indigo-100 text-indigo-700" :
-                      log.currentStatus === "ON" ? "bg-green-100 text-green-700" :
-                      log.currentStatus === "SB" ? "bg-amber-100 text-amber-700" :
+                      log.hos_status === "Driving" ? "bg-indigo-100 text-indigo-700" :
+                      log.hos_status === "On Duty" ? "bg-green-100 text-green-700" :
+                      log.hos_status === "Sleeper" ? "bg-amber-100 text-amber-700" :
                       "bg-slate-100 text-slate-600";
                     return (
-                      <tr key={log.driverId} className="hover:bg-slate-50">
+                      <tr key={log.id || log.driver_id} className="hover:bg-slate-50">
                         <td className="px-5 py-3.5">
-                          <div className="font-medium text-slate-900">{log.driverName}</div>
-                          <div className="text-xs text-slate-400">{log.driverId}</div>
+                          <div className="font-medium text-slate-900">{log.driver_name || log.driverName || "N/A"}</div>
+                          <div className="text-xs text-slate-400">{log.vehicle_number || log.truckNumber || "N/A"}</div>
                         </td>
                         <td className="px-5 py-3.5">
                           <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${statusColor}`}>{statusLabel}</span>
                         </td>
                         <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                          {Math.floor(log.drivingSecondsRemaining / 3600)}h {Math.floor((log.drivingSecondsRemaining % 3600) / 60)}m
+                          {remainingHours}h
                         </td>
                         <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                          {Math.floor(log.dutySecondsRemaining / 3600)}h {Math.floor((log.dutySecondsRemaining % 3600) / 60)}m
+                          {log.hos_rule || "FMCSA"} Rule
                         </td>
                         <td className="px-5 py-3.5 text-slate-700 font-mono text-xs">
-                          {Math.floor(log.cycleSecondsRemaining / 3600)}h
+                          Updated {log.updated_at ? new Date(log.updated_at).toLocaleDateString() : "N/A"}
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           {isViolated ? (
-                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">Violation</span>
+                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-red-100 text-red-700">⚠ Alert</span>
                           ) : (
-                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">Compliant</span>
+                            <span className="px-2.5 py-1 rounded-full text-xs font-medium bg-green-100 text-green-700">✓ Compliant</span>
                           )}
                         </td>
                       </tr>
