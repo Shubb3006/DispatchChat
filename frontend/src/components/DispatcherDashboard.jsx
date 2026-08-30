@@ -2133,6 +2133,76 @@ export default function DispatcherDashboard({
         </div>
       )}
 
+      {/* Search & Pagination Controls for Grid View */}
+      {activeView === "grid" && (
+        <div className="bg-white border border-slate-200 rounded-lg p-4 mb-6 space-y-4">
+          {/* Search + Sort */}
+          <div className="flex flex-col sm:flex-row gap-3">
+            <input
+              type="text"
+              placeholder="Search loads (origin, destination, load number, etc)..."
+              value={searchQ}
+              onChange={(e) => {
+                setSearchQ(e.target.value);
+                setOffset(0);
+              }}
+              className="flex-1 px-4 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              className="px-4 py-2 border border-slate-300 rounded-lg text-sm"
+            >
+              <option value="-created_at">Newest first</option>
+              <option value="created_at">Oldest first</option>
+              <option value="-status">Status (z-a)</option>
+            </select>
+          </div>
+
+          {/* Saved Filters */}
+          {savedFilters.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {savedFilters.map((f) => (
+                <button
+                  key={f.id}
+                  onClick={() => {
+                    if (f.params?.q) setSearchQ(f.params.q);
+                    if (f.params?.sort) setSortBy(f.params.sort);
+                    setOffset(0);
+                  }}
+                  className="px-3 py-1.5 bg-sky-50 text-sky-700 border border-sky-200 rounded-full text-sm hover:bg-sky-100"
+                >
+                  {f.name}
+                </button>
+              ))}
+            </div>
+          )}
+
+          {/* Pagination */}
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-slate-600">
+              {Math.min(offset + 1, total)}–{Math.min(offset + limit, total)} of {total}
+            </span>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setOffset(Math.max(0, offset - limit))}
+                disabled={offset === 0}
+                className="px-3 py-1 border border-slate-300 rounded disabled:opacity-50 hover:bg-slate-50"
+              >
+                ← Prev
+              </button>
+              <button
+                onClick={() => setOffset(offset + limit)}
+                disabled={offset + limit >= total}
+                className="px-3 py-1 border border-slate-300 rounded disabled:opacity-50 hover:bg-slate-50"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {activeView === "consolidation" ? (
         /* LTL Consolidation View (Feature #2, #4) */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
