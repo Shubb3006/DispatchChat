@@ -501,7 +501,6 @@ export default function DispatcherDashboard({
   const [statusFilter, setStatusFilter] = useState("all");
   const [loadTypeFilter, setLoadTypeFilter] = useState("all");
   const [commitmentFilter, setCommitmentFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("trackingNumber");
   const [sortOrder, setSortOrder] = useState("asc");
   const [formCommitment, setFormCommitment] = useState("normal");
   const [formCommitmentDate, setFormCommitmentDate] = useState("");
