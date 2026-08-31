@@ -759,7 +759,7 @@ export default function DispatcherDashboard({
           const searchTarget = (
             (s.consignee_state || "") +
             " " +
-            (s.consignee_district || "") +
+            (s.consignee_city || "") +
             " " +
             (s.consignee_country || "") +
             " "
@@ -774,7 +774,7 @@ export default function DispatcherDashboard({
           const pickupTarget = (
             (s.shipper_state || "") +
             " " +
-            (s.shipper_district || "") +
+            (s.shipper_city || "") +
             " " +
             (s.shipper_country || "") +
             " "
@@ -842,8 +842,8 @@ export default function DispatcherDashboard({
             ?.includes(query);
           const matchesDriver = s.driver_name?.toLowerCase()?.includes(query);
           const matchesCity =
-            s.shipper_district.toLowerCase().includes(query) ||
-            s.consignee_district.toLowerCase().includes(query);
+            s.shipper_city.toLowerCase().includes(query) ||
+            s.consignee_city.toLowerCase().includes(query);
           const shipperNames = s?.waypoints
             ?.filter((w) => w.stopType === "pickup")
             ?.map((w) => w.companyName.toLowerCase());
@@ -2324,12 +2324,12 @@ export default function DispatcherDashboard({
                                 <td className="px-4 py-3 text-slate-700">
                                   <div className="flex items-center space-x-1">
                                     <span>
-                                      {s.shipper_district},{s.shipper_state},
+                                      {s.shipper_city},{s.shipper_state},
                                       {s.shipper_country}
                                     </span>
                                     <ArrowRight className="h-10 w-10 text-slate-400" />
                                     <span>
-                                      {s.consignee_district},{s.consignee_state}
+                                      {s.consignee_city},{s.consignee_state}
                                       ,{s.consignee_country}
                                     </span>
                                   </div>
@@ -3898,11 +3898,11 @@ export default function DispatcherDashboard({
                             <td className="px-5 py-4">
                               <div className="flex items-center space-x-1.5 text-slate-800 font-bold">
                                 <span>
-                                  {s.shipper_district || s.origin || "Toronto"}, {s.shipper_state || "ON"}
+                                  {s.shipper_city || s.origin || "Toronto"}, {s.shipper_state || "ON"}
                                 </span>
                                 <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
                                 <span>
-                                  {s.consignee_district || s.destination || "Chicago"}, {s.consignee_state || "IL"}
+                                  {s.consignee_city || s.destination || "Chicago"}, {s.consignee_state || "IL"}
                                 </span>
                               </div>
                               <div className="text-slate-400 text-xs mt-0.5 font-medium">

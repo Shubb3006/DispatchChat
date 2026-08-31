@@ -30,6 +30,7 @@ import {
   Printer,
   Download,
   Globe,
+  Calendar,
 } from "lucide-react";
 import CustomsManifestModal from "./CustomsManifestModal";
 import DocumentTemplateModal from "./DocumentTemplateModal";
@@ -37,6 +38,22 @@ import CustomsOrderProfileTab from "./CustomsOrderProfileTab";
 import TripLegsSection from "./TripLegsSection";
 import { useDriverStore } from "../stores/useDriverstore";
 import { useDocumentStore } from "../stores/useDocumentStore";
+
+const formatCleanCityState = (...parts) => {
+  const tokens = [];
+  parts.forEach((p) => {
+    if (!p) return;
+    String(p)
+      .split(",")
+      .forEach((t) => {
+        const trimmed = t.trim();
+        if (trimmed && !tokens.some((existing) => existing.toLowerCase() === trimmed.toLowerCase())) {
+          tokens.push(trimmed);
+        }
+      });
+  });
+  return tokens.join(", ") || "N/A";
+};
 
 const FormatCargoOrLink = ({ text }) => {
   if (!text) return null;
@@ -73,11 +90,38 @@ const FormatCargoOrLink = ({ text }) => {
   return <span>{str}</span>;
 };
 
+const HOUSE_STATUS_OPTIONS = [
+  "A8A", "APPOINTMNT", "APPT + REF", "ARR LOGIST", "BONDED", "CHECK IN",
+  "CLEARANCE", "CROSS DOCK", "CUSTOMS", "DEL CONF", "DELIVERED", "DOCUMENTS",
+  "IN TRANSIT", "LOADED", "OFF LOADED", "ON HAND", "ON HOLD", "ON ORDER",
+  "ON STAGE", "OUT FOR DEL", "PAPERWORK", "PARS CONF", "PARS FAIL", "PAPS CONF",
+  "PICKUP", "POD CONF", "PRE-LTL", "RATED", "READY", "RED ALERT", "REPAIR",
+  "REROUTED", "SCHEDULED", "SETUP", "SHORTAGE", "STORAGE", "SWITCH TRK",
+  "TENDERED", "TRANSFER", "TRANSIT", "UNLOADED", "WAITING", "WEIGHT ERR", "FTL"
+];
+
+const getHouseStatusStyle = (status) => {
+  const s = String(status || "").toUpperCase();
+  if (s.includes("RED") || s.includes("FAIL") || s.includes("HOLD") || s.includes("ERR")) {
+    return "bg-rose-50 text-rose-800 border-rose-300 font-bold";
+  }
+  if (s.includes("DELIVERED") || s.includes("CONF") || s.includes("CLEAR") || s.includes("READY")) {
+    return "bg-emerald-50 text-emerald-800 border-emerald-300 font-bold";
+  }
+  if (s.includes("TRANSIT") || s.includes("OUT FOR") || s.includes("LOADED")) {
+    return "bg-sky-50 text-sky-800 border-sky-300 font-bold";
+  }
+  if (s.includes("APPT") || s.includes("SCHED") || s.includes("PICKUP")) {
+    return "bg-amber-50 text-amber-800 border-amber-300 font-bold";
+  }
+  return "bg-slate-100 text-slate-800 border-slate-300 font-bold";
+};
+
 export default function ShipmentDetailsModal({
   isOpen,
   onClose,
   shipment,
-  currentUser,
+  currentUser = { role: "admin", username: "Dispatcher" },
   messages,
   onSendMessage,
   onUpdateShipment,
@@ -147,25 +191,29 @@ export default function ShipmentDetailsModal({
   const [aiError, setAiError] = useState(null);
   const [optimizedRoute, setOptimizedRoute] = useState(null);
   useEffect(() => {
-    setEditedShipment(shipment);
+    if (shipment) {
+      setEditedShipment(shipment);
+    }
     setIsEditing(false);
     setOptimizedRoute(null);
     setAiError(null);
-  }, [shipment.id]);
+  }, [shipment?.id]);
   useEffect(() => {
-    fetchDrivers();
+    if (fetchDrivers) fetchDrivers();
   }, [fetchDrivers]);
   useEffect(() => {
-    if (isOpen && onMarkMessagesAsRead) {
+    if (isOpen && shipment?.id && onMarkMessagesAsRead) {
       onMarkMessagesAsRead(shipment.id, "dispatcher");
     }
-  }, [isOpen, shipment.id]);
+  }, [isOpen, shipment?.id]);
   useEffect(() => {
     if (activeTab === "chat") {
       chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }
   }, [activeTab, messages]);
-  if (!isOpen) return null;
+
+  if (!isOpen || !shipment) return null;
+
   const effectiveWaypoints = (shipment?.waypoints && shipment.waypoints.length > 0)
     ? shipment.waypoints
     : [
@@ -173,29 +221,33 @@ export default function ShipmentDetailsModal({
           id: "wp_1",
           sequence: 1,
           stopType: "pickup",
-          companyName: shipment?.shipperName || shipment?.originCity || "Shipper Origin Terminal",
-          address: shipment?.shipperAddress || shipment?.originState || "Origin Logistics Yard",
-          scheduledTime: shipment?.pickup_date || new Date().toISOString(),
+          companyName: shipment?.shipperName || shipment?.shipper_name || shipment?.originCity || "Shipper Origin Terminal",
+          address: shipment?.shipperAddress || shipment?.shipper_street_address || shipment?.originState || "Origin Logistics Yard",
+          scheduledTime: shipment?.pickup_date || shipment?.pickupDate || new Date().toISOString(),
           status: "completed",
         },
         {
           id: "wp_2",
           sequence: 2,
           stopType: "delivery",
-          companyName: shipment?.consigneeName || shipment?.destinationCity || "Consignee Receiving Hub",
-          address: shipment?.consigneeAddress || shipment?.destinationState || "Consignee Unloading Dock",
-          scheduledTime: shipment?.delivery_date || new Date().toISOString(),
+          companyName: shipment?.consigneeName || shipment?.consignee_name || shipment?.destinationCity || "Consignee Receiving Hub",
+          address: shipment?.consigneeAddress || shipment?.consignee_street_address || shipment?.destinationState || "Consignee Unloading Dock",
+          scheduledTime: shipment?.delivery_date || shipment?.deliveryDate || new Date().toISOString(),
           status: "pending",
         },
       ];
-  const activeChatMessages = messages?.filter(
+  const activeChatMessages = (messages || []).filter(
     (m) =>
-      m.shipmentId === shipment.id ||
-      m.recipientId === shipment.driverId ||
-      m.senderName === shipment.driverName
+      m.shipmentId === shipment?.id ||
+      m.recipientId === shipment?.driverId ||
+      m.senderName === shipment?.driverName
   );
   const handleSaveDetails = () => {
-    onUpdateShipment(editedShipment);
+    if (!onUpdateShipment || !editedShipment) return;
+    const targetId = editedShipment.id || editedShipment.load_id || shipment?.id;
+    if (typeof onUpdateShipment === "function") {
+      onUpdateShipment(targetId, editedShipment);
+    }
     setIsEditing(false);
   };
   const handleDriverChange = (driverId) => {
@@ -607,95 +659,6 @@ export default function ShipmentDetailsModal({
           {/* TAB 1: OVERVIEW & GENERAL INFO */}
           {activeTab === "overview" && (
             <div className="space-y-6">
-              {/* Profile Card / Assignment Banner */}
-              <div className="bg-gradient-to-r from-indigo-900 to-slate-900 rounded-xl p-5 text-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                <div className="flex items-center space-x-4">
-                  <div className="p-3 bg-white/10 rounded-xl backdrop-blur-md">
-                    <Truck className="h-6 w-6 text-indigo-300" />
-                  </div>
-                  <div>
-                    <p className="text-3xs font-mono text-indigo-200 uppercase tracking-widest">
-                      Active Dispatch Driver & Truck
-                    </p>
-                    <h3 className="text-lg font-bold font-sans text-white">
-                      {shipment.driver_name}
-                    </h3>
-                    <p className="text-2xs font-mono text-slate-300 mt-0.5">
-                      Truck:{" "}
-                      <span className="font-bold text-white">
-                        {shipment.truck_id}
-                      </span>{" "}
-                      • Trailer:{" "}
-                      <span className="font-bold text-white">
-                        {shipment.trailer_id}
-                      </span>
-                    </p>
-                  </div>
-                </div>
-
-                {/* Quick reassignment & action */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
-                  <div>
-                    <label className="block text-4xs font-mono text-indigo-200 uppercase mb-1">
-                      Reassign Driver Profile
-                    </label>
-                    <select
-                      disabled={
-                        !(
-                          currentUser.role === "super_admin" ||
-                          currentUser.role === "admin" ||
-                          currentUser.role === "dispatcher" ||
-                          currentUser.role === "driver_manager"
-                        )
-                      }
-                      value={shipment.driver_id || ""}
-                      onChange={(e) => handleDriverChange(e.target.value)}
-                      className="bg-white/10 text-white rounded-lg px-3 py-1.5 text-xs font-bold focus:outline-none focus:ring-1 focus:ring-white border border-white/20 cursor-pointer w-full"
-                    >
-                      <option value="" className="text-slate-900">
-                        -- Select Driver --
-                      </option>
-                      {drivers.map((drv) => (
-                        <option
-                          key={drv.id}
-                          value={drv.id}
-                          className="text-slate-900"
-                        >
-                          {drv.username}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-4xs font-mono text-indigo-200 uppercase mb-1">
-                      Freight Mode
-                    </label>
-                    <div className="flex rounded-lg border border-white/20 overflow-hidden text-xs font-bold">
-                      <button
-                        onClick={() => handleLoadTypeChange("LTL")}
-                        className={`px-2.5 py-1.5 cursor-pointer ${
-                          shipment.loadType === "LTL"
-                            ? "bg-indigo-600 text-white"
-                            : "bg-white/10 text-indigo-200 hover:text-white"
-                        }`}
-                      >
-                        LTL
-                      </button>
-                      <button
-                        onClick={() => handleLoadTypeChange("FTL")}
-                        className={`px-2.5 py-1.5 cursor-pointer ${
-                          shipment.loadType !== "LTL"
-                            ? "bg-indigo-600 text-white"
-                            : "bg-white/10 text-indigo-200 hover:text-white"
-                        }`}
-                      >
-                        FTL
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
 
               {/* View / Edit Mode Form */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
@@ -734,22 +697,87 @@ export default function ShipmentDetailsModal({
                   {!isEditing ? (
                     /* Display Layout */
                     <div className="space-y-6">
-                      {/* Customer Info Card */}
-                      <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-slate-500">
-                          Customer Details
+                      {/* Master Symmetrical Route Summary Banner */}
+                      <div className="bg-gradient-to-r from-slate-950 via-indigo-950 to-slate-950 rounded-2xl p-4 text-white shadow-sm flex items-center justify-between gap-4 border border-slate-800 font-sans">
+                        <div className="flex items-center space-x-3 w-1/3">
+                          <div className="p-2.5 bg-indigo-500/20 border border-indigo-400/30 rounded-xl text-indigo-300 shrink-0">
+                            <MapPin className="h-5 w-5" />
+                          </div>
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-sans uppercase font-bold text-indigo-300 tracking-wider block">Shipper (Pickup)</span>
+                            <p className="font-bold text-sm text-white font-sans truncate">{shipment.shipper_name || shipment.shipperName || shipment.originCity || "Origin Terminal"}</p>
+                            <p className="text-2xs text-slate-400 font-sans truncate">{formatCleanCityState(shipment.shipper_street_address || shipment.shipperAddress, shipment.shipper_city || shipment.originCity, shipment.shipper_state || shipment.shipperState)}</p>
+                          </div>
+                        </div>
+
+                        <div className="hidden md:flex flex-col items-center justify-center w-1/3 px-2 text-center">
+                          <div className="flex items-center justify-center space-x-1.5 text-2xs text-indigo-300 font-semibold font-sans mb-1">
+                            <Truck className="w-3.5 h-3.5 text-indigo-400 animate-pulse" />
+                            <span>{shipment.loadType || "FTL"} Freight Linehaul</span>
+                          </div>
+                          <div className="w-full max-w-[180px] h-0.5 bg-gradient-to-r from-indigo-500/20 via-indigo-400 to-emerald-400/80 relative rounded-full my-1">
+                            <div className="absolute right-0 -top-1 w-2.5 h-2.5 rounded-full bg-emerald-400 shadow-xs" />
+                          </div>
+                        </div>
+
+                        <div className="flex items-center space-x-3 text-right justify-end w-1/3">
+                          <div className="min-w-0">
+                            <span className="text-[10px] font-sans uppercase font-bold text-emerald-400 tracking-wider block">Consignee (Delivery)</span>
+                            <p className="font-bold text-sm text-white font-sans truncate">{shipment.consignee_name || shipment.consigneeName || shipment.destinationCity || "Delivery Hub"}</p>
+                            <p className="text-2xs text-slate-400 font-sans truncate">{formatCleanCityState(shipment.consignee_street_address || shipment.consigneeAddress, shipment.consignee_city || shipment.destinationCity, shipment.consignee_state || shipment.consigneeState)}</p>
+                          </div>
+                          <div className="p-2.5 bg-emerald-500/20 border border-emerald-400/30 rounded-xl text-emerald-300 shrink-0">
+                            <CheckCircle className="h-5 w-5" />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* SYMMETRICAL HOUSE STATUS CONTROL BAR */}
+                      <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-200 shadow-2xs font-sans">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                          <div className="shrink-0">
+                            <label className="text-[11px] font-sans uppercase tracking-wider font-extrabold text-slate-500 block mb-0.5">
+                              HOUSE STATUS
+                            </label>
+                            <p className="text-2xs text-slate-400 font-medium">
+                              Current Operational Status assigned to Load #{shipment.load_number || shipment.id}
+                            </p>
+                          </div>
+                          <div className="w-full sm:w-80 shrink-0">
+                            <select
+                              value={shipment.houseStatus || shipment.house_status || shipment.outbound_status || "FTL"}
+                              onChange={(e) => {
+                                const val = e.target.value;
+                                onUpdateShipment && onUpdateShipment(shipment.id, { houseStatus: val, house_status: val, outbound_status: val });
+                              }}
+                              className={`w-full rounded-xl px-3.5 py-2 text-xs font-mono font-bold uppercase border cursor-pointer focus:outline-none transition-all shadow-2xs ${getHouseStatusStyle(shipment.houseStatus || shipment.house_status || shipment.outbound_status || "FTL")}`}
+                            >
+                              {HOUSE_STATUS_OPTIONS.map((opt) => (
+                                <option key={opt} value={opt} className="bg-white text-slate-900 font-mono">
+                                  {opt}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Customer Info Card (4 Equal Columns) */}
+                      <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 font-sans">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
+                          Customer Account Details
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Name
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment.customer_name}
+                              {shipment.customer_name || shipment.customerName || "Direct Client"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Email
                             </span>
                             <p
@@ -759,241 +787,252 @@ export default function ShipmentDetailsModal({
                               {shipment.customer_email || "N/A"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Phone
                             </span>
                             <p className="font-semibold text-slate-900">
                               {shipment.customer_phone || "N/A"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Address
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-slate-900 truncate">
                               {shipment.customer_billing_address || "N/A"}
                             </p>
                           </div>
                         </div>
                       </div>
 
-                      {/* Shipper & Consignee Row */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-slate-500">
-                            Shipper (Pickup)
-                          </h4>
+                      {/* Shipper & Consignee Side-by-Side Symmetrical Cards */}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans">
+                        {/* Shipper Card */}
+                        <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 flex flex-col justify-between">
+                          <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600 flex items-center gap-1.5">
+                              <MapPin className="w-3.5 h-3.5 text-indigo-600" />
+                              <span>Shipper (Pickup Location)</span>
+                            </h4>
+                            <label className="flex items-center gap-1.5 text-[10px] font-semibold text-indigo-700 bg-indigo-50 hover:bg-indigo-100/80 border border-indigo-200 px-2.5 py-1 rounded-full cursor-pointer transition-all shadow-2xs" title="Click to change Pickup Date">
+                              <Calendar className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+                              <span className="font-bold">P/U:</span>
+                              <input
+                                type="date"
+                                value={
+                                  shipment.pickup_date
+                                    ? String(shipment.pickup_date).substring(0, 10)
+                                    : shipment.pickupDate
+                                    ? String(shipment.pickupDate).substring(0, 10)
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  onUpdateShipment && onUpdateShipment(shipment.id, { pickup_date: val, pickupDate: val });
+                                }}
+                                className="bg-transparent text-indigo-800 font-extrabold text-[10px] cursor-pointer focus:outline-none"
+                              />
+                            </label>
+                          </div>
+
                           <div className="space-y-2 text-xs">
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper Name
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_name || "N/A"}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Shipper Street Address
+                            <div>
+                              <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                Shipper Name
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.shipper_street_address || "N/A"}
+                                {shipment.shipper_name || shipment.shipperName || "N/A"}
                               </p>
                             </div>
-                            <div className="grid grid-cols-2">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper District
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_district || "N/A"}
-                                </p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper Zipcode
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_zipcode || "N/A"}
-                                </p>
-                              </div>
+                            <div>
+                              <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                Street Address
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.shipper_street_address || shipment.shipperAddress || "N/A"}
+                              </p>
                             </div>
-
-                            <div className="grid grid-cols-2">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper State
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  City / State
                                 </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_state || "N/A"}
+                                <p className="font-semibold text-slate-900 truncate">
+                                  {formatCleanCityState(shipment.shipper_city || shipment.originCity, shipment.shipper_state || shipment.shipperState)}
                                 </p>
                               </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Shipper Country
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  Zipcode & Country
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.shipper_country || "N/A"}
+                                  {[shipment.shipper_zipcode, shipment.shipper_country].filter(Boolean).join(" · ") || "N/A"}
                                 </p>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  Scheduled Pickup
+                                </span>
+                                <input
+                                  type="date"
+                                  value={
+                                    shipment.pickup_date
+                                      ? String(shipment.pickup_date).substring(0, 10)
+                                      : shipment.pickupDate
+                                      ? String(shipment.pickupDate).substring(0, 10)
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    onUpdateShipment && onUpdateShipment(shipment.id, { pickup_date: val, pickupDate: val });
+                                  }}
+                                  className="w-full bg-indigo-50/50 text-indigo-700 font-bold border border-indigo-200 rounded-lg px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
+                                />
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-slate-500">
-                            Consignee (Delivery)
-                          </h4>
+                        {/* Consignee Card */}
+                        <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 flex flex-col justify-between">
+                          <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600 flex items-center gap-1.5">
+                              <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                              <span>Consignee (Delivery Location)</span>
+                            </h4>
+                            <label className="flex items-center gap-1.5 text-[10px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100/80 border border-emerald-200 px-2.5 py-1 rounded-full cursor-pointer transition-all shadow-2xs" title="Click to change Delivery Date">
+                              <Calendar className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                              <span className="font-bold">DEL:</span>
+                              <input
+                                type="date"
+                                value={
+                                  shipment.delivery_date
+                                    ? String(shipment.delivery_date).substring(0, 10)
+                                    : shipment.deliveryDate
+                                    ? String(shipment.deliveryDate).substring(0, 10)
+                                    : ""
+                                }
+                                onChange={(e) => {
+                                  const val = e.target.value;
+                                  onUpdateShipment && onUpdateShipment(shipment.id, { delivery_date: val, deliveryDate: val });
+                                }}
+                                className="bg-transparent text-emerald-800 font-extrabold text-[10px] cursor-pointer focus:outline-none"
+                              />
+                            </label>
+                          </div>
+
                           <div className="space-y-2 text-xs">
-                            <div className="grid grid-cols-2 gap-2">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee Name
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_name || "N/A"}
-                                </p>
-                              </div>
-                            </div>
-                            <div className="space-y-1">
-                              <span className="text-slate-400 uppercase font-mono text-3xs">
-                                Consignee Street Address
+                            <div>
+                              <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                Consignee Name
                               </span>
                               <p className="font-semibold text-slate-900">
-                                {shipment.consignee_street_address || "N/A"}
+                                {shipment.consignee_name || shipment.consigneeName || "N/A"}
                               </p>
                             </div>
-
-                            <div className="grid grid-cols-2 ">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee District
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_district || "N/A"}
-                                </p>
-                              </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee Zipcode
-                                </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_zipcode || "N/A"}
-                                </p>
-                              </div>
+                            <div>
+                              <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                Street Address
+                              </span>
+                              <p className="font-semibold text-slate-900">
+                                {shipment.consignee_street_address || shipment.consigneeAddress || "N/A"}
+                              </p>
                             </div>
-
-                            <div className="grid grid-cols-2">
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee State
+                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  City / State
                                 </span>
-                                <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_state || "N/A"}
+                                <p className="font-semibold text-slate-900 truncate">
+                                  {formatCleanCityState(shipment.consignee_city || shipment.destinationCity, shipment.consignee_state || shipment.consigneeState)}
                                 </p>
                               </div>
-                              <div className="space-y-1">
-                                <span className="text-slate-400 uppercase font-mono text-3xs">
-                                  Consignee Country
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  Zipcode & Country
                                 </span>
                                 <p className="font-semibold text-slate-900">
-                                  {shipment.consignee_country || "N/A"}
+                                  {[shipment.consignee_zipcode, shipment.consignee_country].filter(Boolean).join(" · ") || "N/A"}
                                 </p>
+                              </div>
+                              <div>
+                                <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                                  Target Delivery
+                                </span>
+                                <input
+                                  type="date"
+                                  value={
+                                    shipment.delivery_date
+                                      ? String(shipment.delivery_date).substring(0, 10)
+                                      : shipment.deliveryDate
+                                      ? String(shipment.deliveryDate).substring(0, 10)
+                                      : ""
+                                  }
+                                  onChange={(e) => {
+                                    const val = e.target.value;
+                                    onUpdateShipment && onUpdateShipment(shipment.id, { delivery_date: val, deliveryDate: val });
+                                  }}
+                                  className="w-full bg-emerald-50/50 text-emerald-700 font-bold border border-emerald-200 rounded-lg px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
+                                />
                               </div>
                             </div>
                           </div>
                         </div>
                       </div>
 
-                      {/* Cargo/Pricing Details */}
-                      <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-100 space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-slate-500">
-                          Cargo & Financial Details
+                      {/* Symmetrical 3x2 Cargo & Financial Specifications Grid (Exactly 6 items) */}
+                      <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 font-sans">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
+                          Cargo, Dispatch & Financial Specifications
                         </h4>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs">
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Assigned Dispatcher
                             </span>
                             <p className="font-semibold text-slate-900">
                               {shipment.dispatcherName || "Unassigned"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Broker / Logistics
                             </span>
                             <p className="font-semibold text-slate-900">
                               {shipment.broker || "Direct Client"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               PO #
                             </span>
-                            <p className="font-mono font-semibold text-slate-900">
-                              {shipment.poNumber || "N/A"}
+                            <p className="font-semibold text-slate-900 font-mono">
+                              {shipment.poNumber || "—"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
-                              BOL #
-                            </span>
-                            <p className="font-mono font-semibold text-slate-900">
-                              {shipment.bolNumber || "N/A"}
-                            </p>
-                          </div>
-
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
-                              Cargo Weight
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
+                              Cargo Weight & Pallets
                             </span>
                             <p className="font-semibold text-slate-900">
-                              {shipment?.weight?.toLocaleString()} lbs
+                              {[Number(shipment?.weight || 0) > 0 ? `${Number(shipment.weight).toLocaleString()} lbs` : null, shipment.pieces ? `${shipment.pieces} Pallets` : null].filter(Boolean).join(" · ") || "—"}
                             </p>
                           </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
-                              Pallet Count
-                            </span>
-                            <p className="font-semibold text-slate-900">
-                              {shipment.pieces} Pallets
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
-                              Total Distance
-                            </span>
-                            <p className="font-semibold text-slate-900">
-                              {shipment.totalDistanceMiles} Miles
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Cargo Description
                             </span>
                             <div className="font-semibold text-slate-900">
-                              <FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription} />
+                              <FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription || "General Freight Cargo"} />
                             </div>
                           </div>
-
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
+                          <div>
+                            <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Invoice Price
                             </span>
-                            <p className="font-bold text-indigo-600">
-                              ${shipment?.priceInvoice?.toLocaleString()}
-                            </p>
-                          </div>
-                          <div className="space-y-1">
-                            <span className="text-slate-400 uppercase font-mono text-3xs">
-                              Cost Estimate
-                            </span>
-                            <p className="font-semibold text-slate-900">
-                              ${shipment?.costEstimate?.toLocaleString()}
+                            <p className="font-extrabold text-indigo-600 text-sm font-sans">
+                              ${(Number(shipment?.priceInvoice) || 0).toLocaleString()}
                             </p>
                           </div>
                         </div>
@@ -1039,7 +1078,32 @@ export default function ShipmentDetailsModal({
                     </div>
                   ) : (
                     /* Edit Input Layout */
-                    <div className="space-y-4">
+                    <div className="space-y-4 font-sans">
+                      {/* Top House Status Control in Edit Mode */}
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1.5">
+                        <label className="text-[11px] font-sans uppercase tracking-wider font-extrabold text-slate-500 block">
+                          HOUSE STATUS
+                        </label>
+                        <select
+                          value={editedShipment.houseStatus || editedShipment.house_status || editedShipment.outbound_status || "FTL"}
+                          onChange={(e) =>
+                            setEditedShipment({
+                              ...editedShipment,
+                              houseStatus: e.target.value,
+                              house_status: e.target.value,
+                              outbound_status: e.target.value,
+                            })
+                          }
+                          className={`w-full rounded-xl px-3.5 py-2 text-xs font-mono font-bold uppercase border cursor-pointer focus:outline-none transition-all shadow-2xs ${getHouseStatusStyle(editedShipment.houseStatus || editedShipment.house_status || editedShipment.outbound_status || "FTL")}`}
+                        >
+                          {HOUSE_STATUS_OPTIONS.map((opt) => (
+                            <option key={opt} value={opt} className="bg-white text-slate-900 font-mono">
+                              {opt}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
                       {/* Customer Details Edit */}
                       <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-150 space-y-3">
                         <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
@@ -1165,11 +1229,11 @@ export default function ShipmentDetailsModal({
                                 </label>
                                 <input
                                   type="text"
-                                  value={editedShipment.shipper_district || ""}
+                                  value={editedShipment.shipper_city || ""}
                                   onChange={(e) =>
                                     setEditedShipment({
                                       ...editedShipment,
-                                      shipper_district: e.target.value,
+                                      shipper_city: e.target.value,
                                     })
                                   }
                                   className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -1278,12 +1342,12 @@ export default function ShipmentDetailsModal({
                                 <input
                                   type="text"
                                   value={
-                                    editedShipment.consignee_district || ""
+                                    editedShipment.consignee_city || ""
                                   }
                                   onChange={(e) =>
                                     setEditedShipment({
                                       ...editedShipment,
-                                      consignee_district: e.target.value,
+                                      consignee_city: e.target.value,
                                     })
                                   }
                                   className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
@@ -1500,22 +1564,6 @@ export default function ShipmentDetailsModal({
                               className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
                             />
                           </div>
-                          <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
-                              Cost Estimate ($)
-                            </label>
-                            <input
-                              type="number"
-                              value={editedShipment.costEstimate}
-                              onChange={(e) =>
-                                setEditedShipment({
-                                  ...editedShipment,
-                                  costEstimate: Number(e.target.value),
-                                })
-                              }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-900"
-                            />
-                          </div>
                         </div>
                       </div>
 
@@ -1632,50 +1680,6 @@ export default function ShipmentDetailsModal({
                       </div>
                     </div>
                   )}
-                </div>
-              </div>
-
-              {/* Samsara Telemetry Live Fleet Tracking Card */}
-              <div className="bg-slate-900 text-white rounded-2xl p-5 border border-slate-800 shadow-lg space-y-4">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                    <div className="flex items-center space-x-2">
-                      <span className="font-extrabold text-sm text-indigo-400 font-mono tracking-wider">SAMSARA FLEET CLOUD</span>
-                      <span className="text-3xs bg-emerald-950 text-emerald-300 border border-emerald-800/80 px-2 py-0.5 rounded-full font-mono font-bold uppercase">
-                        Live API Synced
-                      </span>
-                    </div>
-                  </div>
-                  <div className="text-3xs font-mono text-slate-400">
-                    Samsara VG54 Gateway • Device ID <span className="text-slate-200 font-bold">#SAM-{shipment.truck_id || shipment.truckNumber || "TRK-102"}</span>
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-4 gap-3 text-xs">
-                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
-                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Live Vehicle GPS</div>
-                    <div className="font-bold text-slate-100 truncate">43.6532° N, -79.3832° W</div>
-                    <div className="text-3xs text-emerald-400 font-mono">Hwy 401 East • Toronto, ON</div>
-                  </div>
-
-                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
-                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Speed & Motion</div>
-                    <div className="font-extrabold text-indigo-300 text-sm font-mono">63 MPH (101 km/h)</div>
-                    <div className="text-3xs text-slate-400">Cruising • Engine On</div>
-                  </div>
-
-                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
-                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Fuel & Diagnostics</div>
-                    <div className="font-bold text-slate-100">Fuel 78% • DEF 92%</div>
-                    <div className="text-3xs text-emerald-400">Odometer 148,920 mi</div>
-                  </div>
-
-                  <div className="bg-slate-800/60 border border-slate-700/80 rounded-xl p-3 space-y-1">
-                    <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">Driver Samsara ELD HOS</div>
-                    <div className="font-bold text-slate-100">On-Duty Driving</div>
-                    <div className="text-3xs text-indigo-300">5h 45m shift remaining</div>
-                  </div>
                 </div>
               </div>
 
