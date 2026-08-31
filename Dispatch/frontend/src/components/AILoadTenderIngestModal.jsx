@@ -269,11 +269,10 @@ export default function AILoadTenderIngestModal({
           <button
             type="button"
             onClick={() => setActiveTab("automation")}
-            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === "automation"
+            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "automation"
                 ? "border-sky-600 text-sky-600"
                 : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+              }`}
           >
             <Cpu className="h-4 w-4" />
             <span>⚡ Automated Gmail Worker</span>
@@ -281,11 +280,10 @@ export default function AILoadTenderIngestModal({
           <button
             type="button"
             onClick={() => setActiveTab("manual")}
-            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === "manual"
+            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "manual"
                 ? "border-sky-600 text-sky-600"
                 : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+              }`}
           >
             <Sparkles className="h-4 w-4" />
             <span>Interactive AI Parser</span>
@@ -293,11 +291,10 @@ export default function AILoadTenderIngestModal({
           <button
             type="button"
             onClick={() => setActiveTab("webhook")}
-            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${
-              activeTab === "webhook"
+            className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "webhook"
                 ? "border-sky-600 text-sky-600"
                 : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+              }`}
           >
             <Code className="h-4 w-4" />
             <span>API & Webhook Endpoints</span>
@@ -493,10 +490,10 @@ export default function AILoadTenderIngestModal({
                             log.type === "success"
                               ? "text-emerald-400"
                               : log.type === "error"
-                              ? "text-rose-400"
-                              : log.type === "warning"
-                              ? "text-amber-400"
-                              : "text-slate-300"
+                                ? "text-rose-400"
+                                : log.type === "warning"
+                                  ? "text-amber-400"
+                                  : "text-slate-300"
                           }
                         >
                           {log.message}
@@ -699,7 +696,7 @@ export default function AILoadTenderIngestModal({
                   Sample JSON Payload:
                 </label>
                 <pre className="bg-slate-900 text-slate-200 p-4 rounded-xl font-mono text-2xs overflow-x-auto border border-slate-800 leading-relaxed">
-{`{
+                  {`{
   "emailSubject": "Load Confirmation - TRIP-4378",
   "senderEmail": "dispatch@westonwood.com",
   "emailText": "Please accept load tender for Weston Wood Solutions to Woodgrain Davenport FL for $2,850 USD..."
@@ -713,3 +710,4 @@ export default function AILoadTenderIngestModal({
     </div>
   );
 }
+//sjdwd
