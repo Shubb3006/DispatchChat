@@ -50,6 +50,7 @@ const PORT = process.env.PORT || 5500;
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5174",
+  "http://localhost:5175",
   ...(process.env.CLIENT_URLS || process.env.CLIENT_URL || "")
     .split(",")
     .map((s) => s.trim().replace(/\/+$/, ""))
@@ -91,16 +92,16 @@ app.use("/api/load", loadRoutes);
 app.use("/api/loads", loadRoutes);
 app.use("/api/v1/loads", loadRoutes);
 app.use("/api/upload", uploadRoutes);
-app.use("/api/customers",customerRoutes)
+app.use("/api/customers", customerRoutes)
 app.use("/api/rates", ratesRoutes);
 app.use("/api/v1/rates", ratesRoutes);
-app.use("/api/drivers",driverRoutes)
-app.use("/api/trailors",trailorRoutes);
-app.use("/api/trucks",truckRoutes);
-app.use("/api/locations",locationRoutes);
-app.use("/api/load_stops",loadStopsRoutes);
-app.use("/api/user",userRoutes);
-app.use("/api/trips",tripRoutes);
+app.use("/api/drivers", driverRoutes)
+app.use("/api/trailors", trailorRoutes);
+app.use("/api/trucks", truckRoutes);
+app.use("/api/locations", locationRoutes);
+app.use("/api/load_stops", loadStopsRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/trips", tripRoutes);
 app.use("/api/hos-logs", hosLogRoutes);
 app.use("/api/driver-documents", driverDocumentRoutes);
 app.use("/api/safety-incidents", safetyIncidentRoutes);
@@ -123,7 +124,7 @@ app.use("/api/v1/pcmiler", pcmilerRoutes);
 
 
 
-app.get("/hi",(req,res)=>{
+app.get("/hi", (req, res) => {
   res.send("Hello")
 })
 
