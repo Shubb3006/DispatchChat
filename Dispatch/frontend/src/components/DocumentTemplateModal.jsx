@@ -134,27 +134,31 @@ export default function DocumentTemplateModal({
   const weightVal = shipment.weight || shipment.weightLbs || 3856;
   const formattedWeight = Number(weightVal).toLocaleString();
 
-  // Shipper / From Info
-  const shipperName = shipment.shipper_name || shipment.origin_name || "WESTON WOOD SOLUTIONS";
+  // Shipper / From Info - use actual load data, minimal fallback
+  const shipperName = shipment.shipper_name || shipment.origin_name || "SHIPPER";
+  const shipperCity = shipment.shipper_city || shipment.origin || "City";
+  const shipperState = shipment.shipper_state || "State";
   const shipperAddress =
-    shipment.shipper_address || shipment.origin_address || "300 ORENDA ROAD, BRAMPTON ON L6T 1G1";
-  const shipperPhone = shipment.shipper_phone || shipment.origin_phone || "905 677-9120";
+    shipment.shipper_address || shipment.origin_address || `${shipperCity} ${shipperState}`;
+  const shipperPhone = shipment.shipper_phone || shipment.origin_phone || "N/A";
   const shipperDate = shipment.pickup_date
     ? new Date(shipment.pickup_date).toLocaleDateString("en-US")
-    : "08/24/2026";
+    : new Date().toLocaleDateString("en-US");
 
-  // Consignee / To Info
+  // Consignee / To Info - use actual load data, minimal fallback
   const consigneeName =
-    shipment.consignee_name || shipment.destination_name || "WOODGRAIN";
+    shipment.consignee_name || shipment.destination_name || "CONSIGNEE";
+  const consigneeCity = shipment.consignee_city || shipment.destination || "City";
+  const consigneeState = shipment.consignee_state || "State";
   const consigneeAddress =
     shipment.consignee_address ||
     shipment.destination_address ||
-    "45150 HIGHWAY 27, DAVENPORT FL 33896";
+    `${consigneeCity} ${consigneeState}`;
   const consigneePhone =
-    shipment.consignee_phone || shipment.destination_phone || "863 420-7723";
+    shipment.consignee_phone || shipment.destination_phone || "N/A";
   const consigneeDate = shipment.delivery_date
     ? new Date(shipment.delivery_date).toLocaleDateString("en-US")
-    : "08/24/2026";
+    : new Date().toLocaleDateString("en-US");
 
   // Third Party Bill To
   const billToName = shipment.bill_to_name || shipment.customer_name || "EILDEN LOGISTICS SOLUTIONS INC";

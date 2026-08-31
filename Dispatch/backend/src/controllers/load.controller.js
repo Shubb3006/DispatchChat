@@ -1476,7 +1476,9 @@ export const getLoadLegs = async (req, res) => {
   try {
     const { id } = req.params;
     const query = `
-      SELECT id, load_id, seq, driver_id, truck_id, miles, rate_per_mile, status, created_at
+      SELECT id, load_id, seq, driver_id, truck_id, miles, pay_override, status,
+             origin_city, origin_state, destination_city, destination_state,
+             origin_lat, origin_lng, dest_lat, dest_lng, trip_id, created_at, updated_at
       FROM load_legs
       WHERE load_id = $1
       ORDER BY seq ASC
@@ -1501,12 +1503,21 @@ export const createLoadLegs = async (req, res) => {
     const created = [];
     for (const leg of legs) {
       const query = `
-        INSERT INTO load_legs (load_id, seq, driver_id, truck_id, miles, rate_per_mile, status)
-        VALUES ($1, $2, $3, $4, $5, $6, $7)
+        INSERT INTO load_legs (
+          load_id, seq, driver_id, truck_id, miles, pay_override, status,
+          origin_city, origin_state, destination_city, destination_state,
+          origin_lat, origin_lng, dest_lat, dest_lng, trip_id
+        )
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
         RETURNING *
       `;
       const result = await pool.query(query, [
-        id, leg.seq, leg.driver_id, leg.truck_id, leg.miles, leg.rate_per_mile, leg.status || 'pending'
+        id, leg.seq, leg.driver_id || null, leg.truck_id || null, leg.miles || null,
+        leg.pay_override || null, leg.status || 'pending',
+        leg.origin_city || null, leg.origin_state || null,
+        leg.destination_city || null, leg.destination_state || null,
+        leg.origin_lat || null, leg.origin_lng || null,
+        leg.dest_lat || null, leg.dest_lng || null, leg.trip_id || null
       ]);
       created.push(result.rows[0]);
     }
@@ -1520,19 +1531,20 @@ export const createLoadLegs = async (req, res) => {
 export const updateLoadLeg = async (req, res) => {
   try {
     const { legId } = req.params;
-    const { driver_id, truck_id, miles, rate_per_mile, status } = req.body;
+    const { driver_id, truck_id, miles, pay_override, status } = req.body;
 
     const query = `
       UPDATE load_legs
       SET driver_id = COALESCE($1, driver_id),
           truck_id = COALESCE($2, truck_id),
           miles = COALESCE($3, miles),
-          rate_per_mile = COALESCE($4, rate_per_mile),
-          status = COALESCE($5, status)
+          pay_override = COALESCE($4, pay_override),
+          status = COALESCE($5, status),
+          updated_at = CURRENT_TIMESTAMP
       WHERE id = $6
       RETURNING *
     `;
-    const result = await pool.query(query, [driver_id, truck_id, miles, rate_per_mile, status, legId]);
+    const result = await pool.query(query, [driver_id, truck_id, miles, pay_override, status, legId]);
     res.json({ leg: result.rows[0] });
   } catch (err) {
     console.error("updateLoadLeg error:", err);

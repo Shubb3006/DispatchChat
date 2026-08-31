@@ -41,11 +41,11 @@ const statusBadgeClass = (status) => {
 const routeText = (load) => {
   const from =
     load.origin ||
-    [load.shipper_district, load.shipper_state].filter(Boolean).join(", ") ||
+    [load.shipper_city, load.shipper_state].filter(Boolean).join(", ") ||
     null;
   const to =
     load.destination ||
-    [load.consignee_district, load.consignee_state].filter(Boolean).join(", ") ||
+    [load.consignee_city, load.consignee_state].filter(Boolean).join(", ") ||
     null;
   return { from: from || "—", to: to || "—" };
 };

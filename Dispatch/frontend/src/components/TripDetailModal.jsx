@@ -55,9 +55,18 @@ export default function TripDetailsModal({
 
         <div className="border-b bg-white px-8 py-6 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">
-              Trip #{trip.trip_number}
-            </h1>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-slate-900">
+                Trip #{trip.trip_number}
+              </h1>
+              {trip.shipments?.[0]?.status && (
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  statusStyles[trip.shipments[0].status]
+                }`}>
+                  {statusLabels[trip.shipments[0].status]}
+                </span>
+              )}
+            </div>
 
             <p className="text-slate-500 mt-1">Consolidated Load Manifest</p>
           </div>
