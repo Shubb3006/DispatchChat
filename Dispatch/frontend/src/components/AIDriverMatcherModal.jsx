@@ -31,7 +31,7 @@ export default function AIDriverMatcherModal({
 
   const [customPickup, setCustomPickup] = useState("");
   const [customDestination, setCustomDestination] = useState("");
-
+  //temp
   useEffect(() => {
     if (isOpen && load) {
       const initialOrigin = load.originCity || load.shipper_address || load.origin || "Brampton, ON, Canada";
@@ -212,11 +212,10 @@ export default function AIDriverMatcherModal({
               return (
                 <div
                   key={candidate.id}
-                  className={`rounded-2xl border p-5 transition-all relative ${
-                    isBest
+                  className={`rounded-2xl border p-5 transition-all relative ${isBest
                       ? "bg-gradient-to-br from-sky-50/40 via-white to-white border-sky-300 shadow-sm ring-1 ring-sky-300/50"
                       : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
-                  }`}
+                    }`}
                 >
                   {isBest && (
                     <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-xs flex items-center gap-1">
@@ -230,13 +229,12 @@ export default function AIDriverMatcherModal({
                     <div className="flex items-start gap-4">
                       {/* Match Score Circle */}
                       <div
-                        className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${
-                          candidate.matchScore >= 90
+                        className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${candidate.matchScore >= 90
                             ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                             : candidate.matchScore >= 75
-                            ? "bg-sky-50 text-sky-700 border-sky-200"
-                            : "bg-amber-50 text-amber-700 border-amber-200"
-                        }`}
+                              ? "bg-sky-50 text-sky-700 border-sky-200"
+                              : "bg-amber-50 text-amber-700 border-amber-200"
+                          }`}
                       >
                         <span className="font-extrabold text-base font-mono leading-none">
                           {candidate.matchScore}%
@@ -270,15 +268,14 @@ export default function AIDriverMatcherModal({
                           {candidate.reasoningTags.map((tag, i) => (
                             <span
                               key={i}
-                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
-                                tag.type === "success"
+                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${tag.type === "success"
                                   ? "bg-emerald-50 text-emerald-700 border-emerald-200"
                                   : tag.type === "warning"
-                                  ? "bg-amber-50 text-amber-700 border-amber-200"
-                                  : tag.type === "danger"
-                                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                                  : "bg-slate-100 text-slate-700 border-slate-200"
-                              }`}
+                                    ? "bg-amber-50 text-amber-700 border-amber-200"
+                                    : tag.type === "danger"
+                                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                                      : "bg-slate-100 text-slate-700 border-slate-200"
+                                }`}
                             >
                               {tag.label}
                             </span>
@@ -292,11 +289,10 @@ export default function AIDriverMatcherModal({
                       <button
                         onClick={() => handleAutoAssign(candidate)}
                         disabled={isAssigning}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
-                          isBest
+                        className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${isBest
                             ? "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20"
                             : "bg-slate-900 hover:bg-slate-800 text-white"
-                        }`}
+                          }`}
                       >
                         {isAssigning ? (
                           <>
