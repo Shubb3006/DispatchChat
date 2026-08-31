@@ -270,8 +270,8 @@ export default function AILoadTenderIngestModal({
             type="button"
             onClick={() => setActiveTab("automation")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "automation"
-                ? "border-sky-600 text-sky-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+              ? "border-sky-600 text-sky-600"
+              : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
           >
             <Cpu className="h-4 w-4" />
@@ -281,8 +281,8 @@ export default function AILoadTenderIngestModal({
             type="button"
             onClick={() => setActiveTab("manual")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "manual"
-                ? "border-sky-600 text-sky-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+              ? "border-sky-600 text-sky-600"
+              : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
           >
             <Sparkles className="h-4 w-4" />
@@ -292,8 +292,8 @@ export default function AILoadTenderIngestModal({
             type="button"
             onClick={() => setActiveTab("webhook")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "webhook"
-                ? "border-sky-600 text-sky-600"
-                : "border-transparent text-slate-500 hover:text-slate-900"
+              ? "border-sky-600 text-sky-600"
+              : "border-transparent text-slate-500 hover:text-slate-900"
               }`}
           >
             <Code className="h-4 w-4" />
@@ -710,4 +710,4 @@ export default function AILoadTenderIngestModal({
     </div>
   );
 }
-//sjdwd
+//cedcedcecedcecec
