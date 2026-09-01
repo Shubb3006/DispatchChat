@@ -271,11 +271,11 @@ export default function CustomerPage() {
                 <div className="text-sm font-extrabold text-slate-900 font-mono">
                   {etaIsValid
                     ? etaDate.toLocaleString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })
+                      month: "short",
+                      day: "numeric",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })
                     : "Not available"}
                 </div>
                 {currentRank < 9 && etaRemainingText && (
