@@ -36,6 +36,7 @@ import CustomsManifestModal from "./CustomsManifestModal";
 import DocumentTemplateModal from "./DocumentTemplateModal";
 import CustomsOrderProfileTab from "./CustomsOrderProfileTab";
 import TripLegsSection from "./TripLegsSection";
+import EnhancedRouteVisualization from "./EnhancedRouteVisualization";
 import { useDriverStore } from "../stores/useDriverstore";
 import { useDocumentStore } from "../stores/useDocumentStore";
 
@@ -1800,7 +1801,17 @@ export default function ShipmentDetailsModal({
 
           {/* TAB 2: WAYPOINTS & AI OPTIMIZATION */}
           {activeTab === "route" && (
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="space-y-6">
+              {/* Enhanced Route Visualization */}
+              <EnhancedRouteVisualization
+                loadId={shipment.id || shipment.load_id}
+                origin={shipment.origin || shipment.originCity || shipment.shipper_city}
+                destination={shipment.destination || shipment.destinationCity || shipment.consignee_city}
+                stops={effectiveWaypoints}
+              />
+
+              {/* Original Waypoint Editor */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Waypoint Timeline & Sequence List */}
               <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
@@ -2383,6 +2394,7 @@ export default function ShipmentDetailsModal({
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </div>
           )}
