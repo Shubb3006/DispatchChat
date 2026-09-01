@@ -31,6 +31,7 @@ import {
   Download,
   Globe,
   Calendar,
+  Trash2,
 } from "lucide-react";
 import CustomsManifestModal from "./CustomsManifestModal";
 import DocumentTemplateModal from "./DocumentTemplateModal";
@@ -179,6 +180,15 @@ export default function ShipmentDetailsModal({
     );
   });
   const [isAddingWaypoint, setIsAddingWaypoint] = useState(false);
+  const [newWaypointForm, setNewWaypointForm] = useState({
+    companyName: "",
+    address: "",
+    stopType: "delivery",
+    scheduledTime: "",
+    pieces: "",
+    weight: "",
+    dockCode: "",
+  });
   const [isCustomsModalOpen, setIsCustomsModalOpen] = useState(false);
   const [templateDocType, setTemplateDocType] = useState(null);
   const [editingWaypointId, setEditingWaypointId] = useState(null);
@@ -327,6 +337,57 @@ export default function ShipmentDetailsModal({
     });
     onUpdateShipment({ ...shipment, waypoints: updatedWaypoints });
     setEditingWaypointId(null);
+  };
+  const handleAddNewWaypoint = (e) => {
+    e.preventDefault();
+    if (!newWaypointForm.companyName.trim() || !newWaypointForm.address.trim()) {
+      return;
+    }
+    const newWp = {
+      id: "wp_" + Date.now(),
+      sequence: effectiveWaypoints.length + 1,
+      stopType: newWaypointForm.stopType || "delivery",
+      companyName: newWaypointForm.companyName.trim(),
+      address: newWaypointForm.address.trim(),
+      scheduledTime: newWaypointForm.scheduledTime
+        ? new Date(newWaypointForm.scheduledTime).toISOString()
+        : new Date().toISOString(),
+      pieces: newWaypointForm.pieces ? Number(newWaypointForm.pieces) : null,
+      weight: newWaypointForm.weight ? Number(newWaypointForm.weight) : null,
+      dockCode: newWaypointForm.dockCode ? newWaypointForm.dockCode.trim() : null,
+      status: "pending",
+    };
+    const updated = [...effectiveWaypoints, newWp].map((w, idx) => ({
+      ...w,
+      sequence: idx + 1,
+    }));
+    onUpdateShipment({ ...shipment, waypoints: updated });
+    setIsAddingWaypoint(false);
+    setNewWaypointForm({
+      companyName: "",
+      address: "",
+      stopType: "delivery",
+      scheduledTime: "",
+      pieces: "",
+      weight: "",
+      dockCode: "",
+    });
+  };
+  const handleDeleteWaypoint = (waypointId) => {
+    if (effectiveWaypoints.length <= 2) {
+      alert("A shipment route requires at least 2 stops (origin & destination).");
+      return;
+    }
+    const filtered = effectiveWaypoints
+      .filter((w) => w.id !== waypointId)
+      .map((w, idx) => ({ ...w, sequence: idx + 1 }));
+    onUpdateShipment({ ...shipment, waypoints: filtered });
+  };
+  const handleUpdateWaypointStatus = (waypointId, newStatus) => {
+    const updated = effectiveWaypoints.map((w) =>
+      w.id === waypointId ? { ...w, status: newStatus } : w
+    );
+    onUpdateShipment({ ...shipment, waypoints: updated });
   };
   const handleUpdateBorderStatus = (status) => {
     const updated = { ...shipment, borderConnectStatus: status };
@@ -1802,353 +1863,285 @@ export default function ShipmentDetailsModal({
           {/* TAB 2: WAYPOINTS & AI OPTIMIZATION */}
           {activeTab === "route" && (
             <div className="space-y-6">
-              {/* Enhanced Route Visualization */}
               <EnhancedRouteVisualization
                 loadId={shipment.id || shipment.load_id}
                 origin={shipment.origin || shipment.originCity || shipment.shipper_city}
                 destination={shipment.destination || shipment.destinationCity || shipment.consignee_city}
                 stops={effectiveWaypoints}
-              />
-
-              {/* Original Waypoint Editor */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-                {/* Waypoint Timeline & Sequence List */}
-                <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-                  <div className="flex items-center space-x-2">
-                    <List className="h-4.5 w-4.5 text-indigo-600" />
-                    <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
-                      Delivery Stop Timeline
-                    </h3>
-                  </div>
-                  <span className="text-3xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-bold">
-                    {effectiveWaypoints.length} stops scheduled
-                  </span>
-                </div>
-
-                <div className="relative border-l-2 border-slate-200 ml-4 pl-6 space-y-6 py-2">
-                  {effectiveWaypoints.map((w, index) => {
-                    const isPickup = w.stopType === "pickup";
-                    const isDelivery = w.stopType === "delivery";
-                    const isBorder = w.stopType === "border_crossing";
-                    return (
-                      <div key={w.id} className="relative group">
-                        {/* Dot / Pin Icon */}
-                        <span
-                          className={`absolute -left-[35px] top-0.5 flex items-center justify-center h-6 w-6 rounded-full border shadow-2xs font-bold text-2xs ${
-                            isPickup
-                              ? "bg-indigo-600 text-white border-indigo-400"
-                              : isDelivery
-                              ? "bg-emerald-600 text-white border-emerald-400"
-                              : "bg-amber-600 text-white border-amber-400"
-                          }`}
-                        >
-                          {w.sequence}
-                        </span>
-
-                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                          <div className="space-y-1">
-                            <div className="flex items-center space-x-1.5">
-                              <h5 className="text-xs font-bold text-slate-900 leading-none">
-                                {w.companyName}
-                              </h5>
-                              <span
-                                className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wide ${
-                                  isPickup
-                                    ? "bg-indigo-100 text-indigo-800"
-                                    : isDelivery
-                                    ? "bg-emerald-100 text-emerald-800"
-                                    : "bg-amber-100 text-amber-800"
-                                }`}
-                              >
-                                {w.stopType}
-                              </span>
-                            </div>
-                            <p className="text-2xs text-slate-500 font-medium">
-                              {w.address}
-                            </p>
-
-                            {/* Scheduled Appointment time info */}
-                            <div className="flex items-center space-x-2 text-3xs font-mono text-slate-400 mt-1.5">
-                              <Clock className="h-3.5 w-3.5 text-slate-400" />
-                              <span>
-                                Scheduled:{" "}
-                                <strong className="text-slate-600">
-                                  {w.scheduledTime && !isNaN(new Date(w.scheduledTime).getTime())
-                                    ? new Date(w.scheduledTime).toLocaleString()
-                                    : "Scheduled Appointment"}
-                                </strong>
-                              </span>
-                            </div>
-
-                            {/* Waypoint details (pieces, weights) */}
-                            {(w.weight || w.pieces) && (
-                              <div className="text-[10px] font-mono text-slate-500 bg-white border border-slate-100 px-2 py-0.5 rounded inline-block mt-1">
-                                {w.pieces ? `${w.pieces} pcs` : ""}{" "}
-                                {w.weight ? `\u2022 ${w.weight} lbs` : ""}
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Control panel for each stop */}
-                          <div className="flex items-center space-x-2 shrink-0 md:self-center">
-                            {/* Sequence adjusters */}
-                            <button
-                              disabled={index === 0}
-                              onClick={() => handleMoveWaypoint(index, "up")}
-                              className="p-1 border border-slate-200 rounded hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
-                              title="Move Stop Up"
-                            >
-                              <ArrowUp className="h-3 w-3 text-slate-600" />
-                            </button>
-                            <button
-                              disabled={index === effectiveWaypoints.length - 1}
-                              onClick={() => handleMoveWaypoint(index, "down")}
-                              className="p-1 border border-slate-200 rounded hover:bg-slate-100 disabled:opacity-40 cursor-pointer"
-                              title="Move Stop Down"
-                            >
-                              <ArrowDown className="h-3 w-3 text-slate-600" />
-                            </button>
-
-                            {/* Appointment Time Adjuster */}
-                            {editingWaypointId === w.id ? (
-                              <div className="flex items-center space-x-1.5">
-                                <input
-                                  type="datetime-local"
-                                  value={editScheduledTime}
-                                  onChange={(e) =>
-                                    setEditScheduledTime(e.target.value)
-                                  }
-                                  className="bg-white border border-slate-300 text-2xs p-1 rounded font-semibold text-slate-800"
-                                />
-                                <button
-                                  onClick={() => handleSaveWaypointTime(w.id)}
-                                  className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded cursor-pointer"
-                                  title="Save stop appointment time"
-                                >
-                                  <Check className="h-3 w-3" />
-                                </button>
-                                <button
-                                  onClick={() => setEditingWaypointId(null)}
-                                  className="p-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded cursor-pointer text-3xs font-bold"
-                                >
-                                  ✕
-                                </button>
-                              </div>
-                            ) : (
-                              <button
-                                onClick={() => {
-                                  setEditingWaypointId(w.id);
-                                  setEditScheduledTime(
-                                    typeof w.scheduledTime === "string"
-                                      ? w.scheduledTime.slice(0, 16)
-                                      : new Date().toISOString().slice(0, 16)
-                                  );
-                                }}
-                                className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-3xs font-semibold cursor-pointer"
-                              >
-                                Edit Time
-                              </button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Gemini AI Route Sequence Optimizer */}
-              <div className="lg:col-span-5 space-y-6">
-                <div className="bg-gradient-to-br from-indigo-50 to-slate-50 rounded-2xl border border-indigo-150 p-5 space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <div className="p-1 bg-indigo-600 text-white rounded-lg">
-                      <Sparkles className="h-4 w-4" />
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold text-slate-900 uppercase font-mono leading-none">
-                        Gemini 2.5 Route Optimization
-                      </h4>
-                      <p className="text-4xs text-slate-500 mt-0.5">
-                        Calculates ideal border checkpoints & axle sequence
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="space-y-3.5">
-                    <div>
-                      <label className="block text-4xs font-mono text-slate-500 uppercase mb-1">
-                        Equipment Configuration
-                      </label>
-                      <select
-                        value={vehicleType}
-                        onChange={(e) => setVehicleType(e.target.value)}
-                        className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-2xs bg-white font-semibold text-slate-800"
-                      >
-                        <option value="Class 8 Heavy Duty Semi-Truck">
-                          Class 8 Heavy Duty Semi-Truck
-                        </option>
-                        <option value="Standard Flatbed Trailer">
-                          Standard Flatbed Trailer
-                        </option>
-                        <option value="Temperature Controlled Reefer Van">
-                          Temperature Controlled Reefer Van
-                        </option>
-                        <option value="Box Truck (Local Logistics)">
-                          Box Truck (Local Logistics)
-                        </option>
-                      </select>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <label className="block text-4xs font-mono text-slate-500 uppercase mb-1">
-                          Active Weather
-                        </label>
-                        <select
-                          value={weather}
-                          onChange={(e) => setWeather(e.target.value)}
-                          className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-2xs bg-white font-semibold text-slate-800"
-                        >
-                          <option value="Clear / Dry Roads">
-                            Clear / Dry Roads
-                          </option>
-                          <option value="Heavy Rain / Hydroplaning Warning">
-                            Heavy Rain
-                          </option>
-                          <option value="Snowy / Black Ice Risk (Subzero)">
-                            Winter Snowy
-                          </option>
-                          <option value="Thick Fog / Low Visibility">
-                            Thick Fog
-                          </option>
-                        </select>
-                      </div>
-                      <div>
-                        <label className="block text-4xs font-mono text-slate-500 uppercase mb-1">
-                          Traffic Density
-                        </label>
-                        <select
-                          value={traffic}
-                          onChange={(e) => setTraffic(e.target.value)}
-                          className="w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-2xs bg-white font-semibold text-slate-800"
-                        >
-                          <option value="Normal Flow">Normal Flow</option>
-                          <option value="Rush Hour Gridlock">Rush Hour</option>
-                          <option value="Border Toll Construction Delays">
-                            Construction
-                          </option>
-                        </select>
-                      </div>
+              >
+                {/* Delivery Stop Timeline & Sequence List */}
+                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+                  <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
+                    <div className="flex items-center space-x-2">
+                      <List className="h-4.5 w-4.5 text-indigo-600" />
+                      <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
+                        Delivery Stop Timeline
+                      </h3>
+                      <span className="text-3xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-bold">
+                        {effectiveWaypoints.length} stops
+                      </span>
                     </div>
 
                     <button
-                      onClick={handleAiOptimizeRoute}
-                      disabled={aiLoading}
-                      className="w-full bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-bold py-2 rounded-lg text-xs transition-colors cursor-pointer flex items-center justify-center space-x-1.5"
+                      type="button"
+                      onClick={() => setIsAddingWaypoint(!isAddingWaypoint)}
+                      className="px-2.5 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-bold font-mono transition-all cursor-pointer flex items-center space-x-1 shadow-xs"
                     >
-                      {aiLoading ? (
-                        <>
-                          <Compass className="h-4 w-4 animate-spin" />
-                          <span>Gemini is modeling routes...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="h-4 w-4" />
-                          <span>Run Gemini Route Optimizer</span>
-                        </>
-                      )}
+                      <span>{isAddingWaypoint ? "✕ Cancel" : "+ Add Stop"}</span>
                     </button>
                   </div>
 
-                  {aiError && (
-                    <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-2xs text-rose-800 flex items-start space-x-2">
-                      <ShieldAlert className="h-4 w-4 shrink-0 text-rose-600 mt-0.5" />
-                      <span>{aiError}</span>
-                    </div>
-                  )}
-
-                  {optimizedRoute && (
-                    <div className="bg-white rounded-xl border border-indigo-100 p-4 space-y-3.5 shadow-sm">
-                      <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                        <span className="text-xs font-bold text-slate-800 font-mono uppercase tracking-wider">
-                          AI Optimization Outputs
-                        </span>
+                  {/* Add New Stop Inline Drawer */}
+                  {isAddingWaypoint && (
+                    <form onSubmit={handleAddNewWaypoint} className="p-3.5 bg-indigo-50/60 border border-indigo-200 rounded-xl space-y-3 animate-in fade-in">
+                      <div className="font-bold text-xs text-indigo-950 uppercase font-mono">
+                        Add Route Stop / Waypoint
+                      </div>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                        <div>
+                          <label className="text-3xs font-bold text-slate-700 block mb-0.5">Stop Type</label>
+                          <select
+                            value={newWaypointForm.stopType}
+                            onChange={(e) => setNewWaypointForm({ ...newWaypointForm, stopType: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold uppercase"
+                          >
+                            <option value="pickup">Pickup Facility</option>
+                            <option value="delivery">Delivery Consignee</option>
+                            <option value="border_crossing">Border Port / Customs</option>
+                            <option value="rest_stop">Driver Rest / Fuel Stop</option>
+                            <option value="weigh_station">Weigh Scale Inspection</option>
+                          </select>
+                        </div>
+                        <div>
+                          <label className="text-3xs font-bold text-slate-700 block mb-0.5">Facility / Company Name *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. Metro Warehouse Hub"
+                            value={newWaypointForm.companyName}
+                            onChange={(e) => setNewWaypointForm({ ...newWaypointForm, companyName: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                          />
+                        </div>
+                        <div className="sm:col-span-2">
+                          <label className="text-3xs font-bold text-slate-700 block mb-0.5">Full Street Address *</label>
+                          <input
+                            type="text"
+                            required
+                            placeholder="e.g. 450 Logistics Way, Detroit, MI 48201"
+                            value={newWaypointForm.address}
+                            onChange={(e) => setNewWaypointForm({ ...newWaypointForm, address: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-3xs font-bold text-slate-700 block mb-0.5">Appointment Window</label>
+                          <input
+                            type="datetime-local"
+                            value={newWaypointForm.scheduledTime}
+                            onChange={(e) => setNewWaypointForm({ ...newWaypointForm, scheduledTime: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-3xs font-bold text-slate-700 block mb-0.5">Gate / Dock Code</label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Door 14 / Pin #991"
+                            value={newWaypointForm.dockCode}
+                            onChange={(e) => setNewWaypointForm({ ...newWaypointForm, dockCode: e.target.value })}
+                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                          />
+                        </div>
+                      </div>
+                      <div className="flex justify-end gap-2 pt-1">
                         <button
-                          onClick={handleApplyAiSequence}
-                          className="text-[10px] font-bold text-indigo-700 hover:text-indigo-900 border border-indigo-200 hover:bg-indigo-50 px-2 py-0.5 rounded cursor-pointer transition-colors"
+                          type="button"
+                          onClick={() => setIsAddingWaypoint(false)}
+                          className="px-3 py-1.5 bg-slate-200 text-slate-700 rounded-lg text-xs font-bold hover:bg-slate-300 cursor-pointer"
                         >
-                          Apply Sequence
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          className="px-3 py-1.5 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700 shadow-xs cursor-pointer"
+                        >
+                          Save Stop
                         </button>
                       </div>
-
-                      <div className="space-y-1">
-                        <span className="text-3xs font-mono text-slate-400 uppercase">
-                          Recommended Sequence
-                        </span>
-                        <div className="flex flex-wrap items-center gap-1">
-                          {optimizedRoute.optimizedSequence.map((stop, i) => (
-                            <React.Fragment key={stop}>
-                              <span className="bg-slate-100 text-slate-800 text-[9px] font-bold px-1.5 py-0.5 rounded border border-slate-200">
-                                {stop}
-                              </span>
-                              {i <
-                                optimizedRoute.optimizedSequence.length - 1 && (
-                                <ArrowRight className="h-3 w-3 text-slate-400" />
-                              )}
-                            </React.Fragment>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-3 bg-indigo-50/50 p-2.5 rounded-lg border border-indigo-100">
-                        <div>
-                          <span className="text-3xs font-mono text-slate-400 block uppercase">
-                            Est. Fuel Burned
-                          </span>
-                          <div className="text-sm font-bold text-slate-900 mt-0.5">
-                            {optimizedRoute.estimatedFuelGallons} Gallons
-                          </div>
-                          <span className="text-[10px] text-slate-500">
-                            Class-8 commercial estimate
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-3xs font-mono text-slate-400 block uppercase">
-                            Est. Commercial Tolls
-                          </span>
-                          <div className="text-sm font-bold text-slate-900 mt-0.5">
-                            ${optimizedRoute.tollEstimatesUsd}
-                          </div>
-                          <span className="text-[10px] text-slate-500">
-                            Commercial EZPass Rate
-                          </span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1">
-                        <span className="text-3xs font-mono text-slate-400 uppercase block">
-                          AI Route Rationale
-                        </span>
-                        <p className="text-2xs text-slate-600 leading-relaxed italic">
-                          {optimizedRoute.justification}
-                        </p>
-                      </div>
-
-                      <div className="space-y-1 border-t border-slate-100 pt-2.5">
-                        <span className="text-3xs font-mono text-indigo-800 uppercase block font-bold">
-                          Safety & Clearance Directives
-                        </span>
-                        <ul className="text-2xs text-slate-600 space-y-1 pl-3.5 list-disc leading-relaxed">
-                          {optimizedRoute.drivingTips.map((tip, idx) => (
-                            <li key={idx}>{tip}</li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                    </form>
                   )}
+
+                  <div className="relative border-l-2 border-slate-200 ml-4 pl-6 space-y-6 py-2">
+                    {effectiveWaypoints.map((w, index) => {
+                      const isPickup = w.stopType === "pickup";
+                      const isDelivery = w.stopType === "delivery";
+                      const isBorder = w.stopType === "border_crossing";
+                      const statusStr = String(w.status || "pending").toLowerCase();
+
+                      return (
+                        <div key={w.id} className="relative group">
+                          {/* Dot / Pin Icon */}
+                          <span
+                            className={`absolute -left-[35px] top-0.5 flex items-center justify-center h-6 w-6 rounded-full border shadow-2xs font-bold text-2xs ${
+                              isPickup
+                                ? "bg-indigo-600 text-white border-indigo-400"
+                                : isDelivery
+                                ? "bg-emerald-600 text-white border-emerald-400"
+                                : isBorder
+                                ? "bg-sky-600 text-white border-sky-400"
+                                : "bg-amber-600 text-white border-amber-400"
+                            }`}
+                          >
+                            {w.sequence}
+                          </span>
+
+                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div className="space-y-1 flex-1">
+                              <div className="flex items-center space-x-1.5 flex-wrap gap-1">
+                                <h5 className="text-xs font-bold text-slate-900 leading-none">
+                                  {w.companyName}
+                                </h5>
+                                <span
+                                  className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wide ${
+                                    isPickup
+                                      ? "bg-indigo-100 text-indigo-800"
+                                      : isDelivery
+                                      ? "bg-emerald-100 text-emerald-800"
+                                      : isBorder
+                                      ? "bg-sky-100 text-sky-800"
+                                      : "bg-amber-100 text-amber-800"
+                                  }`}
+                                >
+                                  {w.stopType.replace(/_/g, " ")}
+                                </span>
+
+                                {/* Stop Status Workflow Selector */}
+                                <select
+                                  value={statusStr}
+                                  onChange={(e) => handleUpdateWaypointStatus(w.id, e.target.value)}
+                                  className={`px-2 py-0.5 rounded-full text-3xs font-mono font-bold uppercase border cursor-pointer ${
+                                    statusStr === "completed"
+                                      ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                                      : statusStr === "arrived"
+                                      ? "bg-blue-100 text-blue-800 border-blue-300"
+                                      : statusStr === "en_route"
+                                      ? "bg-amber-100 text-amber-800 border-amber-300"
+                                      : "bg-slate-100 text-slate-700 border-slate-200"
+                                  }`}
+                                >
+                                  <option value="pending">Pending</option>
+                                  <option value="en_route">En Route</option>
+                                  <option value="arrived">Arrived</option>
+                                  <option value="completed">Completed</option>
+                                  <option value="delayed">Delayed</option>
+                                </select>
+                              </div>
+                              <p className="text-2xs text-slate-500 font-medium">
+                                {w.address}
+                              </p>
+
+                              {/* Scheduled Appointment time info */}
+                              <div className="flex items-center space-x-2 text-3xs font-mono text-slate-400 mt-1.5 flex-wrap gap-2">
+                                <div className="flex items-center gap-1">
+                                  <Clock className="h-3.5 w-3.5 text-slate-400" />
+                                  <span>
+                                    Scheduled:{" "}
+                                    <strong className="text-slate-600">
+                                      {w.scheduledTime && !isNaN(new Date(w.scheduledTime).getTime())
+                                        ? new Date(w.scheduledTime).toLocaleString([], { dateStyle: "short", timeStyle: "short" })
+                                        : "Scheduled Appointment"}
+                                    </strong>
+                                  </span>
+                                </div>
+                                {w.dockCode && (
+                                  <span className="bg-white border border-slate-200 px-1.5 py-0.2 rounded text-slate-600 font-bold">
+                                    Dock: {w.dockCode}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            {/* Control panel for each stop */}
+                            <div className="flex items-center space-x-1.5 shrink-0 md:self-center">
+                              {/* Sequence adjusters */}
+                              <button
+                                disabled={index === 0}
+                                onClick={() => handleMoveWaypoint(index, "up")}
+                                className="p-1 border border-slate-200 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                title="Move Stop Up"
+                              >
+                                <ArrowUp className="h-3 w-3 text-slate-600" />
+                              </button>
+                              <button
+                                disabled={index === effectiveWaypoints.length - 1}
+                                onClick={() => handleMoveWaypoint(index, "down")}
+                                className="p-1 border border-slate-200 rounded hover:bg-slate-100 disabled:opacity-30 cursor-pointer"
+                                title="Move Stop Down"
+                              >
+                                <ArrowDown className="h-3 w-3 text-slate-600" />
+                              </button>
+
+                              {/* Appointment Time Adjuster */}
+                              {editingWaypointId === w.id ? (
+                                <div className="flex items-center space-x-1.5">
+                                  <input
+                                    type="datetime-local"
+                                    value={editScheduledTime}
+                                    onChange={(e) =>
+                                      setEditScheduledTime(e.target.value)
+                                    }
+                                    className="bg-white border border-slate-300 text-2xs p-1 rounded font-semibold text-slate-800"
+                                  />
+                                  <button
+                                    onClick={() => handleSaveWaypointTime(w.id)}
+                                    className="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded cursor-pointer"
+                                    title="Save stop appointment time"
+                                  >
+                                    <Check className="h-3 w-3" />
+                                  </button>
+                                  <button
+                                    onClick={() => setEditingWaypointId(null)}
+                                    className="p-1 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded cursor-pointer text-3xs font-bold"
+                                  >
+                                    ✕
+                                  </button>
+                                </div>
+                              ) : (
+                                <button
+                                  onClick={() => {
+                                    setEditingWaypointId(w.id);
+                                    setEditScheduledTime(
+                                      typeof w.scheduledTime === "string"
+                                        ? w.scheduledTime.slice(0, 16)
+                                        : new Date().toISOString().slice(0, 16)
+                                    );
+                                  }}
+                                  className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-3xs font-semibold cursor-pointer"
+                                >
+                                  Edit Time
+                                </button>
+                              )}
+
+                              {/* Delete Stop (if > 2 stops) */}
+                              {effectiveWaypoints.length > 2 && (
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteWaypoint(w.id)}
+                                  className="p-1 text-slate-400 hover:text-rose-600 rounded hover:bg-rose-50 cursor-pointer transition-colors"
+                                  title="Delete stop"
+                                >
+                                  <Trash2 className="h-3.5 w-3.5" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
-              </div>
+              </EnhancedRouteVisualization>
             </div>
           )}
 
@@ -2395,7 +2388,6 @@ export default function ShipmentDetailsModal({
                   </div>
                 </div>
               </div>
-            </div>
             </div>
           )}
 

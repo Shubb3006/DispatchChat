@@ -6,15 +6,19 @@ import nodemailer from "nodemailer";
 function getTransporter() {
   const host = process.env.SMTP_HOST || "smtp.gmail.com";
   const port = parseInt(process.env.SMTP_PORT, 10) || 465;
-  const user = process.env.SMTP_USER || process.env.GMAIL_USER || "";
-  const pass = process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || "";
+  const user = (process.env.SMTP_USER || process.env.GMAIL_USER || "").trim();
+  const pass = (process.env.SMTP_PASS || process.env.GMAIL_APP_PASSWORD || "").trim();
 
-  if (user && pass) {
+  // Only attempt live SMTP connection if password is configured
+  if (user && pass && pass.length >= 8) {
     return nodemailer.createTransport({
       host,
       port,
       secure: port === 465,
       auth: { user, pass },
+      connectionTimeout: 2500,
+      greetingTimeout: 2000,
+      socketTimeout: 3000,
     });
   }
 

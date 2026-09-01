@@ -94,19 +94,24 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
         contents = [{ text: promptText }];
       }
 
-      // gemini-2.5-flash was retired for new API keys; Google's error
-      // message directs new users to gemini-3.6-flash.
+      // Active production model: gemini-3.6-flash (gemini-2.5 was retired)
       const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
 
-      // Google intermittently returns 503 UNAVAILABLE / 429 under load —
-      // retry with backoff before giving up to the heuristic fallback.
-      const RETRY_DELAYS_MS = [0, 3000, 8000];
+      // Rapid retry with small backoff
+      const RETRY_DELAYS_MS = [0, 1000, 2000];
       let response;
       let lastErr;
       for (const delay of RETRY_DELAYS_MS) {
         if (delay) await new Promise((r) => setTimeout(r, delay));
         try {
-          response = await ai.models.generateContent({ model, contents });
+          response = await ai.models.generateContent({
+            model,
+            contents,
+            config: {
+              responseMimeType: "application/json",
+              temperature: 0.1,
+            },
+          });
           lastErr = null;
           break;
         } catch (err) {
@@ -119,7 +124,7 @@ Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`jso
       }
       if (lastErr) throw lastErr;
 
-      const responseText = response.text?.trim() || "";
+      const responseText = response.text?.trim() || "{}";
       const cleanedJsonStr = responseText
         .replace(/```json/gi, "")
         .replace(/```/g, "")

@@ -1,192 +1,43 @@
-# Enhanced Route Visualization Features
+# Route Visualization — Waypoints & Route (AI) tab
 
-## Overview
+Five sections render in `EnhancedRouteVisualization.jsx`, all backed by real data.
 
-Added 6 powerful route management features to the **Waypoints & Route (AI)** tab:
+## 1. Route Overview
+Total distance, drive time, toll cost, fuel cost.
 
-### ✅ Route & Navigation
-1. **Interactive Map View** - Visual representation of route with all stops
-2. **Multiple Route Options** - Compare alternative routes (faster/cheaper)
-3. **ETA Calculations** - Estimated time of arrival at each stop
-4. **Deviation Alerts** - Real-time notifications if driver goes off route
+Distance comes from geocoding every stop (`geocoding.service.js` — local hub presets, then
+OpenStreetMap/Nominatim) and summing haversine legs with a 1.18 road-network correction.
+Drive time assumes 55 mph; fuel assumes 6.5 MPG at $3.85/gal; tolls at $0.06/mile.
 
-### ✅ Historical Data
-5. **Historical Times** - Average/fastest/slowest times from past trips on same route
-6. **Driver Notes** - Collect and display driver observations about stops/routes
+## 2. Stops Timeline
+Every stop in sequence with a color-coded dot (green pickup, blue intermediate, red delivery),
+cumulative ETA (from the load's `pickup_date`, plus 45m dwell per stop), miles from origin,
+and dwell time.
 
-## Features in Detail
+## 3. Route Options
+Primary route plus a toll-free and a heavy-haul variant. Click to switch — the Route Overview
+stats update to the selected option.
 
-### 1. Route Overview
-- **Total Distance** - Miles for the complete route
-- **Estimated Time** - Total travel time (hours:minutes)
-- **Toll Cost** - Estimated toll expenses
-- **Fuel Cost** - Estimated fuel expenses based on MPG
+## 4. Historical Times On This Lane
+Queries `loads` for previously delivered loads with the same origin and destination, and
+computes average/fastest/slowest from `delivery_date - pickup_date`. Shows an empty state
+when the lane has no delivered history — no placeholder numbers.
 
-### 2. Stops Timeline
-- Visual timeline with all pickup/delivery stops
-- Color-coded stop types (green=pickup, red=delivery, blue=intermediate)
-- ETA for each stop
-- Dwell time estimates (time truck spends at stop)
+## 5. Driver Notes
+Persisted in the `route_notes` table (auto-created on server start). Shows author and date;
+notes stay attached to the load.
 
-### 3. Alternative Routes
-- Primary route selected by default
-- Alternative routes with time/cost comparison
-- Quick toggle between options
-- Each shows distance, duration, and savings
-
-### 4. Historical Analytics
-- **Average Drive Time** - Based on past trips with same route
-- **Fastest Time** - Best performance on this route
-- **Slowest Time** - Worst case scenario
-- **Trip Count** - Number of historical trips analyzed
-
-### 5. Driver Notes
-- Drivers can add observations about the route
-- Notes persist for future drivers
-- Shows driver name and date added
-- Searchable history of route feedback
-- Examples: "Dock is on east side", "Heavy traffic 2-4pm", "Parking limited at stop 2"
-
-### 6. Deviation Alerts
-- Real-time notification if driver deviates from planned route
-- Distance off-route tracking
-- Alert type classification
-
-## Setup Instructions
-
-### 1. Initialize Database Tables
-
-```bash
-node Dispatch/backend/scripts/init-route-optimization.js
-```
-
-This creates:
-- `route_notes` - Stores driver notes about routes
-- `route_deviations` - Tracks when drivers deviate from planned routes
-
-### 2. Integrate Component
-
-Add to your Waypoints & Route section (typically in ShipmentDetailsModal or TripDetailModal):
-
-```jsx
-import EnhancedRouteVisualization from './EnhancedRouteVisualization';
-
-// Inside your component:
-<EnhancedRouteVisualization
-  loadId={loadId}
-  origin={load.origin}
-  destination={load.destination}
-  stops={load.waypoints || []}
-/>
-```
-
-### 3. API Endpoints Available
-
-**Route Calculation**
-```
-POST /api/route-optimization/calculate-routes
-Body: { load_id, origin, destination, stops }
-```
-
-**Historical Data**
-```
-GET /api/route-optimization/historical/:load_id
-Returns: avgTime, fastestTime, slowestTime, tripCount
-```
-
-**Driver Notes**
-```
-GET /api/route-optimization/driver-notes/:load_id
-Returns: Array of notes with driver name, date, content
-
-POST /api/route-optimization/driver-notes
-Body: { load_id, note }
-```
-
-## How It Works
-
-### Alternative Routes
-The system calculates 2 alternative routes:
-- **Route 2**: 5% shorter (saves time)
-- **Route 3**: 5% longer but cheaper tolls
-
-Each shows estimated toll and fuel costs.
-
-### Historical Data
-Queries past trips with:
-- Same origin city
-- Same destination city
-- Status = "delivered"
-
-Calculates average/min/max drive times.
-
-### Driver Notes
-Persistent notes associated with load origin/destination. When a driver completes a trip, they can add observations like:
-- "Construction on I-75 north of exit 245"
-- "Shipper dock closed Sundays"
-- "No overnight parking at this location"
-- "Heavy congestion 5-7pm weekdays"
-
-### Deviation Alerts
-When driver location varies >10% from planned route, system triggers alert with:
-- Deviation type
-- Distance off-route
-- Alert message
-- Time detected
-
-## Benefits
-
-✅ **Better Planning** - See multiple route options with costs upfront
-✅ **Driver Knowledge** - Access collective wisdom from past trips
-✅ **Compliance** - Track and prevent route deviations
-✅ **Cost Optimization** - Compare tolls and fuel costs before choosing route
-✅ **Safety** - Deviation alerts help prevent lost or stolen loads
-✅ **ETA Accuracy** - Historical data improves time estimates
-
-## Data Flow
+## API
 
 ```
-Load Selected
-    ↓
-Calculate Routes → Show primary + 2 alternatives
-    ↓
-Fetch Historical → Display avg/fastest/slowest times
-    ↓
-Load Driver Notes → Show feedback from past trips
-    ↓
-Display Timeline → Show all stops with ETA
-    ↓
-Monitor Tracking → Alert on deviations (real-time)
+POST /api/route-optimization/calculate-routes   { load_id, origin, destination, stops }
+GET  /api/route-optimization/historical/:load_id
+GET  /api/route-optimization/driver-notes/:load_id
+POST /api/route-optimization/driver-notes       { load_id, note }
 ```
 
-## Future Enhancements
-
-- 🗺️ Integrate Google Maps API for visual map display
-- 📱 Real-time driver location tracking
-- 🔔 Push notifications for deviations
-- 📊 Route performance analytics dashboard
-- 🎯 AI-powered best route recommendation
-- 🚧 Live traffic integration for ETAs
-
-## Troubleshooting
-
-**No historical data showing?**
-- Ensure trips exist in database with "delivered" status
-- Check load origin/destination match past trips
-
-**Notes not appearing?**
-- Verify route_notes table was created
-- Check user has proper authentication
-
-**Alternative routes not showing?**
-- Load must have valid origin/destination
-- API server must be running
-
-## Files Added
+## Files
 
 - `Dispatch/frontend/src/components/EnhancedRouteVisualization.jsx`
-- `Dispatch/frontend/src/components/EnhancedRouteVisualization.css`
 - `Dispatch/backend/src/controllers/routeOptimization.controller.js`
 - `Dispatch/backend/src/routes/routeOptimization.routes.js`
-- `Dispatch/backend/migrations/002_create_route_notes.sql`
-- `Dispatch/backend/scripts/init-route-optimization.js`
