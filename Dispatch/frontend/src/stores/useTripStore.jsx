@@ -51,6 +51,7 @@ export const useTripStore = create((set, get) => ({
       totalPallets: trip.totalPallets,
       shipmentIds: trip.shipmentIds,
     };
+    console.log(payLoad)
     set({ isLoading: true });
     try {
       const response = await axiosInstance.post("/trips", payLoad);

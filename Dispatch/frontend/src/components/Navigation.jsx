@@ -79,7 +79,7 @@ export default function Navigation({
       </div>
 
       {/* Nav Items */}
-      <nav className="flex flex-col gap-1.5 w-full items-center flex-1">
+      <nav className="flex flex-col gap-1.5 w-full items-center flex-1 min-h-0 py-1">
         {filteredTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = currentRole === tab.id;
@@ -88,11 +88,10 @@ export default function Navigation({
               key={tab.id}
               onClick={() => onChangeRole(tab.id)}
               title={tab.label}
-              className={`relative w-10 h-10 flex items-center justify-center rounded-xl cursor-pointer transition-all duration-150 group ${
-                isActive
-                  ? "bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs font-bold"
-                  : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-              }`}
+              className={`relative w-10 h-10 flex items-center justify-center rounded-xl cursor-pointer transition-all duration-150 group ${isActive
+                ? "bg-sky-50 text-sky-700 border border-sky-200 shadow-2xs font-bold"
+                : "text-slate-500 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+                }`}
             >
               <Icon className={`w-4.5 h-4.5 transition-colors ${isActive ? "text-sky-600" : "text-slate-500 group-hover:text-slate-900"}`} />
 

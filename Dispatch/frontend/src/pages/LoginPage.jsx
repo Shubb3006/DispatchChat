@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../stores/useAuthStore";
 import {
   Lock,
@@ -13,6 +13,7 @@ import {
 
 export default function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const users = useAuthStore((state) => state.users);
   const fetchUsers = useAuthStore((state) => state.fetchUsers);
   // Force rebuild with production API URL fix
@@ -34,13 +35,106 @@ export default function LoginPage() {
     fetchUsers();
   }, [fetchUsers]);
 
-  const handleLoginSuccess = (user) => {
-    const isSuperOrAdmin = user.role === "super_admin" || user.role === "admin";
-    const modules = user.allowedModules || user.allowed_modules || [];
-    const target = isSuperOrAdmin ? "reporting" : modules[0] || "customer";
-    navigate("/" + target);
-  };
+  // const handleLoginSuccess = (user) => {
+  //   const isSuperOrAdmin = user.role === "super_admin" || user.role === "admin";
+  //   const modules = user.allowedModules || user.allowed_modules || [];
+  //   const target = isSuperOrAdmin ? "reporting" : modules[0] || "customer";
 
+  //   const from = location.state?.from;
+  //   console.log(from)
+
+  //   navigate(
+  //     from
+  //       ? `${from.pathname}${from.search || ""}${from.hash || ""}`
+  //       : "/" + target,
+  //     { replace: true }
+  //   );
+  //   // navigate("/" + target);
+  // };
+
+  // const handleLoginSuccess = (user) => {
+  //   const isSuperOrAdmin =
+  //     user.role === "super_admin" || user.role === "admin";
+
+  //   const modules = user.allowedModules || user.allowed_modules || [];
+
+  //   const target = isSuperOrAdmin
+  //     ? "reporting"
+  //     : modules[0] || "customer";
+
+  //   const from = location.state?.from;
+
+  //   console.log("Redirecting from:", from);
+
+  //   const destination = from
+  //     ? `${from.pathname}${from.search || ""}${from.hash || ""}`
+  //     : `/${target}`;
+
+  //   navigate(destination, { replace: true });
+  // };
+
+  // const handleLoginSuccess = (user) => {
+  //   const isSuperOrAdmin =
+  //     user.role === "super_admin" || user.role === "admin";
+
+  //   const modules = user.allowedModules || user.allowed_modules || [];
+
+  //   const target = isSuperOrAdmin
+  //     ? "reporting"
+  //     : modules[0] || "customer";
+
+  //   const params = new URLSearchParams(location.search);
+  //   const redirectTo = params.get("redirectTo");
+
+  //   console.log("Requested page:", redirectTo);
+  //   console.log("Allowed modules:", modules);
+
+  //   // Admin/super admin can access everything
+  //   if (isSuperOrAdmin && redirectTo) {
+  //     navigate(`/${redirectTo}`, { replace: true });
+  //     return;
+  //   }
+
+  //   // Normal user: check permission
+  //   if (redirectTo && modules.includes(redirectTo)) {
+  //     navigate(`/${redirectTo}`, { replace: true });
+  //     return;
+  //   }
+
+  //   // User doesn't have permission
+  //   navigate(`/${target}`, { replace: true });
+  // };
+
+
+
+  const handleLoginSuccess = (user) => {
+    const isSuperOrAdmin =
+      user.role === "super_admin" || user.role === "admin";
+
+    const modules = user.allowedModules || user.allowed_modules || [];
+
+    const params = new URLSearchParams(location.search);
+    const redirectTo = params.get("redirectTo");
+
+    const target = isSuperOrAdmin
+      ? "reporting"
+      : modules[0] || "customer";
+
+    // Admin can access requested page
+    if (isSuperOrAdmin && redirectTo) {
+      navigate(`/${redirectTo}`, { replace: true });
+      return;
+    }
+
+    // Normal user can access requested page
+    if (redirectTo && modules.includes(redirectTo)) {
+      navigate(`/${redirectTo}`, { replace: true });
+      return;
+    }
+
+    // No permission → normal fallback
+    navigate(`/${target}`, { replace: true });
+  };
   const handleAction = async (e) => {
     e.preventDefault();
     setError(null);
@@ -116,7 +210,7 @@ export default function LoginPage() {
       } else {
         setError(
           storeError ||
-            "Invalid credentials. Please verify your username and password."
+          "Invalid credentials. Please verify your username and password."
         );
       }
     }
@@ -158,11 +252,10 @@ export default function LoginPage() {
               setIsSignUp(false);
               setError(null);
             }}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              !isSignUp
-                ? "bg-indigo-600 text-white shadow"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${!isSignUp
+              ? "bg-indigo-600 text-white shadow"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             Sign In
           </button>
@@ -171,11 +264,10 @@ export default function LoginPage() {
               setIsSignUp(true);
               setError(null);
             }}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              isSignUp
-                ? "bg-indigo-600 text-white shadow"
-                : "text-slate-400 hover:text-white"
-            }`}
+            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${isSignUp
+              ? "bg-indigo-600 text-white shadow"
+              : "text-slate-400 hover:text-white"
+              }`}
           >
             Create Account
           </button>

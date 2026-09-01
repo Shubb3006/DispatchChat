@@ -374,6 +374,28 @@ function SystemClock() {
   return <span>{time}</span>;
 }
 
+const ModuleRoute = ({ module, element }) => {
+  const { currentUser } = useAuthStore();
+
+  const isSuperOrAdmin =
+    currentUser?.role === "super_admin" ||
+    currentUser?.role === "admin";
+
+  const modules =
+    currentUser?.allowedModules ||
+    currentUser?.allowed_modules ||
+    [];
+
+  const hasPermission =
+    isSuperOrAdmin || modules.includes(module);
+
+  if (!hasPermission) {
+    return <Navigate to="/data_entry" replace />;
+  }
+
+  return element;
+};
+
 function LogiSyncApp() {
   const location = useLocation();
   const navigate = useNavigate();
@@ -412,10 +434,10 @@ function LogiSyncApp() {
       return; // Public Magic Tracking Route (Zero-Login)
     }
 
-    if (!isLoggedIn && location.pathname !== "/login") {
-      navigate("/login");
-      return;
-    }
+    // if (!isLoggedIn && location.pathname !== "/login") {
+    //   navigate("/login");
+    //   return;
+    // }
 
     if (currentUser?.role === "driver" && location.pathname !== "/driver") {
       navigate("/driver");
@@ -493,13 +515,43 @@ function LogiSyncApp() {
     );
   }
 
-  if (!isLoggedIn) {
+  const RequireAuth = () => {
+    const location = useLocation();
+
+    const redirectTo =
+      location.pathname.replace(/^\/+/, "") +
+      location.search +
+      location.hash;
+    console.log(redirectTo)
+
+    return (
+      <Navigate
+        to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}
+        replace
+      />
+    );
+  };
+
+
+  if (!isCheckingAuth && !isLoggedIn) {
+    // const redirectTo = location.pathname.replace(/^\/+/, "");
+    // console.log(redirectTo)
+
     return (
       <Routes>
+        {/* <Route
+          path="*"
+          element={
+            <Navigate
+              to={`/login?redirectTo=${encodeURIComponent(redirectTo)}`}
+              replace
+            />
+          }
+        /> */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
-        <Route path="*" element={<Navigate to="/login" replace />} />
+        <Route path="*" element={<RequireAuth />} />
       </Routes>
     );
   }
@@ -579,7 +631,16 @@ function LogiSyncApp() {
         <div className="flex-1 overflow-auto bg-slate-50/70 p-4 sm:p-6 text-slate-900">
           <Routes>
             <Route path="/" element={<Navigate to="/data_entry" replace />} />
-            <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} />
+            {/* <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} /> */}
+            <Route
+              path="/dispatcher"
+              element={
+                <ModuleRoute
+                  module="data_entry"
+                  element={<DispatcherPage />}
+                />
+              }
+            />
             <Route path="/data_entry" element={<DispatcherPage />} />
             <Route path="/kanban" element={<KanbanDispatchPage />} />
             <Route path="/rates" element={<RateRequestsPage />} />
@@ -600,12 +661,17 @@ function LogiSyncApp() {
             />
             <Route path="/invoicing" element={<InvoicingPage />} />
             <Route path="/customer" element={<CustomerPage />} />
-            <Route path="/hr" element={<HRPage />} />
+            <Route path="/hr" element={
+              <ModuleRoute
+                module="hr"
+                element={<HRPage />}
+              />
+            } />
             <Route path="/reporting" element={<ReportingPage />} />
-            <Route
+            {/* <Route
               path="*"
               element={<Navigate to="/data_entry" replace />}
-            />
+            /> */}
           </Routes>
         </div>
 

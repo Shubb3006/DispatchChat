@@ -107,7 +107,7 @@ import { axiosInstance } from "../../lib/axios";
 export const useAuthStore = create((set, get) => ({
   // User's custom state fields
   authUser: null,
-  isCheckingAuth: false,
+  isCheckingAuth: true,
   isSigningUp: false,
   isSigningIn: false,
 
@@ -207,7 +207,7 @@ export const useAuthStore = create((set, get) => ({
       const localMatch = get().users.find(
         (u) =>
           u.username ===
-            (payload.username || payload.email || "").trim().toLowerCase() &&
+          (payload.username || payload.email || "").trim().toLowerCase() &&
           u.password === (payload.password || "password")
       );
       if (localMatch) {

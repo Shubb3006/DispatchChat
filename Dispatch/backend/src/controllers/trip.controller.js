@@ -17,17 +17,15 @@ export const createTrip = async (req, res) => {
       INSERT INTO trips
       (
         trip_number,
-        driver_id,
         status,
         total_weight_lbs,
         total_pallets
       )
-      VALUES ($1,$2,$3,$4,$5)
+      VALUES ($1,$2,$3,$4)
       RETURNING *;
       `,
       [
         trip_number,
-        driver_id,
         status,
         totalWeightLbs,
         totalPallets,
@@ -392,7 +390,7 @@ export const deleteTrip = async (req, res) => {
       await pool.query(
         `
         UPDATE loads
-        SET status = 'pending'
+        SET status = 'at_warehouse'
         WHERE id = $1
         `,
         [row.load_id]

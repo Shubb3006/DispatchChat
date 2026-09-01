@@ -150,8 +150,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
             type="button"
             onClick={() => setViewMode("3d")}
             className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "3d"
-                ? "bg-indigo-600 text-white shadow-sm font-mono"
-                : "text-slate-400 hover:text-white"
+              ? "bg-indigo-600 text-white shadow-sm font-mono"
+              : "text-slate-400 hover:text-white"
               }`}
           >
             3D Isometric
@@ -160,8 +160,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
             type="button"
             onClick={() => setViewMode("top")}
             className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "top"
-                ? "bg-indigo-600 text-white shadow-sm font-mono"
-                : "text-slate-400 hover:text-white"
+              ? "bg-indigo-600 text-white shadow-sm font-mono"
+              : "text-slate-400 hover:text-white"
               }`}
           >
             Top Floor Grid
@@ -170,8 +170,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
             type="button"
             onClick={() => setViewMode("rear")}
             className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "rear"
-                ? "bg-indigo-600 text-white shadow-sm font-mono"
-                : "text-slate-400 hover:text-white"
+              ? "bg-indigo-600 text-white shadow-sm font-mono"
+              : "text-slate-400 hover:text-white"
               }`}
           >
             Rear Doors View
@@ -221,8 +221,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
                 <div key={colIdx} className="space-y-1.5 flex flex-col items-center">
                   <div
                     className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center p-1 transition-all ${leftSlot.load
-                        ? `${leftSlot.color.bg} ${leftSlot.color.border} shadow-md`
-                        : "bg-slate-950/80 border-slate-800 text-slate-700"
+                      ? `${leftSlot.color.bg} ${leftSlot.color.border} shadow-md`
+                      : "bg-slate-950/80 border-slate-800 text-slate-700"
                       }`}
                   >
                     {leftSlot.load ? (
@@ -241,8 +241,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
 
                   <div
                     className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center p-1 transition-all ${rightSlot.load
-                        ? `${rightSlot.color.bg} ${rightSlot.color.border} shadow-md`
-                        : "bg-slate-950/80 border-slate-800 text-slate-700"
+                      ? `${rightSlot.color.bg} ${rightSlot.color.border} shadow-md`
+                      : "bg-slate-950/80 border-slate-800 text-slate-700"
                       }`}
                   >
                     {rightSlot.load ? (
@@ -275,8 +275,8 @@ const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
               <div
                 key={slot.slotIndex}
                 className={`p-2 rounded-xl border text-center font-mono text-3xs ${slot.load
-                    ? `${slot.color.bg} ${slot.color.border} text-white font-bold`
-                    : "bg-slate-900 border-slate-800 text-slate-600"
+                  ? `${slot.color.bg} ${slot.color.border} text-white font-bold`
+                  : "bg-slate-900 border-slate-800 text-slate-600"
                   }`}
               >
                 <div>Slot {slot.slotIndex + 1}</div>
@@ -1036,10 +1036,10 @@ export default function DispatcherDashboard({
   };
 
   const handleConsolidateTrips = () => {
-    if (!consolidationDriverId) {
-      alert("Please select a driver");
-      return;
-    }
+    // if (!consolidationDriverId) {
+    //   alert("Please select a driver");
+    //   return;
+    // }
     if (selectedConsolidationIds.length === 0) {
       alert("Please select at least one load to consolidate into this trip.");
       return;
@@ -1075,6 +1075,7 @@ export default function DispatcherDashboard({
       totalWeightLbs: totalWeight,
       totalPallets,
     };
+    console.log(newTrip)
     selectedLoads.forEach((shipment) => {
       const updatedShipment = {
         ...shipment,
@@ -1664,11 +1665,10 @@ export default function DispatcherDashboard({
         <div className="flex space-x-6">
           <button
             onClick={() => setActiveView("grid")}
-            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${
-              activeView === "grid"
-                ? "border-sky-600 text-sky-700 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
+            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${activeView === "grid"
+              ? "border-sky-600 text-sky-700 font-extrabold"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
           >
             <Layers className="h-4 w-4 text-sky-600" />
             <span>Active Shipments Fleet Manager</span>
@@ -1677,11 +1677,10 @@ export default function DispatcherDashboard({
           <button
             id="ltl-consolidation-tab"
             onClick={() => setActiveView("consolidation")}
-            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${
-              activeView === "consolidation"
-                ? "border-sky-600 text-sky-700 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-800"
-            }`}
+            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${activeView === "consolidation"
+              ? "border-sky-600 text-sky-700 font-extrabold"
+              : "border-transparent text-slate-500 hover:text-slate-800"
+              }`}
           >
             <Compass className="h-4 w-4 text-slate-400" />
             <span>LTL Consolidation Trip Planner</span>
@@ -2097,7 +2096,7 @@ export default function DispatcherDashboard({
               </div>
 
               {/* Step 1: Configure Trip Assets & Driver */}
-              <div className="space-y-3">
+              {/* <div className="space-y-3">
                 <h4 className="text-xs font-bold font-mono text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="h-4 w-4 text-indigo-500" />
                   1. Configure Active Driver, Truck & Trailer Assets
@@ -2154,14 +2153,14 @@ export default function DispatcherDashboard({
                     />
                   </div>
                 </div>
-              </div>
+              </div> */}
 
               {/* Step 2: Bundle Unassigned Shipments */}
               <div className="space-y-3">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <h4 className="text-xs font-bold font-mono text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
                     <Layers className="h-4 w-4 text-indigo-500" />
-                    2. Select Shipments to Bundle
+                    1. Select Shipments to Bundle
                   </h4>
                   <span className="text-3xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                     Showing {filteredWarehouseLoads.length} warehouse loads
@@ -2337,8 +2336,8 @@ export default function DispatcherDashboard({
                                 <td className="px-4 py-3">
                                   <span
                                     className={`px-1.5 py-0.5 rounded text-3xs font-mono font-bold uppercase ${(s.loadType || "LTL") === "FTL"
-                                        ? "bg-indigo-100 text-indigo-800"
-                                        : "bg-amber-100 text-amber-800"
+                                      ? "bg-indigo-100 text-indigo-800"
+                                      : "bg-amber-100 text-amber-800"
                                       }`}
                                   >
                                     {s.loadType || "LTL"}
@@ -2366,7 +2365,7 @@ export default function DispatcherDashboard({
                 <div className="space-y-4 pt-2 border-t border-slate-100">
                   <h4 className="text-xs font-bold font-mono text-indigo-950 uppercase tracking-wider flex items-center gap-1.5">
                     <Gauge className="h-4 w-4 text-indigo-500" />
-                    3. Live Trailer Space Optimization & Utilization
+                    2. Live Trailer Space Optimization & Utilization
                   </h4>
 
                   {(() => {
@@ -2423,10 +2422,10 @@ export default function DispatcherDashboard({
                             <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full transition-all duration-300 ${isOverloadedWeight
-                                    ? "bg-rose-500 animate-pulse"
-                                    : weightPercent > 85
-                                      ? "bg-amber-500"
-                                      : "bg-indigo-600"
+                                  ? "bg-rose-500 animate-pulse"
+                                  : weightPercent > 85
+                                    ? "bg-amber-500"
+                                    : "bg-indigo-600"
                                   }`}
                                 style={{ width: `${weightPercent}%` }}
                               />
@@ -2459,10 +2458,10 @@ export default function DispatcherDashboard({
                             <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
                               <div
                                 className={`h-full rounded-full transition-all duration-300 ${isOverloadedPallets
-                                    ? "bg-rose-500 animate-pulse"
-                                    : palletPercent > 85
-                                      ? "bg-amber-500"
-                                      : "bg-indigo-600"
+                                  ? "bg-rose-500 animate-pulse"
+                                  : palletPercent > 85
+                                    ? "bg-amber-500"
+                                    : "bg-indigo-600"
                                   }`}
                                 style={{ width: `${palletPercent}%` }}
                               />
@@ -2496,8 +2495,8 @@ export default function DispatcherDashboard({
                             disabled={isOverloadedWeight || isOverloadedPallets}
                             onClick={handleConsolidateTrips}
                             className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg transition-all shadow-sm flex items-center space-x-1.5 ${isOverloadedWeight || isOverloadedPallets
-                                ? "bg-slate-300 cursor-not-allowed"
-                                : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                              ? "bg-slate-300 cursor-not-allowed"
+                              : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                               }`}
                           >
                             <Sparkles className="h-4 w-4" />
@@ -2599,8 +2598,8 @@ export default function DispatcherDashboard({
                         <div
                           key={trip.id}
                           className={`rounded-xl border transition-all p-3.5 space-y-3 cursor-pointer ${isExpanded
-                              ? "bg-slate-50 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
-                              : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                            ? "bg-slate-50 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
+                            : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
                             }`}
                           // onClick={() =>
                           //   setShowSelectedTripDetailsId(
@@ -2680,12 +2679,12 @@ export default function DispatcherDashboard({
                               </select> */}
                               <span
                                 className={`text-2xs font-bold px-2 py-1 rounded capitalize ${trip.status === "completed"
-                                    ? "bg-emerald-100 text-emerald-800"
-                                    : trip.status === "in_transit"
-                                      ? "bg-amber-100 text-amber-800"
-                                      : trip.status === "dispatched"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : "bg-slate-100 text-slate-800"
+                                  ? "bg-emerald-100 text-emerald-800"
+                                  : trip.status === "in_transit"
+                                    ? "bg-amber-100 text-amber-800"
+                                    : trip.status === "dispatched"
+                                      ? "bg-blue-100 text-blue-800"
+                                      : "bg-slate-100 text-slate-800"
                                   }`}
                               >
                                 {trip.status.replace("_", " ")}
@@ -2760,8 +2759,8 @@ export default function DispatcherDashboard({
                                         </span>
                                         <span
                                           className={`text-4xs font-mono uppercase px-1 py-0.2 rounded font-bold ${load.loadType === "FTL"
-                                              ? "bg-indigo-50 text-indigo-700"
-                                              : "bg-amber-50 text-amber-700"
+                                            ? "bg-indigo-50 text-indigo-700"
+                                            : "bg-amber-50 text-amber-700"
                                             }`}
                                         >
                                           {load.loadType || "LTL"}
@@ -2794,10 +2793,11 @@ export default function DispatcherDashboard({
                                       )
                                     ) {
                                       tripLoads.forEach((s) => {
+                                        console.log(s)
                                         onUpdateShipment({
                                           ...s,
                                           tripId: void 0,
-                                          status: "pending",
+                                          status: "at_warehouse",
                                         });
                                       });
                                       if (onRemoveTrip) {
@@ -3432,8 +3432,8 @@ export default function DispatcherDashboard({
                                   setTrailer(driver.trailer);
                                 }}
                                 className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between h-full cursor-pointer ${isSelected
-                                    ? "bg-indigo-600 text-white border-indigo-500 shadow-md ring-2 ring-indigo-500/20"
-                                    : "bg-white text-slate-700 hover:bg-indigo-55/30 border-slate-200 hover:border-indigo-300"
+                                  ? "bg-indigo-600 text-white border-indigo-500 shadow-md ring-2 ring-indigo-500/20"
+                                  : "bg-white text-slate-700 hover:bg-indigo-55/30 border-slate-200 hover:border-indigo-300"
                                   }`}
                               >
                                 <div className="space-y-1">
@@ -3447,8 +3447,8 @@ export default function DispatcherDashboard({
                                   </div>
                                   <span
                                     className={`text-[9px] font-mono block ${isSelected
-                                        ? "text-indigo-200"
-                                        : "text-slate-400"
+                                      ? "text-indigo-200"
+                                      : "text-slate-400"
                                       }`}
                                   >
                                     {driver.truck} / {driver.trailer}
@@ -3462,10 +3462,10 @@ export default function DispatcherDashboard({
                                       <span>Weight:</span>
                                       <span
                                         className={`font-bold ${!hasWeightCapacity
-                                            ? "text-rose-500"
-                                            : isSelected
-                                              ? "text-white"
-                                              : "text-slate-700"
+                                          ? "text-rose-500"
+                                          : isSelected
+                                            ? "text-white"
+                                            : "text-slate-700"
                                           }`}
                                       >
                                         {availableWeight.toLocaleString()} lbs
@@ -3475,10 +3475,10 @@ export default function DispatcherDashboard({
                                       <span>Space:</span>
                                       <span
                                         className={`font-bold ${!hasPalletCapacity
-                                            ? "text-rose-500"
-                                            : isSelected
-                                              ? "text-white"
-                                              : "text-slate-700"
+                                          ? "text-rose-500"
+                                          : isSelected
+                                            ? "text-white"
+                                            : "text-slate-700"
                                           }`}
                                       >
                                         {availablePallets} plts
@@ -3499,12 +3499,12 @@ export default function DispatcherDashboard({
                                     </span>
                                     <span
                                       className={`font-bold ${isNearby
-                                          ? isSelected
-                                            ? "text-white"
-                                            : "text-emerald-600"
-                                          : isSelected
-                                            ? "text-indigo-200"
-                                            : "text-slate-500"
+                                        ? isSelected
+                                          ? "text-white"
+                                          : "text-emerald-600"
+                                        : isSelected
+                                          ? "text-indigo-200"
+                                          : "text-slate-500"
                                         }`}
                                     >
                                       {isNearby
@@ -3519,8 +3519,8 @@ export default function DispatcherDashboard({
                                   {isNearby && (
                                     <span
                                       className={`text-[7px] font-bold font-mono uppercase px-1 py-0.2 rounded shrink-0 ${isSelected
-                                          ? "bg-indigo-500 text-white"
-                                          : "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                                        ? "bg-indigo-500 text-white"
+                                        : "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                         }`}
                                     >
                                       Nearby
@@ -3534,8 +3534,8 @@ export default function DispatcherDashboard({
                                   {isCapable && (
                                     <span
                                       className={`text-[7px] font-bold font-mono uppercase px-1 py-0.2 rounded shrink-0 ${isSelected
-                                          ? "bg-indigo-500 text-white"
-                                          : "bg-slate-100 text-slate-700 border border-slate-200"
+                                        ? "bg-indigo-500 text-white"
+                                        : "bg-slate-100 text-slate-700 border border-slate-200"
                                         }`}
                                     >
                                       Fits
@@ -3859,13 +3859,13 @@ export default function DispatcherDashboard({
                                 </span>
                                 <span
                                   className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase ${(s.loadType ||
-                                      (s.cargoDescription
-                                        ?.toLowerCase()
-                                        .includes("ltl")
-                                        ? "LTL"
-                                        : "FTL")) === "FTL"
-                                      ? "bg-blue-50 text-blue-700 border border-blue-200"
-                                      : "bg-amber-50 text-amber-700 border border-amber-200"
+                                    (s.cargoDescription
+                                      ?.toLowerCase()
+                                      .includes("ltl")
+                                      ? "LTL"
+                                      : "FTL")) === "FTL"
+                                    ? "bg-blue-50 text-blue-700 border border-blue-200"
+                                    : "bg-amber-50 text-amber-700 border border-amber-200"
                                     }`}
                                 >
                                   {s.loadType ||
@@ -3878,10 +3878,10 @@ export default function DispatcherDashboard({
                                 {s.priority && (
                                   <span
                                     className={`px-2 py-0.5 rounded text-[10px] font-bold uppercase border ${s.priority === "urgent"
-                                        ? "bg-rose-50 text-rose-700 border-rose-200"
-                                        : s.priority === "high"
-                                          ? "bg-amber-50 text-amber-700 border-amber-200"
-                                          : "bg-slate-100 text-slate-600 border-slate-200"
+                                      ? "bg-rose-50 text-rose-700 border-rose-200"
+                                      : s.priority === "high"
+                                        ? "bg-amber-50 text-amber-700 border-amber-200"
+                                        : "bg-slate-100 text-slate-600 border-slate-200"
                                       }`}
                                   >
                                     {s.priority}
@@ -3933,12 +3933,12 @@ export default function DispatcherDashboard({
                               ) : (
                                 <span
                                   className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold capitalize border ${s.borderConnectStatus === "accepted"
-                                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                      : s.borderConnectStatus === "at_border"
-                                        ? "bg-amber-50 text-amber-700 border-amber-200"
-                                        : s.borderConnectStatus === "submitted"
-                                          ? "bg-sky-50 text-sky-700 border-sky-200"
-                                          : "bg-slate-100 text-slate-600 border-slate-200"
+                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                    : s.borderConnectStatus === "at_border"
+                                      ? "bg-amber-50 text-amber-700 border-amber-200"
+                                      : s.borderConnectStatus === "submitted"
+                                        ? "bg-sky-50 text-sky-700 border-sky-200"
+                                        : "bg-slate-100 text-slate-600 border-slate-200"
                                     }`}
                                 >
                                   {s.borderConnectStatus || "Accepted (ACE)"}
@@ -3970,7 +3970,7 @@ export default function DispatcherDashboard({
                                   className="p-2 hover:bg-slate-100 rounded-xl border border-slate-200 text-slate-600 hover:text-emerald-700 transition-colors shadow-2xs cursor-pointer"
                                   onClick={(e) => {
                                     e.stopPropagation();
-                                    const link = `${window.location.origin}/#/track/${s.load_number || s.id}`;
+                                    const link = `${window.location.origin}/track/${s.load_number || s.id}`;
                                     navigator.clipboard.writeText(link);
                                     toast.success(`📋 Live tracking link copied for #${s.load_number || s.id}!`);
                                   }}
