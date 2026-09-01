@@ -95,17 +95,14 @@ export default function Navigation({
             >
               <Icon className={`w-4.5 h-4.5 transition-colors ${isActive ? "text-sky-600" : "text-slate-500 group-hover:text-slate-900"}`} />
 
-              {/* Clean Minimal Active Bar */}
-              {isActive && (
+              {/* {isActive && (
                 <span className="absolute -left-1 w-1 h-5 bg-sky-600 rounded-r" />
-              )}
+              )} */}
 
-              {/* Tooltip */}
               <span className="pointer-events-none absolute left-14 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 bg-slate-900 text-white text-xs font-semibold px-2.5 py-1.5 rounded-lg transition-opacity duration-150 whitespace-nowrap z-50 shadow-xl border border-slate-800">
                 {tab.label}
               </span>
 
-              {/* Badge */}
               {tab.badge > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold text-white bg-rose-500 shadow-xs">
                   {tab.badge}
