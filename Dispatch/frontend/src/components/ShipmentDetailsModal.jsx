@@ -2395,7 +2395,7 @@ export default function ShipmentDetailsModal({
                   </div>
                 </div>
               </div>
-              </div>
+            </div>
             </div>
           )}
 
