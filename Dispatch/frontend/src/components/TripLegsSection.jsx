@@ -780,48 +780,8 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                 {new Set(legs.map((l) => l.driver_id).filter(Boolean)).size} / {legs.length}
               </div>
             </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-3xs font-bold uppercase text-slate-400 flex items-center gap-1">
-                  <DollarSign className="w-3 h-3 text-emerald-500" /> Driver Est. Pay
-                </div>
-                {Object.keys(driverPaySummary).length > 0 && (
-                  <button
-                    onClick={() => setShowPayBreakdown(!showPayBreakdown)}
-                    className="text-3xs font-bold text-sky-600 hover:underline cursor-pointer flex items-center gap-0.5"
-                  >
-                    {showPayBreakdown ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-                    Breakdown
-                  </button>
-                )}
-              </div>
-              <div className="text-xl font-black text-emerald-700 mt-0.5">
-                {totalEstPay > 0 ? `$${totalEstPay.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "—"}
-              </div>
-            </div>
           </div>
 
-          {/* Driver Payroll & Settlement Breakdown Card */}
-          {showPayBreakdown && Object.keys(driverPaySummary).length > 0 && (
-            <div className="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-2">
-              <div className="text-2xs font-bold text-emerald-900 uppercase tracking-wider flex items-center gap-1.5">
-                <DollarSign className="w-3.5 h-3.5 text-emerald-600" /> Per-Driver Relay Settlement Summary
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                {Object.entries(driverPaySummary).map(([dId, summary]) => (
-                  <div key={dId} className="bg-white p-2.5 rounded-lg border border-emerald-100 flex items-center justify-between text-xs">
-                    <div>
-                      <div className="font-bold text-slate-900">{summary.name}</div>
-                      <div className="text-3xs text-slate-500">{summary.legsCount} Leg(s) • {summary.miles} mi</div>
-                    </div>
-                    <div className="text-sm font-black text-emerald-700">
-                      ${summary.estPay.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
 
           {/* Visual Route Chain Flow */}
           <div className="pt-1">
@@ -943,15 +903,6 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                         {String(leg.status || "pending").replace(/_/g, " ")}
                       </span>
 
-                      {payInfo && (
-                        <span className="px-2 py-0.5 bg-emerald-50 text-emerald-800 border border-emerald-200 text-3xs font-bold rounded-lg flex items-center gap-1">
-                          <DollarSign className="w-3 h-3 text-emerald-600" />
-                          Est. Pay: ${payInfo.est.toFixed(2)}
-                          <span className="text-emerald-600/70 font-mono">
-                            ({payInfo.type === "PER_MILE" ? `$${payInfo.rate}/mi` : payInfo.type === "FLAT" ? "Flat" : `${payInfo.rate}%`})
-                          </span>
-                        </span>
-                      )}
                     </div>
 
                     {/* Metadata line */}
@@ -1298,51 +1249,6 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
               />
             </div>
 
-            {/* Driver Pay Configuration */}
-            <div className="col-span-1 md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white p-3.5 rounded-xl border border-sky-200">
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">Driver Pay Structure</label>
-                <select
-                  value={editingLeg.pay_type || "PER_MILE"}
-                  onChange={(e) => setEditingLeg({ ...editingLeg, pay_type: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 font-semibold"
-                >
-                  <option value="PER_MILE">Rate Per Mile ($/mi)</option>
-                  <option value="FLAT">Flat Rate ($)</option>
-                  <option value="PERCENT_OF_GROSS">% of Gross Load Revenue</option>
-                </select>
-              </div>
-
-              <div>
-                <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Pay Rate ({editingLeg.pay_type === "PER_MILE" ? "$/mi" : editingLeg.pay_type === "PERCENT_OF_GROSS" ? "%" : "$"})
-                </label>
-                <input
-                  type="number"
-                  step="0.01"
-                  min="0"
-                  placeholder={editingLeg.pay_type === "PER_MILE" ? "e.g. 0.75" : editingLeg.pay_type === "FLAT" ? "e.g. 450" : "e.g. 25"}
-                  value={editingLeg.pay_rate}
-                  onChange={(e) => setEditingLeg({ ...editingLeg, pay_rate: e.target.value })}
-                  className="w-full px-3 py-2 border border-slate-200 rounded-xl text-xs bg-slate-50 font-semibold"
-                />
-              </div>
-
-              {/* Live Pay Preview */}
-              {editingLeg.pay_rate && (
-                <div className="sm:col-span-2 bg-emerald-50 border border-emerald-200 rounded-lg p-2.5 flex items-center justify-between">
-                  <div className="text-2xs font-semibold text-emerald-900">
-                    {editingLeg.pay_type === "PER_MILE" && editingLeg.miles
-                      ? `Est. Pay: $${(Number(editingLeg.pay_rate) * Number(editingLeg.miles)).toFixed(2)} (${Number(editingLeg.miles)} mi × $${editingLeg.pay_rate}/mi)`
-                      : editingLeg.pay_type === "FLAT"
-                      ? `Flat Pay: $${Number(editingLeg.pay_rate).toFixed(2)}`
-                      : editingLeg.pay_type === "PERCENT_OF_GROSS"
-                      ? `Est. Pay: $${((Number(totalCost || shipment?.estimatedRevenue || 0) * Number(editingLeg.pay_rate)) / 100).toFixed(2)} (${editingLeg.pay_rate}% of $${Number(totalCost || shipment?.estimatedRevenue || 0).toFixed(2)})`
-                      : ""}
-                  </div>
-                </div>
-              )}
-            </div>
           </div>
 
           {/* Form Actions */}
