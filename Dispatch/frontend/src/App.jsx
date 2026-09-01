@@ -356,6 +356,7 @@ import PortalDashboardPage from "./pages/PortalDashboardPage";
 import PortalRateRequestPage from "./pages/PortalRateRequestPage";
 import PortalLoadDetailPage from "./pages/PortalLoadDetailPage";
 import { usePortalStore } from "./stores/usePortalStore";
+import FreightForceAlert from "./components/FreightForceAlert";
 
 
 
@@ -558,6 +559,9 @@ function LogiSyncApp() {
 
   return (
     <div className="flex h-screen w-screen overflow-hidden bg-slate-100 text-slate-900 font-sans antialiased selection:bg-sky-100 selection:text-sky-900">
+      {/* Freight Force Alert Notification */}
+      <FreightForceAlert />
+
       {/* Sidebar Navigation */}
       <Navigation
         currentRole={currentRole}

@@ -11,6 +11,7 @@ import {
   GitBranch,
 } from "lucide-react";
 import TripLegsSection from "./TripLegsSection";
+import LoadJourneyTimeline from "./LoadJourneyTimeline";
 
 const statusStyles = {
   trip_assigned: "bg-slate-100 text-slate-700",
@@ -278,6 +279,13 @@ export default function TripDetailsModal({
                   Select a load to manage its relay legs.
                 </p>
               )}
+            </div>
+          )}
+
+          {/* LOAD JOURNEY TIMELINE */}
+          {legsLoad && (
+            <div className="mt-8">
+              <LoadJourneyTimeline loadId={legsLoad.id} />
             </div>
           )}
         </div>
