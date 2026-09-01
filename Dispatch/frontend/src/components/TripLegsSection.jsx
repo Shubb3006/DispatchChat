@@ -378,7 +378,7 @@ export default function TripLegsSection({ loadId, totalCost, totalDistance, ship
           }
           await axiosInstance.post(`/load/${loadId}/legs`, { legs: nextLegs });
         } else {
-          await axiosInstance.patch(`/legs/${editingLeg.id}`, {
+          await axiosInstance.patch(`/load/legs/${editingLeg.id}`, {
             origin_city: payloadLeg.origin_city,
             origin_state: payloadLeg.origin_state,
             destination_city: payloadLeg.destination_city,
@@ -415,7 +415,7 @@ export default function TripLegsSection({ loadId, totalCost, totalDistance, ship
 
   const quickUpdateStatus = async (legId, newStatus) => {
     try {
-      await axiosInstance.patch(`/legs/${legId}`, { status: newStatus });
+      await axiosInstance.patch(`/load/legs/${legId}`, { status: newStatus });
       toast.success(`Leg status updated to ${newStatus.replace(/_/g, " ")}`);
       await fetchLegs();
     } catch (err) {
@@ -426,7 +426,7 @@ export default function TripLegsSection({ loadId, totalCost, totalDistance, ship
   const deleteLeg = async (legId) => {
     if (!window.confirm("Delete this leg? Remaining legs will be renumbered automatically.")) return;
     try {
-      await axiosInstance.delete(`/legs/${legId}`);
+      await axiosInstance.delete(`/load/legs/${legId}`);
       toast.success("Leg deleted");
       await fetchLegs();
     } catch (err) {
