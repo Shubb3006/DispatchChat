@@ -580,7 +580,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
     try {
       await Promise.all(
         Array.from(selectedLegIds).map((id) =>
-          axiosInstance.patch(`/legs/${id}`, { driver_id: driverId || null })
+          axiosInstance.patch(`/load/legs/${id}`, { driver_id: driverId || null })
         )
       );
       toast.success(`Assigned driver to ${selectedLegIds.size} selected leg(s)`);
@@ -599,7 +599,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
     try {
       await Promise.all(
         Array.from(selectedLegIds).map((id) =>
-          axiosInstance.patch(`/legs/${id}`, { truck_id: truckId || null })
+          axiosInstance.patch(`/load/legs/${id}`, { truck_id: truckId || null })
         )
       );
       toast.success(`Assigned truck to ${selectedLegIds.size} selected leg(s)`);
@@ -618,7 +618,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
     try {
       await Promise.all(
         Array.from(selectedLegIds).map((id) =>
-          axiosInstance.patch(`/legs/${id}`, { status })
+          axiosInstance.patch(`/load/legs/${id}`, { status })
         )
       );
       toast.success(`Updated status to '${status.replace(/_/g, " ")}' on ${selectedLegIds.size} leg(s)`);
