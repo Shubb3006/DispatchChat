@@ -1812,8 +1812,8 @@ export default function ShipmentDetailsModal({
 
               {/* Original Waypoint Editor */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-              {/* Waypoint Timeline & Sequence List */}
-              <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+                {/* Waypoint Timeline & Sequence List */}
+                <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                   <div className="flex items-center space-x-2">
                     <List className="h-4.5 w-4.5 text-indigo-600" />
