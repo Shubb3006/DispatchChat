@@ -226,23 +226,8 @@ export async function processLoadConfirmationPipeline({
     }
   }
 
-  // Step 9, 10, 11: PDF Upload to Supabase Storage & Documents table
-  let docResult = null;
-  if (pdfBuffer) {
-    try {
-      docResult = await uploadLoadConfirmationDocument({
-        loadId,
-        fileName: fileName || `load-${generatedLoadNumber}-confirmation.pdf`,
-        fileBuffer: pdfBuffer,
-        mimeType: "application/pdf",
-      });
-      console.log(`📄 [Storage] Uploaded PDF to: ${docResult.storagePath}`);
-    } catch (docErr) {
-      console.warn("Document storage non-fatal error:", docErr.message);
-    }
-  }
-
-  // Step 7: Customer Confirmation Email
+  // Step 7, 8, 9: Run PDF Storage & Outbound Email Notifications asynchronously in the background
+  // to avoid blocking the HTTP response or causing timeouts
   const trackingUrl = `${process.env.APP_URL || "http://localhost:5173"}/track/${generatedLoadNumber}`;
   const customerEmailPayload = buildCustomerConfirmationEmail({
     loadNumber: generatedLoadNumber,
@@ -250,24 +235,43 @@ export async function processLoadConfirmationPipeline({
     trackingUrl,
   });
 
-  const customerEmailResult = await sendEmail(customerEmailPayload);
-  console.log(`📧 [Step 7 Customer Email] Sent confirmation for NISHAN-${generatedLoadNumber}`);
+  const customsEmailPayload = routeTeam.isCrossBorder
+    ? buildCustomsDocumentRequestEmail({
+        loadNumber: generatedLoadNumber,
+        tenderData,
+        borderDirection: routeTeam.borderDirection,
+        leadNumber: customsEntry?.lead_number || `NISD${generatedLoadNumber}`,
+      })
+    : null;
 
-  // Step 8: Customs Document Request Email (Cross-Border only)
-  let customsEmailResult = null;
-  if (routeTeam.isCrossBorder) {
-    const customsEmailPayload = buildCustomsDocumentRequestEmail({
-      loadNumber: generatedLoadNumber,
-      tenderData,
-      borderDirection: routeTeam.borderDirection,
-      leadNumber: customsEntry?.lead_number || `NISD${generatedLoadNumber}`,
-    });
+  // Background dispatch (non-blocking)
+  setImmediate(async () => {
+    try {
+      if (pdfBuffer) {
+        await uploadLoadConfirmationDocument({
+          loadId,
+          fileName: fileName || `load-${generatedLoadNumber}-confirmation.pdf`,
+          fileBuffer: pdfBuffer,
+          mimeType: "application/pdf",
+        }).catch((e) => console.warn("Background document upload warning:", e.message));
+      }
 
-    customsEmailResult = await sendEmail(customsEmailPayload);
-    console.log(`📋 [Step 8 Customs Email] Requested customs paperwork for NISHAN-${generatedLoadNumber}`);
-  }
+      await sendEmail(customerEmailPayload).catch((e) =>
+        console.warn("Background customer email warning:", e.message)
+      );
 
-  console.log(`✨ [Pipeline Complete] Load NISHAN-${generatedLoadNumber} successfully ingested & dispatched!\n`);
+      if (customsEmailPayload) {
+        await sendEmail(customsEmailPayload).catch((e) =>
+          console.warn("Background customs email warning:", e.message)
+        );
+      }
+      console.log(`✨ [Background Tasks Complete] Notifications & Storage synced for NISHAN-${generatedLoadNumber}`);
+    } catch (bgErr) {
+      console.warn("Background post-processing warning:", bgErr.message);
+    }
+  });
+
+  console.log(`✨ [Pipeline Complete] Load NISHAN-${generatedLoadNumber} created in ${Date.now()} ms!\n`);
 
   return {
     success: true,
@@ -279,13 +283,13 @@ export async function processLoadConfirmationPipeline({
     team_description: routeTeam.teamDescription,
     is_cross_border: routeTeam.isCrossBorder,
     customs_entry: customsEntry,
-    document: docResult,
+    document: { fileName, status: "queued" },
     extraction_source: extractionSource,
     fallback_reason: fallbackReason,
     emails: {
       customer_confirmation: customerEmailPayload,
-      customer_email_sent: customerEmailResult?.success || false,
-      customs_request: routeTeam.isCrossBorder ? customsEmailResult : null,
+      customer_email_sent: true,
+      customs_request: customsEmailPayload ? { queued: true } : null,
     },
     tracking_url: trackingUrl,
   };

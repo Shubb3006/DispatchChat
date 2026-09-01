@@ -1,0 +1,130 @@
+.enhanced-route-container {
+  width: 100%;
+}
+
+.route-overview {
+  animation: slideIn 0.3s ease-out;
+}
+
+.stat-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.stat-card:hover {
+  border-color: #d1d5db;
+  background: #f3f4f6;
+}
+
+.stops-timeline {
+  position: relative;
+  padding-left: 30px;
+}
+
+.stop-item {
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
+}
+
+.stop-dot {
+  position: absolute;
+  left: -30px;
+  top: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 0 2px currentColor;
+}
+
+.stop-item:not(:last-child)::before {
+  content: '';
+  position: absolute;
+  left: -22px;
+  top: 24px;
+  width: 2px;
+  height: calc(100% + 8px);
+  background: #e5e7eb;
+}
+
+.stop-details {
+  flex: 1;
+  padding: 10px 12px;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+}
+
+.alternatives-section {
+  animation: slideIn 0.4s ease-out;
+}
+
+.alternatives-section button {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.alternatives-section button:hover {
+  transform: translateX(2px);
+}
+
+.historical-section {
+  animation: slideIn 0.5s ease-out;
+}
+
+.history-card {
+  background: #f0f9ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.driver-notes-section {
+  animation: slideIn 0.6s ease-out;
+}
+
+.driver-notes-section button {
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.driver-notes-section button:hover {
+  opacity: 0.8;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card {
+    padding: 10px;
+    font-size: 0.875rem;
+  }
+
+  .stops-timeline {
+    padding-left: 20px;
+  }
+
+  .stop-dot {
+    left: -20px;
+  }
+
+  .stop-item:not(:last-child)::before {
+    left: -12px;
+  }
+}

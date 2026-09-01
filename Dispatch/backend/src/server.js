@@ -29,6 +29,8 @@ import etaRadarRoutes from "./routes/etaRadar.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
+import loadJourneyRoutes from "./routes/loadJourney.routes.js";
+import routeOptimizationRoutes from "./routes/routeOptimization.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
 import { ensurePortalSchema } from "./services/portalSchema.service.js";
 
@@ -120,6 +122,8 @@ app.use("/api/settlements", settlementRoutes);
 app.use("/api/v1/settlements", settlementRoutes);
 app.use("/api/pcmiler", pcmilerRoutes);
 app.use("/api/v1/pcmiler", pcmilerRoutes);
+app.use("/api/load-journey", loadJourneyRoutes);
+app.use("/api/route-optimization", routeOptimizationRoutes);
 
 
 
