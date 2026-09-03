@@ -837,62 +837,62 @@ export default function DispatcherDashboard({
         if (globalSearchQuery.trim() !== "") {
           const query = globalSearchQuery.toLowerCase();
           const matchesTracking = s.load_number?.toLowerCase()?.includes(query);
-          const matchesCustomer = s.customer_name
+          const matchesCustomer = s.shipper_name
             ?.toLowerCase()
             ?.includes(query);
           const matchesDriver = s.driver_name?.toLowerCase()?.includes(query);
-          const matchesCity =
-            s.shipper_city.toLowerCase().includes(query) ||
-            s.consignee_city.toLowerCase().includes(query);
-          const shipperNames = s?.waypoints
-            ?.filter((w) => w.stopType === "pickup")
-            ?.map((w) => w.companyName.toLowerCase());
-          const matchesShipperName = shipperNames?.some((name) =>
-            name.includes(query)
-          );
-          const shipperAddresses = s?.waypoints
-            ?.filter((w) => w.stopType === "pickup")
-            ?.map((w) => w.address.toLowerCase());
-          const matchesShipperAddress = shipperAddresses?.some((addr) =>
-            addr.includes(query)
-          );
-          const consigneeNames = s?.waypoints
-            ?.filter((w) => w.stopType === "delivery")
-            ?.map((w) => w.companyName.toLowerCase());
-          const matchesConsigneeName = consigneeNames?.some((name) =>
-            name.includes(query)
-          );
-          const consigneeAddresses = s?.waypoints
-            ?.filter((w) => w.stopType === "delivery")
-            ?.map((w) => w.address.toLowerCase());
-          const matchesConsigneeAddress = consigneeAddresses?.some((addr) =>
-            addr.includes(query)
-          );
-          const matchesPickupLocation = s.customer_billing_address
-            .toLowerCase()
-            .includes(query);
-          const matchesDeliveryLocation = s.consignee_country
-            .toLowerCase()
-            .includes(query);
+          // const matchesCity =
+          //   s.shipper_district.toLowerCase().includes(query) ||
+          //   s.consignee_district.toLowerCase().includes(query);
+          // const shipperNames = s?.waypoints
+          //   ?.filter((w) => w.stopType === "pickup")
+          //   ?.map((w) => w.companyName.toLowerCase());
+          // const matchesShipperName = shipperNames?.some((name) =>
+          //   name.includes(query)
+          // );
+          // const shipperAddresses = s?.waypoints
+          //   ?.filter((w) => w.stopType === "pickup")
+          //   ?.map((w) => w.address.toLowerCase());
+          // const matchesShipperAddress = shipperAddresses?.some((addr) =>
+          //   addr.includes(query)
+          // );
+          // const consigneeNames = s?.waypoints
+          //   ?.filter((w) => w.stopType === "delivery")
+          //   ?.map((w) => w.companyName.toLowerCase());
+          // const matchesConsigneeName = consigneeNames?.some((name) =>
+          //   name.includes(query)
+          // );
+          // const consigneeAddresses = s?.waypoints
+          //   ?.filter((w) => w.stopType === "delivery")
+          //   ?.map((w) => w.address.toLowerCase());
+          // const matchesConsigneeAddress = consigneeAddresses?.some((addr) =>
+          //   addr.includes(query)
+          // );
+          // const matchesPickupLocation = s.customer_billing_address
+          //   .toLowerCase()
+          //   .includes(query);
+          // const matchesDeliveryLocation = s.consignee_country
+          //   .toLowerCase()
+          //   .includes(query);
           if (searchField === "trackingNumber") return matchesTracking;
           if (searchField === "customerName") return matchesCustomer;
-          if (searchField === "shipperName") return matchesShipperName;
-          if (searchField === "shipperAddress") return matchesShipperAddress;
-          if (searchField === "consigneeName") return matchesConsigneeName;
-          if (searchField === "consigneeAddress")
-            return matchesConsigneeAddress;
-          if (searchField === "pickupLocation") return matchesPickupLocation;
-          if (searchField === "deliveryLocation")
-            return matchesDeliveryLocation;
+          // if (searchField === "shipperName") return matchesShipperName;
+          // if (searchField === "shipperAddress") return matchesShipperAddress;
+          // if (searchField === "consigneeName") return matchesConsigneeName;
+          // if (searchField === "consigneeAddress")
+          //   return matchesConsigneeAddress;
+          // if (searchField === "pickupLocation") return matchesPickupLocation;
+          // if (searchField === "deliveryLocation")
+          //   return matchesDeliveryLocation;
           return (
             matchesTracking ||
             matchesCustomer ||
-            matchesDriver ||
-            matchesCity ||
-            matchesShipperName ||
-            matchesShipperAddress ||
-            matchesConsigneeName ||
-            matchesConsigneeAddress
+            matchesDriver
+            // matchesCity ||
+            // matchesShipperName ||
+            // matchesShipperAddress ||
+            // matchesConsigneeName ||
+            // matchesConsigneeAddress
           );
         }
         return true;
