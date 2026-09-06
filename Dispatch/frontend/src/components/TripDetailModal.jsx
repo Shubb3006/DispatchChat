@@ -9,9 +9,14 @@ import {
   Boxes,
   Calendar,
   GitBranch,
+  Printer,
+  Route,
+  ShieldAlert,
 } from "lucide-react";
 import TripLegsSection from "./TripLegsSection";
 import LoadJourneyTimeline from "./LoadJourneyTimeline";
+import TripSheetPrintModal from "./pcmiler/TripSheetPrintModal";
+import { useTripStore } from "../stores/useTripStore";
 
 const statusStyles = {
   trip_assigned: "bg-slate-100 text-slate-700",
@@ -39,10 +44,22 @@ export default function TripDetailsModal({
 }) {
   // Which of the trip's loads the Relay Legs section is managing.
   const [legsLoadId, setLegsLoadId] = useState(null);
+  const [tripSheet, setTripSheet] = useState(null);
+  const [isLoadingSheet, setIsLoadingSheet] = useState(false);
+  const fetchTripSheet = useTripStore((s) => s.fetchTripSheet);
 
   useEffect(() => {
     setLegsLoadId(trip?.shipments?.[0]?.id || null);
   }, [trip?.id]);
+
+  // Pulls the route stored when the trip was consolidated. `refresh` re-routes,
+  // for when the stops changed or the original routing failed.
+  const openTripSheet = async (refresh = false) => {
+    setIsLoadingSheet(true);
+    const data = await fetchTripSheet(trip.id, { refresh });
+    setIsLoadingSheet(false);
+    if (data) setTripSheet(data);
+  };
 
   if (!isOpen || !trip) return null;
 
@@ -70,14 +87,48 @@ export default function TripDetailsModal({
             </div>
 
             <p className="text-slate-500 mt-1">Consolidated Load Manifest</p>
+
+            {/* Routed mileage captured when this trip was consolidated */}
+            {trip.total_miles ? (
+              <div className="mt-2 flex flex-wrap items-center gap-2 text-xs font-mono">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold">
+                  <Route size={13} />
+                  {Number(trip.total_miles).toFixed(1)} mi
+                  {trip.drive_hours ? ` • ~${Number(trip.drive_hours).toFixed(1)}h` : ""}
+                </span>
+                {trip.is_truck_profile === false && (
+                  <span className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-50 text-amber-800 border border-amber-200 font-bold">
+                    <ShieldAlert size={12} /> Car profile — not truck-legal
+                  </span>
+                )}
+              </div>
+            ) : trip.route_error ? (
+              <div className="mt-2 flex items-start gap-1.5 px-2.5 py-1.5 rounded-lg bg-amber-50 border border-amber-200 max-w-xl">
+                <ShieldAlert size={13} className="mt-0.5 shrink-0 text-amber-600" />
+                <span className="text-[11px] font-semibold text-amber-900">
+                  Not routed: {trip.route_error}
+                </span>
+              </div>
+            ) : null}
           </div>
 
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-slate-100"
-          >
-            <X size={22} />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => openTripSheet(false)}
+              disabled={isLoadingSheet}
+              className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold font-mono flex items-center gap-1.5 cursor-pointer transition disabled:opacity-50"
+            >
+              <Printer size={15} className="text-sky-400" />
+              <span>{isLoadingSheet ? "Loading..." : "Print Trip Sheet"}</span>
+            </button>
+
+            <button
+              onClick={onClose}
+              className="p-2 rounded-lg hover:bg-slate-100"
+            >
+              <X size={22} />
+            </button>
+          </div>
         </div>
 
         {/* BODY */}
@@ -313,6 +364,51 @@ export default function TripDetailsModal({
           </button>
         </div>
       </div>
+
+      {/* Printable trip sheet, rendered from the route stored on the trip */}
+      {tripSheet && tripSheet.route && (
+        <TripSheetPrintModal
+          isOpen={true}
+          onClose={() => setTripSheet(null)}
+          route={tripSheet.route}
+          tripLabel={tripSheet.trip?.tripLabel || `TRIP-${trip.trip_number}`}
+          loads={tripSheet.loads || []}
+        />
+      )}
+
+      {/* No stored route: say why and offer to route it, rather than printing
+          a sheet with blank mileage. */}
+      {tripSheet && !tripSheet.route && (
+        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center items-center p-6">
+          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <ShieldAlert className="text-amber-600 shrink-0 mt-0.5" size={22} />
+              <div>
+                <h3 className="font-bold text-slate-900">Trip has no route</h3>
+                <p className="text-sm text-slate-600 mt-1">
+                  {tripSheet.routeError ||
+                    "This trip was never routed, so there is no mileage to print."}
+                </p>
+              </div>
+            </div>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setTripSheet(null)}
+                className="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => openTripSheet(true)}
+                disabled={isLoadingSheet}
+                className="px-4 py-2 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-sm font-bold disabled:opacity-50"
+              >
+                {isLoadingSheet ? "Routing..." : "Route now"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

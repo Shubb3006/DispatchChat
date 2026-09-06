@@ -51,7 +51,7 @@ export default function ActiveLoadCard({
   return (
     <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Card Header */}
-      <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-3xs font-bold font-mono bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full uppercase">

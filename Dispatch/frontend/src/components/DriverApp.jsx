@@ -1547,7 +1547,7 @@
 //           </div>
 //         </div>
 
-//         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-150">
+//         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
 //           {/* Left: Chat Thread and Input Area */}
 //           <div className="flex-1 flex flex-col h-[350px] bg-slate-50/50">
 //             {/* Message scroll viewport */}
@@ -1675,7 +1675,7 @@
 //             {/* Message Composer Area */}
 //             <form
 //               onSubmit={handleSendDriverMessage}
-//               className="p-3 bg-white border-t border-slate-150 flex items-center space-x-2"
+//               className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2"
 //             >
 //               <input
 //                 type="file"
@@ -2664,7 +2664,7 @@
 //           {/* Shipment stops & action controls */}
 //           {myShipment ? (
 //             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-//               <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+//               <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
 //                 <div>
 //                   <div className="flex flex-wrap items-center gap-2">
 //                     <span className="text-3xs font-bold font-mono bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full uppercase">

@@ -235,7 +235,7 @@ export default function InvoicingDashboard({
         <div className="lg:col-span-8 space-y-6">
           {/* LTL Document Verification & Processing Queue */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
-            <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-2">
                 <Scale className="h-5 w-5 text-amber-600 animate-pulse" />
                 <h3 className="text-sm font-semibold text-slate-900">
@@ -416,7 +416,7 @@ export default function InvoicingDashboard({
                             </div>
 
                             {doc.extractedData && (
-                              <div className="mt-2.5 bg-white border border-slate-150 p-2 rounded-lg space-y-1 text-3xs text-slate-600 shadow-3xs">
+                              <div className="mt-2.5 bg-white border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600 shadow-3xs">
                                 <div>
                                   Shipper:{" "}
                                   <span className="font-bold text-slate-800">
@@ -595,7 +595,7 @@ export default function InvoicingDashboard({
                             </div>
 
                             {doc.extractedData && (
-                              <div className="mt-2.5 bg-slate-50 border border-slate-150 p-2 rounded-lg space-y-1 text-3xs text-slate-600">
+                              <div className="mt-2.5 bg-slate-50 border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600">
                                 <div>
                                   Shipper:{" "}
                                   <span className="font-bold text-slate-800">
@@ -684,7 +684,7 @@ export default function InvoicingDashboard({
 
           {/* Invoices List */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex items-center space-x-2">
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center space-x-2">
               <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
               <h3 className="text-sm font-semibold text-slate-900">
                 Invoices & Accounts Receivable registry

@@ -4,27 +4,30 @@ import {
   X,
   Compass,
   MapPin,
-  Truck,
-  DollarSign,
-  Fuel,
   ShieldCheck,
-  CheckCircle2,
+  ShieldAlert,
   AlertTriangle,
-  Clock,
-  ArrowRight,
-  TrendingDown,
-  Layers,
-  Sparkles,
+  Info,
+  Route,
 } from "lucide-react";
-import toast from "react-hot-toast";
+
+const num = (value, digits = 1) =>
+  value === null || value === undefined || Number.isNaN(Number(value))
+    ? "—"
+    : Number(value).toFixed(digits);
+
+const money = (value) =>
+  value === null || value === undefined || Number.isNaN(Number(value))
+    ? "—"
+    : `$${Number(value).toFixed(2)}`;
 
 export default function PcMilerRouteModal({
   isOpen,
   onClose,
-  initialOrigin = "Toronto, ON",
-  initialDestination = "Chicago, IL",
+  initialOrigin = "",
+  initialDestination = "",
 }) {
-  const { currentRoute, calculateRoute, isLoading } = usePcMilerStore();
+  const { currentRoute, error, calculateRoute, isLoading } = usePcMilerStore();
 
   const [origin, setOrigin] = useState(initialOrigin);
   const [destination, setDestination] = useState(initialDestination);
@@ -33,15 +36,18 @@ export default function PcMilerRouteModal({
   if (!isOpen) return null;
 
   const handleCalculate = (selectedProfile = profile) => {
+    if (!origin.trim() || !destination.trim()) return;
     calculateRoute({
       origin,
       destination,
       routingProfile: selectedProfile,
     });
-    toast.success(`Calculated PC*MILER ${selectedProfile} Route!`);
   };
 
   const route = currentRoute;
+  const fuel = route?.fuel || {};
+  const restrictions = route?.restrictions || {};
+  const routedAgainst = restrictions.routedAgainst || {};
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
@@ -58,14 +64,22 @@ export default function PcMilerRouteModal({
             <div>
               <div className="flex items-center gap-2">
                 <h2 className="text-sm font-extrabold text-slate-900">
-                  PC*MILER Commercial Routing & Toll Calculator
+                  Commercial Routing &amp; Border Toll Calculator
                 </h2>
-                <span className="px-2 py-0.5 rounded-full text-[9px] font-black font-mono bg-sky-50 text-sky-700 border border-sky-200">
-                  53' TRACTOR PROFILE
-                </span>
+                {route && (
+                  <span
+                    className={`px-2 py-0.5 rounded-full text-[9px] font-black font-mono border ${
+                      route.isTruckProfile
+                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                        : "bg-amber-50 text-amber-800 border-amber-300"
+                    }`}
+                  >
+                    {route.provider}
+                  </span>
+                )}
               </div>
               <p className="text-[10px] text-slate-500 font-mono">
-                Trimble MAPS standard commercial truck routing, practical legal miles, and 5-axle highway toll matrix.
+                Live routed miles, drive time and fuel burn. Highway tolls are not priced by the routing provider.
               </p>
             </div>
           </div>
@@ -91,6 +105,7 @@ export default function PcMilerRouteModal({
                   type="text"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
+                  placeholder="e.g. Toronto, ON"
                   className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-xs"
                 />
               </div>
@@ -104,6 +119,7 @@ export default function PcMilerRouteModal({
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
+                  placeholder="e.g. Chicago, IL"
                   className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-xs"
                 />
               </div>
@@ -113,9 +129,9 @@ export default function PcMilerRouteModal({
           {/* 3 Routing Profile Selector */}
           <div className="grid grid-cols-3 gap-3">
             {[
-              { id: "PRACTICAL", label: "Practical Route", desc: "Designated truck highways (Recommended)" },
-              { id: "SHORTEST", label: "Shortest Route", desc: "Absolute legal minimum distance" },
-              { id: "TOLL_DISCOURAGED", label: "Toll-Free Route", desc: "Avoids 407 ETR / Tollways" },
+              { id: "PRACTICAL", label: "Practical Route", desc: "Provider's recommended lane" },
+              { id: "SHORTEST", label: "Shortest Route", desc: "Minimum routed distance" },
+              { id: "TOLL_DISCOURAGED", label: "Tollways Avoided", desc: "Requires a truck routing key" },
             ].map((p) => (
               <button
                 type="button"
@@ -136,134 +152,188 @@ export default function PcMilerRouteModal({
             ))}
           </div>
 
-          {/* Primary Route Output Metrics Strip */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-xs font-mono">
-              <div className="text-[10px] text-slate-400 font-bold uppercase">Official PC*MILER Miles</div>
-              <div className="text-2xl font-black text-sky-400 mt-0.5">{route.officialMiles} mi</div>
-              <div className="text-[10px] text-slate-400 mt-0.5">Est. {route.driveHours}h Driving</div>
-            </div>
-
-            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-              <div className="text-[10px] text-slate-500 font-bold uppercase">5-Axle Tolls Total</div>
-              <div className="text-2xl font-black text-slate-900 mt-0.5">
-                ${Number(route.totalTolls).toFixed(2)}
+          {/* Error State */}
+          {error && (
+            <div className="bg-rose-50 border border-rose-200 rounded-2xl p-4 space-y-1.5">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4 h-4 text-rose-600 shrink-0" />
+                <span className="text-xs font-black text-rose-950 uppercase">Route could not be calculated</span>
+                <span className="px-2 py-0.5 rounded-full text-[9px] font-black font-mono bg-rose-100 text-rose-800 border border-rose-300">
+                  {error.code}
+                </span>
               </div>
-              <div className="text-[10px] text-slate-400 mt-0.5">
-                {route.tollPlazas?.length || 0} Plazas on route
+              <p className="text-[11px] text-rose-900 font-medium">{error.message}</p>
+              {error.code === "GEOCODE_FAILED" && error.address && (
+                <p className="text-[11px] text-rose-900 font-mono">
+                  Fix this stop: <strong>&ldquo;{error.address}&rdquo;</strong>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* Empty State */}
+          {!route && !error && (
+            <div className="border border-dashed border-slate-300 rounded-2xl p-8 flex flex-col items-center text-center gap-2">
+              <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
+                <Route className="w-5 h-5" />
               </div>
+              <div className="text-xs font-black text-slate-900 uppercase">No route calculated yet</div>
+              <p className="text-[11px] text-slate-500 max-w-sm">
+                Enter an origin and destination, then pick a routing profile. Mileage, fuel and tolls appear only once
+                the routing provider returns a route.
+              </p>
             </div>
+          )}
 
-            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-              <div className="text-[10px] text-slate-500 font-bold uppercase">Est. Fuel Consumption</div>
-              <div className="text-2xl font-black text-slate-900 mt-0.5">{route.estimatedGallons} gal</div>
-              <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
-                ${Number(route.estimatedFuelCost).toFixed(2)} (@ $3.85/gal)
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-              <div className="text-[10px] text-slate-500 font-bold uppercase">Border Port Clearance</div>
-              <div className="text-xs font-black text-purple-700 mt-1 truncate">
-                {route.borderCrossing}
-              </div>
-              <div className="text-[10px] text-purple-600 font-bold mt-0.5">
-                ~{route.borderWaitMins} mins wait time
-              </div>
-            </div>
-          </div>
-
-          {/* Itemized Commercial Toll Plazas */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-slate-900 uppercase text-[11px]">
-                5-Axle Commercial Highway Toll Plazas
-              </span>
-              <span className="font-mono text-[10px] text-slate-500">
-                E-ZPass / I-Pass / Bridge Rates
-              </span>
-            </div>
-
-            <div className="border border-slate-200 rounded-2xl overflow-hidden">
-              <table className="w-full text-left text-xs border-collapse">
-                <thead>
-                  <tr className="bg-slate-100 text-slate-700 font-mono font-bold text-[10px] uppercase border-b border-slate-200">
-                    <th className="py-2.5 px-3">Toll Plaza Facility</th>
-                    <th className="py-2.5 px-3">State/Prov</th>
-                    <th className="py-2.5 px-3 text-right">Class 5 Commercial Fee</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
-                  {route.tollPlazas?.length === 0 ? (
-                    <tr>
-                      <td colSpan={3} className="py-3 px-3 text-center text-slate-400 font-mono">
-                        No toll plazas on this toll-discouraged route ($0.00 Total Tolls).
-                      </td>
-                    </tr>
-                  ) : (
-                    route.tollPlazas.map((tp, idx) => (
-                      <tr key={idx} className="hover:bg-slate-50 font-mono">
-                        <td className="py-2 px-3 font-semibold text-slate-900">{tp.name}</td>
-                        <td className="py-2 px-3 text-slate-500">{tp.state}</td>
-                        <td className="py-2 px-3 text-right font-bold text-slate-900">
-                          ${tp.cost.toFixed(2)} USD
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-
-          {/* IFTA State/Province Jurisdictional Mileage Breakdown */}
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <span className="font-mono font-bold text-slate-900 uppercase text-[11px]">
-                IFTA Jurisdictional Mileage Breakdown
-              </span>
-              <span className="font-mono text-[10px] text-slate-500">
-                Quarterly Fuel Tax Audit Standard
-              </span>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-              {route.jurisdictions?.map((j) => (
-                <div key={j.code} className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-xs font-mono">
-                  <div className="flex items-center justify-between text-slate-700 font-bold">
-                    <span>{j.name} ({j.code})</span>
-                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-slate-200 text-slate-700">
-                      {j.isCanadian ? "CAN" : "USA"}
+          {route && (
+            <>
+              {/* Provider caution */}
+              {(!route.isTruckProfile || route.warnings?.length > 0) && (
+                <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 space-y-2">
+                  <div className="flex items-center gap-2 text-[11px] font-black uppercase font-mono text-amber-950">
+                    <ShieldAlert className="w-4 h-4 text-amber-600 shrink-0" />
+                    <span>
+                      {route.isTruckProfile
+                        ? "Routing advisories"
+                        : "Car profile — truck restrictions not applied"}
                     </span>
                   </div>
-                  <div className="text-base font-black text-slate-900 mt-1">{j.miles} mi</div>
-                  <div className="text-[10px] text-slate-500 flex justify-between mt-0.5">
-                    <span>~{j.fuelGallons} gal</span>
-                    <span>Tax: ${j.taxRate}/{j.isCanadian ? "L" : "gal"}</span>
+                  {route.warnings?.map((warning, idx) => (
+                    <div
+                      key={idx}
+                      className="bg-white/70 border border-amber-200 rounded-xl px-2.5 py-1.5 text-[11px] font-mono text-amber-900 flex items-start gap-2"
+                    >
+                      <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                      <span>{warning}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Primary Route Output Metrics Strip */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div className="bg-slate-900 text-white p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-slate-400 font-bold uppercase">Routed Miles</div>
+                  <div className="text-2xl font-black text-sky-400 mt-0.5">{num(route.officialMiles)} mi</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{num(route.driveHours, 2)}h Driving</div>
+                </div>
+
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase">Tolls (Partial)</div>
+                  <div className="text-2xl font-black text-slate-900 mt-0.5">{money(route.totalTolls)}</div>
+                  <div className="text-[10px] text-amber-700 font-bold mt-0.5">
+                    {route.tollsAreComplete ? "Complete" : "Excludes highway tolls"}
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
 
-          {/* Restrictions & Clearances */}
-          <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-3.5 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-5 h-5 text-emerald-600" />
-              <div>
-                <div className="font-bold text-xs text-emerald-950">
-                  PC*MILER Commercial Clearances Verified
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase">Est. Fuel Consumption</div>
+                  <div className="text-2xl font-black text-slate-900 mt-0.5">{num(fuel.gallons)} gal</div>
+                  <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
+                    {money(fuel.cost)} @ {money(fuel.dieselPricePerGal)}/gal
+                  </div>
                 </div>
-                <div className="text-[10px] text-emerald-700 font-medium">
-                  Route complies with 13'6" standard clearance (Minimum clearance on route: {route.restrictions?.bridgeClearanceMin}) &amp; 80,000 lbs GVW limit.
+
+                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-slate-500 font-bold uppercase">Border Port Clearance</div>
+                  <div className="text-xs font-black text-purple-700 mt-1 truncate">
+                    {route.borderCrossing || "None on this lane"}
+                  </div>
+                  <div className="text-[10px] text-slate-400 font-bold mt-0.5">
+                    {route.isCrossBorder ? "Cross-border lane" : "Domestic lane"}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            <span className="px-2.5 py-1 rounded-full text-[10px] font-black font-mono bg-emerald-100 text-emerald-800 border border-emerald-300 shrink-0">
-              LEGAL 53' ROUTE
-            </span>
-          </div>
+              {/* Priced Toll Facilities */}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono font-bold text-slate-900 uppercase text-[11px]">
+                    Priced Toll Facilities
+                  </span>
+                  <span className="font-mono text-[10px] text-slate-500">{route.tollNote}</span>
+                </div>
+
+                <div className="border border-slate-200 rounded-2xl overflow-hidden">
+                  <table className="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-slate-100 text-slate-700 font-mono font-bold text-[10px] uppercase border-b border-slate-200">
+                        <th className="py-2.5 px-3">Facility</th>
+                        <th className="py-2.5 px-3">State/Prov</th>
+                        <th className="py-2.5 px-3">Axle Category</th>
+                        <th className="py-2.5 px-3 text-right">Published Fee</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
+                      {!route.tollPlazas || route.tollPlazas.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} className="py-3 px-3 text-center text-slate-400 font-mono">
+                            No priced facility on this route.
+                          </td>
+                        </tr>
+                      ) : (
+                        route.tollPlazas.map((tp, idx) => (
+                          <tr key={idx} className="hover:bg-slate-50 font-mono">
+                            <td className="py-2 px-3 font-semibold text-slate-900">{tp.name}</td>
+                            <td className="py-2 px-3 text-slate-500">{tp.state}</td>
+                            <td className="py-2 px-3 text-slate-500">{tp.axleCategory}</td>
+                            <td className="py-2 px-3 text-right font-bold text-slate-900">{money(tp.cost)}</td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Vehicle profile the route was computed against */}
+              <div
+                className={`rounded-2xl p-3.5 flex items-center justify-between gap-3 border ${
+                  restrictions.enforcedByProvider
+                    ? "bg-emerald-50 border-emerald-200"
+                    : "bg-amber-50 border-amber-300"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  {restrictions.enforcedByProvider ? (
+                    <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0" />
+                  ) : (
+                    <ShieldAlert className="w-5 h-5 text-amber-600 shrink-0" />
+                  )}
+                  <div>
+                    <div
+                      className={`font-bold text-xs ${
+                        restrictions.enforcedByProvider ? "text-emerald-950" : "text-amber-950"
+                      }`}
+                    >
+                      {restrictions.enforcedByProvider
+                        ? "Vehicle restrictions enforced by the router"
+                        : "Vehicle restrictions were NOT applied to this route"}
+                    </div>
+                    <div
+                      className={`text-[10px] font-medium font-mono ${
+                        restrictions.enforcedByProvider ? "text-emerald-700" : "text-amber-800"
+                      }`}
+                    >
+                      Routed against: {routedAgainst.height ?? "—"} m H • {routedAgainst.width ?? "—"} m W •{" "}
+                      {routedAgainst.length ?? "—"} m L • {routedAgainst.weight ?? "—"} t •{" "}
+                      {routedAgainst.axleload ?? "—"} t/axle
+                    </div>
+                  </div>
+                </div>
+
+                <span
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-black font-mono border shrink-0 ${
+                    restrictions.isWeightCompliant
+                      ? "bg-white text-slate-700 border-slate-300"
+                      : "bg-rose-100 text-rose-800 border-rose-300"
+                  }`}
+                >
+                  {restrictions.isWeightCompliant ? "WITHIN DECLARED LIMIT" : "OVER DECLARED LIMIT"}
+                </span>
+              </div>
+            </>
+          )}
 
           {/* Actions */}
           <div className="flex justify-end gap-2 pt-2 border-t border-slate-100">
@@ -277,11 +347,11 @@ export default function PcMilerRouteModal({
             <button
               type="button"
               onClick={() => handleCalculate()}
-              disabled={isLoading}
-              className="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer transition shadow-xs"
+              disabled={isLoading || !origin.trim() || !destination.trim()}
+              className="px-5 py-2 bg-sky-600 hover:bg-sky-700 text-white rounded-xl font-bold flex items-center gap-1.5 cursor-pointer transition shadow-xs disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Compass className="w-4 h-4" />
-              <span>Recalculate Route</span>
+              <span>{isLoading ? "Routing..." : "Calculate Route"}</span>
             </button>
           </div>
         </div>

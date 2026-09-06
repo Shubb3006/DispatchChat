@@ -1,5 +1,31 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
+// "@" points at the frontend root (vite.config.ts), not src/, so the packing
+// engine is reached relatively like the other src/ modules.
+import {
+  planTrailer,
+  skidSpecFor,
+  implausibleDimensions,
+  DEFAULT_TRAILER,
+  MIN_PLAUSIBLE_IN,
+} from "../lib/trailerPacking";
+import {
+  FREIGHT_SIZES,
+  FREIGHT_TYPES,
+  TRAILER_TYPES,
+  COMMITMENTS,
+  readFreightSize,
+  readFreightType,
+  readTrailerType,
+  readCommitment,
+} from "../lib/freightClassification";
+import {
+  STATUS_STAGES,
+  normalizeStatus,
+  statusTone,
+  stageForStatus,
+  statusLabel,
+} from "../lib/loadStatuses";
 import {
   X,
   FileText,
@@ -57,6 +83,398 @@ const formatCleanCityState = (...parts) => {
   return tokens.join(", ") || "N/A";
 };
 
+/* One document tile.
+
+   Replaces three separately hand-styled cards that each looked different and
+   shared a layout bug: `truncate` and `flex` on the same element fight, so the
+   filename and the status pill competed for width and the pill was clipped
+   mid-word ("CLICK T"). Filename truncates in its own block; the pill sits on
+   its own line where it always has room. */
+const DocumentCard = ({ name, size, status, accent = "slate", onOpen }) => {
+  const accents = {
+    slate: { chip: "bg-slate-600", ring: "hover:border-slate-400", text: "text-slate-600" },
+    emerald: { chip: "bg-emerald-600", ring: "hover:border-emerald-400", text: "text-emerald-700" },
+    cyan: { chip: "bg-cyan-600", ring: "hover:border-cyan-400", text: "text-cyan-700" },
+  };
+  const a = accents[accent] || accents.slate;
+
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      title={`Open ${name}`}
+      className={`group w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 flex items-start gap-3 transition-all cursor-pointer hover:shadow-md ${a.ring}`}
+    >
+      <span className={`shrink-0 p-2 rounded-lg text-white ${a.chip}`}>
+        <FileText className="h-4 w-4" />
+      </span>
+
+      <span className="min-w-0 flex-1">
+        <span className="block text-xs font-bold text-slate-900 truncate">
+          {name}
+        </span>
+        <span className="block text-[11px] text-slate-500 mt-0.5 truncate">
+          {size} · {status}
+        </span>
+      </span>
+
+      <Eye className="h-4 w-4 shrink-0 text-slate-300 group-hover:text-indigo-600 transition-colors mt-0.5" />
+    </button>
+  );
+};
+
+/* The five attributes a dispatcher classifies a load by.
+
+   These shared a single `house_status` dropdown backed by one flat list that
+   mixed operational statuses with FTL/PRE-LTL and APPOINTMNT, so choosing a
+   status silently erased the freight size. Each is its own field now and they
+   are set independently. */
+const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
+  const [savingField, setSavingField] = useState(null);
+
+  const freightSize = readFreightSize(shipment);
+  const freightType = readFreightType(shipment);
+  const trailerType = readTrailerType(shipment);
+  const commitment = readCommitment(shipment);
+  const currentStage = stageForStatus(shipment.status);
+
+  const apply = async (patch, field) => {
+    if (!onUpdateShipment) return;
+    setSavingField(field);
+    try {
+      await onUpdateShipment({ ...shipment, ...patch });
+    } finally {
+      setSavingField(null);
+    }
+  };
+
+  const selectClass =
+    "w-full rounded-xl px-3 py-2 text-xs font-mono font-bold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all shadow-2xs disabled:opacity-50";
+
+  const fields = [
+    {
+      key: "freight_size",
+      label: "Freight Size",
+      value: freightSize,
+      options: FREIGHT_SIZES,
+      tone: "bg-white text-slate-900 border-slate-300",
+      onChange: (v) => apply({ freight_size: v, freightSize: v }, "freight_size"),
+    },
+    {
+      key: "freight_type",
+      label: "Freight Type",
+      value: freightType,
+      options: FREIGHT_TYPES,
+      tone:
+        freightType === "REEFER"
+          ? "bg-sky-50 text-sky-800 border-sky-300"
+          : freightType === "HEATER"
+            ? "bg-orange-50 text-orange-800 border-orange-300"
+            : "bg-white text-slate-900 border-slate-300",
+      onChange: (v) => apply({ freight_type: v, freightType: v }, "freight_type"),
+    },
+    {
+      key: "trailer_type",
+      label: "Trailer Type",
+      value: trailerType,
+      options: TRAILER_TYPES,
+      placeholder: "Not set",
+      tone: trailerType
+        ? "bg-white text-slate-900 border-slate-300"
+        : "bg-amber-50 text-amber-800 border-amber-300",
+      onChange: (v) => apply({ trailer_type: v, trailerType: v }, "trailer_type"),
+    },
+    {
+      key: "commitment",
+      label: "Commitment",
+      value: commitment,
+      options: COMMITMENTS,
+      tone: commitment.startsWith("guaranteed")
+        ? "bg-indigo-50 text-indigo-800 border-indigo-300"
+        : commitment === "appointment"
+          ? "bg-violet-50 text-violet-800 border-violet-300"
+          : "bg-white text-slate-900 border-slate-300",
+      onChange: (v) =>
+        apply({ commitment: v, deliveryCommitment: v }, "commitment"),
+    },
+  ];
+
+  return (
+    <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+      <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500">
+        Freight Classification
+      </label>
+
+      {/* Status leads — it changes most, and it is the same `loads.status` the
+          Kanban board and Operations Board read, so setting it here moves the
+          card on the board. Grouped by Kanban column so the destination is
+          visible at the point of choosing. */}
+      <div>
+        <div className="flex items-baseline justify-between gap-2 mb-1">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
+            Status
+          </span>
+          {currentStage && (
+            <span className="text-[10px] font-semibold text-slate-400 truncate">
+              Kanban: {currentStage.shortTitle}
+            </span>
+          )}
+        </div>
+        <select
+          value={normalizeStatus(shipment.status)}
+          disabled={savingField === "status"}
+          onChange={(e) => {
+            const v = e.target.value;
+            apply({ status: v }, "status");
+          }}
+          className={`${selectClass} ${statusTone(shipment.status)}`}
+        >
+          {STATUS_STAGES.map((stage) => (
+            <optgroup key={stage.id} label={stage.title}>
+              {stage.statuses.map((opt) => (
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  className="bg-white text-slate-900"
+                >
+                  {opt.label}
+                </option>
+              ))}
+            </optgroup>
+          ))}
+        </select>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
+        {fields.map((f) => (
+          <div key={f.key}>
+            <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+              {f.label}
+            </span>
+            <select
+              value={f.value}
+              disabled={savingField === f.key}
+              onChange={(e) => f.onChange(e.target.value)}
+              className={`${selectClass} ${f.tone}`}
+            >
+              {f.placeholder && (
+                <option value="" className="bg-white text-slate-500">
+                  {f.placeholder}
+                </option>
+              )}
+              {f.options.map((opt) => (
+                <option
+                  key={opt.value}
+                  value={opt.value}
+                  className="bg-white text-slate-900 font-mono"
+                >
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        ))}
+      </div>
+
+    </div>
+  );
+};
+
+/* Skid footprint for one load, shown where the trip planner already looks.
+
+   Beyond the raw L×W×H it reports the linear feet of trailer this load
+   actually consumes, which is the number that decides what else fits on the
+   truck — `pieces` alone doesn't, because 14 skids of 48×48 and 14 of 36×36
+   eat very different amounts of floor. */
+const SkidDimensionsCell = ({ shipment, onUpdateShipment }) => {
+  const [editing, setEditing] = useState(false);
+  const [draft, setDraft] = useState({});
+  const [saving, setSaving] = useState(false);
+
+  const spec = skidSpecFor(shipment);
+  const merged = { ...shipment, ...draft };
+
+  // Plan this load on its own to get the floor space it needs.
+  const solo = planTrailer([merged], DEFAULT_TRAILER);
+  const soloLoad = solo.perLoad[0];
+  const badDims = implausibleDimensions(merged);
+
+  const valueOf = (field) =>
+    draft[field] !== undefined
+      ? draft[field]
+      : shipment[field] === null || shipment[field] === undefined
+        ? ""
+        : shipment[field];
+
+  const numOrNull = (v) => {
+    if (v === "" || v === null || v === undefined) return null;
+    const n = Number(v);
+    return Number.isFinite(n) && n > 0 ? n : null;
+  };
+
+  const save = async () => {
+    if (!onUpdateShipment || badDims.length) return;
+    setSaving(true);
+    try {
+      await onUpdateShipment({
+        ...shipment,
+        skid_length_in: numOrNull(valueOf("skid_length_in")),
+        skid_width_in: numOrNull(valueOf("skid_width_in")),
+        skid_height_in: numOrNull(valueOf("skid_height_in")),
+        is_stackable: Boolean(merged.is_stackable),
+        no_rotate: Boolean(merged.no_rotate),
+      });
+      setEditing(false);
+      setDraft({});
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const inputClass =
+    "w-full bg-white border border-slate-300 rounded-md px-1.5 py-1 text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500";
+
+  return (
+    <div>
+      <div className="flex items-center gap-1.5 mb-0.5">
+        <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider">
+          Skid Dimensions
+        </span>
+        {spec.supplied ? (
+          <span className="text-[9px] font-bold px-1.5 py-px rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+            MEASURED
+          </span>
+        ) : (
+          <span className="text-[9px] font-bold px-1.5 py-px rounded bg-amber-50 text-amber-700 border border-amber-200">
+            ASSUMED
+          </span>
+        )}
+      </div>
+
+      {editing ? (
+        <div className="space-y-1.5">
+          <div className="grid grid-cols-3 gap-1.5">
+            {[
+              { field: "skid_length_in", label: "L" },
+              { field: "skid_width_in", label: "W" },
+              { field: "skid_height_in", label: "H" },
+            ].map(({ field, label }) => {
+              const raw = Number(valueOf(field));
+              const tooSmall =
+                Number.isFinite(raw) && raw > 0 && raw < MIN_PLAUSIBLE_IN;
+              return (
+                <label key={field}>
+                  <span className="block text-[9px] font-semibold text-slate-400 mb-0.5">
+                    {label} (in)
+                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    value={valueOf(field)}
+                    placeholder="—"
+                    onChange={(e) =>
+                      setDraft((d) => ({ ...d, [field]: e.target.value }))
+                    }
+                    className={`${inputClass} ${
+                      tooSmall ? "border-rose-400 ring-1 ring-rose-300" : ""
+                    }`}
+                  />
+                </label>
+              );
+            })}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 text-[10px] font-semibold text-slate-600">
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={Boolean(merged.is_stackable)}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, is_stackable: e.target.checked }))
+                }
+                className="h-3 w-3 cursor-pointer"
+              />
+              Stackable
+            </label>
+            <label className="flex items-center gap-1 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={Boolean(merged.no_rotate)}
+                onChange={(e) =>
+                  setDraft((d) => ({ ...d, no_rotate: e.target.checked }))
+                }
+                className="h-3 w-3 cursor-pointer"
+              />
+              Do not rotate
+            </label>
+          </div>
+
+          {badDims.length > 0 && (
+            <p className="text-[10px] font-semibold text-rose-600">
+              {badDims.join(", ")} is too small to be a real skid.
+            </p>
+          )}
+
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={save}
+              disabled={saving || badDims.length > 0}
+              className="px-2.5 py-1 rounded-md bg-indigo-600 hover:bg-indigo-700 text-white text-[10px] font-bold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {saving ? "Saving..." : "Save"}
+            </button>
+            <button
+              onClick={() => {
+                setDraft({});
+                setEditing(false);
+              }}
+              className="px-2.5 py-1 rounded-md border border-slate-300 text-slate-600 text-[10px] font-bold cursor-pointer hover:bg-white"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="space-y-0.5">
+          <p className="font-semibold text-slate-900 font-mono">
+            {spec.lengthIn}" × {spec.widthIn}" × {spec.heightIn}"
+          </p>
+
+          <p className="text-[10px] text-slate-500">
+            {soloLoad?.fits ? (
+              <>
+                needs{" "}
+                <strong className="text-slate-700">
+                  {(soloLoad.lengthUsedIn / 12).toFixed(1)} ft
+                </strong>{" "}
+                of trailer floor
+                {soloLoad.orientation?.perRow
+                  ? ` · ${soloLoad.orientation.perRow} across`
+                  : ""}
+                {soloLoad.stackHeight > 1 ? ` · stacked ${soloLoad.stackHeight} high` : ""}
+              </>
+            ) : (
+              <span className="text-rose-600 font-semibold">
+                will not fit a standard trailer
+              </span>
+            )}
+          </p>
+
+          {onUpdateShipment && (
+            <button
+              onClick={() => setEditing(true)}
+              className="text-[10px] font-bold text-indigo-600 hover:text-indigo-800 cursor-pointer"
+            >
+              {spec.supplied ? "Edit dimensions" : "Set real dimensions"}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const FormatCargoOrLink = ({ text }) => {
   if (!text) return null;
   const str = String(text);
@@ -83,7 +501,7 @@ const FormatCargoOrLink = ({ text }) => {
           }}
           className="inline-flex items-center space-x-1 px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-3xs font-bold transition-all shadow-xs cursor-pointer shrink-0"
         >
-          <span>👁 View Document</span>
+          <span>View Document</span>
         </button>
       </div>
     );
@@ -92,32 +510,12 @@ const FormatCargoOrLink = ({ text }) => {
   return <span>{str}</span>;
 };
 
-const HOUSE_STATUS_OPTIONS = [
-  "A8A", "APPOINTMNT", "APPT + REF", "ARR LOGIST", "BONDED", "CHECK IN",
-  "CLEARANCE", "CROSS DOCK", "CUSTOMS", "DEL CONF", "DELIVERED", "DOCUMENTS",
-  "IN TRANSIT", "LOADED", "OFF LOADED", "ON HAND", "ON HOLD", "ON ORDER",
-  "ON STAGE", "OUT FOR DEL", "PAPERWORK", "PARS CONF", "PARS FAIL", "PAPS CONF",
-  "PICKUP", "POD CONF", "PRE-LTL", "RATED", "READY", "RED ALERT", "REPAIR",
-  "REROUTED", "SCHEDULED", "SETUP", "SHORTAGE", "STORAGE", "SWITCH TRK",
-  "TENDERED", "TRANSFER", "TRANSIT", "UNLOADED", "WAITING", "WEIGHT ERR", "FTL"
-];
+// The old flat HOUSE_STATUS_OPTIONS list lived here. It mixed operational
+// statuses with freight size (FTL, PRE-LTL) and commitment (APPOINTMNT,
+// APPT + REF), and wrote to house_status, which nothing else in the app read.
+// Status now uses the canonical loads.status registry in lib/loadStatuses.js —
+// the same one the Kanban board matches on.
 
-const getHouseStatusStyle = (status) => {
-  const s = String(status || "").toUpperCase();
-  if (s.includes("RED") || s.includes("FAIL") || s.includes("HOLD") || s.includes("ERR")) {
-    return "bg-rose-50 text-rose-800 border-rose-300 font-bold";
-  }
-  if (s.includes("DELIVERED") || s.includes("CONF") || s.includes("CLEAR") || s.includes("READY")) {
-    return "bg-emerald-50 text-emerald-800 border-emerald-300 font-bold";
-  }
-  if (s.includes("TRANSIT") || s.includes("OUT FOR") || s.includes("LOADED")) {
-    return "bg-sky-50 text-sky-800 border-sky-300 font-bold";
-  }
-  if (s.includes("APPT") || s.includes("SCHED") || s.includes("PICKUP")) {
-    return "bg-amber-50 text-amber-800 border-amber-300 font-bold";
-  }
-  return "bg-slate-100 text-slate-800 border-slate-300 font-bold";
-};
 
 export default function ShipmentDetailsModal({
   isOpen,
@@ -257,7 +655,7 @@ export default function ShipmentDetailsModal({
     if (!onUpdateShipment || !editedShipment) return;
     const targetId = editedShipment.id || editedShipment.load_id || shipment?.id;
     if (typeof onUpdateShipment === "function") {
-      onUpdateShipment(targetId, editedShipment);
+      onUpdateShipment({ ...editedShipment, id: targetId });
     }
     setIsEditing(false);
   };
@@ -670,7 +1068,7 @@ export default function ShipmentDetailsModal({
                 : "border-transparent text-slate-500 hover:text-slate-900"
             }`}
           >
-            📋 Load Info & Edit
+            Load Info & Edit
           </button>
           <button
             onClick={() => {
@@ -724,7 +1122,7 @@ export default function ShipmentDetailsModal({
 
               {/* View / Edit Mode Form */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-150 flex items-center justify-between">
+                <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Info className="h-4 w-4 text-indigo-600" />
                     <span className="text-xs font-bold text-slate-800 uppercase font-mono">
@@ -794,39 +1192,16 @@ export default function ShipmentDetailsModal({
                         </div>
                       </div>
 
-                      {/* SYMMETRICAL HOUSE STATUS CONTROL BAR */}
-                      <div className="bg-slate-50/90 rounded-2xl p-4 border border-slate-200 shadow-2xs font-sans">
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                          <div className="shrink-0">
-                            <label className="text-[11px] font-sans uppercase tracking-wider font-extrabold text-slate-500 block mb-0.5">
-                              HOUSE STATUS
-                            </label>
-                            <p className="text-2xs text-slate-400 font-medium">
-                              Current Operational Status assigned to Load #{shipment.load_number || shipment.id}
-                            </p>
-                          </div>
-                          <div className="w-full sm:w-80 shrink-0">
-                            <select
-                              value={shipment.houseStatus || shipment.house_status || shipment.outbound_status || "FTL"}
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                onUpdateShipment && onUpdateShipment(shipment.id, { houseStatus: val, house_status: val, outbound_status: val });
-                              }}
-                              className={`w-full rounded-xl px-3.5 py-2 text-xs font-mono font-bold uppercase border cursor-pointer focus:outline-none transition-all shadow-2xs ${getHouseStatusStyle(shipment.houseStatus || shipment.house_status || shipment.outbound_status || "FTL")}`}
-                            >
-                              {HOUSE_STATUS_OPTIONS.map((opt) => (
-                                <option key={opt} value={opt} className="bg-white text-slate-900 font-mono">
-                                  {opt}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      </div>
+                      {/* Freight classification — five independent attributes
+                          that used to share one house_status dropdown. */}
+                      <FreightClassificationBar
+                        shipment={shipment}
+                        onUpdateShipment={onUpdateShipment}
+                      />
 
                       {/* Customer Info Card (4 Equal Columns) */}
-                      <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 font-sans">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
+                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                           Customer Account Details
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
@@ -871,9 +1246,9 @@ export default function ShipmentDetailsModal({
                       {/* Shipper & Consignee Side-by-Side Symmetrical Cards */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans">
                         {/* Shipper Card */}
-                        <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 flex flex-col justify-between">
+                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
                           <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600 flex items-center gap-1.5">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 flex items-center gap-1.5">
                               <MapPin className="w-3.5 h-3.5 text-indigo-600" />
                               <span>Shipper (Pickup Location)</span>
                             </h4>
@@ -891,7 +1266,7 @@ export default function ShipmentDetailsModal({
                                 }
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  onUpdateShipment && onUpdateShipment(shipment.id, { pickup_date: val, pickupDate: val });
+                                  onUpdateShipment && onUpdateShipment({ ...shipment, pickup_date: val, pickupDate: val });
                                 }}
                                 className="bg-transparent text-indigo-800 font-extrabold text-[10px] cursor-pointer focus:outline-none"
                               />
@@ -947,7 +1322,7 @@ export default function ShipmentDetailsModal({
                                   }
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    onUpdateShipment && onUpdateShipment(shipment.id, { pickup_date: val, pickupDate: val });
+                                    onUpdateShipment && onUpdateShipment({ ...shipment, pickup_date: val, pickupDate: val });
                                   }}
                                   className="w-full bg-indigo-50/50 text-indigo-700 font-bold border border-indigo-200 rounded-lg px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
                                 />
@@ -957,9 +1332,9 @@ export default function ShipmentDetailsModal({
                         </div>
 
                         {/* Consignee Card */}
-                        <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 flex flex-col justify-between">
+                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
                           <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600 flex items-center gap-1.5">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 flex items-center gap-1.5">
                               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                               <span>Consignee (Delivery Location)</span>
                             </h4>
@@ -977,7 +1352,7 @@ export default function ShipmentDetailsModal({
                                 }
                                 onChange={(e) => {
                                   const val = e.target.value;
-                                  onUpdateShipment && onUpdateShipment(shipment.id, { delivery_date: val, deliveryDate: val });
+                                  onUpdateShipment && onUpdateShipment({ ...shipment, delivery_date: val, deliveryDate: val });
                                 }}
                                 className="bg-transparent text-emerald-800 font-extrabold text-[10px] cursor-pointer focus:outline-none"
                               />
@@ -1033,7 +1408,7 @@ export default function ShipmentDetailsModal({
                                   }
                                   onChange={(e) => {
                                     const val = e.target.value;
-                                    onUpdateShipment && onUpdateShipment(shipment.id, { delivery_date: val, deliveryDate: val });
+                                    onUpdateShipment && onUpdateShipment({ ...shipment, delivery_date: val, deliveryDate: val });
                                   }}
                                   className="w-full bg-emerald-50/50 text-emerald-700 font-bold border border-emerald-200 rounded-lg px-2 py-0.5 text-xs focus:outline-none cursor-pointer"
                                 />
@@ -1044,8 +1419,8 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Symmetrical 3x2 Cargo & Financial Specifications Grid (Exactly 6 items) */}
-                      <div className="bg-slate-50/70 rounded-2xl p-4 border border-slate-200/70 space-y-3 font-sans">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-600">
+                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                           Cargo, Dispatch & Financial Specifications
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -1097,6 +1472,14 @@ export default function ShipmentDetailsModal({
                               ${(Number(shipment?.priceInvoice) || 0).toLocaleString()}
                             </p>
                           </div>
+
+                          {/* Skid footprint drives trailer capacity, so the trip
+                              planner can set it here instead of discovering at
+                              the dock that the freight is not standard. */}
+                          <SkidDimensionsCell
+                            shipment={shipment}
+                            onUpdateShipment={onUpdateShipment}
+                          />
                         </div>
                       </div>
 
@@ -1141,34 +1524,78 @@ export default function ShipmentDetailsModal({
                   ) : (
                     /* Edit Input Layout */
                     <div className="space-y-4 font-sans">
-                      {/* Top House Status Control in Edit Mode */}
-                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-1.5">
-                        <label className="text-[11px] font-sans uppercase tracking-wider font-extrabold text-slate-500 block">
-                          HOUSE STATUS
+                      {/* Freight classification in edit mode — same five fields
+                          as the read view, staged into editedShipment. */}
+                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-slate-500 block">
+                          Freight Classification
                         </label>
-                        <select
-                          value={editedShipment.houseStatus || editedShipment.house_status || editedShipment.outbound_status || "FTL"}
-                          onChange={(e) =>
-                            setEditedShipment({
-                              ...editedShipment,
-                              houseStatus: e.target.value,
-                              house_status: e.target.value,
-                              outbound_status: e.target.value,
-                            })
-                          }
-                          className={`w-full rounded-xl px-3.5 py-2 text-xs font-mono font-bold uppercase border cursor-pointer focus:outline-none transition-all shadow-2xs ${getHouseStatusStyle(editedShipment.houseStatus || editedShipment.house_status || editedShipment.outbound_status || "FTL")}`}
-                        >
-                          {HOUSE_STATUS_OPTIONS.map((opt) => (
-                            <option key={opt} value={opt} className="bg-white text-slate-900 font-mono">
-                              {opt}
-                            </option>
+
+                        <div>
+                          <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+                            Status
+                          </span>
+                          <select
+                            value={normalizeStatus(editedShipment.status)}
+                            onChange={(e) =>
+                              setEditedShipment({
+                                ...editedShipment,
+                                status: e.target.value,
+                              })
+                            }
+                            className={`w-full rounded-xl px-3 py-2 text-xs font-bold border cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 transition-all shadow-2xs ${statusTone(editedShipment.status)}`}
+                          >
+                            {STATUS_STAGES.map((stage) => (
+                              <optgroup key={stage.id} label={stage.title}>
+                                {stage.statuses.map((opt) => (
+                                  <option key={opt.value} value={opt.value} className="bg-white text-slate-900">
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </optgroup>
+                            ))}
+                          </select>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          {[
+                            { label: "Freight Size", options: FREIGHT_SIZES, value: readFreightSize(editedShipment),
+                              patch: (v) => ({ freight_size: v, freightSize: v }) },
+                            { label: "Freight Type", options: FREIGHT_TYPES, value: readFreightType(editedShipment),
+                              patch: (v) => ({ freight_type: v, freightType: v }) },
+                            { label: "Trailer Type", options: TRAILER_TYPES, value: readTrailerType(editedShipment),
+                              placeholder: "Not set", patch: (v) => ({ trailer_type: v, trailerType: v }) },
+                            { label: "Commitment", options: COMMITMENTS, value: readCommitment(editedShipment),
+                              patch: (v) => ({ commitment: v, deliveryCommitment: v }) },
+                          ].map((f) => (
+                            <div key={f.label}>
+                              <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+                                {f.label}
+                              </span>
+                              <select
+                                value={f.value}
+                                onChange={(e) =>
+                                  setEditedShipment({ ...editedShipment, ...f.patch(e.target.value) })
+                                }
+                                className="w-full rounded-xl px-3 py-2 text-xs font-mono font-bold border border-slate-300 bg-white text-slate-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-2xs"
+                              >
+                                {f.placeholder && (
+                                  <option value="" className="text-slate-500">{f.placeholder}</option>
+                                )}
+                                {f.options.map((opt) => (
+                                  <option key={opt.value} value={opt.value} className="bg-white text-slate-900 font-mono">
+                                    {opt.label}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
                           ))}
-                        </select>
+                        </div>
                       </div>
 
                       {/* Customer Details Edit */}
-                      <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-150 space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                           1. Customer Details
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
@@ -1243,8 +1670,8 @@ export default function ShipmentDetailsModal({
 
                       {/* Shipper & Consignee Edit columns */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-150 space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                             2. Shipper (Pickup)
                           </h4>
                           <div className="space-y-3">
@@ -1355,8 +1782,8 @@ export default function ShipmentDetailsModal({
                           </div>
                         </div>
 
-                        <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-150 space-y-3">
-                          <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                             3. Consignee (Delivery)
                           </h4>
                           <div className="space-y-3">
@@ -1471,8 +1898,8 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Cargo, Broker, Admin Details Edit */}
-                      <div className="bg-slate-50/50 rounded-xl p-4 border border-slate-150 space-y-3">
-                        <h4 className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
                           4. Logistics & Financial Details
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -1704,7 +2131,7 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Driver Notes Edit Field */}
-                      <div className="col-span-2 border-t border-slate-150 pt-4 mt-2">
+                      <div className="col-span-2 border-t border-slate-200 pt-4 mt-2">
                         <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                           <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
                           Driver Notes
@@ -1723,7 +2150,7 @@ export default function ShipmentDetailsModal({
                         />
                       </div>
 
-                      <div className="flex justify-end space-x-2 border-t border-slate-150 pt-4 mt-2">
+                      <div className="flex justify-end space-x-2 border-t border-slate-200 pt-4 mt-2">
                         <button
                           onClick={() => {
                             setEditedShipment(shipment);
@@ -1771,90 +2198,53 @@ export default function ShipmentDetailsModal({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                  <div
-                    onClick={() => {
+                  <DocumentCard
+                    name="Carrier_Rate_Confirmation.pdf"
+                    size="180 KB"
+                    status="Rate pay verified"
+                    onOpen={() =>
                       setDocViewerModal({
                         name: "Carrier_Rate_Confirmation.pdf",
                         size: "180 KB",
                         type: "Rate Pay Verified",
-                        url: "#"
-                      });
-                    }}
-                    className="border border-slate-200 bg-blue-50/20 p-3.5 rounded-xl flex items-center justify-between hover:bg-blue-50/40 transition-colors cursor-pointer"
-                  >
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <FileText className="h-5 w-5 text-blue-600 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs font-bold text-slate-800 truncate">
-                          Carrier_Rate_Confirmation.pdf
-                        </p>
-                        <span className="text-3xs font-mono text-blue-600 font-semibold">
-                          180 KB • Rate Pay Verified
-                        </span>
-                      </div>
-                    </div>
-                    <Eye className="h-4 w-4 text-slate-400 hover:text-indigo-600 shrink-0 ml-2" />
-                  </div>
+                        url: "#",
+                      })
+                    }
+                  />
 
-                  <div
-                    onClick={() => {
-                      const docUrl = matchedBolDoc?.file_path || matchedBolDoc?.image_url || matchedBolDoc?.url || shipment?.bol_url || "#";
+                  <DocumentCard
+                    accent="emerald"
+                    name={matchedBolDoc?.file_name || matchedBolDoc?.name || "Carrier_BOL_Primary.pdf"}
+                    size={matchedBolDoc?.file_size || "240 KB"}
+                    status={matchedBolDoc ? "Uploaded in chat & synced" : "Driver signed & verified"}
+                    onOpen={() =>
                       setDocViewerModal({
                         name: matchedBolDoc?.file_name || matchedBolDoc?.name || "Carrier_BOL_Primary.pdf",
                         size: matchedBolDoc?.file_size || matchedBolDoc?.size || "240 KB",
                         type: "Driver Sign-off",
-                        url: docUrl
-                      });
-                    }}
-                    className="border border-emerald-300 bg-emerald-50/40 p-3.5 rounded-xl flex items-center justify-between hover:bg-emerald-100/60 transition-all cursor-pointer shadow-xs group"
-                    title="Click to view & download Bill of Lading"
-                  >
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="p-2 bg-emerald-600 text-white rounded-lg group-hover:scale-105 transition-transform">
-                        <FileText className="h-5 w-5 shrink-0" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1.5">
-                          <span>{matchedBolDoc?.file_name || matchedBolDoc?.name || "Carrier_BOL_Primary.pdf"}</span>
-                          <span className="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-mono font-bold">CLICK TO OPEN</span>
-                        </p>
-                        <span className="text-3xs font-mono text-emerald-700 font-bold">
-                          {matchedBolDoc?.file_size || "240 KB"} • {matchedBolDoc ? "Uploaded in Chat & Synced 👁" : "Driver Signed & Verified 👁"}
-                        </span>
-                      </div>
-                    </div>
-                    <Eye className="h-4 w-4 text-emerald-600 group-hover:text-emerald-900 shrink-0 ml-2 font-bold" />
-                  </div>
+                        url:
+                          matchedBolDoc?.file_path || matchedBolDoc?.image_url ||
+                          matchedBolDoc?.url || shipment?.bol_url || "#",
+                      })
+                    }
+                  />
 
-                  <div
-                    onClick={() => {
-                      const docUrl = matchedPodDoc?.file_path || matchedPodDoc?.image_url || matchedPodDoc?.url || shipment?.pod_url || "#";
+                  <DocumentCard
+                    accent="cyan"
+                    name={matchedPodDoc?.file_name || matchedPodDoc?.name || "Proof_of_Delivery_POD.pdf"}
+                    size={matchedPodDoc?.file_size || "110 KB"}
+                    status={matchedPodDoc ? "Uploaded in chat & synced" : "Consignee signed"}
+                    onOpen={() =>
                       setDocViewerModal({
                         name: matchedPodDoc?.file_name || matchedPodDoc?.name || "Proof_of_Delivery_POD.pdf",
                         size: matchedPodDoc?.file_size || matchedPodDoc?.size || "110 KB",
                         type: "Consignee Signed",
-                        url: docUrl
-                      });
-                    }}
-                    className="border border-cyan-300 bg-cyan-50/40 p-3.5 rounded-xl flex items-center justify-between hover:bg-cyan-100/60 transition-all cursor-pointer shadow-xs group"
-                    title="Click to view & download Proof of Delivery"
-                  >
-                    <div className="flex items-center space-x-2.5 min-w-0">
-                      <div className="p-2 bg-cyan-600 text-white rounded-lg group-hover:scale-105 transition-transform">
-                        <FileText className="h-5 w-5 shrink-0" />
-                      </div>
-                      <div className="min-w-0">
-                        <p className="text-xs font-extrabold text-slate-900 truncate flex items-center gap-1.5">
-                          <span>{matchedPodDoc?.file_name || matchedPodDoc?.name || "Proof_of_Delivery_POD.pdf"}</span>
-                          <span className="text-[9px] bg-cyan-200 text-cyan-900 px-1.5 py-0.5 rounded font-mono font-bold">CLICK TO OPEN</span>
-                        </p>
-                        <span className="text-3xs font-mono text-cyan-700 font-bold">
-                          {matchedPodDoc?.file_size || "110 KB"} • {matchedPodDoc ? "Uploaded in Chat & Synced 👁" : "Consignee Signed 👁"}
-                        </span>
-                      </div>
-                    </div>
-                    <Eye className="h-4 w-4 text-cyan-600 group-hover:text-cyan-900 shrink-0 ml-2 font-bold" />
-                  </div>
+                        url:
+                          matchedPodDoc?.file_path || matchedPodDoc?.image_url ||
+                          matchedPodDoc?.url || shipment?.pod_url || "#",
+                      })
+                    }
+                  />
                 </div>
               </div>
             </div>
@@ -2150,7 +2540,7 @@ export default function ShipmentDetailsModal({
             <div className="space-y-6">
               {/* Samsara Gauges */}
               <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
-                <div className="flex items-center justify-between border-b border-slate-150 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center space-x-2">
                     <Gauge className="h-5 w-5 text-rose-600" />
                     <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
@@ -2396,7 +2786,7 @@ export default function ShipmentDetailsModal({
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Border Status Manifest Overview */}
               <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
-                <div className="flex items-center justify-between border-b border-slate-150 pb-3">
+                <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center space-x-2">
                     <ExternalLink className="h-4.5 w-4.5 text-indigo-600" />
                     <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
@@ -2415,7 +2805,7 @@ export default function ShipmentDetailsModal({
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-slate-150 bg-slate-50/50">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
                     <span className="text-3xs font-mono text-slate-400 block uppercase">
                       PAPS / Customs Barcode
                     </span>
@@ -2426,7 +2816,7 @@ export default function ShipmentDetailsModal({
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-slate-150 bg-slate-50/50 flex flex-col justify-between">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
                     <div>
                       <span className="text-3xs font-mono text-slate-400 block uppercase">
                         Sync Status
@@ -2457,7 +2847,7 @@ export default function ShipmentDetailsModal({
                     EDI Manifest Activity Logs
                   </h4>
 
-                  <div className="border-l-2 border-slate-150 pl-5 ml-2.5 space-y-4">
+                  <div className="border-l-2 border-slate-200 pl-5 ml-2.5 space-y-4">
                     <div className="relative">
                       <span className="absolute -left-[27px] top-0.5 h-3.5 w-3.5 bg-emerald-500 rounded-full border-2 border-white" />
                       <div className="text-2xs">
@@ -2602,7 +2992,7 @@ export default function ShipmentDetailsModal({
           {activeTab === "chat" && (
             <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[55vh]">
               {/* Active channel ribbon bar */}
-              <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-150 flex items-center justify-between shrink-0">
+              <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div className="flex items-center space-x-2.5">
                   <div className="p-1.5 bg-emerald-50 text-emerald-700 rounded-lg">
                     <MessageSquare className="h-4 w-4" />
@@ -2652,7 +3042,7 @@ export default function ShipmentDetailsModal({
                           className={`max-w-[75%] rounded-xl px-4 py-3 text-xs shadow-3xs ${
                             isDispatcher
                               ? "bg-slate-900 text-white rounded-tr-none"
-                              : "bg-white text-slate-800 border border-slate-250 rounded-tl-none"
+                              : "bg-white text-slate-800 border border-slate-300 rounded-tl-none"
                           }`}
                         >
                           <div className="flex items-center justify-between space-x-4 mb-1">
@@ -2769,7 +3159,7 @@ export default function ShipmentDetailsModal({
               )}
 
               {/* Messaging input pane */}
-              <div className="p-4 border-t border-slate-150 bg-white shrink-0">
+              <div className="p-4 border-t border-slate-200 bg-white shrink-0">
                 <form
                   onSubmit={handleSendChatMessage}
                   className="flex items-center space-x-3.5"

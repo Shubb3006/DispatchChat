@@ -7,6 +7,7 @@ import {
   updateTrip,
 //   updateTripStatus,
   deleteTrip,
+  getTripRoute,
 } from "../controllers/trip.controller.js";
 
 import { protectedRoute } from "../middlewares/auth.middleware.js";
@@ -31,6 +32,14 @@ router.get(
   "/:id",
   protectedRoute,
   getTripById
+);
+
+// Printable trip sheet with the stored optimized route.
+// ?refresh=true re-routes instead of reusing the stored result.
+router.get(
+  "/:id/route",
+  protectedRoute,
+  getTripRoute
 );
 
 router.put(

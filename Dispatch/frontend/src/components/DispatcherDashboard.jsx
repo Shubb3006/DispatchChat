@@ -40,12 +40,29 @@ import {
   Download,
   Share2,
   Zap,
+  Ruler,
+  RotateCw,
+  Boxes,
+  Lock,
+  Save,
+  Info,
+  AlertTriangle,
 } from "lucide-react";
 
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useTripStore } from "../stores/useTripStore";
 import { useTelematicsStore } from "../stores/useTelematicsStore";
 import { axiosInstance } from "@/lib/axios";
+// NOTE: the "@" alias points at the frontend root (vite.config.ts), not src/,
+// so the packing engine is reached relatively like the other src/ modules.
+import {
+  planTrailer,
+  TRAILER_PRESETS,
+  SKID_PRESETS,
+  DEFAULT_TRAILER,
+  skidSpecFor,
+  MIN_PLAUSIBLE_IN,
+} from "../lib/trailerPacking";
 import toast from "react-hot-toast";
 
 const FormatCargoOrLink = ({ text }) => {
@@ -83,249 +100,862 @@ const FormatCargoOrLink = ({ text }) => {
   return <span>{str}</span>;
 };
 
-const Pallet3DTrailerVisualizer = ({ selectedLoads }) => {
-  const [viewMode, setViewMode] = useState("3d"); // "3d" | "top" | "rear"
+/* ══════════════════════════════════════════════════════════════════════════
+   Trailer load planning UI.
 
-  const totalWeight = selectedLoads.reduce((sum, s) => sum + (Number(s.weight) || Number(s.weightLbs) || 4000), 0);
-  const totalPallets = selectedLoads.reduce((sum, s) => sum + (Number(s.pieces) || Number(s.palletCount) || 2), 0);
-  const volumePct = Math.min(Math.round((totalPallets / 26) * 100), 100);
+   Everything below is driven by planTrailer(). There is no fixed slot grid:
+   each load carries its own skid footprint, so a 48×48 chemical skid, a 36×36
+   half pallet and an oversized crate are planned as what they actually are.
+   ══════════════════════════════════════════════════════════════════════════ */
 
-  // Axle weight calculations
+const loadColors = [
+  { bg: "bg-indigo-600", border: "border-indigo-500", text: "text-indigo-100", dot: "bg-indigo-400" },
+  { bg: "bg-emerald-600", border: "border-emerald-500", text: "text-emerald-100", dot: "bg-emerald-400" },
+  { bg: "bg-amber-600", border: "border-amber-500", text: "text-amber-100", dot: "bg-amber-400" },
+  { bg: "bg-purple-600", border: "border-purple-500", text: "text-purple-100", dot: "bg-purple-400" },
+  { bg: "bg-cyan-600", border: "border-cyan-500", text: "text-cyan-100", dot: "bg-cyan-400" },
+];
+
+const colorForLoad = (idx) => loadColors[idx % loadColors.length];
+
+const loadNumberOf = (s) =>
+  s?.load_number || s?.tracking_number || s?.id || "—";
+
+const asFeet = (inches) => `${((Number(inches) || 0) / 12).toFixed(1)} ft`;
+
+// Trims a dimension for display: 47.2" stays 47.2", 48.00" reads 48".
+const asInches = (v) => {
+  const n = Number(v) || 0;
+  return Number.isInteger(n) ? `${n}"` : `${n.toFixed(1)}"`;
+};
+
+/* Numeric field -> a value the API can store, or null meaning "not supplied".
+   Blank must persist as null, never 0, or the packer would treat a cleared
+   field as a real zero-inch skid. */
+const dimOrNull = (v) => {
+  if (v === "" || v === null || v === undefined) return null;
+  const n = Number(v);
+  return Number.isFinite(n) && n > 0 ? n : null;
+};
+
+const SKID_FIELDS = [
+  "skid_length_in",
+  "skid_width_in",
+  "skid_height_in",
+  "is_stackable",
+  "max_stack_count",
+  "no_rotate",
+];
+
+const normalizeSkidField = (field, value) =>
+  field === "is_stackable" || field === "no_rotate"
+    ? Boolean(value)
+    : dimOrNull(value);
+
+const skidDraftIsDirty = (load, draft) => {
+  if (!draft) return false;
+  return SKID_FIELDS.some(
+    (f) =>
+      f in draft &&
+      normalizeSkidField(f, draft[f]) !== normalizeSkidField(f, load[f])
+  );
+};
+
+/* ── Blocking / advisory problems from the planner ───────────────────────── */
+const TrailerPlanProblems = ({ plan }) => {
+  const blocking = plan.problems.filter((p) => p.severity === "blocking");
+  const info = plan.problems.filter((p) => p.severity !== "blocking");
+
+  if (blocking.length === 0 && info.length === 0) return null;
+
+  return (
+    <div className="space-y-2">
+      {blocking.length > 0 && (
+        <div className="bg-rose-950/60 border border-rose-500/60 rounded-xl p-3.5 space-y-2">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="h-4 w-4 text-rose-400 shrink-0" />
+            <span className="text-xs font-extrabold font-mono text-rose-300 uppercase tracking-wider">
+              Will Not Load — {blocking.length} Blocking{" "}
+              {blocking.length === 1 ? "Problem" : "Problems"}
+            </span>
+          </div>
+          <ul className="space-y-1.5">
+            {blocking.map((p, i) => (
+              <li
+                key={i}
+                className="text-3xs font-mono text-rose-200 leading-relaxed flex gap-2"
+              >
+                <span className="text-rose-500 font-extrabold shrink-0">▸</span>
+                <span>{p.message}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-3xs font-mono text-rose-400/80 border-t border-rose-500/30 pt-2">
+            This freight cannot be built onto this equipment as planned. Change
+            the trailer type, split the freight, or correct the skid dimensions.
+          </p>
+        </div>
+      )}
+
+      {info.length > 0 && (
+        <div className="bg-amber-950/50 border border-amber-500/50 rounded-xl p-3.5 space-y-1.5">
+          <div className="flex items-center gap-2">
+            <Info className="h-4 w-4 text-amber-400 shrink-0" />
+            <span className="text-xs font-extrabold font-mono text-amber-300 uppercase tracking-wider">
+              Plan Assumptions
+            </span>
+          </div>
+          <ul className="space-y-1.5">
+            {info.map((p, i) => (
+              <li
+                key={i}
+                className="text-3xs font-mono text-amber-200 leading-relaxed flex gap-2"
+              >
+                <span className="text-amber-500 font-extrabold shrink-0">▸</span>
+                <span>{p.message}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+};
+
+/* ── To-scale trailer floor plan ─────────────────────────────────────────────
+   Horizontal axis = trailer length (nose on the left, doors on the right).
+   Vertical axis   = trailer width. Every row is positioned at
+   row.startIn / scaleLengthIn and sized at row.depthIn / scaleLengthIn, and
+   every skid in a row is sized at row.skidAcrossIn / trailer.widthIn, so what
+   is on screen is a real proportional picture of the trailer floor.
+   When freight overruns the trailer the drawing scales to the freight instead
+   of clipping it, and the doors are marked so the overhang is visible. */
+const TrailerFloorPlan = ({ plan }) => {
+  const { trailer, rows } = plan;
+  const scaleLengthIn = Math.max(trailer.lengthIn, plan.lengthUsedIn, 1);
+  const pctLen = (v) => `${((Number(v) || 0) / scaleLengthIn) * 100}%`;
+  const pctWidth = (v) =>
+    `${Math.min(100, ((Number(v) || 0) / trailer.widthIn) * 100)}%`;
+
+  const remainingPct = (plan.lengthRemainingIn / scaleLengthIn) * 100;
+  const tickCount = Math.floor(scaleLengthIn / 60);
+  const ticks = Array.from({ length: tickCount + 1 }, (_, i) => i * 60);
+
+  return (
+    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
+      <div className="min-w-[760px] space-y-2">
+        <div className="text-3xs font-mono font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+          <span>🚛 FRONT (CAB / NOSE)</span>
+          <span className="text-slate-600 normal-case tracking-normal">
+            {trailer.label} · {asFeet(trailer.lengthIn)} ×{" "}
+            {asInches(trailer.widthIn)} interior
+          </span>
+          <span>REAR (CARGO DOORS) 🚪</span>
+        </div>
+
+        <div className="relative h-40 bg-slate-900/60 rounded-xl border border-slate-800/80 shadow-inner overflow-hidden">
+          {/* Empty floor at the rear */}
+          {plan.lengthRemainingIn > 0 && (
+            <div
+              className="absolute inset-y-0 border-l-2 border-dashed border-slate-600/80 bg-slate-950/40 flex items-center justify-center overflow-hidden"
+              style={{
+                left: pctLen(plan.lengthUsedIn),
+                width: pctLen(plan.lengthRemainingIn),
+              }}
+            >
+              {remainingPct > 9 && (
+                <span className="text-3xs font-mono font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap px-1">
+                  {asFeet(plan.lengthRemainingIn)} empty
+                </span>
+              )}
+            </div>
+          )}
+
+          {/* Loaded rows */}
+          {rows.map((row, idx) => {
+            const color = colorForLoad(row.loadIndex);
+            const pastDoors = row.startIn + row.depthIn > trailer.lengthIn;
+            return (
+              <div
+                key={`${row.loadNumber}-${idx}`}
+                className="absolute inset-y-0 flex flex-col gap-px p-px"
+                style={{ left: pctLen(row.startIn), width: pctLen(row.depthIn) }}
+              >
+                {Array.from({ length: row.count }).map((_, i) => (
+                  <div
+                    key={i}
+                    title={`Load #${row.loadNumber} — skid ${asInches(
+                      row.rotated ? row.skidAcrossIn : row.depthIn
+                    )}L × ${asInches(
+                      row.rotated ? row.depthIn : row.skidAcrossIn
+                    )}W · ${row.rotated ? "rotated 90°" : "square to trailer"}${
+                      row.stackHeight > 1 ? ` · stacked ${row.stackHeight} high` : ""
+                    } · at ${asFeet(row.startIn)} from the nose`}
+                    style={{ height: pctWidth(row.skidAcrossIn) }}
+                    className={`shrink-0 w-full rounded-[3px] border ${color.bg} ${
+                      color.border
+                    } shadow-md flex flex-col items-center justify-center overflow-hidden px-0.5 ${
+                      pastDoors ? "ring-2 ring-rose-500 ring-inset" : ""
+                    }`}
+                  >
+                    <span className="text-[9px] leading-tight font-extrabold font-mono text-white truncate max-w-full">
+                      #{row.loadNumber}
+                    </span>
+                    <span className="text-[8px] leading-tight font-mono text-white/80 flex items-center gap-0.5">
+                      {row.rotated && <RotateCw className="h-2 w-2" />}
+                      {row.stackHeight > 1 && (
+                        <span className="font-extrabold">×{row.stackHeight}</span>
+                      )}
+                      {!row.rotated && row.stackHeight === 1 && (
+                        <span>{asInches(row.skidAcrossIn)}</span>
+                      )}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            );
+          })}
+
+          {/* Freight past the doors */}
+          {plan.overflowIn > 0 && (
+            <div
+              className="absolute inset-y-0 border-l-2 border-rose-500 pointer-events-none flex items-start justify-center"
+              style={{
+                left: pctLen(trailer.lengthIn),
+                width: pctLen(plan.overflowIn),
+                backgroundImage:
+                  "repeating-linear-gradient(45deg, rgba(244,63,94,0.28) 0 6px, rgba(244,63,94,0.06) 6px 12px)",
+              }}
+            >
+              <span className="mt-1 text-[8px] font-mono font-extrabold text-rose-200 bg-rose-950/90 border border-rose-500/60 rounded px-1 whitespace-nowrap">
+                +{asFeet(plan.overflowIn)} PAST DOORS
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Length ruler, so "to scale" is checkable rather than claimed */}
+        <div className="relative h-4">
+          {ticks.map((t) => (
+            <div
+              key={t}
+              className="absolute top-0 flex flex-col items-start"
+              style={{ left: pctLen(t) }}
+            >
+              <div className="w-px h-1.5 bg-slate-700" />
+              <span className="text-[8px] font-mono text-slate-600 -ml-1">
+                {t / 12}′
+              </span>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
+
+/* ── Per-load breakdown of how the planner laid the freight out ──────────── */
+const TrailerLoadManifest = ({ plan }) => (
+  <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 overflow-x-auto">
+    <table className="w-full text-left border-collapse text-3xs font-mono min-w-[640px]">
+      <thead>
+        <tr className="text-slate-500 uppercase tracking-wider border-b border-slate-800">
+          <th className="px-2 py-2">Load</th>
+          <th className="px-2 py-2">Skid (L×W×H)</th>
+          <th className="px-2 py-2">Source</th>
+          <th className="px-2 py-2">Skids</th>
+          <th className="px-2 py-2">Layout</th>
+          <th className="px-2 py-2">Rows</th>
+          <th className="px-2 py-2">Floor Used</th>
+          <th className="px-2 py-2">Weight</th>
+        </tr>
+      </thead>
+      <tbody className="divide-y divide-slate-800/80">
+        {plan.perLoad.map((pl, idx) => {
+          const color = colorForLoad(idx);
+          return (
+            <tr key={`${pl.loadNumber}-${idx}`} className="text-slate-300">
+              <td className="px-2 py-2 font-extrabold text-white whitespace-nowrap">
+                <span className="inline-flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full ${color.dot}`} />
+                  #{pl.loadNumber}
+                </span>
+              </td>
+              <td className="px-2 py-2 whitespace-nowrap">
+                {asInches(pl.skid.lengthIn)} × {asInches(pl.skid.widthIn)} ×{" "}
+                {pl.skid.heightSupplied ? asInches(pl.skid.heightIn) : "—"}
+              </td>
+              <td className="px-2 py-2">
+                {pl.skid.supplied ? (
+                  <span className="px-1.5 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 font-bold">
+                    MEASURED
+                  </span>
+                ) : (
+                  <span className="px-1.5 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30 font-bold">
+                    ASSUMED
+                  </span>
+                )}
+              </td>
+              <td className="px-2 py-2">{pl.skid.count}</td>
+              <td className="px-2 py-2 whitespace-nowrap">
+                {pl.fits ? (
+                  <span className="inline-flex items-center gap-1.5">
+                    <span>{pl.orientation.perRow}/row</span>
+                    {pl.orientation.rotated && (
+                      <span className="inline-flex items-center gap-0.5 text-cyan-400">
+                        <RotateCw className="h-2.5 w-2.5" />
+                        90°
+                      </span>
+                    )}
+                    {pl.stackHeight > 1 && (
+                      <span className="inline-flex items-center gap-0.5 text-purple-300">
+                        <Boxes className="h-2.5 w-2.5" />×{pl.stackHeight}
+                      </span>
+                    )}
+                    {pl.skid.noRotate && (
+                      <span className="inline-flex items-center gap-0.5 text-slate-500">
+                        <Lock className="h-2.5 w-2.5" />
+                        fixed
+                      </span>
+                    )}
+                  </span>
+                ) : (
+                  <span className="text-rose-400 font-bold">DOES NOT FIT</span>
+                )}
+              </td>
+              <td className="px-2 py-2">{pl.rowsUsed || "—"}</td>
+              <td className="px-2 py-2 whitespace-nowrap">
+                {pl.fits ? asFeet(pl.lengthUsedIn) : "—"}
+              </td>
+              <td className="px-2 py-2 whitespace-nowrap">
+                {(pl.weight || 0).toLocaleString()} lbs
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+);
+
+/* ── Height profile: catches over-height freight and shows stacking headroom ─ */
+const TrailerHeightProfile = ({ plan }) => {
+  const { trailer } = plan;
+  return (
+    <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-3">
+      <div className="text-3xs font-mono text-slate-400 uppercase font-bold tracking-widest">
+        Stack Height vs {asInches(trailer.heightIn)} Interior Clearance
+      </div>
+      <div className="flex items-end gap-3 h-44 border-b border-slate-800 pb-0 overflow-x-auto">
+        {plan.perLoad.map((pl, idx) => {
+          const color = colorForLoad(idx);
+          const stackedIn = (pl.stackHeight || 1) * pl.skid.heightIn;
+          const over = stackedIn > trailer.heightIn;
+          const pct = Math.min(100, (stackedIn / trailer.heightIn) * 100);
+          return (
+            <div
+              key={`${pl.loadNumber}-${idx}`}
+              className="flex flex-col justify-end items-center h-full min-w-[76px] flex-1"
+            >
+              <span
+                className={`text-[9px] font-mono font-extrabold mb-1 ${
+                  over ? "text-rose-400" : "text-slate-400"
+                }`}
+              >
+                {asInches(stackedIn)}
+              </span>
+              <div
+                style={{ height: `${pct}%` }}
+                className={`w-full rounded-t-lg border ${
+                  over ? "bg-rose-600 border-rose-400" : `${color.bg} ${color.border}`
+                } flex flex-col items-center justify-start pt-1 shadow-lg`}
+              >
+                {pl.stackHeight > 1 && (
+                  <span className="text-[8px] font-mono font-extrabold text-white flex items-center gap-0.5">
+                    <Boxes className="h-2.5 w-2.5" />×{pl.stackHeight}
+                  </span>
+                )}
+              </div>
+              <span className="text-[9px] font-mono text-slate-400 mt-1 truncate max-w-full">
+                #{pl.loadNumber}
+              </span>
+              {!pl.skid.heightSupplied && (
+                <span className="text-[8px] font-mono text-amber-400">assumed</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+      <p className="text-3xs font-mono text-slate-500">
+        Bars are drawn against the trailer interior height. A load with no
+        measured height is planned at {asInches(48)} — confirm it before you
+        promise the space.
+      </p>
+    </div>
+  );
+};
+
+/* ── Main visualizer ─────────────────────────────────────────────────────── */
+const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange }) => {
+  const [viewMode, setViewMode] = useState("floor"); // "floor" | "manifest" | "height"
+
+  const { trailer } = plan;
+  const totalWeight = plan.totalWeightLbs;
+
+  // Axle weight estimates, unchanged from the previous panel.
   const steerAxle = Math.round(11200 + totalWeight * 0.15);
   const driveAxles = Math.round(18000 + totalWeight * 0.45);
-  const tandemAxles = Math.round(16000 + totalWeight * 0.40);
+  const tandemAxles = Math.round(16000 + totalWeight * 0.4);
   const grossVehicleWeight = 33000 + totalWeight;
 
-  const loadColors = [
-    { bg: "bg-indigo-600", border: "border-indigo-500", text: "text-indigo-100" },
-    { bg: "bg-emerald-600", border: "border-emerald-500", text: "text-emerald-100" },
-    { bg: "bg-amber-600", border: "border-amber-500", text: "text-amber-100" },
-    { bg: "bg-purple-600", border: "border-purple-500", text: "text-purple-100" },
-    { bg: "bg-cyan-600", border: "border-cyan-500", text: "text-cyan-100" },
-  ];
+  const chipTone = (pct, breached) =>
+    breached
+      ? "bg-rose-500/20 text-rose-300 border-rose-500/40"
+      : pct > 85
+        ? "bg-amber-500/20 text-amber-400 border-amber-500/40"
+        : "bg-emerald-500/20 text-emerald-400 border-emerald-500/30";
 
-  // Assign pallet positions in 26 slots
-  const palletSlots = Array.from({ length: 26 }, (_, i) => {
-    let accumulated = 0;
-    for (let lIdx = 0; lIdx < selectedLoads.length; lIdx++) {
-      const pCount = Number(selectedLoads[lIdx].pieces) || Number(selectedLoads[lIdx].palletCount) || 2;
-      if (i < accumulated + pCount) {
-        return {
-          slotIndex: i,
-          load: selectedLoads[lIdx],
-          color: loadColors[lIdx % loadColors.length],
-          loadNumber: selectedLoads[lIdx].load_number || selectedLoads[lIdx].tracking_number || selectedLoads[lIdx].id,
-          palletSeq: i - accumulated + 1,
-        };
-      }
-      accumulated += pCount;
-    }
-    return { slotIndex: i, load: null, color: null };
-  });
+  const viewTabs = [
+    { id: "floor", label: "Floor Plan" },
+    { id: "manifest", label: "Load Manifest" },
+    { id: "height", label: "Height Profile" },
+  ];
 
   return (
     <div className="bg-slate-900 rounded-2xl border border-slate-700 p-5 space-y-4 text-white shadow-xl">
       {/* Header controls */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+      <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-3 border-b border-slate-800 pb-3">
         <div className="flex items-center space-x-2.5">
           <div className="p-2 bg-indigo-600/30 text-indigo-400 border border-indigo-500/40 rounded-xl">
             <Truck className="h-5 w-5" />
           </div>
           <div>
-            <h4 className="text-sm font-extrabold font-mono text-white flex items-center gap-2">
-              <span>53ft Trailer 3D Cargo Space & Axle Weight Visualizer</span>
-              <span className="text-3xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded font-mono">
-                {volumePct}% Capacity
+            <h4 className="text-sm font-extrabold font-mono text-white flex flex-wrap items-center gap-2">
+              <span>{trailer.label} Load Plan & Axle Weight Visualizer</span>
+              <span
+                className={`text-3xs border px-2 py-0.5 rounded font-mono ${chipTone(
+                  plan.floorUsagePct,
+                  plan.overflowIn > 0
+                )}`}
+              >
+                {plan.floorUsagePct}% Floor
+              </span>
+              <span
+                className={`text-3xs border px-2 py-0.5 rounded font-mono ${chipTone(
+                  plan.weightUsagePct,
+                  totalWeight > trailer.maxPayloadLbs
+                )}`}
+              >
+                {plan.weightUsagePct}% Weight
               </span>
             </h4>
             <p className="text-3xs text-slate-400 font-mono">
-              Dynamic 26-Pallet Grid Slotting • Axle Balance Engine
+              Measured-skid row packing • {plan.rows.length} loaded{" "}
+              {plan.rows.length === 1 ? "row" : "rows"} • Axle Balance Engine
             </p>
           </div>
         </div>
 
-        {/* View Mode Buttons */}
-        <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
-          <button
-            type="button"
-            onClick={() => setViewMode("3d")}
-            className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "3d"
-              ? "bg-indigo-600 text-white shadow-sm font-mono"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            3D Isometric
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("top")}
-            className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "top"
-              ? "bg-indigo-600 text-white shadow-sm font-mono"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            Top Floor Grid
-          </button>
-          <button
-            type="button"
-            onClick={() => setViewMode("rear")}
-            className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === "rear"
-              ? "bg-indigo-600 text-white shadow-sm font-mono"
-              : "text-slate-400 hover:text-white"
-              }`}
-          >
-            Rear Doors View
-          </button>
-        </div>
-      </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Equipment selector — a 26' straight truck is not a 53' van */}
+          <label className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5">
+            <Ruler className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+            <select
+              value={trailerTypeId}
+              onChange={(e) => onTrailerTypeChange(e.target.value)}
+              className="bg-transparent text-3xs font-mono font-bold text-white focus:outline-none cursor-pointer"
+            >
+              {Object.entries(TRAILER_PRESETS).map(([id, t]) => (
+                <option key={id} value={id} className="bg-slate-900 text-white">
+                  {t.label}
+                </option>
+              ))}
+            </select>
+          </label>
 
-      {/* Axle Weight Metrics Row */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-3xs font-mono">
-        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-          <div className="text-slate-400 font-bold uppercase">Steer Axle</div>
-          <div className="text-xs font-extrabold text-emerald-400">{steerAxle.toLocaleString()} lbs</div>
-          <div className="text-slate-500">Max: 12,000 lbs</div>
-        </div>
-        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-          <div className="text-slate-400 font-bold uppercase">Drive Axles</div>
-          <div className="text-xs font-extrabold text-indigo-400">{driveAxles.toLocaleString()} lbs</div>
-          <div className="text-slate-500">Max: 34,000 lbs</div>
-        </div>
-        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-          <div className="text-slate-400 font-bold uppercase">Trailer Tandems</div>
-          <div className="text-xs font-extrabold text-amber-400">{tandemAxles.toLocaleString()} lbs</div>
-          <div className="text-slate-500">Max: 34,000 lbs</div>
-        </div>
-        <div className="bg-slate-950 p-3 rounded-xl border border-slate-800 space-y-1">
-          <div className="text-slate-400 font-bold uppercase">Gross Vehicle Wt</div>
-          <div className="text-xs font-extrabold text-white">{grossVehicleWeight.toLocaleString()} lbs</div>
-          <div className="text-slate-500">Legal Max: 80,000 lbs</div>
-        </div>
-      </div>
-
-      {/* Render View Modes */}
-      {viewMode === "3d" && (
-        <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto relative min-h-[200px]">
-          <div className="text-3xs font-mono font-bold text-slate-500 uppercase tracking-widest mb-3 flex items-center justify-between">
-            <span>🚛 FRONT (CAB / NOSE)</span>
-            <span>REAR (CARGO DOORS) 🚪</span>
-          </div>
-
-          {/* 3D Isometric Trailer Floor Container */}
-          <div className="grid grid-cols-13 gap-1.5 p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 shadow-inner">
-            {Array.from({ length: 13 }).map((_, colIdx) => {
-              const leftSlot = palletSlots[colIdx * 2];
-              const rightSlot = palletSlots[colIdx * 2 + 1];
-
-              return (
-                <div key={colIdx} className="space-y-1.5 flex flex-col items-center">
-                  <div
-                    className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center p-1 transition-all ${leftSlot.load
-                      ? `${leftSlot.color.bg} ${leftSlot.color.border} shadow-md`
-                      : "bg-slate-950/80 border-slate-800 text-slate-700"
-                      }`}
-                  >
-                    {leftSlot.load ? (
-                      <>
-                        <span className="text-[10px] font-extrabold font-mono text-white truncate max-w-full">
-                          #{leftSlot.loadNumber}
-                        </span>
-                        <span className="text-[8px] font-mono text-white/80">
-                          P#{leftSlot.palletSeq}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[8px] font-mono opacity-40">Slot #{colIdx * 2 + 1}</span>
-                    )}
-                  </div>
-
-                  <div
-                    className={`w-full h-14 rounded-lg border flex flex-col items-center justify-center p-1 transition-all ${rightSlot.load
-                      ? `${rightSlot.color.bg} ${rightSlot.color.border} shadow-md`
-                      : "bg-slate-950/80 border-slate-800 text-slate-700"
-                      }`}
-                  >
-                    {rightSlot.load ? (
-                      <>
-                        <span className="text-[10px] font-extrabold font-mono text-white truncate max-w-full">
-                          #{rightSlot.loadNumber}
-                        </span>
-                        <span className="text-[8px] font-mono text-white/80">
-                          P#{rightSlot.palletSeq}
-                        </span>
-                      </>
-                    ) : (
-                      <span className="text-[8px] font-mono opacity-40">Slot #{colIdx * 2 + 2}</span>
-                    )}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {viewMode === "top" && (
-        <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-          <div className="text-3xs font-mono text-slate-400 uppercase font-bold">
-            2D Floor Plan Grid (26 Standard 48x40 Pallet Positions)
-          </div>
-          <div className="grid grid-cols-2 sm:grid-cols-6 lg:grid-cols-13 gap-2">
-            {palletSlots.map((slot) => (
-              <div
-                key={slot.slotIndex}
-                className={`p-2 rounded-xl border text-center font-mono text-3xs ${slot.load
-                  ? `${slot.color.bg} ${slot.color.border} text-white font-bold`
-                  : "bg-slate-900 border-slate-800 text-slate-600"
-                  }`}
+          <div className="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            {viewTabs.map((tab) => (
+              <button
+                key={tab.id}
+                type="button"
+                onClick={() => setViewMode(tab.id)}
+                className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${
+                  viewMode === tab.id
+                    ? "bg-indigo-600 text-white shadow-sm font-mono"
+                    : "text-slate-400 hover:text-white"
+                }`}
               >
-                <div>Slot {slot.slotIndex + 1}</div>
-                {slot.load ? (
-                  <div className="text-3xs font-extrabold">#{slot.loadNumber}</div>
-                ) : (
-                  <div className="text-3xs text-slate-700">Empty</div>
-                )}
-              </div>
+                {tab.label}
+              </button>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {viewMode === "rear" && (
-        <div className="bg-slate-950 p-6 rounded-2xl border border-slate-800 flex items-center justify-center">
-          <div className="w-64 h-52 border-4 border-slate-700 rounded-2xl bg-slate-900 p-4 flex flex-col justify-end relative shadow-2xl">
-            <div className="absolute -top-3 left-1/2 -translate-x-1/2 bg-indigo-600 text-white text-3xs font-mono px-3 py-0.5 rounded-full font-bold">
-              110" REAR TRAILER CLEARANCE
+      <TrailerPlanProblems plan={plan} />
+
+      {/* The two constraints that actually decide whether this trailer loads.
+          Given a bar each, because a percentage is read at a glance and eight
+          identical little number tiles are not. */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <CapacityMeter
+          label="Floor Space"
+          primary={asFeet(plan.lengthUsedIn)}
+          secondary={
+            plan.overflowIn > 0
+              ? `over by ${asFeet(plan.overflowIn)}`
+              : `${asFeet(plan.lengthRemainingIn)} left at the doors`
+          }
+          capacity={`of ${asFeet(trailer.lengthIn)}`}
+          pct={plan.floorUsagePct}
+          over={plan.overflowIn > 0}
+        />
+        <CapacityMeter
+          label="Payload"
+          primary={`${totalWeight.toLocaleString()} lbs`}
+          secondary={`${plan.totalSkids} skids across ${plan.rows.length} ${
+            plan.rows.length === 1 ? "row" : "rows"
+          }`}
+          capacity={`of ${trailer.maxPayloadLbs.toLocaleString()} lbs`}
+          pct={plan.weightUsagePct}
+          over={totalWeight > trailer.maxPayloadLbs}
+        />
+      </div>
+
+      {/* Axle distribution — secondary to the two meters above, so it reads as
+          one compact strip instead of four competing cards. */}
+      <div className="bg-slate-950 rounded-xl border border-slate-800 divide-y sm:divide-y-0 sm:divide-x divide-slate-800 grid grid-cols-2 sm:grid-cols-4 font-mono">
+        {[
+          { label: "Steer", value: steerAxle, max: 12000, tone: "text-emerald-400" },
+          { label: "Drive", value: driveAxles, max: 34000, tone: "text-indigo-400" },
+          { label: "Tandems", value: tandemAxles, max: 34000, tone: "text-amber-400" },
+          { label: "Gross", value: grossVehicleWeight, max: 80000, tone: "text-white" },
+        ].map((axle) => (
+          <div key={axle.label} className="px-3 py-2.5">
+            <div className="text-3xs text-slate-500 font-bold uppercase tracking-wide">
+              {axle.label}
             </div>
-            <div className="grid grid-cols-2 gap-3 mb-2">
-              <div className="h-28 bg-indigo-600/80 border-2 border-indigo-400 rounded-xl p-2 flex flex-col justify-between text-center text-3xs font-mono font-bold text-white shadow-lg">
-                <div>LEFT ROW STACK</div>
-                <div className="text-xs">{palletSlots.filter(s => s.load && s.slotIndex % 2 === 0).length} Pallets</div>
-              </div>
-              <div className="h-28 bg-emerald-600/80 border-2 border-emerald-400 rounded-xl p-2 flex flex-col justify-between text-center text-3xs font-mono font-bold text-white shadow-lg">
-                <div>RIGHT ROW STACK</div>
-                <div className="text-xs">{palletSlots.filter(s => s.load && s.slotIndex % 2 !== 0).length} Pallets</div>
-              </div>
+            <div
+              className={`text-xs font-extrabold ${
+                axle.value > axle.max ? "text-rose-400" : axle.tone
+              }`}
+            >
+              {axle.value.toLocaleString()}
             </div>
-            <div className="h-3 bg-slate-700 rounded-full w-full" />
+            <div className="text-3xs text-slate-600">
+              max {axle.max.toLocaleString()}
+            </div>
           </div>
-        </div>
-      )}
+        ))}
+      </div>
+
+      {viewMode === "floor" && <TrailerFloorPlan plan={plan} />}
+      {viewMode === "manifest" && <TrailerLoadManifest plan={plan} />}
+      {viewMode === "height" && <TrailerHeightProfile plan={plan} />}
 
       {/* Color Legend */}
       <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-800 text-3xs font-mono">
         <span className="text-slate-400 font-bold uppercase">Consolidated Load Legend:</span>
-        {selectedLoads.map((s, idx) => {
-          const color = loadColors[idx % loadColors.length];
-          const loadNum = s.load_number || s.tracking_number || s.id;
+        {plan.perLoad.map((pl, idx) => {
+          const color = colorForLoad(idx);
           return (
             <span
-              key={s.id}
+              key={`${pl.loadNumber}-${idx}`}
               className={`px-2.5 py-1 rounded-lg border ${color.bg} ${color.border} text-white font-bold flex items-center gap-1.5`}
             >
               <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              <span>Load #{loadNum} ({s.pieces || s.palletCount || 2} Pallets)</span>
+              <span>
+                Load #{pl.loadNumber} ({pl.skid.count} ×{" "}
+                {asInches(pl.skid.lengthIn)}×{asInches(pl.skid.widthIn)})
+              </span>
+              {pl.skid.assumed && (
+                <span className="px-1 py-px rounded bg-amber-400 text-amber-950 text-[8px] font-extrabold">
+                  ASSUMED
+                </span>
+              )}
             </span>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+/* ── Per-load skid dimension editor ──────────────────────────────────────────
+   Edits live in a local draft so the plan re-runs on every keystroke, and only
+   reach the API when the dispatcher saves. Loads planned on assumed numbers are
+   labelled as such everywhere they appear — a guess must never be shown as if
+   it were measured. */
+/* A labelled usage bar. Floor space and payload are the two things that decide
+   whether freight loads, so each gets a readable number and a bar rather than
+   being one of eight identical stat tiles. */
+const CapacityMeter = ({ label, primary, secondary, capacity, pct, over }) => {
+  const barTone = over
+    ? "bg-rose-500"
+    : pct >= 90
+      ? "bg-amber-400"
+      : "bg-indigo-500";
+
+  return (
+    <div className="bg-slate-950 rounded-xl border border-slate-800 p-3.5 space-y-2 font-mono">
+      <div className="flex items-baseline justify-between gap-2">
+        <span className="text-3xs font-bold uppercase tracking-wide text-slate-400">
+          {label}
+        </span>
+        <span
+          className={`text-3xs font-extrabold ${
+            over ? "text-rose-400" : "text-slate-400"
+          }`}
+        >
+          {pct}%
+        </span>
+      </div>
+
+      <div className="flex items-baseline gap-1.5">
+        <span
+          className={`text-lg font-extrabold leading-none ${
+            over ? "text-rose-400" : "text-white"
+          }`}
+        >
+          {primary}
+        </span>
+        <span className="text-3xs text-slate-500">{capacity}</span>
+      </div>
+
+      <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
+        <div
+          className={`h-full rounded-full transition-all ${barTone}`}
+          style={{ width: `${Math.min(100, Math.max(pct, pct > 0 ? 2 : 0))}%` }}
+        />
+      </div>
+
+      <div className={`text-3xs ${over ? "text-rose-400" : "text-slate-500"}`}>
+        {secondary}
+      </div>
+    </div>
+  );
+};
+
+const SkidDimensionEditor = ({
+  loads,
+  drafts,
+  onDraftChange,
+  onSave,
+  savingId,
+}) => {
+  if (!loads.length) return null;
+
+  const fieldClass =
+    "w-full bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-3xs font-mono font-bold text-white placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-500";
+
+  return (
+    <div className="bg-slate-900 rounded-2xl border border-slate-700 p-5 space-y-4 text-white shadow-xl">
+      <div className="flex items-center space-x-2.5 border-b border-slate-800 pb-3">
+        <div className="p-2 bg-emerald-600/25 text-emerald-400 border border-emerald-500/40 rounded-xl">
+          <Ruler className="h-5 w-5" />
+        </div>
+        <div>
+          <h4 className="text-sm font-extrabold font-mono text-white">
+            Skid Dimensions per Load
+          </h4>
+          <p className="text-3xs text-slate-400 font-mono">
+            Real footprints drive the plan above — it re-packs as you type. Save
+            to write the numbers back to the load.
+          </p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 xl:grid-cols-2 gap-3">
+        {loads.map((load, idx) => {
+          const color = colorForLoad(idx);
+          const draft = drafts[load.id] || {};
+          const merged = { ...load, ...draft };
+          const spec = skidSpecFor(merged);
+          const dirty = skidDraftIsDirty(load, draft);
+          const saving = savingId === load.id;
+          const valueOf = (field) =>
+            draft[field] !== undefined
+              ? draft[field]
+              : load[field] === null || load[field] === undefined
+                ? ""
+                : load[field];
+
+          return (
+            <div
+              key={load.id}
+              className="bg-slate-950 rounded-xl border border-slate-800 p-3.5 space-y-3"
+            >
+              {/* Load identity */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2 min-w-0">
+                  <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${color.dot}`} />
+                  <div className="min-w-0">
+                    <div className="text-xs font-extrabold font-mono text-white truncate">
+                      #{loadNumberOf(load)}
+                    </div>
+                    <div className="text-3xs font-mono text-slate-500 truncate">
+                      {load.customer_name || "—"} · {spec.count}{" "}
+                      {spec.count === 1 ? "skid" : "skids"}
+                    </div>
+                  </div>
+                </div>
+                {spec.supplied ? (
+                  <span className="shrink-0 text-3xs font-mono font-bold px-2 py-0.5 rounded bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                    MEASURED
+                  </span>
+                ) : (
+                  <span className="shrink-0 text-3xs font-mono font-bold px-2 py-0.5 rounded bg-amber-500/15 text-amber-400 border border-amber-500/30">
+                    ASSUMED 48×40
+                  </span>
+                )}
+              </div>
+
+              {/* One-click presets. A uniform grid rather than flex-wrap: with
+                  labels of very different lengths, wrapping leaves ragged rows
+                  and orphaned buttons. */}
+              <div>
+                <span className="block text-3xs font-mono font-bold uppercase text-slate-500 mb-1.5">
+                  Common footprints
+                </span>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {SKID_PRESETS.map((preset) => {
+                    const active =
+                      Number(merged.skid_length_in) === preset.lengthIn &&
+                      Number(merged.skid_width_in) === preset.widthIn;
+                    return (
+                      <button
+                        key={preset.label}
+                        type="button"
+                        onClick={() =>
+                          onDraftChange(load.id, {
+                            skid_length_in: preset.lengthIn,
+                            skid_width_in: preset.widthIn,
+                            skid_height_in: preset.heightIn,
+                          })
+                        }
+                        className={`px-2 py-1.5 rounded-lg border text-3xs font-mono font-bold text-center truncate transition-colors cursor-pointer ${
+                          active
+                            ? "border-indigo-500 bg-indigo-500/20 text-white"
+                            : "border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500 hover:text-white"
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Free numeric entry — most freight is not a preset */}
+              <div className="grid grid-cols-3 gap-2">
+                {[
+                  { field: "skid_length_in", label: "Length" },
+                  { field: "skid_width_in", label: "Width" },
+                  { field: "skid_height_in", label: "Height" },
+                ].map(({ field, label }) => {
+                  const raw = Number(valueOf(field));
+                  const tooSmall =
+                    Number.isFinite(raw) && raw > 0 && raw < MIN_PLAUSIBLE_IN;
+                  return (
+                  <label key={field} className="space-y-1">
+                    <span className="block text-3xs font-mono font-bold uppercase text-slate-500">
+                      {label} <span className="text-slate-600">(in)</span>
+                    </span>
+                    <input
+                      type="number"
+                      min="1"
+                      // Whole inches. A 0.1 step let a stray spinner click turn
+                      // an empty field into a 0.3" skid, which then planned as
+                      // real freight.
+                      step="1"
+                      value={valueOf(field)}
+                      placeholder="—"
+                      onChange={(e) =>
+                        onDraftChange(load.id, { [field]: e.target.value })
+                      }
+                      className={`${fieldClass} ${
+                        tooSmall ? "border-rose-500 ring-1 ring-rose-500/40" : ""
+                      }`}
+                    />
+                  </label>
+                  );
+                })}
+              </div>
+
+              {/* Handling flags */}
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(merged.is_stackable)}
+                    onChange={(e) =>
+                      onDraftChange(load.id, { is_stackable: e.target.checked })
+                    }
+                    className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <span className="text-3xs font-mono font-bold text-slate-300 flex items-center gap-1">
+                    <Boxes className="h-3 w-3 text-slate-500" />
+                    Stackable
+                  </span>
+                </label>
+
+                <label className="flex items-center gap-1.5">
+                  <span className="text-3xs font-mono font-bold text-slate-500 uppercase">
+                    Max stack
+                  </span>
+                  <input
+                    type="number"
+                    min="1"
+                    step="1"
+                    disabled={!merged.is_stackable}
+                    value={valueOf("max_stack_count")}
+                    placeholder="2"
+                    onChange={(e) =>
+                      onDraftChange(load.id, { max_stack_count: e.target.value })
+                    }
+                    className={`${fieldClass} w-14 disabled:opacity-40 disabled:cursor-not-allowed`}
+                  />
+                </label>
+
+                <label className="flex items-center gap-1.5 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={Boolean(merged.no_rotate)}
+                    onChange={(e) =>
+                      onDraftChange(load.id, { no_rotate: e.target.checked })
+                    }
+                    className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
+                  />
+                  <span className="text-3xs font-mono font-bold text-slate-300 flex items-center gap-1">
+                    <Lock className="h-3 w-3 text-slate-500" />
+                    Do not rotate
+                  </span>
+                </label>
+              </div>
+
+              {/* Save */}
+              <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
+                <span className="text-3xs font-mono text-slate-500">
+                  Planning as {asInches(spec.lengthIn)} ×{" "}
+                  {asInches(spec.widthIn)} × {asInches(spec.heightIn)}
+                  {spec.stackable ? ` · ${spec.maxStack} high` : ""}
+                  {spec.noRotate ? " · fixed orientation" : ""}
+                </span>
+                <button
+                  type="button"
+                  disabled={!dirty || saving}
+                  onClick={() => onSave(load)}
+                  className={`px-3 py-1 rounded-lg text-3xs font-mono font-bold flex items-center gap-1.5 transition-all shrink-0 ${
+                    !dirty || saving
+                      ? "bg-slate-800 text-slate-600 cursor-not-allowed"
+                      : "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                  }`}
+                >
+                  <Save className="h-3 w-3" />
+                  <span>{saving ? "Saving…" : dirty ? "Save" : "Saved"}</span>
+                </button>
+              </div>
+            </div>
           );
         })}
       </div>
@@ -502,6 +1132,66 @@ export default function DispatcherDashboard({
   const [plannerDestSearch, setPlannerDestSearch] = useState("");
   const [plannerPickSearch, setPlannerPickSearch] = useState("");
   const [plannerSelectedState, setPlannerSelectedState] = useState("all");
+
+  /* ── Trailer load planning state ──────────────────────────────────────────
+     The consolidation planner is driven by planTrailer(), not by a fixed slot
+     grid. Skid edits are held as local drafts so the plan re-runs on every
+     keystroke; they only reach the API when the dispatcher saves a load. */
+  const [trailerTypeId, setTrailerTypeId] = useState("53_dry_van");
+  const [skidDrafts, setSkidDrafts] = useState({});
+  const [savingSkidId, setSavingSkidId] = useState(null);
+
+  const consolidationLoads = useMemo(
+    () => shipments.filter((s) => selectedConsolidationIds.includes(s.id)),
+    [shipments, selectedConsolidationIds]
+  );
+
+  const plannedConsolidationLoads = useMemo(
+    () => consolidationLoads.map((s) => ({ ...s, ...(skidDrafts[s.id] || {}) })),
+    [consolidationLoads, skidDrafts]
+  );
+
+  const trailerPlan = useMemo(
+    () =>
+      planTrailer(
+        plannedConsolidationLoads,
+        TRAILER_PRESETS[trailerTypeId] || DEFAULT_TRAILER
+      ),
+    [plannedConsolidationLoads, trailerTypeId]
+  );
+
+  const handleSkidDraftChange = (loadId, patch) =>
+    setSkidDrafts((prev) => ({
+      ...prev,
+      [loadId]: { ...(prev[loadId] || {}), ...patch },
+    }));
+
+  // Persists through the same onUpdateShipment path every other edit on this
+  // dashboard uses (PUT /load/:id via useShipmentStore.updateShipment).
+  const handleSaveSkidDimensions = async (load) => {
+    if (!onUpdateShipment) return;
+    const merged = { ...load, ...(skidDrafts[load.id] || {}) };
+    setSavingSkidId(load.id);
+    try {
+      await onUpdateShipment({
+        ...load,
+        skid_length_in: dimOrNull(merged.skid_length_in),
+        skid_width_in: dimOrNull(merged.skid_width_in),
+        skid_height_in: dimOrNull(merged.skid_height_in),
+        is_stackable: Boolean(merged.is_stackable),
+        max_stack_count: dimOrNull(merged.max_stack_count),
+        no_rotate: Boolean(merged.no_rotate),
+      });
+      // Drop the draft so the card reads back whatever the server actually kept.
+      setSkidDrafts((prev) => {
+        const next = { ...prev };
+        delete next[load.id];
+        return next;
+      });
+    } finally {
+      setSavingSkidId(null);
+    }
+  };
 
   const getDriverRecommendations = (loadWeight, loadPallets, loadOrigin) => {
     return mockDrivers
@@ -1035,7 +1725,7 @@ export default function DispatcherDashboard({
     toast.error(`Load #${s.load_number || s.tracking_number || s.trackingNumber || loadId} BOL Rejected. Driver notified to re-upload.`);
   };
 
-  const handleConsolidateTrips = () => {
+  const handleConsolidateTrips = async () => {
     // if (!consolidationDriverId) {
     //   alert("Please select a driver");
     //   return;
@@ -1044,15 +1734,9 @@ export default function DispatcherDashboard({
       alert("Please select at least one load to consolidate into this trip.");
       return;
     }
-    const numericTripNumbers = trips
-      .map((t) => parseInt(t.trip_number, 10))
-      .filter((num) => !isNaN(num) && num >= 1e4);
-    const nextTripNum =
-      numericTripNumbers.length > 0
-        ? Math.max(...numericTripNumbers) + 1
-        : 10003;
-    const tripNumber = String(nextTripNum);
-    const tripId = `TRIP-${tripNumber}`;
+    // The trip number comes back from the server, which allocates it from a
+    // sequence starting at 10000. Computing it here from the loaded trip list
+    // raced other dispatchers onto the same number.
     const selectedLoads = shipments.filter((s) =>
       selectedConsolidationIds.includes(s.id)
     );
@@ -1065,7 +1749,6 @@ export default function DispatcherDashboard({
       0
     );
     const newTrip = {
-      tripNumber,
       driverId: consolidationDriverId,
       driverName: consolidationDriverName,
       truckNumber: consolidationTruck,
@@ -1075,24 +1758,25 @@ export default function DispatcherDashboard({
       totalWeightLbs: totalWeight,
       totalPallets,
     };
-    console.log(newTrip)
+
+    if (!onAddTrip) return;
+
+    // Create first so the loads can be stamped with the real trip number the
+    // server allocated, then route is already computed server-side.
+    const savedTrip = await onAddTrip(newTrip);
+    if (!savedTrip) return; // store already surfaced the failure
+
+    const tripId = `TRIP-${savedTrip.trip_number}`;
     selectedLoads.forEach((shipment) => {
-      const updatedShipment = {
+      onUpdateShipment({
         ...shipment,
         tripId,
         driver_id: consolidationDriverId,
-        // driver_name: consolidationDriverName,
-        // truck_number: consolidationTruck,
-        // trailer_number: consolidationTrailer,
         status: "trip_assigned",
-      };
-      onUpdateShipment(updatedShipment);
+      });
     });
-    if (onAddTrip) {
-      onAddTrip(newTrip);
-    }
-    setSelectedConsolidationIds([]);
 
+    setSelectedConsolidationIds([]);
     setConsolidationDriverId("");
     setConsolidationDriverName("");
   };
@@ -2368,144 +3052,146 @@ export default function DispatcherDashboard({
                     2. Live Trailer Space Optimization & Utilization
                   </h4>
 
-                  {(() => {
-                    const selectedLoads = shipments.filter((s) =>
-                      selectedConsolidationIds.includes(s.id)
-                    );
-                    const totalWeight = selectedLoads.reduce(
-                      (sum, s) => sum + Number(s.weight),
-                      0
-                    );
-                    const totalPallets = selectedLoads.reduce(
-                      (sum, s) => sum + (Number(s.pieces) || 2),
-                      0
-                    );
-                    const hasFTL = selectedLoads.some(
-                      (s) => s.loadType === "FTL"
-                    );
-                    const weightLimit = 45e3;
-                    const palletLimit = 26;
-                    const weightPercent = Math.min(
-                      Math.round((totalWeight / weightLimit) * 100),
-                      100
-                    );
-                    const palletPercent = Math.min(
-                      Math.round((totalPallets / palletLimit) * 100),
-                      100
-                    );
-                    const isOverloadedWeight = totalWeight > weightLimit;
-                    const isOverloadedPallets = totalPallets > palletLimit;
-                    return (
-                      <div className="space-y-5">
-                        {/* Interactive 3D Trailer Cargo Space & Axle Weight Visualizer */}
-                        <Pallet3DTrailerVisualizer selectedLoads={selectedLoads} />
+                  {/* Interactive trailer floor plan, driven by planTrailer() */}
+                  <Pallet3DTrailerVisualizer
+                    plan={trailerPlan}
+                    trailerTypeId={trailerTypeId}
+                    onTrailerTypeChange={setTrailerTypeId}
+                  />
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Weight Utilization */}
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
-                            <div className="flex justify-between text-xs font-bold">
-                              <span className="text-slate-600">
-                                Trailer Weight Utilization
-                              </span>
-                              <span
-                                className={
-                                  isOverloadedWeight
-                                    ? "text-rose-600 font-extrabold"
-                                    : "text-indigo-600"
-                                }
-                              >
-                                {totalWeight.toLocaleString()} /{" "}
-                                {weightLimit.toLocaleString()} Lbs (
-                                {weightPercent}%)
-                              </span>
-                            </div>
-                            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-300 ${isOverloadedWeight
-                                  ? "bg-rose-500 animate-pulse"
-                                  : weightPercent > 85
-                                    ? "bg-amber-500"
-                                    : "bg-indigo-600"
-                                  }`}
-                                style={{ width: `${weightPercent}%` }}
-                              />
-                            </div>
-                            {isOverloadedWeight && (
-                              <p className="text-rose-600 text-3xs font-semibold">
-                                ⚠️ OVERWEIGHT WARNING: Trailer load exceeds the
-                                45k heavy-duty payload limit.
-                              </p>
-                            )}
-                          </div>
+                  {/* Real skid footprints per load — the plan above re-packs live */}
+                  <SkidDimensionEditor
+                    loads={consolidationLoads}
+                    drafts={skidDrafts}
+                    onDraftChange={handleSkidDraftChange}
+                    onSave={handleSaveSkidDimensions}
+                    savingId={savingSkidId}
+                  />
 
-                          {/* Pallet Utilization */}
-                          <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
-                            <div className="flex justify-between text-xs font-bold">
-                              <span className="text-slate-600">
-                                Trailer Space / Pallet Utilization
-                              </span>
-                              <span
-                                className={
-                                  isOverloadedPallets
-                                    ? "text-rose-600 font-extrabold"
-                                    : "text-indigo-600"
-                                }
-                              >
-                                {totalPallets} / {palletLimit} Pallets (
-                                {palletPercent}%)
-                              </span>
-                            </div>
-                            <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
-                              <div
-                                className={`h-full rounded-full transition-all duration-300 ${isOverloadedPallets
-                                  ? "bg-rose-500 animate-pulse"
-                                  : palletPercent > 85
-                                    ? "bg-amber-500"
-                                    : "bg-indigo-600"
-                                  }`}
-                                style={{ width: `${palletPercent}%` }}
-                              />
-                            </div>
-                            {isOverloadedPallets && (
-                              <p className="text-rose-600 text-3xs font-semibold">
-                                ⚠️ OVERLOAD WARNING: Pallet count exceeds the
-                                standard 53ft trailer capability (26 pallets).
-                              </p>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* FTL notice (Feature #2) */}
-                        {hasFTL && (
-                          <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3.5 rounded-xl text-2xs leading-relaxed font-semibold">
-                            💡 <strong>FTL LOAD CONSOLIDATED:</strong> You have
-                            bundled a Full Truckload (FTL) shipment with other
-                            cargo. The trailer is legally and
-                            administrative-wise marked as dedicated to the
-                            primary customer, but is optimized internally for
-                            dual cargo space. Customers will not see
-                            consolidation notes in their client portals.
-                          </div>
-                        )}
-
-                        {/* Submit Button */}
-                        <div className="flex justify-end pt-1">
-                          <button
-                            type="button"
-                            disabled={isOverloadedWeight || isOverloadedPallets}
-                            onClick={handleConsolidateTrips}
-                            className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg transition-all shadow-sm flex items-center space-x-1.5 ${isOverloadedWeight || isOverloadedPallets
-                              ? "bg-slate-300 cursor-not-allowed"
-                              : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
-                              }`}
-                          >
-                            <Sparkles className="h-4 w-4" />
-                            <span>Confirm & Build Consolidation Trip</span>
-                          </button>
-                        </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Weight Utilization */}
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-slate-600">
+                          Trailer Weight Utilization
+                        </span>
+                        <span
+                          className={
+                            trailerPlan.totalWeightLbs >
+                              trailerPlan.trailer.maxPayloadLbs
+                              ? "text-rose-600 font-extrabold"
+                              : "text-indigo-600"
+                          }
+                        >
+                          {trailerPlan.totalWeightLbs.toLocaleString()} /{" "}
+                          {trailerPlan.trailer.maxPayloadLbs.toLocaleString()} Lbs (
+                          {trailerPlan.weightUsagePct}%)
+                        </span>
                       </div>
-                    );
-                  })()}
+                      <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${trailerPlan.totalWeightLbs >
+                            trailerPlan.trailer.maxPayloadLbs
+                            ? "bg-rose-500 animate-pulse"
+                            : trailerPlan.weightUsagePct > 85
+                              ? "bg-amber-500"
+                              : "bg-indigo-600"
+                            }`}
+                          style={{ width: `${trailerPlan.weightUsagePct}%` }}
+                        />
+                      </div>
+                      {trailerPlan.totalWeightLbs >
+                        trailerPlan.trailer.maxPayloadLbs && (
+                          <p className="text-rose-600 text-3xs font-semibold">
+                            ⚠️ OVERWEIGHT WARNING: Payload exceeds the{" "}
+                            {trailerPlan.trailer.maxPayloadLbs.toLocaleString()} lbs
+                            limit for a {trailerPlan.trailer.label}.
+                          </p>
+                        )}
+                    </div>
+
+                    {/* Floor length utilization — capacity is linear feet, not a slot count */}
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                      <div className="flex justify-between text-xs font-bold">
+                        <span className="text-slate-600">
+                          Trailer Floor Utilization
+                        </span>
+                        <span
+                          className={
+                            trailerPlan.overflowIn > 0
+                              ? "text-rose-600 font-extrabold"
+                              : "text-indigo-600"
+                          }
+                        >
+                          {asFeet(trailerPlan.lengthUsedIn)} /{" "}
+                          {asFeet(trailerPlan.trailer.lengthIn)} (
+                          {trailerPlan.floorUsagePct}%)
+                        </span>
+                      </div>
+                      <div className="w-full bg-slate-200 h-2.5 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full rounded-full transition-all duration-300 ${trailerPlan.overflowIn > 0
+                            ? "bg-rose-500 animate-pulse"
+                            : trailerPlan.floorUsagePct > 85
+                              ? "bg-amber-500"
+                              : "bg-indigo-600"
+                            }`}
+                          style={{ width: `${trailerPlan.floorUsagePct}%` }}
+                        />
+                      </div>
+                      {trailerPlan.overflowIn > 0 ? (
+                        <p className="text-rose-600 text-3xs font-semibold">
+                          ⚠️ OVERLOAD WARNING: {trailerPlan.totalSkids} skids need{" "}
+                          {asFeet(trailerPlan.lengthUsedIn)} of floor — over the{" "}
+                          {trailerPlan.trailer.label} by{" "}
+                          {asFeet(trailerPlan.overflowIn)}.
+                        </p>
+                      ) : (
+                        <p className="text-slate-500 text-3xs font-semibold">
+                          {trailerPlan.totalSkids} skids in{" "}
+                          {trailerPlan.rows.length}{" "}
+                          {trailerPlan.rows.length === 1 ? "row" : "rows"} ·{" "}
+                          {asFeet(trailerPlan.lengthRemainingIn)} still open at the
+                          doors.
+                        </p>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* FTL notice (Feature #2) */}
+                  {consolidationLoads.some((s) => s.loadType === "FTL") && (
+                    <div className="bg-amber-50 border border-amber-200 text-amber-800 p-3.5 rounded-xl text-2xs leading-relaxed font-semibold">
+                      💡 <strong>FTL LOAD CONSOLIDATED:</strong> You have
+                      bundled a Full Truckload (FTL) shipment with other
+                      cargo. The trailer is legally and
+                      administrative-wise marked as dedicated to the
+                      primary customer, but is optimized internally for
+                      dual cargo space. Customers will not see
+                      consolidation notes in their client portals.
+                    </div>
+                  )}
+
+                  {/* Submit Button */}
+                  <div className="flex flex-col sm:flex-row sm:items-center sm:justify-end gap-2 pt-1">
+                    {!trailerPlan.fits && (
+                      <span className="text-3xs font-mono font-bold text-rose-600">
+                        Resolve the blocking problems above before building this
+                        trip.
+                      </span>
+                    )}
+                    <button
+                      type="button"
+                      disabled={!trailerPlan.fits}
+                      onClick={handleConsolidateTrips}
+                      className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg transition-all shadow-sm flex items-center space-x-1.5 ${!trailerPlan.fits
+                        ? "bg-slate-300 cursor-not-allowed"
+                        : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                        }`}
+                    >
+                      <Sparkles className="h-4 w-4" />
+                      <span>Confirm & Build Consolidation Trip</span>
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -2874,7 +3560,7 @@ export default function DispatcherDashboard({
                   onSubmit={handleCreateLoad}
                   className="p-6 border-b border-slate-200 bg-indigo-50/30 space-y-4"
                 >
-                  <div className="flex items-center justify-between border-b border-slate-150 pb-2">
+                  <div className="flex items-center justify-between border-b border-slate-200 pb-2">
                     <h4 className="text-sm font-bold font-mono text-indigo-950 uppercase flex items-center gap-1.5">
                       <Plus className="h-4 w-4 text-indigo-600" />
                       Create & Dispatch New Shipment

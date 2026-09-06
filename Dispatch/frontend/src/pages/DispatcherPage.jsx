@@ -63,8 +63,10 @@ export default function DispatcherPage() {
     }
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
+  // Returns the saved trip so the caller can use the server-allocated
+  // trip_number when stamping the consolidated loads.
   const handleAddTrip = useCallback(async (newTrip) => {
-    await addTrip(newTrip);
+    return await addTrip(newTrip);
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdateTrip = useCallback(async (updated) => {
