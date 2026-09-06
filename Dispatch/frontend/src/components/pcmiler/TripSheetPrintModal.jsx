@@ -1,5 +1,5 @@
 import React, { useRef } from "react";
-import { Printer, X, MapPin, Fuel, ShieldAlert } from "lucide-react";
+import { Printer, X, MapPin, Fuel, ShieldAlert, Package } from "lucide-react";
 
 const num = (value, digits = 1) =>
   value === null || value === undefined || Number.isNaN(Number(value))
@@ -11,7 +11,16 @@ const money = (value) =>
     ? "—"
     : `$${Number(value).toFixed(2)}`;
 
-export default function TripSheetPrintModal({ isOpen, onClose, route }) {
+export default function TripSheetPrintModal({
+  isOpen,
+  onClose,
+  route,
+  // Set for a saved consolidation so the sheet prints the trip's real
+  // sequential number (TRIP-10000) instead of a timestamp-derived reference.
+  tripLabel,
+  // Loads on a consolidated trip, printed as the manifest.
+  loads = [],
+}) {
   const printContentRef = useRef(null);
 
   if (!isOpen || !route) return null;
@@ -25,12 +34,15 @@ export default function TripSheetPrintModal({ isOpen, onClose, route }) {
     window.print();
   };
 
-  // The manifest id is derived from the routing timestamp, so reprinting the
-  // same calculated route reproduces the same document reference.
+  // For an ad-hoc PC*MILER calculation there is no saved trip, so the manifest
+  // id derives from the routing timestamp: reprinting the same calculated route
+  // reproduces the same reference.
   const calculatedAt = route.calculatedAt ? new Date(route.calculatedAt) : null;
-  const tripId = calculatedAt
-    ? `TRIP-${calculatedAt.toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}`
-    : "TRIP-UNCALCULATED";
+  const tripId =
+    tripLabel ||
+    (calculatedAt
+      ? `TRIP-${calculatedAt.toISOString().replace(/[-:T.Z]/g, "").slice(0, 14)}`
+      : "TRIP-UNCALCULATED");
   const formattedDate = calculatedAt
     ? calculatedAt.toLocaleString("en-US", {
         weekday: "short",
@@ -231,6 +243,44 @@ export default function TripSheetPrintModal({ isOpen, onClose, route }) {
               </table>
             </div>
           </div>
+
+          {/* Consolidated Load Manifest — only for a saved LTL trip */}
+          {loads.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase font-mono">
+                <Package className="w-3.5 h-3.5 text-sky-600" />
+                <span>Consolidated Load Manifest ({loads.length})</span>
+              </div>
+              <div className="overflow-x-auto border border-slate-200 rounded-xl">
+                <table className="w-full text-[10px] font-mono">
+                  <thead className="bg-slate-100 text-slate-600 uppercase text-[9px]">
+                    <tr>
+                      <th className="text-left py-2 px-3">Load #</th>
+                      <th className="text-left py-2 px-3">Shipper</th>
+                      <th className="text-left py-2 px-3">Consignee</th>
+                      <th className="text-right py-2 px-3">Pieces</th>
+                      <th className="text-right py-2 px-3">Weight</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {loads.map((l) => (
+                      <tr key={l.id}>
+                        <td className="py-2 px-3 font-bold text-slate-900">
+                          {l.load_number || "—"}
+                        </td>
+                        <td className="py-2 px-3 text-slate-700">{l.shipper_name || "—"}</td>
+                        <td className="py-2 px-3 text-slate-700">{l.consignee_name || "—"}</td>
+                        <td className="py-2 px-3 text-right text-slate-700">{l.pieces ?? "—"}</td>
+                        <td className="py-2 px-3 text-right text-slate-700">
+                          {l.weight ? `${Number(l.weight).toLocaleString()} lbs` : "—"}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
 
           {/* Pre-Trip & Post-Trip Sign-Off Section */}
           <div className="pt-4 border-t-2 border-slate-900 grid grid-cols-2 gap-6 text-xs font-mono">

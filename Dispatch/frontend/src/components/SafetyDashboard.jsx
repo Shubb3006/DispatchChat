@@ -30,7 +30,7 @@ export default function SafetyDashboard({ incidents, scores, hosLogs, onResolveI
     /* Incidents Board */
   }
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center space-x-2">
                 <AlertTriangle className="text-rose-600 h-5 w-5" />
                 <h3 className="text-base font-semibold text-slate-900">Samsara Critical Safety Alerts & Incidents</h3>

@@ -707,6 +707,22 @@ const UPDATABLE_LOAD_COLUMNS = {
   empty_status: ["empty_status", "emptyStatus"],
   eta_to_empty: ["eta_to_empty", "etaToEmpty"],
   next_pickup_status: ["next_pickup_status", "nextPickupStatus"],
+
+  // Per-load skid dimensions (migration 130). Trailer capacity is planned from
+  // these, so freight that isn't standard 48x40 is measured rather than guessed.
+  skid_length_in: ["skid_length_in", "skidLengthIn"],
+  skid_width_in: ["skid_width_in", "skidWidthIn"],
+  skid_height_in: ["skid_height_in", "skidHeightIn"],
+  is_stackable: ["is_stackable", "isStackable"],
+  max_stack_count: ["max_stack_count", "maxStackCount"],
+  no_rotate: ["no_rotate", "noRotate"],
+
+  // Freight classification (migration 131). These were previously conflated
+  // into house_status, which meant setting one erased the others.
+  freight_size: ["freight_size", "freightSize"],
+  freight_type: ["freight_type", "freightType"],
+  trailer_type: ["trailer_type", "trailerType"],
+  house_status: ["house_status", "houseStatus"],
 };
 
 // The Operations Board columns ship as migration 128, but applying them lazily
@@ -727,7 +743,17 @@ const ensureOpsBoardColumns = () => {
             ADD COLUMN IF NOT EXISTS eta_to_empty          TIMESTAMP,
             ADD COLUMN IF NOT EXISTS next_pickup_status    VARCHAR(30),
             ADD COLUMN IF NOT EXISTS border_connect_status VARCHAR(30),
-            ADD COLUMN IF NOT EXISTS paps_number           VARCHAR(100);
+            ADD COLUMN IF NOT EXISTS paps_number           VARCHAR(100),
+            ADD COLUMN IF NOT EXISTS skid_length_in        NUMERIC(6,2),
+            ADD COLUMN IF NOT EXISTS skid_width_in         NUMERIC(6,2),
+            ADD COLUMN IF NOT EXISTS skid_height_in        NUMERIC(6,2),
+            ADD COLUMN IF NOT EXISTS is_stackable          BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS max_stack_count       INTEGER,
+            ADD COLUMN IF NOT EXISTS no_rotate             BOOLEAN DEFAULT FALSE,
+            ADD COLUMN IF NOT EXISTS freight_size          VARCHAR(10),
+            ADD COLUMN IF NOT EXISTS freight_type          VARCHAR(20),
+            ADD COLUMN IF NOT EXISTS trailer_type          VARCHAR(30),
+            ADD COLUMN IF NOT EXISTS house_status          VARCHAR(50);
       `)
       .catch((err) => {
         // Don't wedge the endpoint permanently on a transient failure.

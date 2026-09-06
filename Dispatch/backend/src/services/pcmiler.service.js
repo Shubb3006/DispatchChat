@@ -82,12 +82,43 @@ export const geocodeAddress = async (query) => {
 
   let result = null;
 
-  // Preferred: ORS Pelias, restricted to the US and Canada.
-  if (ORS_KEY) {
+  /* Nominatim is queried FIRST because it is measurably better at the
+     city-level lookups this system does. ORS Pelias returns a municipality
+     polygon centroid, which for lakeshore towns lands in open water —
+     "Leamington, ON" resolves 3.5 km offshore in Lake Erie, where the router
+     then fails with "could not find routable point". Measured displacement
+     after snapping to the road network:
+         Leamington ON   Nominatim 3 m    vs  Pelias 3542 m
+         Davenport  FL   Nominatim 2 m    vs  Pelias  133 m
+         Fullerton  CA   Nominatim 23 m   vs  Pelias   38 m
+         Brampton   ON   Nominatim 4 m    vs  Pelias    1 m  */
+  try {
+    const res = await axios.get("https://nominatim.openstreetmap.org/search", {
+      params: { q: clean, format: "json", limit: 1, addressdetails: 1, countrycodes: "us,ca" },
+      headers: { "User-Agent": "NishanTransportTMS/1.0 (dispatch@nishantransport.com)" },
+      timeout: 15000,
+    });
+    const item = res.data?.[0];
+    if (item) {
+      result = {
+        lat: parseFloat(item.lat),
+        lon: parseFloat(item.lon),
+        displayName: item.display_name,
+        country: item.address?.country_code?.toUpperCase() === "CA" ? "CA" : "US",
+        state: item.address?.state || item.address?.province || "",
+        source: "NOMINATIM",
+      };
+    }
+  } catch (err) {
+    console.warn(`Nominatim geocode failed for "${clean}":`, err.message);
+  }
+
+  // Fallback: ORS Pelias, same country restriction.
+  if (!result && ORS_KEY) {
     try {
       const res = await axios.get(`${ORS_BASE}/geocode/search`, {
         params: { api_key: ORS_KEY, text: clean, "boundary.country": "US,CA", size: 1 },
-        timeout: 8000,
+        timeout: 15000,
       });
       const f = res.data?.features?.[0];
       if (f) {
@@ -106,30 +137,6 @@ export const geocodeAddress = async (query) => {
     }
   }
 
-  // Fallback: Nominatim, same country restriction.
-  if (!result) {
-    try {
-      const res = await axios.get("https://nominatim.openstreetmap.org/search", {
-        params: { q: clean, format: "json", limit: 1, addressdetails: 1, countrycodes: "us,ca" },
-        headers: { "User-Agent": "NishanTransportTMS/1.0 (dispatch@nishantransport.com)" },
-        timeout: 8000,
-      });
-      const item = res.data?.[0];
-      if (item) {
-        result = {
-          lat: parseFloat(item.lat),
-          lon: parseFloat(item.lon),
-          displayName: item.display_name,
-          country: item.address?.country_code?.toUpperCase() === "CA" ? "CA" : "US",
-          state: item.address?.state || item.address?.province || "",
-          source: "NOMINATIM",
-        };
-      }
-    } catch (err) {
-      console.warn(`Nominatim geocode failed for "${clean}":`, err.message);
-    }
-  }
-
   if (!result) {
     const e = new Error(`Could not resolve address to a location in the US or Canada: "${clean}"`);
     e.code = "GEOCODE_FAILED";
@@ -139,6 +146,55 @@ export const geocodeAddress = async (query) => {
 
   GEOCODE_CACHE.set(cacheKey, result);
   return result;
+};
+
+/* ───────────────── Road-network snapping ─────────────────
+   A geocoder returns where a PLACE is, which is not necessarily where a TRUCK
+   can be: municipality centroids land in lakes, parks and fields, and the
+   router then refuses the stop ("could not find routable point within 350
+   metres"). Snapping moves each stop to the nearest point on the actual
+   heavy-goods road network before routing.
+
+   One batched call covers every stop on the trip, so this costs a single
+   request against the Snap quota no matter how many stops there are. */
+const SNAP_RADIUS_M = 5000;
+
+const snapStopsToRoadNetwork = async (stops, warnings) => {
+  if (!ORS_KEY || !stops.length) return stops;
+
+  try {
+    const res = await axios.post(
+      `${ORS_BASE}/v2/snap/driving-hgv`,
+      { locations: stops.map((s) => [s.lon, s.lat]), radius: SNAP_RADIUS_M },
+      { headers: { Authorization: ORS_KEY, "Content-Type": "application/json" }, timeout: 20000 }
+    );
+
+    const snapped = res.data?.locations || [];
+    return stops.map((stop, i) => {
+      const hit = snapped[i];
+      if (!hit?.location) {
+        warnings.push(
+          `${stop.shortName || stop.address}: no truck-accessible road within ${SNAP_RADIUS_M / 1000} km of the geocoded point.`
+        );
+        return stop;
+      }
+      const [lon, lat] = hit.location;
+      const movedM = Math.round(hit.snapped_distance || 0);
+      // A large shift means the geocode was poor; the stop is still routable,
+      // but the dispatcher should know the point moved materially.
+      if (movedM > 2000) {
+        warnings.push(
+          `${stop.shortName || stop.address}: geocoded point was ${(movedM / 1000).toFixed(1)} km from the nearest truck road and was snapped to it.`
+        );
+      }
+      return { ...stop, lat, lon, coords: [lat, lon], snappedMeters: movedM };
+    });
+  } catch (err) {
+    // Snapping is an accuracy improvement, not a requirement — if it fails the
+    // original geocoded points are still routed.
+    console.warn("Road snapping unavailable:", err.response?.data?.error?.message || err.message);
+    return stops;
+  }
 };
 
 /* ───────────────── Vehicle restrictions ─────────────────
@@ -219,6 +275,31 @@ const routeViaORS = async (stops, profile, vehicle) => {
   };
 };
 
+// ORS caps a single request at ~6000 km of approximated route distance.
+const ORS_TOO_LONG = /must not be greater than|exceed the server configuration limits/i;
+
+/* A legitimate transcontinental consolidation can exceed that cap, so the trip
+   is routed one leg at a time and the real results are summed. Every distance
+   here is still a genuine routed distance — the request is split, not estimated. */
+const routeViaORSChunked = async (stops, profile, vehicle) => {
+  const chunks = [];
+  for (let i = 0; i < stops.length - 1; i++) {
+    // Sequential on purpose: the free tier allows 40 requests/minute and a
+    // parallel burst on a long trip trips the rate limiter.
+    chunks.push(await routeViaORS([stops[i], stops[i + 1]], profile, vehicle));
+  }
+
+  return {
+    provider: "OPENROUTESERVICE_HGV",
+    isTruckProfile: true,
+    wasChunked: true,
+    miles: round(chunks.reduce((a, c) => a + c.miles, 0)),
+    driveHours: round(chunks.reduce((a, c) => a + c.driveHours, 0), 2),
+    geometry: chunks.flatMap((c) => c.geometry),
+    legs: chunks.map((c, i) => ({ ...c.legs[0], legNumber: i + 1 })),
+  };
+};
+
 /* Free fallback: OSRM demo server. CAR profile — no truck restrictions.
    Only `PRACTICAL` and `SHORTEST` are meaningful here; the demo server
    rejects `exclude=toll`, so a toll-free variant genuinely cannot be
@@ -270,6 +351,23 @@ const fetchRoute = async (stops, profile, vehicle, warnings) => {
       return await routeViaORS(stops, profile, vehicle);
     } catch (err) {
       const detail = err.response?.data?.error?.message || err.message;
+
+      // Trip longer than the provider's per-request cap: route it leg by leg
+      // and sum the real results rather than giving up on a valid long haul.
+      if (ORS_TOO_LONG.test(detail) && stops.length > 2) {
+        try {
+          const chunked = await routeViaORSChunked(stops, profile, vehicle);
+          warnings.push(
+            `${profile} route exceeded the provider's single-request distance limit, so it was routed leg by leg and summed.`
+          );
+          return chunked;
+        } catch (chunkErr) {
+          const d2 = chunkErr.response?.data?.error?.message || chunkErr.message;
+          warnings.push(`No ${profile} truck route found: ${d2}`);
+          return null;
+        }
+      }
+
       if (err.response?.status === 404 || /route/i.test(detail)) {
         warnings.push(`No ${profile} truck route found: ${detail}`);
         return null;
@@ -382,11 +480,15 @@ export const calculatePcMilerRoute = async ({
     });
   }
 
-  // 2. Route all three profiles — three independent provider calls.
+  // 2. Move every stop onto the truck road network before routing, so a stop
+  //    that geocoded into a lake or a field doesn't fail the whole trip.
+  const routableStops = await snapStopsToRoadNetwork(geocoded, warnings);
+
+  // 3. Route all three profiles — three independent provider calls.
   const [practical, shortest, tollFree] = await Promise.all([
-    fetchRoute(geocoded, "PRACTICAL", vehicle, warnings),
-    fetchRoute(geocoded, "SHORTEST", vehicle, warnings),
-    fetchRoute(geocoded, "TOLL_DISCOURAGED", vehicle, warnings),
+    fetchRoute(routableStops, "PRACTICAL", vehicle, warnings),
+    fetchRoute(routableStops, "SHORTEST", vehicle, warnings),
+    fetchRoute(routableStops, "TOLL_DISCOURAGED", vehicle, warnings),
   ]);
 
   const byProfile = { PRACTICAL: practical, SHORTEST: shortest, TOLL_DISCOURAGED: tollFree };
@@ -401,7 +503,7 @@ export const calculatePcMilerRoute = async ({
   }
 
   // 3. Border crossing + published bridge toll (the only toll figure we can stand behind).
-  const crossing = findBorderCrossing(geocoded, selected.geometry);
+  const crossing = findBorderCrossing(routableStops, selected.geometry);
   const bridgeToll = crossing ? (is3Axle ? crossing.toll3Axle : crossing.toll2Axle) : 0;
   const appliesToll = routingProfile !== "TOLL_DISCOURAGED";
 
@@ -423,10 +525,10 @@ export const calculatePcMilerRoute = async ({
   // 5. Per-leg detail, joined to the stop names.
   const legs = selected.legs.map((leg, i) => ({
     ...leg,
-    from: geocoded[i]?.shortName,
-    to: geocoded[i + 1]?.shortName,
-    fromLabel: geocoded[i]?.label,
-    toLabel: geocoded[i + 1]?.label,
+    from: routableStops[i]?.shortName,
+    to: routableStops[i + 1]?.shortName,
+    fromLabel: routableStops[i]?.label,
+    toLabel: routableStops[i + 1]?.label,
     fuelGallons: round(leg.distanceMiles / effectiveMpg),
   }));
 
@@ -460,10 +562,10 @@ export const calculatePcMilerRoute = async ({
     isTruckProfile: selected.isTruckProfile,
     warnings: [...new Set(warnings)],
 
-    origin: geocoded[0].displayName,
-    destination: geocoded[geocoded.length - 1].displayName,
-    stops: geocoded,
-    intermediateStopsCount: Math.max(0, geocoded.length - 2),
+    origin: routableStops[0].displayName,
+    destination: routableStops[routableStops.length - 1].displayName,
+    stops: routableStops,
+    intermediateStopsCount: Math.max(0, routableStops.length - 2),
 
     routingProfile,
     axleConfiguration,
@@ -500,13 +602,13 @@ export const calculatePcMilerRoute = async ({
       enforcedByProvider: selected.isTruckProfile,
     },
 
-    geofences: geocoded.map((s, i) => ({
+    geofences: routableStops.map((s, i) => ({
       id: `GEO-STOP-${s.stopNumber}`,
       name: `${s.label}: ${s.shortName}`,
       type: s.type,
       coords: s.coords,
-      radiusMeters: i === 0 ? 650 : i === geocoded.length - 1 ? 750 : 500,
-      color: i === 0 ? "#0284c7" : i === geocoded.length - 1 ? "#059669" : "#d97706",
+      radiusMeters: i === 0 ? 650 : i === routableStops.length - 1 ? 750 : 500,
+      color: i === 0 ? "#0284c7" : i === routableStops.length - 1 ? "#059669" : "#d97706",
     })),
 
     // Three real routes, side by side. An unavailable variant says so.

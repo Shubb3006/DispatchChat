@@ -34,6 +34,7 @@ import toast from "react-hot-toast";
 
 import KanbanColumn from "../components/kanban/KanbanColumn";
 import LoadOperationsBoard from "../components/kanban/LoadOperationsBoard";
+import { MATCHING_STATUSES } from "../lib/loadStatuses";
 import EntityHistoryModal from "../components/EntityHistoryModal";
 import ShipmentDetailsModal from "../components/ShipmentDetailsModal";
 
@@ -71,7 +72,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-amber-200",
       colorText: "text-amber-700",
       barColor: "bg-amber-400",
-      matchingStatuses: ["pending", "unassigned", "open_tender", "entered", "new", "booked"],
+      matchingStatuses: MATCHING_STATUSES.col_pending,
     },
     {
       id: "col_dispatched",
@@ -82,7 +83,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-indigo-200",
       colorText: "text-indigo-700",
       barColor: "bg-indigo-500",
-      matchingStatuses: ["dispatched", "assigned", "en_route_pickup"],
+      matchingStatuses: MATCHING_STATUSES.col_dispatched,
     },
     {
       id: "col_at_pickup",
@@ -93,7 +94,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-sky-200",
       colorText: "text-sky-700",
       barColor: "bg-sky-500",
-      matchingStatuses: ["at_pickup", "at_shipper", "loading"],
+      matchingStatuses: MATCHING_STATUSES.col_at_pickup,
     },
     {
       id: "col_in_transit",
@@ -104,7 +105,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-cyan-200",
       colorText: "text-cyan-700",
       barColor: "bg-cyan-500",
-      matchingStatuses: ["in_transit", "moving", "on_route"],
+      matchingStatuses: MATCHING_STATUSES.col_in_transit,
     },
     {
       id: "col_at_border",
@@ -115,7 +116,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-purple-200",
       colorText: "text-purple-700",
       barColor: "bg-purple-500",
-      matchingStatuses: ["at_border", "customs_hold", "customs_inspection", "border_crossing"],
+      matchingStatuses: MATCHING_STATUSES.col_at_border,
     },
     {
       id: "col_at_delivery",
@@ -126,7 +127,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-orange-200",
       colorText: "text-orange-700",
       barColor: "bg-orange-500",
-      matchingStatuses: ["at_delivery", "at_consignee", "at_warehouse", "unloading", "dock_wait", "received_at_warehouse"],
+      matchingStatuses: MATCHING_STATUSES.col_at_delivery,
     },
     {
       id: "col_delivered",
@@ -137,7 +138,7 @@ export default function KanbanDispatchPage() {
       colorBorder: "border-emerald-200",
       colorText: "text-emerald-700",
       barColor: "bg-emerald-500",
-      matchingStatuses: ["delivered", "completed", "billed"],
+      matchingStatuses: MATCHING_STATUSES.col_delivered,
     },
   ];
 
@@ -497,8 +498,11 @@ export default function KanbanDispatchPage() {
           onClose={() => setSelectedShipmentForDrawer(null)}
           shipment={selectedShipmentForDrawer}
           currentUser={{ role: "admin", username: "Dispatcher" }}
-          onUpdateShipment={async (id, data) => {
-            await updateShipment(id, data);
+          onUpdateShipment={async (updated) => {
+            // updateShipment takes the whole shipment and derives the id from
+            // it; the old (id, data) call passed the id string as the shipment
+            // and PUT to /load/undefined.
+            await updateShipment(updated);
             fetchShipments();
           }}
         />

@@ -290,7 +290,7 @@ export default function DriverManagerHub({
 
       {activeTab === "hos" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 font-sans">
               Samsara ELD Hours of Service Audit
             </h3>
@@ -371,7 +371,7 @@ export default function DriverManagerHub({
 
       {activeTab === "safety" && (
         <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-150 bg-slate-50 flex items-center justify-between">
+          <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
             <h3 className="text-sm font-semibold text-slate-900 font-sans">
               Driver Safety Scorecards (Samsara Telemetry)
             </h3>

@@ -41,9 +41,9 @@ export const useTripStore = create((set, get) => ({
   },
 
   addTrip: async (trip) => {
-    console.log("Ss");
+    // trip_number is deliberately NOT sent: the server allocates it from a
+    // sequence so concurrent dispatchers can't land on the same number.
     const payLoad = {
-      trip_number: trip.tripNumber,
       driver_id: trip.driverId,
       driver_name: trip.driverName,
       status: trip.status,
@@ -51,7 +51,6 @@ export const useTripStore = create((set, get) => ({
       totalPallets: trip.totalPallets,
       shipmentIds: trip.shipmentIds,
     };
-    console.log(payLoad)
     set({ isLoading: true });
     try {
       const response = await axiosInstance.post("/trips", payLoad);
@@ -60,12 +59,41 @@ export const useTripStore = create((set, get) => ({
         trips: [savedTrip, ...state.trips],
         isLoading: false,
       }));
-      toast.success(`Trip added successfully`);
-      // await useShipmentStore.getState().fetchShipments();
+
+      // The trip is routed at creation. Report what actually came back rather
+      // than a blanket success, so a routing failure isn't mistaken for miles.
+      if (savedTrip.route_error) {
+        toast.success(`Trip #${savedTrip.trip_number} created`);
+        toast.error(`Route unavailable: ${savedTrip.route_error}`, { duration: 8000 });
+      } else if (savedTrip.total_miles) {
+        toast.success(
+          `Trip #${savedTrip.trip_number} created — ${savedTrip.total_miles} mi routed`
+        );
+      } else {
+        toast.success(`Trip #${savedTrip.trip_number} created`);
+      }
+      return savedTrip;
     } catch (err) {
       console.error("Failed to add trip:", err);
-      set({ error: "Failed to add trip", isLoading: false });
-      toast.error("Failed to add trip");
+      const msg = err?.response?.data?.message || "Failed to add trip";
+      set({ error: msg, isLoading: false });
+      toast.error(msg);
+      return null;
+    }
+  },
+
+  // Trip sheet for printing. Reuses the route stored at consolidation so a
+  // reprint always matches the original; refresh=true deliberately re-routes.
+  fetchTripSheet: async (tripId, { refresh = false } = {}) => {
+    try {
+      const res = await axiosInstance.get(
+        `/trips/${tripId}/route${refresh ? "?refresh=true" : ""}`
+      );
+      return res.data;
+    } catch (err) {
+      console.error("Failed to load trip sheet:", err);
+      toast.error(err?.response?.data?.message || "Failed to load trip sheet");
+      return null;
     }
   },
 

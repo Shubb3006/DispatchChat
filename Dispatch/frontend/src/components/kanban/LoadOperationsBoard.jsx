@@ -15,6 +15,11 @@ import { Filter, X, Pencil, Check, Ban, CalendarRange, Search } from "lucide-rea
 
 const DASH = "—";
 
+// Mirrors the server's address check: a location the router can actually
+// geocode needs a real place name, not placeholder junk like "5, 5".
+const isRoutable = (v) =>
+  Boolean(v) && v !== DASH && /[A-Za-z]{2}/.test(String(v));
+
 export const fmtDateTime = (value) => {
   if (!value) return DASH;
   const d = new Date(value);
@@ -163,10 +168,23 @@ const COLUMNS = [
     edit: { type: "text", field: "paps_number", get: (s) => s.paps_number || "" },
   },
   {
-    key: "lane",
-    label: "From → To",
+    // `origin` / `destination` are what trip routing geocodes against, so they
+    // are editable here: a load with placeholder junk ("5, 5") blocks its whole
+    // trip from routing until someone can type a real city in.
+    key: "origin",
+    label: "Pickup Location",
     head: "bg-slate-700",
-    value: (s) => `${s.shipper_city || s.originCity || DASH} → ${s.consignee_city || s.destinationCity || DASH}`,
+    value: (s) => s.origin || s.shipper_city || s.originCity || DASH,
+    tone: (v) => (isRoutable(v) ? undefined : TONES.bad),
+    edit: { type: "text", field: "origin", get: (s) => s.origin || "" },
+  },
+  {
+    key: "destination",
+    label: "Delivery Location",
+    head: "bg-slate-700",
+    value: (s) => s.destination || s.consignee_city || s.destinationCity || DASH,
+    tone: (v) => (isRoutable(v) ? undefined : TONES.bad),
+    edit: { type: "text", field: "destination", get: (s) => s.destination || "" },
   },
   {
     key: "pickup_date",
