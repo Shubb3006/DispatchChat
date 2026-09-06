@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useAuditStore } from "../stores/useAuditStore";
+import { useTripStore } from "../stores/useTripStore";
 import {
   Layers,
   Search,
@@ -27,30 +28,37 @@ import {
   Activity,
   User,
   Zap,
+  TableIcon,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
 import KanbanColumn from "../components/kanban/KanbanColumn";
+import LoadOperationsBoard from "../components/kanban/LoadOperationsBoard";
 import EntityHistoryModal from "../components/EntityHistoryModal";
 import ShipmentDetailsModal from "../components/ShipmentDetailsModal";
 
 export default function KanbanDispatchPage() {
   const { shipments, fetchShipments, updateShipmentStatus, updateShipment, isLoading } = useShipmentStore();
   const { recordClientAction } = useAuditStore();
+  const { trips, fetchTrips } = useTripStore();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [equipmentFilter, setEquipmentFilter] = useState("ALL");
   const [priorityFilter, setPriorityFilter] = useState("ALL");
-  const [cardDensity, setCardDensity] = useState("comfortable"); // "comfortable" | "compact"
+  const [viewMode, setViewMode] = useState("comfortable"); // "comfortable" | "compact" | "table"
   const [auditModal, setAuditModal] = useState({ isOpen: false, loadId: null, loadIdentifier: "" });
   const [selectedShipmentForDrawer, setSelectedShipmentForDrawer] = useState(null);
 
   useEffect(() => {
     fetchShipments();
+    fetchTrips();
     // Auto-refresh every 10s to sync with warehouse intake and other updates
-    const interval = setInterval(fetchShipments, 10000);
+    const interval = setInterval(() => {
+      fetchShipments();
+      fetchTrips();
+    }, 10000);
     return () => clearInterval(interval);
-  }, [fetchShipments]);
+  }, [fetchShipments, fetchTrips]);
 
   // Define 7 Freight Lifecycle Kanban Columns
   const columns = [
@@ -184,6 +192,13 @@ export default function KanbanDispatchPage() {
     return { totalCount, totalValue, inTransit, delivered };
   }, [filteredShipments]);
 
+  // Persist an inline edit from the Operations Board, then refetch so the
+  // store re-normalizes the row (the update response is a raw DB row).
+  const handleSaveLoad = async (loadId, changes) => {
+    await updateShipment({ id: loadId, ...changes });
+    await fetchShipments();
+  };
+
   // Handle Drag & Drop Status Updates
   const handleDropLoad = async (loadId, newStatus, columnId) => {
     const target = shipments.find((s) => s.id === loadId);
@@ -266,25 +281,34 @@ export default function KanbanDispatchPage() {
 
         {/* Global Action Toolbar */}
         <div className="flex flex-wrap items-center gap-3">
-          {/* Card Density Toggle */}
+          {/* View Mode Toggle */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
             <button
-              onClick={() => setCardDensity("comfortable")}
+              onClick={() => setViewMode("comfortable")}
               className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                cardDensity === "comfortable" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                viewMode === "comfortable" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Full Cards</span>
             </button>
             <button
-              onClick={() => setCardDensity("compact")}
+              onClick={() => setViewMode("compact")}
               className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                cardDensity === "compact" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                viewMode === "compact" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
               }`}
             >
               <List className="w-3.5 h-3.5" />
               <span>Compact</span>
+            </button>
+            <button
+              onClick={() => setViewMode("table")}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
+                viewMode === "table" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              }`}
+            >
+              <TableIcon className="w-3.5 h-3.5" />
+              <span>Table</span>
             </button>
           </div>
 
@@ -414,7 +438,19 @@ export default function KanbanDispatchPage() {
         )}
       </div>
 
+      {/* Load Operations Control Board — row-per-load with trip grouping,
+          date-range + per-column filters, and inline editing */}
+      {viewMode === "table" && (
+        <LoadOperationsBoard
+          shipments={filteredShipments}
+          trips={trips}
+          onOpenDetails={(s) => setSelectedShipmentForDrawer(s)}
+          onSaveLoad={handleSaveLoad}
+        />
+      )}
+
       {/* Horizontal Scrollable Kanban Columns Board */}
+      {viewMode !== "table" && (
       <div className="flex gap-4 overflow-x-auto pb-4 pt-1 select-none no-scrollbar">
         {columns.map((column) => {
           const columnShipments = filteredShipments.filter((s) => {
@@ -427,7 +463,7 @@ export default function KanbanDispatchPage() {
               key={column.id}
               column={column}
               shipments={columnShipments}
-              cardDensity={cardDensity}
+              cardDensity={viewMode}
               onDropLoad={handleDropLoad}
               onOpenHistory={(shipment) => {
                 setAuditModal({
@@ -443,6 +479,7 @@ export default function KanbanDispatchPage() {
           );
         })}
       </div>
+      )}
 
       {/* Embedded Entity History / Audit Trail Modal */}
       <EntityHistoryModal

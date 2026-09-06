@@ -1,461 +1,540 @@
 import axios from "axios";
 
-// Known Official US/Canada Border Crossings & Toll Plazas
-const KNOWN_BORDER_POES = [
-  { name: "Detroit Ambassador Bridge (CBP POE 3801)", coords: [42.3256, -83.0746], state: "MI", toll2Axle: 42.50, toll3Axle: 58.00, waitMins: 14 },
-  { name: "Port Huron Blue Water Bridge (CBP POE 3802)", coords: [42.9989, -82.4239], state: "MI", toll2Axle: 40.00, toll3Axle: 55.00, waitMins: 10 },
-  { name: "Buffalo Peace Bridge (CBP POE 0901)", coords: [42.9069, -78.9056], state: "NY", toll2Axle: 40.00, toll3Axle: 55.00, waitMins: 18 },
-  { name: "Queenston-Lewiston Bridge (CBP POE 0902)", coords: [43.1539, -79.0469], state: "NY", toll2Axle: 40.00, toll3Axle: 55.00, waitMins: 12 },
-  { name: "Thousand Islands Bridge (CBP POE 0708)", coords: [44.3486, -75.9839], state: "NY", toll2Axle: 36.00, toll3Axle: 48.00, waitMins: 8 },
-  { name: "Champlain / Lacolle Border (CBP POE 0712)", coords: [45.0094, -73.3519], state: "NY", toll2Axle: 0.00, toll3Axle: 0.00, waitMins: 12 },
-  { name: "Pacific Highway / Blaine (CBP POE 3004)", coords: [49.0022, -122.7578], state: "WA", toll2Axle: 0.00, toll3Axle: 0.00, waitMins: 22 },
-  { name: "Coutts / Sweet Grass Border (CBP POE 3310)", coords: [49.0000, -111.9600], state: "MT", toll2Axle: 0.00, toll3Axle: 0.00, waitMins: 5 },
+/* ══════════════════════════════════════════════════════════════════════════
+   Commercial truck routing — OpenRouteService `driving-hgv`
+
+   Every distance, drive time, and road geometry returned here comes from a
+   live routing call. Nothing is scaled, interpolated, or seeded.
+
+   What is REAL:
+     • Geocoding            — ORS Pelias (US/CA restricted), Nominatim fallback
+     • Route geometry       — ORS driving-hgv with real vehicle restrictions
+     • Distance / drive time— per route and per leg, straight from the provider
+     • Route alternatives   — three SEPARATE routing calls (recommended /
+                              shortest / avoid-tollways), never one route × a constant
+     • Fuel burn            — real route miles ÷ caller's MPG × caller's diesel price
+     • Border bridge tolls  — published commercial rates, flagged as a static table
+
+   What is NOT available and is therefore reported as unknown rather than invented:
+     • Highway toll amounts (407 ETR, Ohio/Indiana turnpikes, Skyway). ORS can
+       ROUTE AROUND tollways but does not price them. `tollsAreComplete: false`
+       says so; the UI must not present the toll figure as a full total.
+     • Live tractor telemetry. Belongs to Samsara, not a routing provider.
+
+   Configure ORS_API_KEY to get truck routing. Without it this degrades to the
+   free OSRM demo server, which is a CAR profile with no truck restrictions —
+   that case is labelled `isTruckProfile: false` and carries a warning so the UI
+   can never imply truck-legal routing it didn't actually compute.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+const ORS_KEY = process.env.ORS_API_KEY || process.env.OPENROUTESERVICE_API_KEY || "";
+
+// ORS has announced it is moving api.openrouteservice.org -> api.heigit.org.
+// The new host does not serve the v2 directions path yet (404 as of this
+// writing), so the old host stays the default; set ORS_BASE_URL to switch
+// hosts without a code change once the migration completes.
+const ORS_BASE = process.env.ORS_BASE_URL || "https://api.openrouteservice.org";
+
+const MI_PER_M = 0.000621371;
+const LB_PER_TONNE = 2204.62;
+
+/* Published commercial truck tolls at the major US/Canada crossings.
+   Static reference data, not a live feed — surfaced with `source` so the UI
+   can label it. Rates are per crossing for a loaded tractor-trailer. */
+const BORDER_CROSSINGS = [
+  { name: "Detroit Ambassador Bridge (CBP POE 3801)",   coords: [42.3256, -83.0746], state: "MI", toll2Axle: 42.5, toll3Axle: 58.0 },
+  { name: "Port Huron Blue Water Bridge (CBP POE 3802)", coords: [42.9989, -82.4239], state: "MI", toll2Axle: 40.0, toll3Axle: 55.0 },
+  { name: "Buffalo Peace Bridge (CBP POE 0901)",         coords: [42.9069, -78.9056], state: "NY", toll2Axle: 40.0, toll3Axle: 55.0 },
+  { name: "Queenston-Lewiston Bridge (CBP POE 0902)",    coords: [43.1539, -79.0469], state: "NY", toll2Axle: 40.0, toll3Axle: 55.0 },
+  { name: "Thousand Islands Bridge (CBP POE 0708)",      coords: [44.3486, -75.9839], state: "NY", toll2Axle: 36.0, toll3Axle: 48.0 },
+  { name: "Champlain / Lacolle Border (CBP POE 0712)",   coords: [45.0094, -73.3519], state: "NY", toll2Axle: 0.0,  toll3Axle: 0.0 },
+  { name: "Pacific Highway / Blaine (CBP POE 3004)",     coords: [49.0022, -122.7578], state: "WA", toll2Axle: 0.0, toll3Axle: 0.0 },
+  { name: "Coutts / Sweet Grass Border (CBP POE 3310)",  coords: [49.0,    -111.96],   state: "MT", toll2Axle: 0.0, toll3Axle: 0.0 },
 ];
 
 const GEOCODE_CACHE = new Map();
 
-// Real-Time Live Geocoding via Nominatim OpenStreetMap
+const haversineMiles = (lat1, lon1, lat2, lon2) => {
+  const R = 3958.8;
+  const toRad = (d) => (d * Math.PI) / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+};
+
+const round = (n, p = 1) => parseFloat(Number(n).toFixed(p));
+
+/* ───────────────────────── Geocoding ─────────────────────────
+   Resolves to a real coordinate or throws. It must never fall back to a
+   default city: a silently substituted origin produces a confident,
+   completely wrong route, which is worse than a visible failure. */
+
 export const geocodeAddress = async (query) => {
-  if (!query || typeof query !== "string") return null;
+  if (!query || typeof query !== "string" || !query.trim()) {
+    throw new Error("Address is required");
+  }
   const clean = query.trim();
   const cacheKey = clean.toLowerCase();
-  if (GEOCODE_CACHE.has(cacheKey)) {
-    return GEOCODE_CACHE.get(cacheKey);
+  if (GEOCODE_CACHE.has(cacheKey)) return GEOCODE_CACHE.get(cacheKey);
+
+  let result = null;
+
+  // Preferred: ORS Pelias, restricted to the US and Canada.
+  if (ORS_KEY) {
+    try {
+      const res = await axios.get(`${ORS_BASE}/geocode/search`, {
+        params: { api_key: ORS_KEY, text: clean, "boundary.country": "US,CA", size: 1 },
+        timeout: 8000,
+      });
+      const f = res.data?.features?.[0];
+      if (f) {
+        const [lon, lat] = f.geometry.coordinates;
+        result = {
+          lat,
+          lon,
+          displayName: f.properties.label || clean,
+          country: f.properties.country_a === "CAN" ? "CA" : "US",
+          state: f.properties.region || "",
+          source: "ORS_PELIAS",
+        };
+      }
+    } catch (err) {
+      console.warn(`ORS geocode failed for "${clean}":`, err.message);
+    }
+  }
+
+  // Fallback: Nominatim, same country restriction.
+  if (!result) {
+    try {
+      const res = await axios.get("https://nominatim.openstreetmap.org/search", {
+        params: { q: clean, format: "json", limit: 1, addressdetails: 1, countrycodes: "us,ca" },
+        headers: { "User-Agent": "NishanTransportTMS/1.0 (dispatch@nishantransport.com)" },
+        timeout: 8000,
+      });
+      const item = res.data?.[0];
+      if (item) {
+        result = {
+          lat: parseFloat(item.lat),
+          lon: parseFloat(item.lon),
+          displayName: item.display_name,
+          country: item.address?.country_code?.toUpperCase() === "CA" ? "CA" : "US",
+          state: item.address?.state || item.address?.province || "",
+          source: "NOMINATIM",
+        };
+      }
+    } catch (err) {
+      console.warn(`Nominatim geocode failed for "${clean}":`, err.message);
+    }
+  }
+
+  if (!result) {
+    const e = new Error(`Could not resolve address to a location in the US or Canada: "${clean}"`);
+    e.code = "GEOCODE_FAILED";
+    e.address = clean;
+    throw e;
+  }
+
+  GEOCODE_CACHE.set(cacheKey, result);
+  return result;
+};
+
+/* ───────────────── Vehicle restrictions ─────────────────
+   ORS expects metric. These are the dimensions the route is actually
+   computed against, and they are echoed back so the UI can state them. */
+
+const buildVehicleSpec = (is3Axle, grossWeightLbs) => {
+  const weightLbs = Number(grossWeightLbs) || (is3Axle ? 105500 : 80000);
+  const axles = is3Axle ? 6 : 5;
+  return {
+    weightLbs,
+    axles,
+    maxLegalWeightLbs: is3Axle ? 105500 : 80000,
+    // metres / tonnes for the provider
+    restrictions: {
+      height: 4.15,                                   // 13'7" — standard NA dry van
+      width: 2.6,                                     // 8'6"
+      length: is3Axle ? 25.0 : 22.86,                 // tridem vs standard 75'
+      weight: round(weightLbs / LB_PER_TONNE, 2),
+      axleload: round(weightLbs / axles / LB_PER_TONNE, 2),
+      hazmat: false,
+    },
+  };
+};
+
+/* ───────────────── Routing providers ─────────────────
+   Each returns the same normalized shape: { miles, driveHours, geometry, legs } */
+
+const PROFILE_OPTIONS = {
+  PRACTICAL: { preference: "recommended", avoidTollways: false },
+  SHORTEST: { preference: "shortest", avoidTollways: false },
+  TOLL_DISCOURAGED: { preference: "recommended", avoidTollways: true },
+};
+
+const routeViaORS = async (stops, profile, vehicle) => {
+  const opts = PROFILE_OPTIONS[profile] || PROFILE_OPTIONS.PRACTICAL;
+
+  const body = {
+    coordinates: stops.map((s) => [s.lon, s.lat]),
+    preference: opts.preference,
+    units: "mi",
+    instructions: true,
+    options: {
+      vehicle_type: "hgv",
+      profile_params: { restrictions: vehicle.restrictions },
+      ...(opts.avoidTollways ? { avoid_features: ["tollways"] } : {}),
+    },
+  };
+
+  const res = await axios.post(`${ORS_BASE}/v2/directions/driving-hgv/geojson`, body, {
+    headers: { Authorization: ORS_KEY, "Content-Type": "application/json" },
+    timeout: 20000,
+  });
+
+  const feature = res.data?.features?.[0];
+  if (!feature) throw new Error("Routing provider returned no route");
+
+  const summary = feature.properties.summary || {};
+  const segments = feature.properties.segments || [];
+
+  return {
+    provider: "OPENROUTESERVICE_HGV",
+    isTruckProfile: true,
+    miles: round(summary.distance || 0),
+    driveHours: round((summary.duration || 0) / 3600, 2),
+    geometry: feature.geometry.coordinates.map(([lon, lat]) => [lat, lon]),
+    legs: segments.map((seg, i) => ({
+      legNumber: i + 1,
+      distanceMiles: round(seg.distance || 0),
+      driveHours: round((seg.duration || 0) / 3600, 2),
+      steps: (seg.steps || []).map((st) => ({
+        instruction: st.instruction,
+        roadName: st.name && st.name !== "-" ? st.name : null,
+        distanceMiles: round(st.distance || 0, 2),
+        driveMins: Math.round((st.duration || 0) / 60),
+      })),
+    })),
+  };
+};
+
+/* Free fallback: OSRM demo server. CAR profile — no truck restrictions.
+   Only `PRACTICAL` and `SHORTEST` are meaningful here; the demo server
+   rejects `exclude=toll`, so a toll-free variant genuinely cannot be
+   produced and the caller is told so rather than handed a scaled number. */
+const routeViaOSRM = async (stops, profile) => {
+  if (profile === "TOLL_DISCOURAGED") {
+    const e = new Error("Toll-free routing requires ORS_API_KEY — the free OSRM server cannot exclude tolls");
+    e.code = "PROFILE_UNAVAILABLE";
+    throw e;
+  }
+
+  const coords = stops.map((s) => `${s.lon},${s.lat}`).join(";");
+  const url = `https://router.project-osrm.org/route/v1/driving/${coords}?overview=full&geometries=geojson&steps=true&alternatives=${profile === "SHORTEST" ? "3" : "false"}`;
+  const res = await axios.get(url, { timeout: 20000 });
+
+  const routes = res.data?.routes || [];
+  if (!routes.length) throw new Error("Routing provider returned no route");
+
+  // "Shortest" = the genuinely shortest alternative OSRM offered, not a discount.
+  const route = profile === "SHORTEST"
+    ? routes.reduce((a, b) => (b.distance < a.distance ? b : a))
+    : routes[0];
+
+  return {
+    provider: "OSRM_CAR_DEMO",
+    isTruckProfile: false,
+    miles: round(route.distance * MI_PER_M),
+    driveHours: round(route.duration / 3600, 2),
+    geometry: route.geometry.coordinates.map(([lon, lat]) => [lat, lon]),
+    legs: (route.legs || []).map((leg, i) => ({
+      legNumber: i + 1,
+      distanceMiles: round(leg.distance * MI_PER_M),
+      driveHours: round(leg.duration / 3600, 2),
+      steps: (leg.steps || [])
+        .filter((s) => s.distance > 500)
+        .map((st) => ({
+          instruction: st.maneuver?.type ? `${st.maneuver.type} ${st.name || ""}`.trim() : st.name,
+          roadName: st.name || (st.ref ? `Hwy ${st.ref}` : null),
+          distanceMiles: round(st.distance * MI_PER_M, 2),
+          driveMins: Math.round(st.duration / 60),
+        })),
+    })),
+  };
+};
+
+const fetchRoute = async (stops, profile, vehicle, warnings) => {
+  if (ORS_KEY) {
+    try {
+      return await routeViaORS(stops, profile, vehicle);
+    } catch (err) {
+      const detail = err.response?.data?.error?.message || err.message;
+      if (err.response?.status === 404 || /route/i.test(detail)) {
+        warnings.push(`No ${profile} truck route found: ${detail}`);
+        return null;
+      }
+      warnings.push(`Truck routing unavailable (${detail}) — fell back to car-profile estimate.`);
+    }
+  } else {
+    warnings.push("ORS_API_KEY is not configured — using the free OSRM car profile. Distances ignore truck restrictions (bridge heights, weight limits, truck-legal roads).");
   }
 
   try {
-    const res = await axios.get("https://nominatim.openstreetmap.org/search", {
-      params: {
-        q: clean,
-        format: "json",
-        limit: 1,
-        addressdetails: 1,
-      },
-      headers: {
-        "User-Agent": "NishanTransportTMS/1.0 (dispatch@nishantransport.com)",
-      },
-      timeout: 5000,
-    });
-
-    if (res.data && res.data.length > 0) {
-      const item = res.data[0];
-      const result = {
-        lat: parseFloat(item.lat),
-        lon: parseFloat(item.lon),
-        displayName: item.display_name,
-        country: item.address?.country_code?.toUpperCase() || (clean.toLowerCase().includes("canada") || clean.toLowerCase().includes("on") || clean.toLowerCase().includes("qc") ? "CA" : "US"),
-        state: item.address?.state || item.address?.province || "",
-      };
-      GEOCODE_CACHE.set(cacheKey, result);
-      return result;
-    }
+    return await routeViaOSRM(stops, profile);
   } catch (err) {
-    console.warn("Live geocoding error:", err.message);
+    warnings.push(`${profile} route unavailable: ${err.message}`);
+    return null;
+  }
+};
+
+/* ───────────────── Border crossing ───────────────── */
+
+/* Pick the crossing the route ACTUALLY passes, by measuring each candidate
+   against the routed polyline. Choosing on origin→destination alone picks the
+   wrong bridge whenever an intermediate stop moves the lane — a Toronto→
+   Windsor→Chicago run crosses at Detroit, not Port Huron. */
+const findBorderCrossing = (stops, geometry) => {
+  const hasUS = stops.some((s) => s.country === "US");
+  const hasCA = stops.some((s) => s.country === "CA");
+  if (!hasUS || !hasCA) return null;
+
+  // Sample the polyline; full resolution is thousands of points and adds nothing.
+  const path = [];
+  if (geometry?.length) {
+    const step = Math.max(1, Math.floor(geometry.length / 400));
+    for (let i = 0; i < geometry.length; i += step) path.push(geometry[i]);
+    path.push(geometry[geometry.length - 1]);
+  } else {
+    stops.forEach((s) => path.push(s.coords));
   }
 
-  // Fallbacks for major North American cities & hubs
-  const cityFallbacks = {
-    "quebec": { lat: 46.8138, lon: -71.2080, displayName: "Québec, QC, Canada", country: "CA", state: "Quebec" },
-    "chicago": { lat: 41.8781, lon: -87.6298, displayName: "Chicago, IL, USA", country: "US", state: "Illinois" },
-    "toronto": { lat: 43.6532, lon: -79.3832, displayName: "Toronto, ON, Canada", country: "CA", state: "Ontario" },
-    "brampton": { lat: 43.7315, lon: -79.7624, displayName: "Brampton, ON, Canada", country: "CA", state: "Ontario" },
-    "montreal": { lat: 45.5017, lon: -73.5673, displayName: "Montreal, QC, Canada", country: "CA", state: "Quebec" },
-    "windsor": { lat: 42.3149, lon: -83.0364, displayName: "Windsor, ON, Canada", country: "CA", state: "Ontario" },
-    "london": { lat: 42.9849, lon: -81.2453, displayName: "London, ON, Canada", country: "CA", state: "Ontario" },
-    "detroit": { lat: 42.3314, lon: -83.0458, displayName: "Detroit, MI, USA", country: "US", state: "Michigan" },
-    "columbus": { lat: 39.9612, lon: -82.9988, displayName: "Columbus, OH, USA", country: "US", state: "Ohio" },
-    "davenport": { lat: 28.1614, lon: -81.6017, displayName: "Davenport, FL, USA", country: "US", state: "Florida" },
-    "calgary": { lat: 51.0447, lon: -114.0719, displayName: "Calgary, AB, Canada", country: "CA", state: "Alberta" },
-    "vancouver": { lat: 49.2827, lon: -123.1207, displayName: "Vancouver, BC, Canada", country: "CA", state: "British Columbia" },
-    "dallas": { lat: 32.7767, lon: -96.7970, displayName: "Dallas, TX, USA", country: "US", state: "Texas" },
-    "atlanta": { lat: 33.7490, lon: -84.3880, displayName: "Atlanta, GA, USA", country: "US", state: "Georgia" },
-    "new york": { lat: 40.7128, lon: -74.0060, displayName: "New York, NY, USA", country: "US", state: "New York" },
-  };
+  let best = null;
+  let bestDistance = Infinity;
 
-  const lower = clean.toLowerCase();
-  for (const [key, val] of Object.entries(cityFallbacks)) {
-    if (lower.includes(key)) {
-      return val;
+  for (const poe of BORDER_CROSSINGS) {
+    let nearest = Infinity;
+    for (const [lat, lon] of path) {
+      const d = haversineMiles(lat, lon, poe.coords[0], poe.coords[1]);
+      if (d < nearest) nearest = d;
+    }
+    if (nearest < bestDistance) {
+      bestDistance = nearest;
+      best = poe;
     }
   }
 
-  return { lat: 43.6532, lon: -79.3832, displayName: clean, country: "CA", state: "Ontario" };
+  // If the closest official crossing is nowhere near the route, say nothing
+  // rather than naming a bridge the truck never sees.
+  return bestDistance <= 25 ? best : null;
 };
 
-const haversineMiles = (lat1, lon1, lat2, lon2) => {
-  const R = 3958.8;
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-};
+/* ───────────────── Main entry ───────────────── */
 
-// Calculate Multi-Stop Sequential PC*MILER Commercial Route & Cost Optimizer
 export const calculatePcMilerRoute = async ({
-  origin = "Toronto, ON",
-  destination = "Chicago, IL",
-  stops = [], // Array of intermediate stops [{ address: "London, ON", type: "PICKUP" }]
+  origin,
+  destination,
+  stops = [],
   routingProfile = "PRACTICAL",
   axleConfiguration = "2_AXLE_CROSS_BORDER",
   grossWeightLbs = 45000,
   dieselPricePerGal = 3.85,
   avgMpg = 6.5,
-  driverRatePerMile = 0.65,
-  stopPayAmount = 50.00,
-  maintenancePerMile = 0.18,
-}) => {
-  const is3Axle = axleConfiguration === "3_AXLE_CANADA_LOCAL";
+} = {}) => {
+  if (!origin || !destination) {
+    const e = new Error("Both an origin and a destination are required");
+    e.code = "MISSING_STOPS";
+    throw e;
+  }
 
-  // 1. Build Full Stop List: [Origin, ...Stops, Destination]
-  const rawStopList = [
+  const warnings = [];
+  const is3Axle = axleConfiguration === "3_AXLE_CANADA_LOCAL";
+  const vehicle = buildVehicleSpec(is3Axle, grossWeightLbs);
+
+  // 1. Geocode every stop in sequence. Any failure aborts with the offending address.
+  const rawStops = [
     { address: origin, type: "ORIGIN", label: "Origin / Departure Hub" },
     ...(stops || [])
-      .filter((s) => (typeof s === "string" ? s.trim() : s?.address?.trim()))
-      .map((s, idx) => {
-        const addr = typeof s === "string" ? s.trim() : s.address.trim();
-        const type = typeof s === "object" && s.type ? s.type : "INTERMEDIATE_STOP";
-        return {
-          address: addr,
-          type,
-          label: `Stop ${idx + 1} (${type === "PICKUP" ? "Pickup" : type === "DELIVERY" ? "Drop" : "LTL Stop"})`,
-        };
-      }),
+      .map((s) => (typeof s === "string" ? { address: s } : s))
+      .filter((s) => s?.address?.trim())
+      .map((s, i) => ({
+        address: s.address.trim(),
+        type: s.type || "INTERMEDIATE_STOP",
+        label: `Stop ${i + 1} (${s.type === "PICKUP" ? "Pickup" : s.type === "DELIVERY" ? "Drop" : "LTL Stop"})`,
+      })),
     { address: destination, type: "DESTINATION", label: "Final Consignee Dock" },
   ];
 
-  // 2. Geocode All Locations in Sequence
-  const geocodedStops = await Promise.all(
-    rawStopList.map(async (stop, idx) => {
-      const geo = await geocodeAddress(stop.address);
-      return {
-        ...stop,
-        stopNumber: idx + 1,
-        lat: geo.lat,
-        lon: geo.lon,
-        displayName: geo.displayName,
-        country: geo.country,
-        state: geo.state,
-        coords: [geo.lat, geo.lon],
-      };
-    })
-  );
-
-  const originStop = geocodedStops[0];
-  const destStop = geocodedStops[geocodedStops.length - 1];
-
-  // 3. Determine Cross-Border & Identify Nearest Customs POE
-  const isCrossBorder = geocodedStops.some((s) => s.country === "US") &&
-                        geocodedStops.some((s) => s.country === "CA");
-
-  let borderCrossingObj = null;
-  if (isCrossBorder) {
-    let closestDist = Infinity;
-    for (const poe of KNOWN_BORDER_POES) {
-      const d1 = haversineMiles(originStop.lat, originStop.lon, poe.coords[0], poe.coords[1]);
-      const d2 = haversineMiles(poe.coords[0], poe.coords[1], destStop.lat, destStop.lon);
-      const totalDetour = d1 + d2;
-      if (totalDetour < closestDist) {
-        closestDist = totalDetour;
-        borderCrossingObj = poe;
-      }
-    }
-  }
-
-  // 4. Call OSRM with Sequential Waypoint Coordinates
-  let routeMiles = 0;
-  let driveHours = 0;
-  let waypoints = [];
-  let legs = [];
-  let roadPlan = [];
-
-  try {
-    const coordsParam = geocodedStops.map((s) => `${s.lon},${s.lat}`).join(";");
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${coordsParam}?overview=full&geometries=geojson&steps=true`;
-    const osrmRes = await axios.get(osrmUrl, { timeout: 7000 });
-
-    if (osrmRes.data?.routes?.[0]) {
-      const osrmRoute = osrmRes.data.routes[0];
-      routeMiles = parseFloat((osrmRoute.distance * 0.000621371).toFixed(1));
-      driveHours = parseFloat((osrmRoute.duration / 3600).toFixed(1));
-
-      // Extract geometry (convert [lon, lat] -> [lat, lon])
-      const rawCoords = osrmRoute.geometry.coordinates;
-      const stepInterval = Math.max(1, Math.floor(rawCoords.length / 50));
-      waypoints = rawCoords
-        .filter((_, idx) => idx % stepInterval === 0 || idx === rawCoords.length - 1)
-        .map(([lon, lat]) => [parseFloat(lat.toFixed(4)), parseFloat(lon.toFixed(4))]);
-
-      // Extract Leg-by-Leg Details
-      legs = (osrmRoute.legs || []).map((leg, idx) => {
-        const fromStop = geocodedStops[idx];
-        const toStop = geocodedStops[idx + 1];
-        const legMiles = parseFloat((leg.distance * 0.000621371).toFixed(1));
-        const legHours = parseFloat((leg.duration / 3600).toFixed(1));
-        const legFuelGal = parseFloat((legMiles / (is3Axle ? avgMpg * 0.92 : avgMpg)).toFixed(1));
-        const legFuelCost = parseFloat((legFuelGal * dieselPricePerGal).toFixed(2));
-        const legDriverPay = parseFloat((legMiles * driverRatePerMile).toFixed(2));
-
-        return {
-          legNumber: idx + 1,
-          from: fromStop.displayName.split(",")[0],
-          to: toStop.displayName.split(",")[0],
-          fromLabel: fromStop.label,
-          toLabel: toStop.label,
-          distanceMiles: legMiles,
-          driveHours: legHours,
-          fuelGallons: legFuelGal,
-          fuelCost: legFuelCost,
-          driverPay: legDriverPay,
-        };
-      });
-
-      // Extract Turn-by-Turn Road Steps
-      let stepCounter = 1;
-      osrmRoute.legs.forEach((leg, legIdx) => {
-        const fromStop = geocodedStops[legIdx];
-        const toStop = geocodedStops[legIdx + 1];
-
-        roadPlan.push({
-          step: stepCounter++,
-          instruction: `[LEG ${legIdx + 1}] Depart ${fromStop.displayName.split(",")[0]} toward ${toStop.displayName.split(",")[0]}.`,
-          highway: `Leg ${legIdx + 1} Corridor`,
-          distanceMiles: 0,
-          driveMins: 0,
-          coords: fromStop.coords,
-          isLegHeader: true,
-        });
-
-        const legSteps = (leg.steps || []).filter((s) => s.distance > 3000 || s.name);
-        legSteps.slice(0, 4).forEach((step) => {
-          const stepMiles = parseFloat((step.distance * 0.000621371).toFixed(1));
-          const stepMins = Math.round(step.duration / 60);
-          const highwayName = step.name || (step.ref ? `Hwy ${step.ref}` : "Commercial Highway");
-
-          const isToll = highwayName.toLowerCase().includes("toll") ||
-                         highwayName.toLowerCase().includes("bridge") ||
-                         highwayName.toLowerCase().includes("skyway") ||
-                         highwayName.toLowerCase().includes("407");
-
-          roadPlan.push({
-            step: stepCounter++,
-            instruction: `${step.maneuver?.type === "depart" ? "Depart on" : "Continue on"} ${highwayName}.`,
-            highway: highwayName,
-            distanceMiles: stepMiles,
-            driveMins: Math.max(1, stepMins),
-            tollFacility: isToll ? `${highwayName} Commercial Toll Plaza` : null,
-            toll2Axle: isToll ? 24.50 : 0,
-            toll3Axle: isToll ? 36.00 : 0,
-            coords: [step.maneuver?.location?.[1] || fromStop.lat, step.maneuver?.location?.[0] || fromStop.lon],
-          });
-        });
-      });
-    }
-  } catch (err) {
-    console.warn("OSRM multi-stop routing notice:", err.message);
-  }
-
-  // Fallback if OSRM was unavailable
-  if (routeMiles === 0 || waypoints.length === 0) {
-    let totalMilesCalc = 0;
-    waypoints = [];
-    legs = [];
-
-    for (let i = 0; i < geocodedStops.length - 1; i++) {
-      const s1 = geocodedStops[i];
-      const s2 = geocodedStops[i + 1];
-      const d = haversineMiles(s1.lat, s1.lon, s2.lat, s2.lon) * 1.22;
-      totalMilesCalc += d;
-
-      legs.push({
-        legNumber: i + 1,
-        from: s1.displayName.split(",")[0],
-        to: s2.displayName.split(",")[0],
-        fromLabel: s1.label,
-        toLabel: s2.label,
-        distanceMiles: parseFloat(d.toFixed(1)),
-        driveHours: parseFloat((d / 55).toFixed(1)),
-        fuelGallons: parseFloat((d / (avgMpg * 0.95)).toFixed(1)),
-        fuelCost: parseFloat(((d / avgMpg) * dieselPricePerGal).toFixed(2)),
-        driverPay: parseFloat((d * driverRatePerMile).toFixed(2)),
-      });
-
-      for (let t = 0; t <= 5; t++) {
-        const ratio = t / 5;
-        waypoints.push([
-          parseFloat((s1.lat + (s2.lat - s1.lat) * ratio).toFixed(4)),
-          parseFloat((s1.lon + (s2.lon - s1.lon) * ratio).toFixed(4)),
-        ]);
-      }
-    }
-
-    routeMiles = parseFloat(totalMilesCalc.toFixed(1));
-    driveHours = parseFloat((routeMiles / 55).toFixed(1));
-  }
-
-  // 5. Calculate Operating Financials & Toll Matrix
-  const intermediateStopsCount = Math.max(0, geocodedStops.length - 2);
-  const extraStopPayTotal = intermediateStopsCount * stopPayAmount;
-
-  let totalTolls = 0;
-  const itemizedTolls = [];
-
-  if (isCrossBorder && borderCrossingObj) {
-    const bridgeCost = is3Axle ? borderCrossingObj.toll3Axle : borderCrossingObj.toll2Axle;
-    if (routingProfile !== "TOLL_DISCOURAGED") {
-      totalTolls += bridgeCost;
-    }
-    itemizedTolls.push({
-      name: borderCrossingObj.name,
-      cost: routingProfile === "TOLL_DISCOURAGED" ? 0 : bridgeCost,
-      axleCategory: is3Axle ? "3-Axle Tridem / Class 6+" : "2-Axle Tractor / Class 5",
-      state: borderCrossingObj.state,
+  const geocoded = [];
+  for (const [i, stop] of rawStops.entries()) {
+    const geo = await geocodeAddress(stop.address);
+    geocoded.push({
+      ...stop,
+      stopNumber: i + 1,
+      lat: geo.lat,
+      lon: geo.lon,
+      coords: [geo.lat, geo.lon],
+      displayName: geo.displayName,
+      shortName: geo.displayName.split(",")[0],
+      country: geo.country,
+      state: geo.state,
+      geocodeSource: geo.source,
     });
   }
 
-  // Profile-specific adjustments
-  let officialMiles = routeMiles;
-  let finalDriveHours = driveHours;
+  // 2. Route all three profiles — three independent provider calls.
+  const [practical, shortest, tollFree] = await Promise.all([
+    fetchRoute(geocoded, "PRACTICAL", vehicle, warnings),
+    fetchRoute(geocoded, "SHORTEST", vehicle, warnings),
+    fetchRoute(geocoded, "TOLL_DISCOURAGED", vehicle, warnings),
+  ]);
 
-  if (routingProfile === "SHORTEST") {
-    officialMiles = parseFloat((routeMiles * 0.96).toFixed(1));
-    finalDriveHours = parseFloat((driveHours * 1.06).toFixed(1));
-  } else if (routingProfile === "TOLL_DISCOURAGED") {
-    officialMiles = parseFloat((routeMiles * 1.05).toFixed(1));
-    finalDriveHours = parseFloat((driveHours * 1.14).toFixed(1));
-    totalTolls = 0;
+  const byProfile = { PRACTICAL: practical, SHORTEST: shortest, TOLL_DISCOURAGED: tollFree };
+  const selected = byProfile[routingProfile] || practical;
+
+  if (!selected) {
+    const e = new Error(
+      `No route could be computed between "${origin}" and "${destination}". ${warnings.join(" ")}`
+    );
+    e.code = "NO_ROUTE";
+    throw e;
   }
 
+  // 3. Border crossing + published bridge toll (the only toll figure we can stand behind).
+  const crossing = findBorderCrossing(geocoded, selected.geometry);
+  const bridgeToll = crossing ? (is3Axle ? crossing.toll3Axle : crossing.toll2Axle) : 0;
+  const appliesToll = routingProfile !== "TOLL_DISCOURAGED";
+
+  const tollPlazas = crossing
+    ? [{
+        name: crossing.name,
+        cost: appliesToll ? bridgeToll : 0,
+        state: crossing.state,
+        axleCategory: is3Axle ? "3-Axle Tridem / Class 6+" : "2-Axle Tractor / Class 5",
+        source: "published_border_rate",
+      }]
+    : [];
+
+  // 4. Fuel — real arithmetic on the real routed distance and the caller's own inputs.
   const effectiveMpg = is3Axle ? avgMpg * 0.92 : avgMpg;
-  const estimatedGallons = parseFloat((officialMiles / effectiveMpg).toFixed(1));
-  const estimatedFuelCost = parseFloat((estimatedGallons * dieselPricePerGal).toFixed(2));
-  const totalDriverPay = parseFloat((officialMiles * driverRatePerMile + extraStopPayTotal).toFixed(2));
-  const totalMaintenance = parseFloat((officialMiles * maintenancePerMile).toFixed(2));
+  const fuelGallons = round(selected.miles / effectiveMpg);
+  const fuelCost = round(fuelGallons * dieselPricePerGal, 2);
 
-  const totalTripOperatingCost = parseFloat(
-    (estimatedFuelCost + totalTolls + totalDriverPay + totalMaintenance).toFixed(2)
-  );
-  const costPerMile = parseFloat((totalTripOperatingCost / officialMiles).toFixed(2));
-
-  // 6. Cost-Benefit Route Economics Engine (Best Possible Cost-Effective Route)
-  const tollFreeMiles = parseFloat((routeMiles * 1.05).toFixed(1));
-  const tollFreeFuelCost = parseFloat(((tollFreeMiles / effectiveMpg) * dieselPricePerGal).toFixed(2));
-  const tollFreeDriverPay = parseFloat((tollFreeMiles * driverRatePerMile + extraStopPayTotal).toFixed(2));
-  const tollFreeMaintenance = parseFloat((tollFreeMiles * maintenancePerMile).toFixed(2));
-  const tollFreeTotalCost = parseFloat(
-    (tollFreeFuelCost + 0 + tollFreeDriverPay + tollFreeMaintenance).toFixed(2)
-  );
-
-  const netSavingsIfTollFree = parseFloat((totalTripOperatingCost - tollFreeTotalCost).toFixed(2));
-  const isTollFreeCheaper = netSavingsIfTollFree > 0;
-
-  const costRecommendation = isTollFreeCheaper
-    ? `💰 Cost-Effective Pick: Toll-Free Route saves $${Math.abs(netSavingsIfTollFree).toFixed(2)} overall after accounting for extra mileage & fuel!`
-    : `⚡ Practical Highway Pick: Paying $${totalTolls.toFixed(2)} tolls is $${Math.abs(netSavingsIfTollFree).toFixed(2)} cheaper overall than the extra mileage fuel & driver pay!`;
-
-  // 7. Live Geofences (Jiofacing Rings for all Stops)
-  const geofences = geocodedStops.map((s, idx) => ({
-    id: `GEO-STOP-${s.stopNumber}`,
-    name: `${s.label}: ${s.displayName.split(",")[0]}`,
-    type: s.type,
-    coords: s.coords,
-    radiusMeters: idx === 0 ? 650 : idx === geocodedStops.length - 1 ? 750 : 500,
-    status: idx === 0 ? "DEPARTED" : idx === geocodedStops.length - 1 ? "APPROACHING" : "EN_ROUTE",
-    lastEvent: idx === 0 ? "Departed initial origin terminal" : `En route to Stop #${s.stopNumber}`,
-    color: idx === 0 ? "#0284c7" : idx === geocodedStops.length - 1 ? "#059669" : "#d97706",
+  // 5. Per-leg detail, joined to the stop names.
+  const legs = selected.legs.map((leg, i) => ({
+    ...leg,
+    from: geocoded[i]?.shortName,
+    to: geocoded[i + 1]?.shortName,
+    fromLabel: geocoded[i]?.label,
+    toLabel: geocoded[i + 1]?.label,
+    fuelGallons: round(leg.distanceMiles / effectiveMpg),
   }));
 
-  // 8. Live Samsara Tractor Position (interpolated mid-route along waypoints)
-  const midIndex = Math.floor(waypoints.length * 0.45);
-  const liveTruckCoords = waypoints[midIndex] || originStop.coords;
+  const roadPlan = [];
+  let stepNo = 1;
+  legs.forEach((leg) => {
+    roadPlan.push({
+      step: stepNo++,
+      instruction: `[LEG ${leg.legNumber}] Depart ${leg.from} toward ${leg.to}.`,
+      highway: `Leg ${leg.legNumber}`,
+      distanceMiles: leg.distanceMiles,
+      driveMins: Math.round(leg.driveHours * 60),
+      isLegHeader: true,
+    });
+    leg.steps.forEach((st) => {
+      roadPlan.push({
+        step: stepNo++,
+        instruction: st.instruction,
+        highway: st.roadName || "Local road",
+        distanceMiles: st.distanceMiles,
+        driveMins: st.driveMins,
+      });
+    });
+  });
 
-  const liveTractor = {
-    truckNumber: is3Axle ? "TRK-213" : "TRK-104",
-    driverName: is3Axle ? "Rajbir Singh" : "Marcus Vance",
-    driverCode: is3Axle ? "DRV002" : "DRV001",
-    currentCoords: liveTruckCoords,
-    speedMph: 63,
-    headingDeg: 270,
-    fuelLevelPct: 76,
-    engineRpm: 1420,
-    milesRemaining: parseFloat((officialMiles * 0.55).toFixed(1)),
-    hoursRemaining: parseFloat((finalDriveHours * 0.55).toFixed(1)),
-    currentHighway: `En Route toward ${geocodedStops[1]?.displayName?.split(",")[0] || "Destination"}`,
-    geofenceState: "IN_TRANSIT_HIGHWAY",
-    lastGpsPing: new Date().toISOString(),
-  };
+  const summarize = (r) =>
+    r ? { miles: r.miles, driveHours: r.driveHours, available: true } : { available: false };
 
   return {
-    origin: originStop.displayName,
-    destination: destStop.displayName,
-    stops: geocodedStops,
-    legs,
-    waypoints,
-    geofences,
-    liveTractor,
-    roadPlan,
+    provider: selected.provider,
+    isTruckProfile: selected.isTruckProfile,
+    warnings: [...new Set(warnings)],
+
+    origin: geocoded[0].displayName,
+    destination: geocoded[geocoded.length - 1].displayName,
+    stops: geocoded,
+    intermediateStopsCount: Math.max(0, geocoded.length - 2),
+
     routingProfile,
     axleConfiguration,
     is3Axle,
-    officialMiles,
-    driveHours: finalDriveHours,
-    intermediateStopsCount,
-    financials: {
-      fuelCost: estimatedFuelCost,
-      fuelGallons: estimatedGallons,
-      tolls: totalTolls,
-      driverPay: totalDriverPay,
-      driverBaseRate: driverRatePerMile,
-      extraStopPay: extraStopPayTotal,
-      maintenance: totalMaintenance,
-      totalOperatingCost: totalTripOperatingCost,
-      costPerMile,
-    },
-    totalTolls,
-    tollPlazas: itemizedTolls,
-    borderCrossing: borderCrossingObj?.name || (isCrossBorder ? "International Border" : "Domestic Corridor"),
-    borderWaitMins: borderCrossingObj?.waitMins || 0,
-    isCrossBorder,
+
+    officialMiles: selected.miles,
+    driveHours: selected.driveHours,
+    waypoints: selected.geometry,
+    legs,
+    roadPlan,
+
+    fuel: { gallons: fuelGallons, cost: fuelCost, mpgUsed: round(effectiveMpg, 2), dieselPricePerGal },
+
+    totalTolls: appliesToll ? bridgeToll : 0,
+    tollPlazas,
+    // ORS routes around tollways but never prices them, so any highway toll
+    // (407 ETR, Ohio/Indiana turnpikes, Skyway) is absent from this figure.
+    tollsAreComplete: false,
+    tollNote: crossing
+      ? "Border bridge toll only — published rate. Highway tolls en route are not included."
+      : "No border crossing on this lane. Highway tolls are not priced by the routing provider.",
+
+    borderCrossing: crossing?.name || null,
+    isCrossBorder: Boolean(crossing),
+
     restrictions: {
-      bridgeClearanceMin: "14' 2\"",
-      maxAllowedGrossWeight: is3Axle ? 105500 : 80000,
-      axleType: is3Axle ? "3-Axle Tractor / Tridem (Canada Domestic SPIF)" : "2-Axle Tractor (Cross-Border US/CAN)",
-      is136Compliant: true,
-      isWeightCompliant: Number(grossWeightLbs) <= (is3Axle ? 105500 : 80000),
+      routedAgainst: vehicle.restrictions,
+      grossWeightLbs: vehicle.weightLbs,
+      maxAllowedGrossWeight: vehicle.maxLegalWeightLbs,
+      axleType: is3Axle
+        ? "3-Axle Tractor / Tridem (Canada Domestic SPIF)"
+        : "2-Axle Tractor (Cross-Border US/CAN)",
+      isWeightCompliant: vehicle.weightLbs <= vehicle.maxLegalWeightLbs,
+      enforcedByProvider: selected.isTruckProfile,
     },
-    costOptimizerComparison: {
-      practicalRoute: {
-        miles: routeMiles,
-        driveHours,
-        tolls: totalTolls,
-        fuelCost: estimatedFuelCost,
-        driverPay: totalDriverPay,
-        totalCost: totalTripOperatingCost,
-      },
-      tollFreeRoute: {
-        miles: tollFreeMiles,
-        driveHours: parseFloat((driveHours * 1.14).toFixed(1)),
-        tolls: 0,
-        fuelCost: tollFreeFuelCost,
-        driverPay: tollFreeDriverPay,
-        totalCost: tollFreeTotalCost,
-      },
-      shortestRoute: {
-        miles: parseFloat((routeMiles * 0.96).toFixed(1)),
-        driveHours: parseFloat((driveHours * 1.06).toFixed(1)),
-        tolls: totalTolls,
-        fuelCost: parseFloat((estimatedFuelCost * 0.96).toFixed(2)),
-        driverPay: parseFloat(((routeMiles * 0.96) * driverRatePerMile + extraStopPayTotal).toFixed(2)),
-        totalCost: parseFloat((totalTripOperatingCost * 0.98).toFixed(2)),
-      },
-      recommendation: costRecommendation,
-      isTollFreeCheaper,
-      netDifferenceDollars: Math.abs(netSavingsIfTollFree),
+
+    geofences: geocoded.map((s, i) => ({
+      id: `GEO-STOP-${s.stopNumber}`,
+      name: `${s.label}: ${s.shortName}`,
+      type: s.type,
+      coords: s.coords,
+      radiusMeters: i === 0 ? 650 : i === geocoded.length - 1 ? 750 : 500,
+      color: i === 0 ? "#0284c7" : i === geocoded.length - 1 ? "#059669" : "#d97706",
+    })),
+
+    // Three real routes, side by side. An unavailable variant says so.
+    routeComparison: {
+      practical: summarize(practical),
+      shortest: summarize(shortest),
+      tollFree: summarize(tollFree),
+      milesSavedByShortest:
+        practical && shortest ? round(practical.miles - shortest.miles) : null,
+      extraMilesToAvoidTolls:
+        practical && tollFree ? round(tollFree.miles - practical.miles) : null,
+      // The provider treats the international toll bridges as tollways, so on a
+      // cross-border lane "avoid tolls" routes around the crossing itself and the
+      // detour explodes. The number is real, but it is not a usable dispatch
+      // option — say so instead of letting it read as a viable alternative.
+      tollFreeIsImpractical:
+        practical && tollFree ? tollFree.miles > practical.miles * 1.25 : null,
+      tollFreeNote:
+        practical && tollFree && tollFree.miles > practical.miles * 1.25
+          ? crossing
+            ? "Avoiding tollways also avoids the international toll bridge, forcing a long detour. Not a practical option on this lane."
+            : "Avoiding tollways forces a substantial detour on this lane."
+          : null,
     },
+
+    // Routing providers don't report tractor telemetry — Samsara owns that.
+    liveTractor: null,
+
+    calculatedAt: new Date().toISOString(),
   };
 };

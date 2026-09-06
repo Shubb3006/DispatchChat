@@ -1,40 +1,60 @@
 import { calculatePcMilerRoute } from "../services/pcmiler.service.js";
 
-// POST Calculate PC*MILER Commercial Route
+// A bad address or an unroutable lane is the caller's problem to fix, not a
+// server fault — map those to 4xx so the UI can name the offending stop.
+const CLIENT_ERRORS = {
+  GEOCODE_FAILED: 422,
+  MISSING_STOPS: 400,
+  NO_ROUTE: 422,
+  PROFILE_UNAVAILABLE: 422,
+};
+
+const sendRouteError = (res, error, context) => {
+  const status = CLIENT_ERRORS[error.code];
+  if (status) {
+    return res.status(status).json({
+      success: false,
+      code: error.code,
+      message: error.message,
+      address: error.address,
+    });
+  }
+  console.error(`${context}:`, error);
+  return res.status(500).json({ success: false, message: context, error: error.message });
+};
+
+// POST Calculate commercial truck route.
+// The result already carries all three routed variants in `routeComparison`,
+// so a single call is enough to render the comparison cards.
 export const calculateRoute = async (req, res) => {
   try {
-    const routeResult = await calculatePcMilerRoute(req.body);
-    res.json({
-      success: true,
-      route: routeResult,
-    });
+    const route = await calculatePcMilerRoute(req.body);
+    res.json({ success: true, route });
   } catch (error) {
-    console.error("Error calculating PC*MILER route:", error);
-    res.status(500).json({ success: false, message: "Error calculating route", error: error.message });
+    sendRouteError(res, error, "Error calculating route");
   }
 };
 
-// POST Compare Toll vs Toll-Free Route Economics
+// POST Compare the routed profiles side by side.
+// Kept for API compatibility. It no longer routes three times over: one call
+// geocodes once and returns every variant, which also keeps the provider's
+// free-tier request budget intact.
 export const compareTolls = async (req, res) => {
   try {
-    const [practical, tollFree, shortest] = await Promise.all([
-      calculatePcMilerRoute({ ...req.body, routingProfile: "PRACTICAL" }),
-      calculatePcMilerRoute({ ...req.body, routingProfile: "TOLL_DISCOURAGED" }),
-      calculatePcMilerRoute({ ...req.body, routingProfile: "SHORTEST" }),
-    ]);
-
+    const route = await calculatePcMilerRoute({ ...req.body, routingProfile: "PRACTICAL" });
     res.json({
       success: true,
       comparison: {
-        practical,
-        tollFree,
-        shortest,
-        economics: practical.economicsComparison,
+        ...route.routeComparison,
+        provider: route.provider,
+        isTruckProfile: route.isTruckProfile,
+        tollsAreComplete: route.tollsAreComplete,
+        tollNote: route.tollNote,
+        warnings: route.warnings,
       },
     });
   } catch (error) {
-    console.error("Error comparing tolls:", error);
-    res.status(500).json({ success: false, message: "Error comparing tolls", error: error.message });
+    sendRouteError(res, error, "Error comparing routes");
   }
 };
 

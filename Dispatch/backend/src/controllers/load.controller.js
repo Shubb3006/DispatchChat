@@ -673,86 +673,119 @@ export const getAllLoads = async (req, res) => {
 
 // };
 
+// Columns a client may write through PUT /load/:id, mapped to the request-body
+// keys accepted for each. The first key present in the body wins, so both the
+// canonical snake_case name and the camelCase alias used by older callers work.
+// Anything not listed here is ignored — callers routinely PUT a whole
+// normalized shipment object full of derived, non-column fields.
+const UPDATABLE_LOAD_COLUMNS = {
+  origin: ["origin"],
+  destination: ["destination"],
+  pickup_date: ["pickup_date"],
+  delivery_date: ["delivery_date"],
+  commodity: ["commodity"],
+  weight: ["weight"],
+  pieces: ["pieces"],
+  rate: ["rate"],
+  status: ["status"],
+  driver_id: ["driver_id"],
+  driver_notes: ["driver_notes"],
+  warehouse_location: ["warehouse_location", "warehouseBay"],
+  warehouse_notes: ["warehouse_notes", "warehouseNotes"],
+  intake_condition: ["intake_condition", "intakeCondition"],
+  received_at_warehouse: ["received_at_warehouse", "receivedAtWarehouse"],
+  received_at_warehouse_date: ["received_at_warehouse_date", "receivedAtWarehouseDate"],
+
+  // Operations Control Board fields — see 128_loads_ops_board_fields.sql
+  paps_number: ["paps_number", "papsNumber"],
+  border_connect_status: ["border_connect_status", "borderConnectStatus"],
+  commitment: ["commitment", "deliveryCommitment"],
+  commitment_date: ["commitment_date", "commitmentDate"],
+  commitment_time: ["commitment_time", "commitmentTime"],
+  pickup_trailer_number: ["pickup_trailer_number", "pickupTrailerNumber"],
+  delivered_status: ["delivered_status", "deliveredStatus"],
+  empty_status: ["empty_status", "emptyStatus"],
+  eta_to_empty: ["eta_to_empty", "etaToEmpty"],
+  next_pickup_status: ["next_pickup_status", "nextPickupStatus"],
+};
+
+// The Operations Board columns ship as migration 128, but applying them lazily
+// here means the board works on next boot without running migrations by hand —
+// the same pattern 110_borderconnect_filing.sql uses. Runs at most once per process.
+let opsBoardColumnsReady = null;
+const ensureOpsBoardColumns = () => {
+  if (!opsBoardColumnsReady) {
+    opsBoardColumnsReady = pool
+      .query(`
+        ALTER TABLE loads
+            ADD COLUMN IF NOT EXISTS commitment            VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS commitment_date       DATE,
+            ADD COLUMN IF NOT EXISTS commitment_time       VARCHAR(20),
+            ADD COLUMN IF NOT EXISTS pickup_trailer_number VARCHAR(50),
+            ADD COLUMN IF NOT EXISTS delivered_status      VARCHAR(30),
+            ADD COLUMN IF NOT EXISTS empty_status          VARCHAR(30),
+            ADD COLUMN IF NOT EXISTS eta_to_empty          TIMESTAMP,
+            ADD COLUMN IF NOT EXISTS next_pickup_status    VARCHAR(30),
+            ADD COLUMN IF NOT EXISTS border_connect_status VARCHAR(30),
+            ADD COLUMN IF NOT EXISTS paps_number           VARCHAR(100);
+      `)
+      .catch((err) => {
+        // Don't wedge the endpoint permanently on a transient failure.
+        opsBoardColumnsReady = null;
+        throw err;
+      });
+  }
+  return opsBoardColumnsReady;
+};
+
 export const updateLoad = async (req, res) => {
   try {
-    console.log("Load statu")
-    console.log(req.body)
     const { id } = req.params;
 
-    const {
-      origin,
-      destination,
-      pickup_date,
-      delivery_date,
-      commodity,
-      weight,
-      pieces,
-      rate,
-      status,
-      driver_id,
-      driver_notes,
-      warehouse_location,
-      warehouseBay,
-      warehouse_notes,
-      warehouseNotes,
-      intake_condition,
-      intakeCondition,
-      received_at_warehouse,
-      receivedAtWarehouse,
-      received_at_warehouse_date,
-      receivedAtWarehouseDate
-    } = req.body;
+    await ensureOpsBoardColumns();
 
-    const result = await pool.query(`
-            WITH updated_load AS (
-    UPDATE loads
-    SET
-        origin = COALESCE($1, origin),
-        destination = COALESCE($2, destination),
-        pickup_date = COALESCE($3, pickup_date),
-        delivery_date = COALESCE($4, delivery_date),
-        commodity = COALESCE($5, commodity),
-        weight = COALESCE($6, weight),
-        pieces = COALESCE($7, pieces),
-        rate = COALESCE($8, rate),
-        status = COALESCE($9, status),
-        driver_id = COALESCE($10, driver_id),
-        driver_notes = COALESCE($11, driver_notes),
-        warehouse_location = COALESCE($13, warehouse_location),
-        warehouse_notes = COALESCE($14, warehouse_notes),
-        intake_condition = COALESCE($15, intake_condition),
-        received_at_warehouse = COALESCE($16, received_at_warehouse),
-        received_at_warehouse_date = COALESCE($17, received_at_warehouse_date)
-    WHERE id = $12
-    RETURNING *
-)
-SELECT
-    ul.*,
-    u.username AS driver_name
-FROM updated_load ul
-LEFT JOIN drivers d
-    ON ul.driver_id = d.id
-LEFT JOIN users u
-    ON d.user_id = u.id;`,
-      [
-        origin || null,
-        destination || null,
-        pickup_date || null,
-        delivery_date || null,
-        commodity || null,
-        weight || null,
-        pieces || null,
-        rate || null,
-        status || null,
-        driver_id || null,
-        driver_notes || null,
-        id,
-        warehouse_location || warehouseBay || null,
-        warehouse_notes || warehouseNotes || null,
-        intake_condition || intakeCondition || null,
-        received_at_warehouse || receivedAtWarehouse || null,
-        received_at_warehouse_date || receivedAtWarehouseDate || null
-      ]
+    // Build the SET clause from the fields the caller actually sent.
+    //
+    // Only a key that is PRESENT in the body is written, so a partial update
+    // leaves every other column untouched. That also means an explicit null (or
+    // "") now clears a column — the previous COALESCE form silently kept the old
+    // value, which made it impossible to clear an ETA or un-set a commitment.
+    const setPairs = [];
+    const values = [];
+
+    for (const [column, bodyKeys] of Object.entries(UPDATABLE_LOAD_COLUMNS)) {
+      const key = bodyKeys.find((k) => req.body[k] !== undefined);
+      if (!key) continue;
+
+      const raw = req.body[key];
+      values.push(raw === "" ? null : raw);
+      setPairs.push(`${column} = $${values.length}`);
+    }
+
+    if (setPairs.length === 0) {
+      return res.status(400).json({
+        success: false,
+        message: "No updatable fields supplied"
+      });
+    }
+
+    values.push(id);
+
+    const result = await pool.query(
+      `
+      WITH updated_load AS (
+          UPDATE loads
+          SET ${setPairs.join(", ")}
+          WHERE id = $${values.length}
+          RETURNING *
+      )
+      SELECT
+          ul.*,
+          u.username AS driver_name
+      FROM updated_load ul
+      LEFT JOIN drivers d ON ul.driver_id = d.id
+      LEFT JOIN users u ON d.user_id = u.id;`,
+      values
     );
 
     if (result.rows.length === 0) {
@@ -816,7 +849,10 @@ LEFT JOIN users u
 
     const updatedLoad = result.rows[0];
 
-    // Record Audit Log for Load Update
+    // What the caller actually asked to change — drives the audit wording below.
+    const { status, driver_id, driver_notes, rate, weight } = req.body;
+    const changedColumns = setPairs.map((p) => p.split(" = ")[0]);
+
     await recordAuditLog({
       req,
       action: status ? "STATUS_CHANGED" : (driver_id ? "DRIVER_ASSIGNED" : "LOAD_UPDATED"),
@@ -824,11 +860,12 @@ LEFT JOIN users u
       entityId: updatedLoad.id,
       entityIdentifier: `Load #${updatedLoad.load_number || id}`,
       changeSummary: status
-        ? `Updated load #${updatedLoad.load_number} status to ${status.toUpperCase()}`
+        ? `Updated load #${updatedLoad.load_number} status to ${String(status).toUpperCase()}`
         : (driver_id
             ? `Assigned driver ${updatedLoad.driver_name || 'Driver'} to load #${updatedLoad.load_number}`
-            : `Updated load #${updatedLoad.load_number} specifications (Rate: $${rate || updatedLoad.rate}, Weight: ${weight || updatedLoad.weight} lbs)`),
+            : `Updated load #${updatedLoad.load_number}: ${changedColumns.join(", ")}`),
       details: {
+        changed_columns: changedColumns,
         status: status || updatedLoad.status,
         rate: rate || updatedLoad.rate,
         weight: weight || updatedLoad.weight,
