@@ -1,10 +1,8 @@
 import crypto from "crypto";
 import pool from "../config/db.js";
 import { recordAuditLog } from "./auditLogger.service.js";
-// import { notify } from "./notification.service.js";
+import { notifyDispatchers } from "./notification.service.js";
 import { buildLoadMilestoneEmail } from "./emailNotifier.service.js";
-
-const notify = async () => {}; // Stub
 
 /**
  * loadStatus.service — THE single choke point for load status transitions.
@@ -238,22 +236,21 @@ export const notifyMilestoneIfNeeded = async (load, previousStatus, { source = "
     trackingUrl,
   });
 
-  const result = await notify({
-    customerId: customer?.id || null,
-    email: recipientEmail,
-    type: `LOAD_${milestone.key.toUpperCase()}`,
+  const result = await notifyDispatchers({
     title: emailContent.subject,
-    body: emailContent.text,
-    html: emailContent.html,
-    meta: {
+    message: emailContent.text,
+    type: `LOAD_${milestone.key.toUpperCase()}`,
+    data: {
+      customerId: customer?.id || null,
+      email: recipientEmail,
+      trackingUrl,
+      html: emailContent.html,
       load_id: load.id,
       load_number: load.load_number || null,
       status: load.status,
       previous_status: previousStatus ?? null,
-      tracking_url: trackingUrl,
       source,
     },
-    channels: ["email", "inapp"],
   });
 
   return {

@@ -11,6 +11,7 @@ import {
 } from "./emailNotifier.service.js";
 import { uploadLoadConfirmationDocument } from "./supabaseStorage.service.js";
 import { calculateQuote, persistQuote } from "./quoteAgent.service.js";
+import { detectLoadExceptions, persistExceptions } from "./exceptionHandler.service.js";
 
 /**
  * End-to-End Autonomous 12-Step Load Confirmation Pipeline
@@ -186,6 +187,34 @@ export async function processLoadConfirmationPipeline({
 
   const loadId = insertedLoad?.id;
 
+  // Step 6: Exception Handler — Autonomous exception detection
+  let detectedExceptions = [];
+  try {
+    const exceptions = await detectLoadExceptions({
+      loadId,
+      load: {
+        driver_id: null, // TODO: wire driver assignment
+        truck_id: null,  // TODO: wire truck assignment
+        weight: tenderData.weight,
+        pickup_date: tenderData.pickup_date,
+        delivery_date: tenderData.delivery_date,
+        consignee_city: tenderData.consignee_city,
+        shipper_country: tenderData.shipper_country,
+        consignee_country: tenderData.consignee_country,
+      },
+    });
+
+    if (exceptions.length > 0) {
+      await persistExceptions(loadId, exceptions);
+      detectedExceptions = exceptions;
+      const criticalCount = exceptions.filter((e) => e.severity === "critical").length;
+      console.log(`⚠️ [Exception Handler] Detected ${exceptions.length} exception(s) (${criticalCount} critical)`);
+    }
+  } catch (exErr) {
+    console.warn("⚠️ [Exception Handler] Non-fatal error:", exErr.message);
+    // Exception detection failure doesn't block the pipeline
+  }
+
   // Step 6a: Autonomous Quote Agent - Generate & Persist Quote
   let generatedQuote = null;
   try {
@@ -341,6 +370,9 @@ export async function processLoadConfirmationPipeline({
     is_cross_border: routeTeam.isCrossBorder,
     customs_entry: customsEntry,
     quote: generatedQuote,
+    exceptions: detectedExceptions,
+    exception_count: detectedExceptions.length,
+    critical_exception_count: detectedExceptions.filter((e) => e.severity === "critical").length,
     document: {
       fileName,
       document_id: documentId,
