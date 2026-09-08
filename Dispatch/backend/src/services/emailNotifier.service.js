@@ -245,3 +245,84 @@ export function buildCustomsDocumentRequestEmail({
     text: `Customs Documents Required — Load NISHAN-${loadNumber}. Origin: ${origin}, Destination: ${destination}. Please provide Commercial Invoice, Packing List, and Broker Info. Lead #: ${leadNumber}`,
   };
 }
+
+/**
+ * Generates Load Milestone Update Email
+ * Subject: Load [Status] — NISHAN-[Load Number]
+ */
+export function buildLoadMilestoneEmail({
+  loadNumber,
+  status,
+  trackingUrl,
+  customerName = "Valued Customer",
+  driverName = null,
+  truckNumber = null,
+  estimatedDelivery = null,
+}) {
+  const statusTitles = {
+    picked_up: "Load Picked Up",
+    in_transit: "Load in Transit",
+    delivered: "Load Delivered",
+    exception: "Load Exception",
+  };
+
+  const subject = `Load ${statusTitles[status] || status} — NISHAN-${loadNumber}`;
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px; color: #1e293b; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+    .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: left; }
+    .logo { font-size: 20px; font-weight: 900; color: #38bdf8; letter-spacing: -0.5px; }
+    .status-badge { display: inline-block; background: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px; font-family: monospace; }
+    .content { padding: 24px; line-height: 1.6; font-size: 14px; }
+    .btn { display: inline-block; background: #0284c7; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; text-align: center; margin-top: 10px; }
+    .footer { padding: 18px 24px; background: #f8fafc; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">NISHAN TRANSPORT INC.</div>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Real-Time Load Status Update</div>
+      <div class="status-badge">STATUS: ${status.toUpperCase()} • LOAD NISHAN-${loadNumber}</div>
+    </div>
+
+    <div class="content">
+      <p>Hello <strong>${customerName}</strong>,</p>
+
+      <p>Your load <strong>NISHAN-${loadNumber}</strong> has reached a new milestone: <strong>${statusTitles[status] || status}</strong>.</p>
+
+      ${driverName ? `<p><strong>Driver:</strong> ${driverName}</p>` : ""}
+      ${truckNumber ? `<p><strong>Equipment:</strong> ${truckNumber}</p>` : ""}
+      ${estimatedDelivery ? `<p><strong>Estimated Delivery:</strong> ${estimatedDelivery}</p>` : ""}
+
+      <p>Click below to view live tracking details and full shipment status:</p>
+
+      <div style="text-align: center; margin: 24px 0;">
+        <a href="${trackingUrl}" class="btn">View Live Tracking ➔</a>
+      </div>
+    </div>
+
+    <div class="footer">
+      Nishan Transport Inc. • 24/7 Dedicated Logistics & Cross-Border Dispatch<br />
+      Carrier SCAC: <strong>NISD</strong> • CBSA Code: <strong>22GY</strong> • US DOT: 3891024
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  return {
+    to: customerName ? undefined : trackingUrl, // Placeholder — real to: address comes from load record
+    subject,
+    html,
+    text: `${subject}. Click here to view: ${trackingUrl}`,
+  };
+}

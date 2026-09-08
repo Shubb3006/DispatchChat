@@ -82,6 +82,19 @@ export async function processLoadConfirmationPipeline({
   let insertedLoad = null;
   const numericLoadNumber = parseInt(String(generatedLoadNumber).replace(/[^0-9]/g, "") || "582440", 10);
 
+  // Ensure loads table has document tracking columns
+  try {
+    await pool.query(`
+      ALTER TABLE loads ADD COLUMN IF NOT EXISTS document_id VARCHAR(255);
+      ALTER TABLE loads ADD COLUMN IF NOT EXISTS document_url TEXT;
+      CREATE INDEX IF NOT EXISTS idx_loads_document_id ON loads(document_id);
+    `);
+  } catch (err) {
+    if (!err.message.includes("already exists")) {
+      console.warn("Document column ensure warning:", err.message);
+    }
+  }
+
   try {
     const insertSql = `
       INSERT INTO loads (
@@ -246,8 +259,41 @@ export async function processLoadConfirmationPipeline({
     }
   }
 
-  // Step 7, 8, 9: Run PDF Storage & Outbound Email Notifications asynchronously in the background
-  // to avoid blocking the HTTP response or causing timeouts
+  // Step 7: Blocking PDF Upload (REQUIRED - must complete before response)
+  let documentUrl = null;
+  let documentId = null;
+  let uploadError = null;
+
+  if (pdfBuffer) {
+    try {
+      const uploadResult = await uploadLoadConfirmationDocument({
+        loadId,
+        fileName: fileName || `load-${generatedLoadNumber}-confirmation.pdf`,
+        fileBuffer: pdfBuffer,
+        mimeType: "application/pdf",
+      });
+
+      documentUrl = uploadResult.publicUrl || uploadResult.storagePath;
+      documentId = uploadResult.document?.id;
+      console.log(`📄 [Document Upload] Tender PDF persisted: ${documentUrl}`);
+
+      // Update load record with document reference
+      try {
+        await pool.query(
+          `UPDATE loads SET document_id = $1, document_url = $2 WHERE id = $3`,
+          [documentId, documentUrl, loadId]
+        );
+      } catch (updateErr) {
+        console.warn("Document URL update non-critical:", updateErr.message);
+      }
+    } catch (err) {
+      uploadError = err.message;
+      console.error(`❌ [Document Upload FAILED] ${uploadError}`);
+    }
+  }
+
+  // Step 8, 9: Run Email Notifications asynchronously in the background
+  // (emails are lower priority than document persistence)
   const trackingUrl = `${process.env.APP_URL || "http://localhost:5173"}/track/${generatedLoadNumber}`;
   const customerEmailPayload = buildCustomerConfirmationEmail({
     loadNumber: generatedLoadNumber,
@@ -264,18 +310,9 @@ export async function processLoadConfirmationPipeline({
       })
     : null;
 
-  // Background dispatch (non-blocking)
+  // Background dispatch for emails (non-blocking)
   setImmediate(async () => {
     try {
-      if (pdfBuffer) {
-        await uploadLoadConfirmationDocument({
-          loadId,
-          fileName: fileName || `load-${generatedLoadNumber}-confirmation.pdf`,
-          fileBuffer: pdfBuffer,
-          mimeType: "application/pdf",
-        }).catch((e) => console.warn("Background document upload warning:", e.message));
-      }
-
       await sendEmail(customerEmailPayload).catch((e) =>
         console.warn("Background customer email warning:", e.message)
       );
@@ -285,9 +322,9 @@ export async function processLoadConfirmationPipeline({
           console.warn("Background customs email warning:", e.message)
         );
       }
-      console.log(`✨ [Background Tasks Complete] Notifications & Storage synced for NISHAN-${generatedLoadNumber}`);
+      console.log(`✨ [Email Tasks Complete] Notifications sent for NISHAN-${generatedLoadNumber}`);
     } catch (bgErr) {
-      console.warn("Background post-processing warning:", bgErr.message);
+      console.warn("Background email warning:", bgErr.message);
     }
   });
 
@@ -304,7 +341,13 @@ export async function processLoadConfirmationPipeline({
     is_cross_border: routeTeam.isCrossBorder,
     customs_entry: customsEntry,
     quote: generatedQuote,
-    document: { fileName, status: "queued" },
+    document: {
+      fileName,
+      document_id: documentId,
+      document_url: documentUrl,
+      status: uploadError ? "failed" : documentUrl ? "persisted" : "not_provided",
+      error: uploadError,
+    },
     extraction_source: extractionSource,
     fallback_reason: fallbackReason,
     emails: {

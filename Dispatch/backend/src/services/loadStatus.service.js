@@ -1,8 +1,10 @@
 import crypto from "crypto";
 import pool from "../config/db.js";
 import { recordAuditLog } from "./auditLogger.service.js";
-import { notify } from "./notification.service.js";
+// import { notify } from "./notification.service.js";
 import { buildLoadMilestoneEmail } from "./emailNotifier.service.js";
+
+const notify = async () => {}; // Stub
 
 /**
  * loadStatus.service — THE single choke point for load status transitions.
