@@ -17,6 +17,7 @@ import {
   DollarSign,
   Map,
   Inbox,
+  ShieldCheck,
 } from "lucide-react";
 
 export default function Navigation({
@@ -44,6 +45,7 @@ export default function Navigation({
     { id: "maintenance", label: "Predictive Fleet Maintenance & DTC Radar", icon: Wrench },
     { id: "customs", label: "Customs Clearance (PAPS/PARS)", icon: FileSignature },
     { id: "detention", label: "Facility Detention & Accessorial Tracker", icon: Clock },
+    { id: "safety", label: "Safety & Compliance", icon: ShieldCheck },
     { id: "settlements", label: "Driver Settlements & Payroll", icon: DollarSign },
     { id: "audit_logs", label: "Audit Trail & Change History Radar", icon: History },
     { id: "customer", label: "Customer Tracking", icon: Globe },

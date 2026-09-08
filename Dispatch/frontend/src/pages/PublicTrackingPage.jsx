@@ -18,6 +18,7 @@ import {
   RefreshCw,
   Copy,
   Check,
+  AlertTriangle,
 } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -149,7 +150,7 @@ export default function PublicTrackingPage() {
     setTimeout(() => setCopied(false), 2500);
   };
 
-  if (loading || !data) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4">
         <div className="text-center space-y-4">
@@ -159,6 +160,24 @@ export default function PublicTrackingPage() {
           <div>
             <h2 className="text-lg font-extrabold text-slate-900">Connecting to Samsara Live Cloud Radar...</h2>
             <p className="text-xs text-slate-500 mt-1">Retrieving verified tractor GPS & customs manifests</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex items-center justify-center p-4">
+        <div className="text-center space-y-4 max-w-sm">
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 mx-auto">
+            <AlertTriangle className="w-8 h-8" />
+          </div>
+          <div>
+            <h2 className="text-lg font-extrabold text-slate-900">Live GPS Temporarily Unavailable</h2>
+            <p className="text-xs text-slate-500 mt-1">
+              Unable to retrieve tracking data from Samsara at this time. Please check the tracking number and try again.
+            </p>
           </div>
         </div>
       </div>

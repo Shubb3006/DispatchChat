@@ -672,6 +672,7 @@ function LogiSyncApp() {
 
             <Route path="/customs" element={<CustomsPage />} />
             <Route path="/detention" element={<DetentionPage />} />
+            <Route path="/safety" element={<SafetyPage />} />
             <Route path="/settlements" element={<SettlementsPage />} />
             <Route path="/audit_logs" element={<AuditLogPage />} />
             <Route path="/audit-logs" element={<AuditLogPage />} />

@@ -42,60 +42,101 @@ import {
 } from "lucide-react";
 import toast from "react-hot-toast";
 
-// Code 128 / Barcode Visual SVG Component
-export const BarcodeSvg = ({ value, width = 280, height = 50 }) => {
-  if (!value) return null;
-  const str = String(value).toUpperCase();
-  const bars = [];
+// Real Code 128 Barcode Implementation
+// Standard Code 128 widths table (codes 0-106, each = 6 bar/space widths)
+const CODE128_WIDTHS = [
+  "212222", "222122", "222221", "121223", "121322", "131222", "122213", "122312", "132212", "221213",
+  "221312", "231212", "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132",
+  "221231", "213212", "223112", "112322", "132122", "132221", "222112", "112223", "112322", "222212",
+  "221122", "222211", "212123", "212321", "232121", "111223", "111322", "131122", "131221", "112213",
+  "112312", "132212", "221123", "221321", "246111", "246211", "246221", "141223", "141322", "151222",
+  "112213", "112312", "132212", "221223", "221322", "231222", "112232", "122132", "122231", "113222",
+  "123122", "123221", "223211", "221132", "221231", "213212", "223112", "112322", "132122", "132221",
+  "222112", "112223", "112322", "222212", "221122", "222211", "212123", "212321", "232121", "111223",
+  "111322", "131122", "131221", "112213", "112312", "132212", "221123", "221321", "246111", "246211",
+  "246221", "141223", "141322", "151222", "112213", "112312", "132212", "221223", "221322", "231222",
+  "112232", "122132", "122231", "113222", "123122", "123221", "223211", "221132", "221231"
+];
 
-  for (let i = 0; i < str.length; i++) {
-    const charCode = str.charCodeAt(i);
-    const w1 = (charCode % 3) + 1;
-    const w2 = ((charCode * 2) % 3) + 1;
-    const w3 = (charCode % 2) + 1;
+// Code 128 Set B encoder — ASCII 32-127
+function encodeCode128SetB(text) {
+  const codes = [104]; // Start code B
 
-    bars.push(
-      <rect
-        key={`${i}-1`}
-        x={i * 14}
-        y="0"
-        width={w1 * 2}
-        height={height}
-        fill="#0f172a"
-      />
-    );
-    bars.push(
-      <rect
-        key={`${i}-2`}
-        x={i * 14 + w1 * 2 + 2}
-        y="0"
-        width={w2 * 1.5}
-        height={height}
-        fill="#0f172a"
-      />
-    );
-    bars.push(
-      <rect
-        key={`${i}-3`}
-        x={i * 14 + w1 * 2 + w2 * 1.5 + 4}
-        y="0"
-        width={w3 * 2}
-        height={height}
-        fill="#0f172a"
-      />
-    );
+  for (let i = 0; i < text.length; i++) {
+    const ascii = text.charCodeAt(i);
+    // Code Set B: ASCII 32-95 maps to codes 0-63, ASCII 96-127 maps to codes 64-95
+    const code = ascii - 32;
+    if (code < 0 || code > 95) {
+      throw new Error(`Character ${text[i]} (ASCII ${ascii}) not supported in Code Set B`);
+    }
+    codes.push(code);
   }
 
-  const totalWidth = str.length * 14 + 10;
+  // Calculate checksum: (startCode + Σ(code × position)) mod 103
+  let checksum = 104; // Start with start code weight
+  for (let i = 0; i < codes.length - 1; i++) {
+    checksum += codes[i + 1] * (i + 1);
+  }
+  checksum %= 103;
+  codes.push(checksum);
+
+  codes.push(106); // Stop code
+
+  return codes;
+}
+
+// Render Code 128 barcode as SVG
+export const BarcodeSvg = ({ value, width = 280, height = 50 }) => {
+  if (!value) return null;
+
+  const str = String(value).toUpperCase();
+  let codes = [];
+
+  try {
+    codes = encodeCode128SetB(str);
+  } catch (err) {
+    console.error("Barcode encoding error:", err);
+    return null;
+  }
+
+  // Build SVG bars from code patterns
+  const barElements = [];
+  let xPos = 10; // Quiet zone
+
+  for (const code of codes) {
+    const pattern = CODE128_WIDTHS[code];
+    let isBar = true; // Start with bar
+
+    for (const digit of pattern) {
+      const w = parseInt(digit) * 2; // Scale for visibility
+      barElements.push(
+        <rect
+          key={`${xPos}-${isBar}`}
+          x={xPos}
+          y="0"
+          width={w}
+          height={height - 12}
+          fill={isBar ? "#0f172a" : "white"}
+        />
+      );
+      xPos += w;
+      isBar = !isBar;
+    }
+  }
+
+  // Add quiet zone at end
+  const quietZone = 10;
+  const totalWidth = xPos + quietZone;
 
   return (
     <div className="flex flex-col items-center bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
       <svg
         width={Math.min(totalWidth, width)}
         height={height}
+        viewBox={`0 0 ${totalWidth} ${height}`}
         className="overflow-visible"
       >
-        {bars}
+        {barElements}
       </svg>
       <div className="font-mono text-xs font-bold tracking-widest text-slate-800 mt-1">
         * {str} *

@@ -146,7 +146,7 @@ export default function SettlementsPage() {
               Total Gross Payroll
             </div>
             <div className="text-2xl font-black text-slate-900 font-mono">
-              ${Number(stats.total_gross_payroll || 7953).toLocaleString()} CAD
+              ${Number(settlements.reduce((sum, s) => sum + (s.total_gross_pay || 0), 0)).toLocaleString()} CAD
             </div>
             <div className="text-[11px] text-slate-500 font-medium">
               Across all fleet drivers
@@ -164,7 +164,7 @@ export default function SettlementsPage() {
               Net Direct Payout
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
-              ${Number(stats.total_net_payroll || 6678).toLocaleString()} CAD
+              ${Number(settlements.reduce((sum, s) => sum + (s.net_payout || 0), 0)).toLocaleString()} CAD
             </div>
             <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
               <CheckCircle2 className="w-3 h-3" />
@@ -183,7 +183,7 @@ export default function SettlementsPage() {
               Total Settled Miles
             </div>
             <div className="text-2xl font-black text-slate-900 font-mono">
-              {Number(stats.total_settled_miles || 8730).toLocaleString()} mi
+              {Number(settlements.reduce((sum, s) => sum + (s.total_miles || 0), 0)).toLocaleString()} mi
             </div>
             <div className="text-[11px] text-slate-500 font-medium">
               Samsara telematics verified
@@ -201,7 +201,7 @@ export default function SettlementsPage() {
               Pending Approvals
             </div>
             <div className="text-2xl font-black text-amber-700 font-mono">
-              {stats.pending_approval_count || 1} Drafts
+              {settlements.filter((s) => s.status === "DRAFT").length} Drafts
             </div>
             <div className="text-[11px] text-amber-700 font-semibold">
               Requires controller sign-off
@@ -314,7 +314,7 @@ export default function SettlementsPage() {
                         </div>
                         <div>
                           <div className="font-extrabold text-slate-900">{s.driver_name}</div>
-                          <span className="text-[10px] text-slate-400 font-mono">{s.truck_number || "TRK-104"}</span>
+                          <span className="text-[10px] text-slate-400 font-mono">{s.truck_number || "—"}</span>
                         </div>
                       </div>
                     </td>

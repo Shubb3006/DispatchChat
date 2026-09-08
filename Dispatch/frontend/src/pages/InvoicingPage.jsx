@@ -40,7 +40,7 @@ export default function InvoicingPage() {
   const [endDate, setEndDate] = useState("");
   const [invoicedLoadIds, setInvoicedLoadIds] = useState(() => {
     const saved = localStorage.getItem("logisync_invoiced_loads");
-    return saved ? JSON.parse(saved) : ["LOG-10001", "LOG-10003"];
+    return saved ? JSON.parse(saved) : [];
   });
 
   // LTL Calculator State
@@ -102,9 +102,9 @@ export default function InvoicingPage() {
     const printWindow = window.open("", "_blank");
     if (!printWindow) return;
 
-    const invId = "INV-" + Math.floor(10000 + Math.random() * 90000);
-    const subtotal = load.priceInvoice || (load.palletCount || 4) * 450 + 850;
-    const tax = Math.round(subtotal * 0.08);
+    const invId = `INV-${load.load_number || load.id}-${Date.now().toString().slice(-5)}`;
+    const subtotal = load.priceInvoice || 0;
+    const tax = subtotal > 0 ? Math.round(subtotal * 0.08) : 0;
     const total = subtotal + tax;
 
     const html = `
@@ -148,17 +148,17 @@ export default function InvoicingPage() {
         <div class="grid">
           <div class="card">
             <h3>Billed To (Customer)</h3>
-            <p><strong>Customer:</strong> ${load.customer_name || load.customerName || "Industrial Logistics Co."}</p>
+            <p><strong>Customer:</strong> ${load.customer_name || load.customerName || "—"}</p>
             <p><strong>Payment Terms:</strong> Net 30 Days</p>
             <p><strong>Issue Date:</strong> ${new Date().toLocaleDateString()}</p>
             <p><strong>Due Date:</strong> ${new Date(Date.now() + 86400000 * 30).toLocaleDateString()}</p>
           </div>
           <div class="card">
             <h3>Shipment Summary</h3>
-            <p><strong>Shipper Pickup:</strong> ${load.shipperName || load.originCity || "Toronto, ON"}</p>
-            <p><strong>Consignee Delivery:</strong> ${load.consigneeName || load.destinationCity || "Chicago, IL"}</p>
-            <p><strong>Carrier Driver:</strong> ${load.driver_name || load.driverName || "Assigned Driver"}</p>
-            <p><strong>Equipment:</strong> Truck ${load.truckNumber || "TRK-102"} / Trailer ${load.trailerNumber || "TRL-504"}</p>
+            <p><strong>Shipper Pickup:</strong> ${load.shipperName || load.originCity || "—"}</p>
+            <p><strong>Consignee Delivery:</strong> ${load.consigneeName || load.destinationCity || "—"}</p>
+            <p><strong>Carrier Driver:</strong> ${load.driver_name || load.driverName || "—"}</p>
+            <p><strong>Equipment:</strong> Truck ${load.truckNumber || "—"} / Trailer ${load.trailerNumber || "—"}</p>
           </div>
         </div>
 
@@ -209,15 +209,15 @@ export default function InvoicingPage() {
         <div class="grid">
           <div class="card">
             <h3>Broker & Contracting Details</h3>
-            <p><strong>Brokerage Name:</strong> ${load.broker || "LogiSync Global Freight Brokerage"}</p>
-            <p><strong>Broker PO / Ref #:</strong> ${load.poNumber || "PO-99482"}</p>
-            <p><strong>Agreed Rate Pay:</strong> $${subtotal.toLocaleString()}.00 CAD</p>
+            <p><strong>Brokerage Name:</strong> ${load.broker || "—"}</p>
+            <p><strong>Broker PO / Ref #:</strong> ${load.poNumber || "—"}</p>
+            <p><strong>Agreed Rate Pay:</strong> $${subtotal > 0 ? subtotal.toLocaleString() : "—"}.00 CAD</p>
           </div>
           <div class="card">
             <h3>Carrier & Route Specifications</h3>
-            <p><strong>Carrier Company:</strong> LogiSync Express Fleet Services</p>
-            <p><strong>Driver Name:</strong> ${load.driver_name || load.driverName || "Marcus Vance"}</p>
-            <p><strong>Route Mileage:</strong> ${load.totalDistanceMiles || 450} Miles</p>
+            <p><strong>Carrier Company:</strong> ${load.carrierName || "—"}</p>
+            <p><strong>Driver Name:</strong> ${load.driver_name || load.driverName || "—"}</p>
+            <p><strong>Route Mileage:</strong> ${load.totalDistanceMiles || "—"} Miles</p>
           </div>
         </div>
 
@@ -242,17 +242,17 @@ export default function InvoicingPage() {
         <div class="grid">
           <div class="card">
             <h3>Pickup BOL Certification</h3>
-            <p><strong>Pickup Status:</strong> Completed at Shipper Site</p>
-            <p><strong>Shipper Location:</strong> ${load.shipperName || load.originCity || "Toronto, ON"}</p>
-            <p><strong>Pickup Date / Time:</strong> ${load.pickup_date ? new Date(load.pickup_date).toLocaleString() : "Aug 9, 2026, 10:46 AM"}</p>
-            <p><strong>Shipper Sign-off:</strong> Verified & Loaded</p>
+            <p><strong>Pickup Status:</strong> ${load.pickup_date ? "Completed at Shipper Site" : "—"}</p>
+            <p><strong>Shipper Location:</strong> ${load.shipperName || load.originCity || "—"}</p>
+            <p><strong>Pickup Date / Time:</strong> ${load.pickup_date ? new Date(load.pickup_date).toLocaleString() : "—"}</p>
+            <p><strong>Shipper Sign-off:</strong> ${load.pickup_date ? "Verified & Loaded" : "—"}</p>
           </div>
           <div class="card">
             <h3>Delivery POD Certification</h3>
-            <p><strong>Delivery Status:</strong> Delivered to Consignee Site</p>
-            <p><strong>Consignee Location:</strong> ${load.consigneeName || load.destinationCity || "Chicago, IL"}</p>
-            <p><strong>Delivery Date / Time:</strong> ${load.delivery_date ? new Date(load.delivery_date).toLocaleString() : "Aug 9, 2026, 04:30 PM"}</p>
-            <p><strong>Consignee Sign-off:</strong> Received in Full Intact</p>
+            <p><strong>Delivery Status:</strong> ${load.delivery_date ? "Delivered to Consignee Site" : "—"}</p>
+            <p><strong>Consignee Location:</strong> ${load.consigneeName || load.destinationCity || "—"}</p>
+            <p><strong>Delivery Date / Time:</strong> ${load.delivery_date ? new Date(load.delivery_date).toLocaleString() : "—"}</p>
+            <p><strong>Consignee Sign-off:</strong> ${load.delivery_date ? "Received in Full Intact" : "—"}</p>
           </div>
         </div>
 
@@ -283,11 +283,11 @@ export default function InvoicingPage() {
   // Metrics
   const totalInvoiced = filteredLoads
     .filter((l) => invoicedLoadIds.includes(l.id) || invoicedLoadIds.includes(l.load_number))
-    .reduce((a, l) => a + (l.priceInvoice || 2650), 0);
+    .reduce((a, l) => a + (l.priceInvoice || 0), 0);
 
   const totalUninvoiced = filteredLoads
     .filter((l) => !invoicedLoadIds.includes(l.id) && !invoicedLoadIds.includes(l.load_number))
-    .reduce((a, l) => a + (l.priceInvoice || 2650), 0);
+    .reduce((a, l) => a + (l.priceInvoice || 0), 0);
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
@@ -454,7 +454,7 @@ export default function InvoicingPage() {
                               : "Aug 9, 2026"}
                           </td>
                           <td className="px-5 py-4 font-bold font-mono text-slate-900 text-sm">
-                            ${(load.priceInvoice || 2650).toLocaleString()}
+                            {load.priceInvoice ? `$${load.priceInvoice.toLocaleString()}` : "—"}
                           </td>
                           <td className="px-5 py-4">
                             {isInvoiced ? (

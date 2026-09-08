@@ -31,7 +31,9 @@ import settlementRoutes from "./routes/settlement.routes.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
 import loadJourneyRoutes from "./routes/loadJourney.routes.js";
 import routeOptimizationRoutes from "./routes/routeOptimization.routes.js";
+import reportingRoutes from "./routes/reporting.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
+import { startGeofenceWorker } from "./workers/geofenceWorker.js";
 import { ensurePortalSchema } from "./services/portalSchema.service.js";
 
 
@@ -124,6 +126,7 @@ app.use("/api/pcmiler", pcmilerRoutes);
 app.use("/api/v1/pcmiler", pcmilerRoutes);
 app.use("/api/load-journey", loadJourneyRoutes);
 app.use("/api/route-optimization", routeOptimizationRoutes);
+app.use("/api/reporting", reportingRoutes);
 
 
 
@@ -136,6 +139,12 @@ app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   // Start autonomous background load confirmation intake worker
   startAutomationWorker();
+  // Start geofence worker (polls Samsara GPS every 3 minutes to detect enter/exit events)
+  if (process.env.GEOFENCE_ENABLED !== "false") {
+    startGeofenceWorker();
+  } else {
+    console.log("[GEOFENCE] Worker disabled (GEOFENCE_ENABLED=false)");
+  }
   // Apply the customer-portal schema (idempotent) so users.customer_id and
   // rate_requests exist before any portal traffic arrives.
   ensurePortalSchema().catch((err) =>

@@ -178,7 +178,7 @@ export const calculateIfta = async (req, res) => {
 // GET Geofence Alerts
 export const getGeofenceAlerts = async (req, res) => {
   try {
-    const alerts = geofenceService.getRecentGeofenceAlerts();
+    const alerts = await geofenceService.getRecentGeofenceAlerts();
     res.json({ success: true, alerts });
   } catch (error) {
     res.status(500).json({ success: false, message: "Failed to get geofence alerts" });

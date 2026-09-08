@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useSettlementStore } from "../../stores/useSettlementStore";
+import { useDriverStore } from "../../stores/useDriverstore";
 import {
   X,
   Plus,
@@ -21,58 +22,65 @@ export default function GenerateSettlementModal({
   onSuccess,
 }) {
   const { generateSettlement } = useSettlementStore();
+  const { drivers, fetchDrivers } = useDriverStore();
 
-  const driversList = [
-    { id: "DRV001", name: "Marcus Vance", code: "DRV001", truck: "TRK-104", defaultRate: 0.68 },
-    { id: "DRV002", name: "Rajbir Singh", code: "DRV002", truck: "TRK-213", defaultRate: 0.70 },
-    { id: "DRV003", name: "Ali Haithem", code: "DRV003", truck: "TRK-212", defaultRate: 0.68 },
-    { id: "DRV004", name: "Sarah Jenkins", code: "DRV004", truck: "TRK-105", defaultRate: 0.68 },
-    { id: "DRV005", name: "Rashid Yasin", code: "DRV005", truck: "TRK-220", defaultRate: 0.68 },
-  ];
-
-  const [selectedDriverId, setSelectedDriverId] = useState("DRV001");
-  const [periodStart, setPeriodStart] = useState("2026-08-01");
-  const [periodEnd, setPeriodEnd] = useState("2026-08-15");
+  const [selectedDriverId, setSelectedDriverId] = useState("");
+  const [periodStart, setPeriodStart] = useState("");
+  const [periodEnd, setPeriodEnd] = useState("");
   const [payModel, setPayModel] = useState("PER_MILE"); // "PER_MILE" | "PERCENTAGE_OF_GROSS" | "FLAT"
 
-  const [loadedMiles, setLoadedMiles] = useState(2450);
-  const [emptyMiles, setEmptyMiles] = useState(220);
-  const [ratePerLoadedMile, setRatePerLoadedMile] = useState(0.68);
-  const [ratePerEmptyMile, setRatePerEmptyMile] = useState(0.50);
-  const [grossPercentage, setGrossPercentage] = useState(28.0);
-  const [grossFreightRevenue, setGrossFreightRevenue] = useState(9850);
+  const [loadedMiles, setLoadedMiles] = useState("");
+  const [emptyMiles, setEmptyMiles] = useState("");
+  const [ratePerLoadedMile, setRatePerLoadedMile] = useState("0.68");
+  const [ratePerEmptyMile, setRatePerEmptyMile] = useState("0.50");
+  const [grossPercentage, setGrossPercentage] = useState("28.0");
+  const [grossFreightRevenue, setGrossFreightRevenue] = useState("");
 
-  const [extraStopsCount, setExtraStopsCount] = useState(2);
-  const [detentionHours, setDetentionHours] = useState(3);
+  const [extraStopsCount, setExtraStopsCount] = useState(0);
+  const [detentionHours, setDetentionHours] = useState(0);
   const [layoverDays, setLayoverDays] = useState(0);
 
-  const [fuelAdvance, setFuelAdvance] = useState(250);
-  const [insuranceDeduction, setInsuranceDeduction] = useState(75);
-  const [escrowDeduction, setEscrowDeduction] = useState(50);
+  const [fuelAdvance, setFuelAdvance] = useState(0);
+  const [insuranceDeduction, setInsuranceDeduction] = useState(0);
+  const [escrowDeduction, setEscrowDeduction] = useState(0);
   const [notes, setNotes] = useState("");
 
-  const selectedDriver = driversList.find((d) => d.id === selectedDriverId) || driversList[0];
+  // Fetch drivers on modal open if not already loaded
+  useEffect(() => {
+    if (isOpen && drivers.length === 0) {
+      fetchDrivers();
+    }
+  }, [isOpen, drivers.length, fetchDrivers]);
+
+  // Initialize selected driver on first load
+  useEffect(() => {
+    if (drivers.length > 0 && !selectedDriverId) {
+      setSelectedDriverId(drivers[0].id || drivers[0].driver_code);
+    }
+  }, [drivers, selectedDriverId]);
+
+  const selectedDriver = drivers.find((d) => d.id === selectedDriverId || d.driver_code === selectedDriverId);
 
   // Live Reactive Calculation
   const calculation = useMemo(() => {
     let basePay = 0;
     if (payModel === "PERCENTAGE_OF_GROSS") {
-      basePay = Math.round(Number(grossFreightRevenue) * (Number(grossPercentage) / 100));
+      basePay = Math.round(Number(grossFreightRevenue || 0) * (Number(grossPercentage || 0) / 100));
     } else if (payModel === "FLAT") {
       basePay = 1500;
     } else {
       basePay = Math.round(
-        Number(loadedMiles) * Number(ratePerLoadedMile) +
-        Number(emptyMiles) * Number(ratePerEmptyMile)
+        Number(loadedMiles || 0) * Number(ratePerLoadedMile || 0) +
+        Number(emptyMiles || 0) * Number(ratePerEmptyMile || 0)
       );
     }
 
-    const extraStopPay = Number(extraStopsCount) * 50;
-    const detentionPay = Number(detentionHours) * 35;
-    const layoverPay = Number(layoverDays) * 150;
+    const extraStopPay = Number(extraStopsCount || 0) * 50;
+    const detentionPay = Number(detentionHours || 0) * 35;
+    const layoverPay = Number(layoverDays || 0) * 150;
     const totalGrossPay = basePay + extraStopPay + detentionPay + layoverPay;
 
-    const totalDeductions = Number(fuelAdvance) + Number(insuranceDeduction) + Number(escrowDeduction);
+    const totalDeductions = Number(fuelAdvance || 0) + Number(insuranceDeduction || 0) + Number(escrowDeduction || 0);
     const netPayout = Math.max(0, totalGrossPay - totalDeductions);
 
     return {
@@ -182,9 +190,9 @@ export default function GenerateSettlementModal({
                 onChange={(e) => setSelectedDriverId(e.target.value)}
                 className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-sky-500"
               >
-                {driversList.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.name} ({d.truck})
+                {drivers.map((d) => (
+                  <option key={d.id || d.driver_code} value={d.id || d.driver_code}>
+                    {d.name || `${d.first_name} ${d.last_name}`} ({d.assigned_truck_number || "—"})
                   </option>
                 ))}
               </select>

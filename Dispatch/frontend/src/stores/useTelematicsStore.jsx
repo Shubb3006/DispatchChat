@@ -59,7 +59,7 @@ export const useTelematicsStore = create((set, get) => ({
   },
 
   optimizeLtlPlan: async (planParams) => {
-    set({ isOptimizing: true });
+    set({ isOptimizing: true, error: null });
     try {
       const res = await axiosInstance.post("/telematics/optimize-ltl-route", planParams);
       if (res.data?.success) {
@@ -67,73 +67,12 @@ export const useTelematicsStore = create((set, get) => ({
         toast.success("AI LTL Route Optimized! Tolls and fuel savings calculated.");
         return res.data;
       }
+      throw new Error(res.data?.message || "Route optimization failed");
     } catch (err) {
-      // Offline fallback computation
-      const origin = planParams.origin || "Montreal, QC";
-      const dest = planParams.destination || "Chicago, IL";
-      const stops = planParams.stops || ["Toronto, ON", "Detroit, MI"];
-      const baseMiles = 880;
-      const tollCost = 285;
-      const ecoTollCost = 35;
-      const netSavings = 281;
-
-      const fallbackResult = {
-        success: true,
-        engine: "Ozack AI LTL Multi-Stop Optimizer v3.0",
-        load_summary: {
-          origin,
-          destination: dest,
-          stops: stops.length,
-          stop_locations: stops,
-          cargo_weight_lbs: planParams.cargoWeightLbs || 32500,
-          pallets: planParams.palletCount || 18,
-          trailer_type: planParams.trailerType || "Dry Van 53ft",
-        },
-        routes: {
-          toll_route: {
-            type: "Toll Corridor Highway",
-            description: "Uses 407 ETR / NY Thruway / PA Turnpike",
-            total_miles: baseMiles,
-            estimated_hours: 15.2,
-            estimated_fuel_gallons: 124,
-            toll_cost_usd: tollCost,
-            fuel_cost_usd: 477,
-            total_trip_cost_usd: 762,
-          },
-          eco_route: {
-            type: "AI Low-Toll Eco-Route (Recommended)",
-            description: "Bypasses 407 ETR & Turnpikes via free freight corridors & Eco-Speed",
-            total_miles: 902,
-            estimated_hours: 16.3,
-            estimated_fuel_gallons: 116,
-            toll_cost_usd: ecoTollCost,
-            fuel_cost_usd: 446,
-            total_trip_cost_usd: 481,
-          },
-        },
-        savings_summary: {
-          net_financial_savings_usd: netSavings,
-          toll_savings_usd: 250,
-          fuel_savings_gallons: 8,
-          co2_reduction_kg: 81,
-          roi_verdict: "Save $281 USD with only 66 mins driving difference.",
-        },
-        recommended_samsara_tractor: {
-          truck_number: "6109",
-          model: "Volvo VNL 760",
-          current_location: "Detroit Ambassador Bridge Plaza",
-          distance_to_pickup_miles: 18,
-          eta_to_pickup: "24 mins",
-          fuel_level: "82%",
-          driver_name: "Jaspal Singh Bhagtana",
-          driver_phone: "514-695-4200",
-          hos_remaining: "8h 15m",
-        },
-      };
-
-      set({ routeOptimization: fallbackResult, isOptimizing: false });
-      toast.success("AI LTL Route Optimized!");
-      return fallbackResult;
+      const msg = err.message || "Failed to optimize route";
+      set({ error: msg, routeOptimization: null, isOptimizing: false });
+      toast.error(`Route optimization failed: ${msg}`);
+      return null;
     }
   },
 
@@ -152,7 +91,7 @@ export const useTelematicsStore = create((set, get) => ({
   },
 
   transmitRouteToDriver: async (payload) => {
-    set({ isTransmitting: true });
+    set({ isTransmitting: true, error: null });
     try {
       const res = await axiosInstance.post("/telematics/dispatch-to-driver", payload);
       if (res.data?.success) {
@@ -160,18 +99,12 @@ export const useTelematicsStore = create((set, get) => ({
         toast.success(`📲 Exact route sent to ${payload.driverName}'s Samsara Tablet!`, { duration: 5000 });
         return res.data;
       }
+      throw new Error(res.data?.message || "Route transmission failed");
     } catch (err) {
-      console.warn("Using offline driver transmission confirmation");
-      const fallback = {
-        success: true,
-        message: `Route transmitted to ${payload.driverName} (Tractor #${payload.truckNumber})`,
-        dispatch_reference: `DISP-SAM-${Date.now().toString().slice(-6)}`,
-        driver: payload.driverName,
-        truck: payload.truckNumber,
-      };
-      set({ lastTransmittedTrip: fallback, isTransmitting: false });
-      toast.success(`📲 Exact route sent to ${payload.driverName}'s Samsara Tablet!`, { duration: 5000 });
-      return fallback;
+      const msg = err.message || "Failed to send route to driver";
+      set({ error: msg, lastTransmittedTrip: null, isTransmitting: false });
+      toast.error(`Route transmission failed: ${msg}`);
+      return null;
     }
   },
 
@@ -179,37 +112,19 @@ export const useTelematicsStore = create((set, get) => ({
   // HOS FEASIBILITY SIMULATOR ACTION
   // ==========================================
   simulateHos: async (payload) => {
+    set({ error: null });
     try {
       const res = await axiosInstance.post("/telematics/simulate-hos", payload);
       if (res.data?.success) {
         set({ hosSimulation: res.data });
         return res.data;
       }
+      throw new Error(res.data?.message || "HOS simulation failed");
     } catch (err) {
-      console.warn("Local HOS simulation fallback");
-      const totalMiles = payload.totalDistanceMiles || 650;
-      const hours = payload.estimatedDurationHours || 11.5;
-      const isMultiDay = hours > 11;
-      const fallback = {
-        success: true,
-        feasibilityStatus: isMultiDay ? "MULTI_DAY_SLEEPER_REQUIRED" : hours > 8 ? "SINGLE_SHIFT_REST_REQUIRED" : "SINGLE_SHIFT_CLEAN",
-        summary: {
-          totalTripHours: isMultiDay ? Number((hours + 10.5).toFixed(1)) : Number((hours + (hours > 8 ? 0.5 : 0)).toFixed(1)),
-          totalDriveHours: Number(hours.toFixed(1)),
-          totalRestHours: isMultiDay ? 10.5 : (hours > 8 ? 0.5 : 0),
-          totalDays: isMultiDay ? 2 : 1,
-          mandatoryStopsCount: isMultiDay ? 2 : (hours > 8 ? 1 : 0),
-          isSingleShift: !isMultiDay,
-        },
-        stopsRequired: isMultiDay ? [
-          { type: "30_MIN_REST_BREAK", location: "ONroute Service Plaza (Kingston, ON)", duration: "30 Minutes", elapsedHours: 8.0, scheduledTime: "14:00 EST" },
-          { type: "10_HOUR_SLEEPER_RESET", location: "Pilot Travel Center #302 (Syracuse, NY)", duration: "10 Hours Sleeper Reset", elapsedHours: 11.5, scheduledTime: "18:00 EST" }
-        ] : (hours > 8 ? [
-          { type: "30_MIN_REST_BREAK", location: "Pilot Travel Center #412 (Cornwall, ON)", duration: "30 Minutes", elapsedHours: 8.0, scheduledTime: "14:00 EST" }
-        ] : []),
-      };
-      set({ hosSimulation: fallback });
-      return fallback;
+      const msg = err.message || "Failed to simulate HOS";
+      set({ error: msg, hosSimulation: null });
+      toast.error(`HOS simulation failed: ${msg}`);
+      return null;
     }
   },
 

@@ -243,7 +243,6 @@ export const useHOSStore = create((set) => ({
   ==========================================
   */
   fetchAllHOSLogs: async () => {
-    console.log("SDS");
     set({
       isLoading: true,
       error: null,
@@ -251,9 +250,24 @@ export const useHOSStore = create((set) => ({
 
     try {
       const response = await axiosInstance.get("/hos-logs");
-      console.log(response.data)
+      // Transform backend snake_case to camelCase for UI consistency
+      const mappedLogs = (response.data.logs || []).map((log) => ({
+        id: log.id,
+        driverId: log.driver_id,
+        driver_id: log.driver_id,
+        driverName: log.full_name || log.username || "Driver",
+        currentStatus: log.current_status || "OFF",
+        current_status: log.current_status || "OFF",
+        drivingSecondsRemaining: log.drive_time_remaining_sec || 39600,
+        driving_seconds_remaining: log.drive_time_remaining_sec || 39600,
+        dutySecondsRemaining: log.shift_time_remaining_sec || 50400,
+        duty_seconds_remaining: log.shift_time_remaining_sec || 50400,
+        cycleSecondsRemaining: log.cycle_time_remaining_sec || 252000,
+        cycle_seconds_remaining: log.cycle_time_remaining_sec || 252000,
+        ...log
+      }));
       set({
-        hosLogs: response.data.logs,
+        hosLogs: mappedLogs,
         isLoading: false,
       });
     } catch (err) {

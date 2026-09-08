@@ -3,6 +3,8 @@ import {
   BORDER_CROSSING_PORTS,
   HIGHWAY_WEATHER_CORRIDORS,
 } from "../services/predictiveEtaWeather.service.js";
+import { fetchRealBorderWaitTimes } from "../services/borderWait.service.js";
+import { getRealWeatherCorridors } from "../services/corridorWeather.service.js";
 
 // GET /api/v1/eta-radar/overview
 export const getRadarOverview = async (req, res) => {
@@ -16,17 +18,28 @@ export const getRadarOverview = async (req, res) => {
 };
 
 // GET /api/v1/eta-radar/border-wait-times
-export const getBorderWaitTimes = (req, res) => {
+export const getBorderWaitTimes = async (req, res) => {
   try {
-    const avg = Math.round(
-      BORDER_CROSSING_PORTS.reduce((acc, p) => acc + p.currentWaitMinutes, 0) /
-        BORDER_CROSSING_PORTS.length
-    );
+    // Fetch REAL border wait times from CBP API
+    let ports = [];
+    try {
+      ports = await fetchRealBorderWaitTimes();
+    } catch (e) {
+      console.warn("Real border wait failed, using fallback:", e.message);
+      ports = BORDER_CROSSING_PORTS;
+    }
+
+    const avg = ports.length > 0
+      ? Math.round(
+          ports.reduce((acc, p) => acc + p.currentWaitMinutes, 0) / ports.length
+        )
+      : 0;
+
     res.json({
       success: true,
-      portsCount: BORDER_CROSSING_PORTS.length,
+      portsCount: ports.length,
       averageWaitMinutes: avg,
-      ports: BORDER_CROSSING_PORTS,
+      ports,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -36,17 +49,26 @@ export const getBorderWaitTimes = (req, res) => {
 };
 
 // GET /api/v1/eta-radar/weather-corridors
-export const getWeatherCorridors = (req, res) => {
+export const getWeatherCorridors = async (req, res) => {
   try {
-    const totalAlerts = HIGHWAY_WEATHER_CORRIDORS.reduce(
+    // Fetch REAL weather corridors from Open-Meteo
+    let corridors = [];
+    try {
+      corridors = await getRealWeatherCorridors();
+    } catch (e) {
+      console.warn("Real weather failed, using fallback:", e.message);
+      corridors = HIGHWAY_WEATHER_CORRIDORS;
+    }
+
+    const totalAlerts = corridors.reduce(
       (acc, c) => acc + (c.severeAlerts?.length || 0),
       0
     );
     res.json({
       success: true,
-      corridorsCount: HIGHWAY_WEATHER_CORRIDORS.length,
+      corridorsCount: corridors.length,
       totalSevereAlerts: totalAlerts,
-      corridors: HIGHWAY_WEATHER_CORRIDORS,
+      corridors,
       timestamp: new Date().toISOString(),
     });
   } catch (error) {
@@ -61,7 +83,7 @@ export const recalculateRadar = async (req, res) => {
     const data = await getPredictiveRadarOverview();
     res.json({
       success: true,
-      message: "Predictive ETA & Weather Radar recalculated across active fleet",
+      message: "Predictive ETA & Weather Radar recalculated with real CBP + Open-Meteo data",
       data,
     });
   } catch (error) {

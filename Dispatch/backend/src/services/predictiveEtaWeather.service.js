@@ -1,8 +1,11 @@
 import pool from "../config/db.js";
 import { getVehicleLocations } from "./samsara.service.js";
+import { fetchRealBorderWaitTimes } from "./borderWait.service.js";
+import { getRealWeatherCorridors } from "./corridorWeather.service.js";
 
 /**
  * Live US CBP & CBSA Border Crossing Ports Directory & Real-Time Wait Times
+ * (Legacy constant kept for fallback; real data from CBP API via fetchRealBorderWaitTimes)
  */
 export const BORDER_CROSSING_PORTS = [
   {
@@ -222,55 +225,59 @@ export const HIGHWAY_WEATHER_CORRIDORS = [
 /**
  * Helper to match highway corridor based on origin and destination
  */
-const getMatchingCorridor = (origin = "", destination = "") => {
+const getMatchingCorridor = (origin = "", destination = "", corridors = null) => {
+  const corridorList = corridors || HIGHWAY_WEATHER_CORRIDORS;
   const text = `${origin} ${destination}`.toUpperCase();
+
   if (text.includes("FL") || text.includes("FLORIDA") || text.includes("DAVENPORT") || text.includes("ATLANTA") || text.includes("GA") || text.includes("CINCINNATI")) {
-    return HIGHWAY_WEATHER_CORRIDORS[0]; // I-75
+    return corridorList[0] || corridorList[corridorList.length - 1];
   }
   if (text.includes("NY") || text.includes("NEW YORK") || text.includes("NEWARK") || text.includes("NJ") || text.includes("BUFFALO") || text.includes("ALBANY")) {
-    return HIGHWAY_WEATHER_CORRIDORS[2]; // I-90
+    return corridorList[2] || corridorList[corridorList.length - 1];
   }
   if (text.includes("CHICAGO") || text.includes("IL") || text.includes("INDIANA") || text.includes("OHIO")) {
-    return HIGHWAY_WEATHER_CORRIDORS[3]; // I-80
+    return corridorList[3] || corridorList[corridorList.length - 1];
   }
   if (text.includes("WA") || text.includes("SEATTLE") || text.includes("BC") || text.includes("PORTLAND")) {
-    return HIGHWAY_WEATHER_CORRIDORS[4]; // I-5
+    return corridorList[4] || corridorList[corridorList.length - 1];
   }
-  return HIGHWAY_WEATHER_CORRIDORS[1]; // Default Ontario 401
+  return corridorList[1] || corridorList[0] || corridorList[corridorList.length - 1];
 };
 
 /**
  * Helper to match border port of entry
  */
-const getMatchingBorderPort = (origin = "", destination = "") => {
+const getMatchingBorderPort = (origin = "", destination = "", ports = null) => {
+  const portList = ports || BORDER_CROSSING_PORTS;
   const text = `${origin} ${destination}`.toUpperCase();
+
   if (text.includes("NY") || text.includes("NJ") || text.includes("BUFFALO")) {
-    return BORDER_CROSSING_PORTS[2]; // Peace Bridge
+    return portList.find((p) => p.portCode === "0901") || portList[2] || portList[0];
   }
   if (text.includes("WA") || text.includes("BC") || text.includes("VANCOUVER")) {
-    return BORDER_CROSSING_PORTS[5]; // Blaine
+    return portList.find((p) => p.portCode === "3004") || portList[5] || portList[0];
   }
   if (text.includes("QC") || text.includes("MONTREAL") || text.includes("CHAMPLAIN")) {
-    return BORDER_CROSSING_PORTS[4]; // Champlain
+    return portList.find((p) => p.portCode === "0712") || portList[4] || portList[0];
   }
   if (text.includes("SARNIA") || text.includes("PORT HURON")) {
-    return BORDER_CROSSING_PORTS[1]; // Blue Water Bridge
+    return portList.find((p) => p.portCode === "3802") || portList[1] || portList[0];
   }
-  return BORDER_CROSSING_PORTS[0]; // Default Detroit Ambassador Bridge
+  return portList[0] || portList[portList.length - 1];
 };
 
 /**
  * Calculate Predictive Dynamic ETA combining:
  * 1. Live Samsara GPS position, speed, and heading
  * 2. Remaining road mileage
- * 3. US CBP / CBSA Border crossing bridge delays
- * 4. Weather speed penalty (rain, wind, snow)
+ * 3. US CBP / CBSA Border crossing bridge delays (REAL from CBP API)
+ * 4. Weather speed penalty (REAL from Open-Meteo)
  * 5. Mandatory driver HOS rest break
  */
-export const calculateDynamicShipmentEta = (shipment, liveSamsaraVehicle = null) => {
+export const calculateDynamicShipmentEta = (shipment, liveSamsaraVehicle = null, realBorderPorts = null, realWeatherCorridors = null) => {
   const baseMiles = Number(shipment.total_miles || shipment.miles || 1240);
-  const matchedCorridor = getMatchingCorridor(shipment.origin, shipment.destination);
-  const matchedPort = getMatchingBorderPort(shipment.origin, shipment.destination);
+  const matchedCorridor = getMatchingCorridor(shipment.origin, shipment.destination, realWeatherCorridors);
+  const matchedPort = getMatchingBorderPort(shipment.origin, shipment.destination, realBorderPorts);
 
   // Live Samsara Telematics data
   const currentSpeedMph = liveSamsaraVehicle?.speed_mph || (liveSamsaraVehicle?.speed ? liveSamsaraVehicle.speed * 0.621371 : 62);
@@ -397,7 +404,7 @@ export const calculateDynamicShipmentEta = (shipment, liveSamsaraVehicle = null)
 };
 
 /**
- * Get Complete Radar Overview
+ * Get Complete Radar Overview with REAL data from CBP + Open-Meteo
  */
 export const getPredictiveRadarOverview = async () => {
   try {
@@ -410,7 +417,27 @@ export const getPredictiveRadarOverview = async () => {
       console.warn("Samsara live fetch in radar:", e.message);
     }
 
-    // 2. Fetch active loads from database
+    // 2. Fetch REAL border wait times from CBP API
+    let realBorderPorts = [];
+    try {
+      realBorderPorts = await fetchRealBorderWaitTimes();
+      console.log(`[RADAR] Using real CBP data for ${realBorderPorts.length} ports`);
+    } catch (e) {
+      console.warn("Real border wait fetch failed, using fallback:", e.message);
+      realBorderPorts = BORDER_CROSSING_PORTS;
+    }
+
+    // 3. Fetch REAL weather corridors from Open-Meteo
+    let realWeatherCorridors = [];
+    try {
+      realWeatherCorridors = await getRealWeatherCorridors();
+      console.log(`[RADAR] Using real weather for ${realWeatherCorridors.length} corridors`);
+    } catch (e) {
+      console.warn("Real weather fetch failed, using fallback:", e.message);
+      realWeatherCorridors = HIGHWAY_WEATHER_CORRIDORS;
+    }
+
+    // 4. Fetch active loads from database
     let activeLoads = [];
     try {
       const loadsRes = await pool.query(
@@ -471,21 +498,23 @@ export const getPredictiveRadarOverview = async () => {
       ];
     }
 
-    // 3. Calculate dynamic ETAs for each active shipment
+    // 5. Calculate dynamic ETAs for each active shipment (still using hardcoded matching for now, but with real border/weather data)
     const trackedShipments = activeLoads.map((load, idx) => {
       const liveVehicle = liveVehicles[idx % Math.max(1, liveVehicles.length)] || null;
-      return calculateDynamicShipmentEta(load, liveVehicle);
+      return calculateDynamicShipmentEta(load, liveVehicle, realBorderPorts, realWeatherCorridors);
     });
 
-    const severeAlertsCount = HIGHWAY_WEATHER_CORRIDORS.reduce(
+    const severeAlertsCount = realWeatherCorridors.reduce(
       (acc, c) => acc + (c.severeAlerts?.length || 0),
       0
     );
 
-    const avgBorderWaitMins = Math.round(
-      BORDER_CROSSING_PORTS.reduce((acc, p) => acc + p.currentWaitMinutes, 0) /
-        BORDER_CROSSING_PORTS.length
-    );
+    const avgBorderWaitMins = realBorderPorts.length > 0
+      ? Math.round(
+          realBorderPorts.reduce((acc, p) => acc + p.currentWaitMinutes, 0) /
+            realBorderPorts.length
+        )
+      : 0;
 
     const onTimeShipments = trackedShipments.filter((s) => s.onTimeStatus === "ON_TIME").length;
     const delayedShipments = trackedShipments.filter((s) => s.onTimeStatus !== "ON_TIME").length;
@@ -498,15 +527,15 @@ export const getPredictiveRadarOverview = async () => {
         onTimeCount: onTimeShipments,
         delayedCount: delayedShipments,
         onTimeFleetPct: Math.round((onTimeShipments / Math.max(1, trackedShipments.length)) * 100),
-        activeCorridorsMonitored: HIGHWAY_WEATHER_CORRIDORS.length,
+        activeCorridorsMonitored: realWeatherCorridors.length,
         severeWeatherAlertsCount: severeAlertsCount,
-        borderCrossingsMonitored: BORDER_CROSSING_PORTS.length,
+        borderCrossingsMonitored: realBorderPorts.length,
         averageBorderWaitMinutes: avgBorderWaitMins,
-        liveSamsaraConnectedTractors: liveVehicles.length || 427,
+        liveSamsaraConnectedTractors: liveVehicles.length || 0,
       },
       trackedShipments,
-      borderPorts: BORDER_CROSSING_PORTS,
-      weatherCorridors: HIGHWAY_WEATHER_CORRIDORS,
+      borderPorts: realBorderPorts,
+      weatherCorridors: realWeatherCorridors,
     };
   } catch (error) {
     console.error("getPredictiveRadarOverview error:", error);

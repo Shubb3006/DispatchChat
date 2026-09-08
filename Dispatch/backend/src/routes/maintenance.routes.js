@@ -4,11 +4,13 @@ import {
   createWorkOrder,
   updateWorkOrderStatus,
   clearEngineFaultCode,
+  getMaintenanceKpiSummary,
 } from "../services/fleetMaintenance.service.js";
 
 const router = express.Router();
 
 // GET /api/v1/maintenance/overview
+// Returns maintenance radar with real DB work orders + live Samsara faults
 router.get("/overview", async (req, res) => {
   try {
     const data = await getMaintenanceRadarOverview();
@@ -18,11 +20,25 @@ router.get("/overview", async (req, res) => {
   }
 });
 
+// GET /api/v1/maintenance/kpi-summary
+// Returns computed KPI summary from real DB data (counts only, no fabricated numbers)
+router.get("/kpi-summary", async (req, res) => {
+  try {
+    const summary = await getMaintenanceKpiSummary();
+    res.json({ success: true, summary });
+  } catch (err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 // POST /api/v1/maintenance/work-orders
-router.post("/work-orders", (req, res) => {
+// Create a new work order persisted to PostgreSQL
+router.post("/work-orders", async (req, res) => {
   try {
-    const result = createWorkOrder(req.body);
+    const result = await createWorkOrder(req.body);
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
     res.status(201).json(result);
   } catch (err) {
     res.status(500).json({ success: false, error: err.message });
@@ -30,10 +46,11 @@ router.post("/work-orders", (req, res) => {
 });
 
 // PATCH /api/v1/maintenance/work-orders/:id
-router.patch("/work-orders/:id", (req, res) => {
+// Update work order status in database
+router.patch("/work-orders/:id", async (req, res) => {
   try {
     const { status } = req.body;
-    const result = updateWorkOrderStatus(req.params.id, status);
+    const result = await updateWorkOrderStatus(req.params.id, status);
     if (!result.success) return res.status(404).json(result);
     res.json(result);
   } catch (err) {
@@ -42,6 +59,7 @@ router.patch("/work-orders/:id", (req, res) => {
 });
 
 // POST /api/v1/maintenance/clear-fault
+// Mark an engine fault as manually cleared by mechanic
 router.post("/clear-fault", (req, res) => {
   try {
     const { faultId, notes } = req.body;

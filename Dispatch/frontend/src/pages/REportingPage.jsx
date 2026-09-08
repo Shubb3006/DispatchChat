@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from "react";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import { useInvoiceStore } from "../stores/useInvoiceStore";
 import { useAuthStore } from "../stores/useAuthStore";
+import { useTelematicsStore } from "../stores/useTelematicsStore";
 import {
   BarChart3,
   DollarSign,
@@ -33,6 +34,8 @@ export default function ReportingPage() {
   const invoices = useInvoiceStore((state) => state.invoices);
   const fetchInvoices = useInvoiceStore((state) => state.fetchInvoices);
   const currentUser = useAuthStore((state) => state.currentUser);
+  const vehicles = useTelematicsStore((state) => state.vehicles);
+  const fetchFleetTelematics = useTelematicsStore((state) => state.fetchFleetTelematics);
 
   const [activeTab, setActiveTab] = useState("pnl");
   const [currency, setCurrency] = useState("USD"); // "USD" | "CAD"
@@ -41,7 +44,8 @@ export default function ReportingPage() {
   useEffect(() => {
     fetchShipments();
     fetchInvoices();
-  }, [fetchShipments, fetchInvoices]);
+    fetchFleetTelematics();
+  }, [fetchShipments, fetchInvoices, fetchFleetTelematics]);
 
   const tabs = [
     { id: "pnl", label: "P&L Financials & Lane Yield", icon: DollarSign },
@@ -74,7 +78,7 @@ export default function ReportingPage() {
                 </span>
               </div>
               <p className="text-xs text-slate-500 font-medium mt-0.5">
-                Real-time freight unit economics (RPM/CPM), 427-tractor Samsara telematics, cross-border compliance, and A/R aging ledger.
+                Real-time freight unit economics (RPM/CPM), Samsara telematics, cross-border compliance, and A/R aging ledger.
               </p>
             </div>
           </div>
@@ -130,11 +134,7 @@ export default function ReportingPage() {
         <div className="flex items-center gap-4 text-slate-600 font-semibold font-mono text-[11px]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span>Samsara Telematics: <strong>427 Tractors Active</strong></span>
-          </div>
-          <div className="hidden sm:flex items-center gap-1.5">
-            <span className="w-2 h-2 rounded-full bg-emerald-500" />
-            <span>BorderConnect EDI: <strong>99.4% First-Pass</strong></span>
+            <span>Samsara Telematics: {vehicles.length > 0 ? <strong>{vehicles.length} Tractors Active</strong> : <strong>Connecting...</strong>}</span>
           </div>
           <div className="hidden md:flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-sky-500" />

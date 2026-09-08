@@ -23,7 +23,7 @@ export default function SafetyPage() {
   const updateSafetyIncident = useSafetyStore((state) => state.updateSafetyIncident);
   const updateSafetyScore = useSafetyStore((state) => state.updateSafetyScore);
   const hosLogs = useHOSStore((state) => state.hosLogs);
-  const fetchHOSLogs = useHOSStore((state) => state.fetchHOSLogs);
+  const fetchAllHOSLogs = useHOSStore((state) => state.fetchAllHOSLogs);
 
   const [filterSeverity, setFilterSeverity] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,8 +31,8 @@ export default function SafetyPage() {
   useEffect(() => {
     fetchSafetyIncidents();
     fetchSafetyScores();
-    fetchHOSLogs();
-  }, [fetchSafetyIncidents, fetchSafetyScores, fetchHOSLogs]);
+    fetchAllHOSLogs();
+  }, [fetchSafetyIncidents, fetchSafetyScores, fetchAllHOSLogs]);
 
   const handleResolveIncident = async (incidentId) => {
     const inc = safetyIncidents.find((i) => i.id === incidentId);

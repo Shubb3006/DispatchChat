@@ -229,7 +229,7 @@ export default function SamsaraFleetPage() {
             </div>
           </div>
           <div className="text-2xl font-black text-slate-900 font-mono mt-1">
-            {summary.total_tractors_online || vehicles.length || 330}
+            {vehicles.length > 0 ? vehicles.length : "—"}
           </div>
           <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Nishan Transport Power Units</div>
         </div>
@@ -271,10 +271,12 @@ export default function SamsaraFleetPage() {
             </div>
           </div>
           <div className="text-2xl font-black text-slate-900 font-mono mt-1 flex items-baseline gap-1.5">
-            <span>{summary.fleet_avg_mpg || "7.2"}</span>
-            <span className="text-xs text-slate-500 font-normal">MPG</span>
+            <span>{vehicles.length > 0 && vehicles.some(v => v.telemetry?.average_mpg)
+              ? (vehicles.reduce((sum, v) => sum + (v.telemetry?.average_mpg || 0), 0) / vehicles.filter(v => v.telemetry?.average_mpg).length).toFixed(1)
+              : "—"}</span>
+            {vehicles.length > 0 && vehicles.some(v => v.telemetry?.average_mpg) && <span className="text-xs text-slate-500 font-normal">MPG</span>}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">+0.4 MPG over baseline</div>
+          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">{vehicles.length > 0 ? "Fleet telematics data" : "No data available"}</div>
         </div>
 
         {/* AI Route Optimizer Badge */}
@@ -1294,7 +1296,52 @@ export default function SamsaraFleetPage() {
               <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => toast.success("Quarterly IFTA Tax Return PDF generated & saved!")}
+                  onClick={() => {
+                    const printWindow = window.open("", "_blank");
+                    if (!printWindow) {
+                      toast.error("Unable to open print window. Please check popup settings.");
+                      return;
+                    }
+                    const html = `
+                      <!DOCTYPE html>
+                      <html>
+                      <head>
+                        <title>IFTA Quarterly Report</title>
+                        <style>
+                          body { font-family: Arial, sans-serif; padding: 40px; }
+                          table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+                          th, td { border: 1px solid #ccc; padding: 10px; text-align: left; }
+                          th { background-color: #f0f0f0; font-weight: bold; }
+                        </style>
+                      </head>
+                      <body>
+                        <h1>IFTA Mileage Slicer Report</h1>
+                        <p><strong>Quarter:</strong> ${iftaReport?.quarter || "Q1 2026"}</p>
+                        <p><strong>Total Miles:</strong> ${iftaReport?.totalTripMiles || 944}</p>
+                        <p><strong>Total Fuel:</strong> ${iftaReport?.totalFuelConsumedGal || "173.3"} gallons</p>
+                        <p><strong>Net Tax Due:</strong> $${iftaReport?.totalNetIftaTaxDue || "84.50"}</p>
+                        <table>
+                          <tr>
+                            <th>Jurisdiction</th>
+                            <th>Miles</th>
+                            <th>Share %</th>
+                            <th>Tax Rate/Gal</th>
+                            <th>Net Tax Due</th>
+                          </tr>
+                          ${(iftaReport?.jurisdictions || []).map((j) =>
+                            '<tr><td>' + j.stateName + '</td><td>' + j.milesDriven + '</td><td>' + j.mileagePercent + '%</td><td>$' + j.taxRatePerGal + '</td><td>$' + j.netTaxDue.toFixed(2) + '</td></tr>'
+                          ).join("")}
+                        </table>
+                      </body>
+                      </html>
+                    `;
+                    printWindow.document.write(html);
+                    printWindow.document.close();
+                    printWindow.focus();
+                    setTimeout(() => {
+                      printWindow.print();
+                    }, 250);
+                  }}
                   className="px-3.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
                 >
                   <Printer className="w-3.5 h-3.5 text-slate-500" />
@@ -1466,10 +1513,12 @@ export default function SamsaraFleetPage() {
                 </div>
               </div>
               <div className="text-3xl font-black text-slate-900 mt-2 font-mono">
-                7.2 <span className="text-sm font-normal text-slate-500">MPG (Fleet Avg)</span>
+                {vehicles.length > 0 && vehicles.some(v => v.telemetry?.average_mpg)
+                  ? (vehicles.reduce((sum, v) => sum + (v.telemetry?.average_mpg || 0), 0) / vehicles.filter(v => v.telemetry?.average_mpg).length).toFixed(1)
+                  : "—"} {vehicles.length > 0 && vehicles.some(v => v.telemetry?.average_mpg) && <span className="text-sm font-normal text-slate-500">MPG</span>}
               </div>
               <div className="text-xs text-slate-500 mt-1">
-                Estimated fuel burn: <strong className="text-slate-800">32.4 L/100km</strong>
+                {vehicles.length > 0 ? "Fleet telematics data available" : "No data available"}
               </div>
             </div>
 
@@ -1481,10 +1530,12 @@ export default function SamsaraFleetPage() {
                 </div>
               </div>
               <div className="text-3xl font-black text-teal-700 mt-2 font-mono">
-                84.6% <span className="text-sm font-normal text-slate-500">Avg Level</span>
+                {vehicles.length > 0 && vehicles.some(v => v.telemetry?.def_level_percent)
+                  ? (vehicles.reduce((sum, v) => sum + (v.telemetry?.def_level_percent || 0), 0) / vehicles.filter(v => v.telemetry?.def_level_percent).length).toFixed(1)
+                  : "—"}% {vehicles.length > 0 && vehicles.some(v => v.telemetry?.def_level_percent) && <span className="text-sm font-normal text-slate-500">Avg</span>}
               </div>
               <div className="text-xs text-slate-500 mt-1 font-medium">
-                Zero low-DEF active engine derates
+                {vehicles.length > 0 ? "DEF monitoring active" : "No data available"}
               </div>
             </div>
 
@@ -1496,10 +1547,10 @@ export default function SamsaraFleetPage() {
                 </div>
               </div>
               <div className="text-3xl font-black text-slate-900 mt-2 font-mono">
-                100% <span className="text-sm font-normal text-slate-500">Green Status</span>
+                {vehicles.length > 0 ? "✓" : "—"} <span className="text-sm font-normal text-slate-500">{vehicles.length > 0 ? "Status" : "No Data"}</span>
               </div>
               <div className="text-xs text-slate-500 mt-1 font-medium">
-                All 330 tractors checked with zero critical fault alerts
+                {vehicles.length > 0 ? `${vehicles.length} tractors monitored` : "No telematics data"}
               </div>
             </div>
           </div>
