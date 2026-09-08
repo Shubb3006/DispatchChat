@@ -237,7 +237,7 @@ export default function LoginPage() {
           </div>
           <div>
             <h1 className="text-3xl font-black tracking-tight bg-gradient-to-r from-white via-indigo-200 to-slate-400 bg-clip-text text-transparent">
-              OZACK
+              NISHAN TMS
             </h1>
             <p className="text-xs text-slate-400 font-medium tracking-wide uppercase font-mono mt-1">
               Samsara &amp; BorderConnect Carrier Hub
