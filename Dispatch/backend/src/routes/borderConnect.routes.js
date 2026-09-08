@@ -6,6 +6,12 @@ import {
   healthCheck,
   pollManifestAcknowledgment,
 } from "../services/borderConnect.service.js";
+import {
+  bulkTransmitDraftManifests,
+  pollAllManifestAcknowledgments,
+  getEnrichedCustomsEntries,
+  autoTransmitOnLoadStatusChange,
+} from "../services/borderConnectSync.service.js";
 import { protectedRoute } from "../middlewares/auth.middleware.js";
 
 const router = express.Router();
@@ -134,6 +140,90 @@ router.get("/health", async (req, res) => {
     });
   } catch (err) {
     console.error("[BorderConnect] Health check error:", err.message);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/border-connect/sync
+ * Manual sync: transmit all DRAFT manifests + poll acknowledgments
+ * (Wires to "Sync BorderConnect" button)
+ */
+router.post("/sync", protectedRoute, async (req, res) => {
+  try {
+    console.log(`🔄 [BorderConnect] Manual sync initiated`);
+
+    const [transmitResult, pollResult] = await Promise.all([
+      bulkTransmitDraftManifests(),
+      pollAllManifestAcknowledgments(),
+    ]);
+
+    return res.json({
+      success: true,
+      data: {
+        transmission: transmitResult,
+        polling: pollResult,
+        message: `Transmitted ${transmitResult.successCount} manifests, polled ${pollResult.totalPolled} statuses`,
+      },
+    });
+  } catch (err) {
+    console.error("[BorderConnect] Sync error:", err.message);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * GET /api/border-connect/customs/entries
+ * Get enriched customs entries with wait times & manifest status
+ * Query: ?status=DRAFT&borderDirection=INBOUND_US&limit=50
+ */
+router.get("/customs/entries", protectedRoute, async (req, res) => {
+  try {
+    const { status = "all", borderDirection = "all", limit = 50 } = req.query;
+
+    const entries = await getEnrichedCustomsEntries({
+      status,
+      borderDirection,
+      limit: Math.min(parseInt(limit, 10), 500),
+    });
+
+    return res.json({
+      success: true,
+      data: entries,
+      count: entries.length,
+    });
+  } catch (err) {
+    console.error("[BorderConnect] Enriched entries error:", err.message);
+    return res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+/**
+ * POST /api/border-connect/load/:loadId/auto-transmit
+ * Auto-transmit manifest when load status changes
+ * Body: { newStatus }
+ */
+router.post("/load/:loadId/auto-transmit", protectedRoute, async (req, res) => {
+  try {
+    const { loadId } = req.params;
+    const { newStatus } = req.body;
+
+    if (!newStatus) {
+      return res.status(400).json({
+        success: false,
+        message: "newStatus is required",
+      });
+    }
+
+    const result = await autoTransmitOnLoadStatusChange(loadId, newStatus);
+
+    return res.json({
+      success: !!result,
+      data: result,
+      message: result ? "Manifest transmitted" : "No manifest to transmit",
+    });
+  } catch (err) {
+    console.error("[BorderConnect] Auto-transmit error:", err.message);
     return res.status(500).json({ success: false, error: err.message });
   }
 });

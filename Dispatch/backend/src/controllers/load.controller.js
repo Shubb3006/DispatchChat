@@ -13,6 +13,7 @@ import {
   autoAssignDriverToLoad,
 } from "../services/aiDispatcherOptimizer.service.js";
 import { recordAuditLog, computeFieldDiff } from "../services/auditLogger.service.js";
+import { autoTransmitOnLoadStatusChange } from "../services/borderConnectSync.service.js";
 
 
 import { createClient } from '@supabase/supabase-js';
@@ -1061,6 +1062,19 @@ export const updateLoadStatus = async (req, res) => {
         updated_at: new Date().toISOString()
       }
     });
+
+    // Auto-transmit manifest to CBP if load is cross-border + confirmed
+    if (status === "Confirmed" || status === "Ready to Dispatch") {
+      try {
+        const transmitResult = await autoTransmitOnLoadStatusChange(id, status);
+        if (transmitResult) {
+          console.log(`✅ [Load Status Update] Auto-transmitted manifest for load ${id}`);
+          updatedLoad.manifest_transmission = transmitResult;
+        }
+      } catch (txErr) {
+        console.warn(`⚠️ [Load Status Update] Auto-transmit warning: ${txErr.message}`);
+      }
+    }
 
     res.json({
       success: true,

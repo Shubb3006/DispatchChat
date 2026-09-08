@@ -1,5 +1,6 @@
 import pool from "../config/db.js";
 import { recordAuditLog } from "../services/auditLogger.service.js";
+import { enrichCustomsEntriesWithBorderData } from "../services/borderConnectSync.service.js";
 
 // Standard US and Canadian Ports of Entry Reference List
 export const PORTS_OF_ENTRY = [
@@ -800,10 +801,16 @@ export const getCustomsEntries = async (req, res) => {
 
     const result = await pool.query(query, params);
 
+    // Enrich customs entries with real-time BorderConnect data
+    const enrichedEntries = await enrichCustomsEntriesWithBorderData(result.rows).catch(err => {
+      console.warn("BorderConnect enrichment warning:", err.message);
+      return result.rows; // Fallback to unenriched data
+    });
+
     res.json({
       success: true,
-      customs_entries: result.rows,
-      total: result.rows.length
+      customs_entries: enrichedEntries,
+      total: enrichedEntries.length
     });
   } catch (error) {
     console.error("Error fetching customs entries:", error);

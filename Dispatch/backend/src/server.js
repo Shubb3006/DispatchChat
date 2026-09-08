@@ -38,6 +38,7 @@ import eManifestRoutes from "./routes/emanifest.routes.js";
 import borderConnectRoutes from "./routes/borderConnect.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
 import { startGeofenceWorker } from "./workers/geofenceWorker.js";
+import { startBorderConnectSyncWorker } from "./services/borderConnectSync.service.js";
 import { ensurePortalSchema } from "./services/portalSchema.service.js";
 
 
@@ -152,6 +153,12 @@ app.listen(PORT, () => {
     startGeofenceWorker();
   } else {
     console.log("[GEOFENCE] Worker disabled (GEOFENCE_ENABLED=false)");
+  }
+  // Start BorderConnect sync worker (auto-transmit + polling every 5-10 min)
+  if (process.env.BORDERCONNECT_ENABLED !== "false") {
+    startBorderConnectSyncWorker();
+  } else {
+    console.log("[BORDERCONNECT] Worker disabled (BORDERCONNECT_ENABLED=false)");
   }
   // Apply the customer-portal schema (idempotent) so users.customer_id and
   // rate_requests exist before any portal traffic arrives.
