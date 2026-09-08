@@ -32,6 +32,7 @@ import pcmilerRoutes from "./routes/pcmiler.routes.js";
 import loadJourneyRoutes from "./routes/loadJourney.routes.js";
 import routeOptimizationRoutes from "./routes/routeOptimization.routes.js";
 import reportingRoutes from "./routes/reporting.routes.js";
+import quoteRoutes from "./routes/quote.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
 import { startGeofenceWorker } from "./workers/geofenceWorker.js";
 import { ensurePortalSchema } from "./services/portalSchema.service.js";
@@ -127,6 +128,7 @@ app.use("/api/v1/pcmiler", pcmilerRoutes);
 app.use("/api/load-journey", loadJourneyRoutes);
 app.use("/api/route-optimization", routeOptimizationRoutes);
 app.use("/api/reporting", reportingRoutes);
+app.use("/api/quotes", quoteRoutes);
 
 
 

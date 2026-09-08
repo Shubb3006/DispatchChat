@@ -10,6 +10,7 @@ import {
   sendEmail,
 } from "./emailNotifier.service.js";
 import { uploadLoadConfirmationDocument } from "./supabaseStorage.service.js";
+import { calculateQuote, persistQuote } from "./quoteAgent.service.js";
 
 /**
  * End-to-End Autonomous 12-Step Load Confirmation Pipeline
@@ -172,6 +173,25 @@ export async function processLoadConfirmationPipeline({
 
   const loadId = insertedLoad?.id;
 
+  // Step 6a: Autonomous Quote Agent - Generate & Persist Quote
+  let generatedQuote = null;
+  try {
+    generatedQuote = await calculateQuote({
+      tenderData: {
+        ...tenderData,
+        load_number: generatedLoadNumber,
+      },
+      targetMarginPercent: 20,
+      brokerCommissionPercent: 10,
+    });
+
+    const persistedQuote = await persistQuote(generatedQuote);
+    generatedQuote = persistedQuote;
+    console.log(`💰 [Quote Agent] Generated quote $${generatedQuote.quote_rate} for ${tenderData.customer_name}`);
+  } catch (quoteErr) {
+    console.warn("⚠️ [Quote Agent] Non-fatal error:", quoteErr.message);
+    // Quote generation failure doesn't block the pipeline
+  }
 
   // Step 6b: Auto-generate Customs Entry for Cross-Border shipments (PAPS / PARS)
   let customsEntry = null;
@@ -283,6 +303,7 @@ export async function processLoadConfirmationPipeline({
     team_description: routeTeam.teamDescription,
     is_cross_border: routeTeam.isCrossBorder,
     customs_entry: customsEntry,
+    quote: generatedQuote,
     document: { fileName, status: "queued" },
     extraction_source: extractionSource,
     fallback_reason: fallbackReason,
