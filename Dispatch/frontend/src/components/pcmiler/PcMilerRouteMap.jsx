@@ -222,7 +222,7 @@ export default function PcMilerRouteMap({ route }) {
       </div>
 
       {/* Routed Geometry Provenance Card */}
-      <div className="absolute top-4 left-4 z-10 bg-slate-900/90 backdrop-blur-md border border-slate-700 text-white rounded-2xl p-3 shadow-xl max-w-xs pointer-events-auto font-mono space-y-1.5">
+      <div className="absolute top-16 md:top-4 left-4 z-10 bg-slate-900/90 backdrop-blur-md border border-slate-700 text-white rounded-2xl p-3 shadow-xl max-w-[calc(100%-2rem)] sm:max-w-xs pointer-events-auto font-mono space-y-1.5">
         <div className="flex items-center gap-2">
           <Route className="w-3.5 h-3.5 text-sky-400" />
           <span className="text-xs font-bold uppercase text-sky-400">{route.provider}</span>

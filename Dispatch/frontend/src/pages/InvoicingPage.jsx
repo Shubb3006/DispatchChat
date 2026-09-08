@@ -372,7 +372,7 @@ export default function InvoicingPage() {
                   </select>
                 </div>
 
-                <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                <div className="flex flex-wrap items-center gap-y-1.5 space-x-2 max-w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
                   <Calendar className="h-3.5 w-3.5 text-slate-500" />
                   <span className="text-xs font-semibold text-slate-500">From:</span>
                   <input

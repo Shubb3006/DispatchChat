@@ -365,7 +365,7 @@ export default function SamsaraFleetPage() {
           {/* Left Column: Interactive Radar Canvas */}
           <div className="lg:col-span-8 bg-white border border-slate-200 rounded-2xl p-5 flex flex-col justify-between shadow-xs">
             <div>
-              <div className="flex items-center justify-between mb-4">
+              <div className="flex flex-wrap items-center justify-between gap-2 mb-4">
                 <div>
                   <h3 className="font-extrabold text-base text-slate-900 flex items-center gap-2">
                     <Navigation className="w-4 h-4 text-sky-600" />
@@ -419,7 +419,7 @@ export default function SamsaraFleetPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center gap-4 text-xs font-mono">
+                <div className="flex flex-wrap items-center gap-4 text-xs font-mono">
                   <div className="text-center">
                     <div className="text-slate-500 text-[10px] uppercase font-bold">Fuel Tank</div>
                     <div className="font-bold text-sky-700 text-sm">{selectedTruck.telemetry?.fuel_level_percent}%</div>
@@ -538,7 +538,7 @@ export default function SamsaraFleetPage() {
             </div>
 
             <form onSubmit={handleRunOptimization} className="space-y-3.5">
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Origin (Pickup HQ)
@@ -607,7 +607,7 @@ export default function SamsaraFleetPage() {
               </div>
 
               {/* Weight, Pallets & Trailer specs */}
-              <div className="grid grid-cols-2 gap-3 pt-1">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Cargo Weight (Lbs)
@@ -749,7 +749,7 @@ export default function SamsaraFleetPage() {
                     </p>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs font-mono border-t sm:border-t-0 sm:border-l border-emerald-200 pt-2 sm:pt-0 sm:pl-4">
+                  <div className="flex flex-wrap items-center gap-4 text-xs font-mono border-t sm:border-t-0 sm:border-l border-emerald-200 pt-2 sm:pt-0 sm:pl-4">
                     <div>
                       <div className="text-slate-500 text-[10px] uppercase font-bold">Tolls Saved</div>
                       <div className="font-black text-emerald-700 text-base">
@@ -982,7 +982,7 @@ export default function SamsaraFleetPage() {
                           </p>
                         </div>
 
-                        <div className="flex items-center gap-2">
+                        <div className="flex flex-wrap items-center gap-2">
                           <button
                             type="button"
                             onClick={() => setIsDriverSheetModalOpen(true)}
@@ -1562,7 +1562,7 @@ export default function SamsaraFleetPage() {
       {/* ========================================================================= */}
       {isDriverSheetModalOpen && routeOptimization && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full p-6 space-y-5 shadow-2xl my-6 text-slate-900">
+          <div className="bg-white border border-slate-200 rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-3 sm:p-6 space-y-5 shadow-2xl my-6 text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-200 pb-4">
               <div className="flex items-center gap-3">
                 <div className="w-11 h-11 bg-gradient-to-tr from-sky-600 to-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-sm">

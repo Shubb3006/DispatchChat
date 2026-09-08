@@ -269,7 +269,7 @@ export default function EtaWeatherRadarPage() {
                 >
                   {/* Card Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
-                    <div className="flex items-center gap-3">
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="font-mono text-base font-extrabold text-sky-700">
                         #{s.loadNumber}
                       </span>
@@ -298,7 +298,7 @@ export default function EtaWeatherRadarPage() {
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       {s.isApproachingGeofence && (
                         <span className="px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-800 text-[11px] font-extrabold border border-emerald-200 animate-bounce">
                           🎯 Approaching Delivery ({s.remainingMiles} mi out)
@@ -316,7 +316,7 @@ export default function EtaWeatherRadarPage() {
 
                   {/* Route & Progress Visual */}
                   <div className="space-y-2">
-                    <div className="flex items-center justify-between text-xs font-semibold text-slate-700">
+                    <div className="flex flex-wrap items-center justify-between gap-1 text-xs font-semibold text-slate-700">
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
                         <span className="font-bold">{s.origin}</span>
@@ -392,7 +392,7 @@ export default function EtaWeatherRadarPage() {
       {/* TAB 2: CROSS-BORDER BRIDGE WAIT TIMES */}
       {/* ========================================================================= */}
       {activeTab === "border" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-extrabold text-slate-900">
@@ -475,7 +475,7 @@ export default function EtaWeatherRadarPage() {
       {/* TAB 3: CORRIDOR WEATHER & SEVERE STORM RADAR */}
       {/* ========================================================================= */}
       {activeTab === "weather" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-extrabold text-slate-900">
@@ -508,7 +508,7 @@ export default function EtaWeatherRadarPage() {
                       <div className="text-[11px] text-slate-500 font-medium">{c.routeSpan}</div>
                     </div>
 
-                    <div className="flex items-center gap-2">
+                    <div className="flex flex-wrap items-center gap-2">
                       <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white text-slate-700 border border-slate-200 shadow-2xs">
                         {c.weatherCondition}
                       </span>

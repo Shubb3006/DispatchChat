@@ -546,7 +546,7 @@ export default function SamsaraFleetMap({
         <span className="text-xs font-black text-slate-900 tracking-wide">
           Samsara Fleet Radar
         </span>
-        <span className="text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-mono font-bold">
+        <span className="hidden sm:inline text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-mono font-bold">
           {vehicles.length} Live Trucks
         </span>
       </div>
@@ -614,7 +614,7 @@ export default function SamsaraFleetMap({
           className="px-2 py-1 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition text-xs font-bold flex items-center gap-1.5"
         >
           <Layers className="w-3.5 h-3.5 text-sky-600" />
-          <span className="text-[11px]">
+          <span className="hidden sm:inline text-[11px]">
             {activeTileLayer === "samsara_light" ? "Light Map" : activeTileLayer === "samsara_dark" ? "Dark Radar" : "Satellite"}
           </span>
         </button>

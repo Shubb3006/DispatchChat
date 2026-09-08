@@ -417,6 +417,8 @@ function LogiSyncApp() {
   const messages = useMessageStore((state) => state.messages);
 
   const [currentRole, setCurrentRole] = useState("data_entry");
+  // Mobile nav drawer (hamburger) — sidebar is hidden below md
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   // Bootstrap Data — run once on mount only
   useEffect(() => {
@@ -567,11 +569,14 @@ function LogiSyncApp() {
         currentRole={currentRole}
         onChangeRole={(role) => {
           setCurrentRole(role);
+          setMobileNavOpen(false);
           navigate("/" + role);
         }}
         activeShipmentsCount={activeShipmentsCount}
         unreadMessagesCount={unreadMessagesCount}
         currentUser={currentUser}
+        mobileOpen={mobileNavOpen}
+        onCloseMobile={() => setMobileNavOpen(false)}
         onLogout={() => {
           logout();
           navigate("/login");
@@ -581,9 +586,20 @@ function LogiSyncApp() {
       {/* Main Workspace */}
       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-50">
         {/* Modern Clean Crisp Top Header */}
-        <header className="h-14 border-b border-slate-200 flex items-center justify-between px-6 shrink-0 bg-white select-none z-20 shadow-xs">
+        <header className="h-14 border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 shrink-0 bg-white select-none z-20 shadow-xs">
           {/* Left: Clean Breadcrumb */}
           <div className="flex items-center gap-2.5 text-xs">
+            {/* Mobile hamburger — opens nav drawer */}
+            <button
+              type="button"
+              onClick={() => setMobileNavOpen(true)}
+              className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
+              aria-label="Open navigation menu"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
+                <line x1="4" x2="20" y1="6" y2="6" /><line x1="4" x2="20" y1="12" y2="12" /><line x1="4" x2="20" y1="18" y2="18" />
+              </svg>
+            </button>
             <span className="font-bold text-sky-700 tracking-wider">
               NISHAN TMS
             </span>

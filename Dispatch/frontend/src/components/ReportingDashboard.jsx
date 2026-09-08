@@ -119,7 +119,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
       {
     /* BRAND NEW: MULTI-MILLION DOLLAR COMPANY DESIGN UPGRADE & SYSTEM CONFIGURATION CENTER */
   }
-      <div className={`bg-slate-900 text-white rounded-2xl border ${currentTheme.panelBorder} p-6 shadow-xl ${currentTheme.glow} transition-all duration-300 relative overflow-hidden`}>
+      <div className={`bg-slate-900 text-white rounded-2xl border ${currentTheme.panelBorder} p-4 sm:p-6 shadow-xl ${currentTheme.glow} transition-all duration-300 relative overflow-hidden`}>
         {
     /* Subtle geometric background grids for elite styling */
   }
@@ -150,7 +150,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
             <span className="text-[10px] font-mono font-bold text-slate-400 uppercase tracking-wider">
               Palette Presets:
             </span>
-            <div className="flex items-center gap-2">
+            <div className="flex flex-wrap items-center gap-2">
               {[
     { id: "slate", label: "Indigo Slate", color: "bg-indigo-500" },
     { id: "emerald", label: "Corporate Green", color: "bg-emerald-500" },
@@ -335,7 +335,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
       {
     /* Upper metrics row */
   }
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         
         <div className="bg-slate-900 text-white p-4 rounded-xl border border-slate-800 shadow-md">
           <span className="text-3xs font-mono text-indigo-400 uppercase tracking-wider font-bold">Total Operations Revenue</span>
@@ -431,7 +431,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
 
               </div>
 
-              <div className="flex items-center justify-between text-3xs font-mono text-slate-500 px-4">
+              <div className="flex flex-wrap gap-2 items-center justify-between text-3xs font-mono text-slate-500 px-4">
                 <span>Weight Classification Scale (Lbs)</span>
                 <span className="flex items-center"><span className={`h-2 w-2 rounded-full ${currentTheme.bgAccent} mr-1.5`} /> Standard LTL</span>
                 <span className="flex items-center"><span className="h-2 w-2 rounded-full bg-emerald-500 mr-1.5" /> Heavy-Freight Floor LTL</span>
@@ -603,7 +603,7 @@ export default function ReportingDashboard({ shipments, invoices }) {
         {
     /* Itemized Cost Breakdown Rows */
   }
-        <div className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
           
           {
     /* Item 1: Cloud & DB */

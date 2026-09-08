@@ -109,9 +109,9 @@ export default function RateRequestsPage() {
   };
 
   return (
-    <div className="h-full overflow-y-auto bg-slate-50 p-6">
+    <div className="h-full overflow-y-auto bg-slate-50 p-3 sm:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-sky-100 rounded-xl flex items-center justify-center">
             <Inbox className="w-5 h-5 text-sky-600" />
@@ -137,7 +137,7 @@ export default function RateRequestsPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
         <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-3">
           <Clock3 className="w-8 h-8 text-blue-500" />
           <div>

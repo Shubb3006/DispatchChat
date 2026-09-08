@@ -729,8 +729,8 @@ export default function CustomsPage() {
         {(activeTab === "all" ||
           activeTab === "inbound_us" ||
           activeTab === "inbound_ca") && (
-          <div className="flex items-center gap-3 w-full md:w-auto">
-            <div className="relative flex-1 md:w-64">
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+            <div className="relative flex-1 min-w-[180px] md:w-64">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
                 type="text"
@@ -912,7 +912,7 @@ export default function CustomsPage() {
                     </div>
 
                     {/* Middle Section: Route & Tax / Broker Data Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
                       {/* Origin to Destination */}
                       <div>
                         <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -1024,7 +1024,7 @@ export default function CustomsPage() {
                 </div>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => setIsBcModalOpen(true)}
                   className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer shadow-2xs transition-all"
@@ -1210,7 +1210,7 @@ export default function CustomsPage() {
       {/* TAB CONTENT 2: Barcode & Thermal Label Studio */}
       {activeTab === "barcodes" && (
         <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
-          <div className="flex items-center justify-between border-b border-slate-100 pb-4">
+          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-bold text-slate-800">
                 PAPS & PARS Barcode Print Studio
@@ -1577,7 +1577,7 @@ export default function CustomsPage() {
             </div>
 
             {/* Form Body */}
-            <form onSubmit={handleSaveEntry} className="flex-1 overflow-y-auto p-6 space-y-6">
+            <form onSubmit={handleSaveEntry} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-6">
               {/* Direction & Lead Type Selection */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div>
@@ -2094,7 +2094,7 @@ export default function CustomsPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-6 text-slate-800">
+            <div className="p-3 sm:p-6 space-y-6 text-slate-800">
               {/* Thermal Label Format Preview Box */}
               <div className="border-2 border-slate-900 p-6 rounded-2xl bg-white shadow-inner flex flex-col items-center space-y-4">
                 <div className="text-center">
@@ -2108,11 +2108,11 @@ export default function CustomsPage() {
                   </div>
                 </div>
 
-                <div className="w-full flex justify-center py-3">
+                <div className="w-full flex justify-center py-3 overflow-x-auto max-w-full">
                   <BarcodeSvg value={selectedEntry.lead_number} width={340} height={70} />
                 </div>
 
-                <div className="w-full grid grid-cols-2 gap-3 text-xs border-t border-slate-200 pt-3">
+                <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs border-t border-slate-200 pt-3">
                   <div>
                     <span className="text-slate-400">Carrier SCAC/Code:</span>{" "}
                     <span className="font-bold">{selectedEntry.scac_or_carrier_code}</span>
@@ -2178,7 +2178,7 @@ export default function CustomsPage() {
               </button>
             </div>
 
-            <div className="p-8 space-y-6 text-slate-800 text-xs">
+            <div className="p-4 sm:p-8 space-y-6 text-slate-800 text-xs">
               {/* Header Box */}
               <div className="flex items-start justify-between border-b pb-4">
                 <div>
@@ -2196,7 +2196,7 @@ export default function CustomsPage() {
               </div>
 
               {/* Shipper & Consignee Columns */}
-              <div className="grid grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
                 <div>
                   <span className="font-bold text-slate-500 uppercase text-[10px]">1. Shipper / Exporter:</span>
                   <div className="font-bold text-slate-900 mt-1">{selectedEntry.shipper_name || "Excellence Precision Inc"}</div>
@@ -2214,7 +2214,7 @@ export default function CustomsPage() {
               </div>
 
               {/* Crossing & Broker */}
-              <div className="grid grid-cols-3 gap-4 border p-3 rounded-xl">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 border p-3 rounded-xl">
                 <div>
                   <span className="text-slate-400">Port of Entry:</span>
                   <div className="font-bold">{selectedEntry.port_of_entry_name} ({selectedEntry.port_of_entry_code})</div>
@@ -2230,6 +2230,7 @@ export default function CustomsPage() {
               </div>
 
               {/* Line Items Table */}
+              <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse border border-slate-200">
                 <thead>
                   <tr className="bg-slate-100 font-bold text-slate-600 border-b">
@@ -2252,8 +2253,9 @@ export default function CustomsPage() {
                   ))}
                 </tbody>
               </table>
+              </div>
 
-              <div className="flex justify-between items-center bg-slate-900 text-white p-4 rounded-xl font-bold">
+              <div className="flex flex-wrap justify-between items-center gap-2 bg-slate-900 text-white p-4 rounded-xl font-bold">
                 <span>TOTAL DECLARED COMMERCIAL VALUE:</span>
                 <span className="text-base font-black text-emerald-400">
                   ${parseFloat(selectedEntry.invoice_total_value || 0).toLocaleString()} {selectedEntry.currency}

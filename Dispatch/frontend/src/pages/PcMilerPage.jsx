@@ -224,7 +224,7 @@ export default function PcMilerPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12 print:p-0 print:bg-white">
       {/* Top Command Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
+      <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
@@ -281,7 +281,7 @@ export default function PcMilerPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <button
             type="button"
             onClick={() => {
@@ -347,7 +347,7 @@ export default function PcMilerPage() {
       {/* Multi-Stop Sequential Route & Trip Builder Card */}
       <form
         onSubmit={handleManualCalculate}
-        className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4 print:hidden"
+        className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4 print:hidden"
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
@@ -518,7 +518,7 @@ export default function PcMilerPage() {
 
       {/* Routing Error State */}
       {error && (
-        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-6 shadow-xs space-y-3 print:hidden">
+        <div className="bg-rose-50 border border-rose-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-3 print:hidden">
           <div className="flex items-start gap-3">
             <div className="w-10 h-10 rounded-2xl bg-rose-600 text-white flex items-center justify-center shrink-0 shadow-md shadow-rose-600/20">
               <AlertTriangle className="w-5 h-5" />
@@ -550,7 +550,7 @@ export default function PcMilerPage() {
 
       {/* No Route Yet — Empty State */}
       {!route && !error && (
-        <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-12 shadow-xs flex flex-col items-center text-center gap-3 print:hidden">
+        <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-6 sm:p-12 shadow-xs flex flex-col items-center text-center gap-3 print:hidden">
           <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
             <Route className="w-7 h-7" />
           </div>
@@ -611,7 +611,7 @@ export default function PcMilerPage() {
           )}
 
           {/* Routed Distance, Fuel & Toll Panel */}
-          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-6 shadow-lg space-y-4">
+          <div className="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-3 sm:p-6 shadow-lg space-y-4">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-700/80 pb-4">
               <div>
                 <div className="flex items-center gap-2">
@@ -797,7 +797,7 @@ export default function PcMilerPage() {
           </div>
 
           {/* Vehicle Profile Submitted To The Router */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
+          <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Ruler className="w-5 h-5 text-sky-600" />
@@ -894,8 +894,8 @@ export default function PcMilerPage() {
 
           {/* Leg-by-Leg Multi-Stop LTL Breakdown Table */}
           {route.legs && route.legs.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-3xl p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between">
+            <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Layers className="w-5 h-5 text-sky-600" />
                   <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
@@ -907,7 +907,7 @@ export default function PcMilerPage() {
                 </span>
               </div>
 
-              <div className="border border-slate-200 rounded-2xl overflow-hidden shadow-2xs">
+              <div className="border border-slate-200 rounded-2xl overflow-hidden overflow-x-auto shadow-2xs">
                 <table className="w-full text-left text-xs border-collapse font-mono">
                   <thead>
                     <tr className="bg-slate-100 text-slate-700 font-bold text-[10px] uppercase border-b border-slate-200">

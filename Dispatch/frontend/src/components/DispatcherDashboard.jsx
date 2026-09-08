@@ -2345,11 +2345,11 @@ export default function DispatcherDashboard({
       </div>
 
       {/* Dispatcher Dashboard Tabs */}
-      <div className="border-b border-slate-200 mb-6 flex items-center justify-between">
-        <div className="flex space-x-6">
+      <div className="border-b border-slate-200 mb-6 flex flex-wrap items-center justify-between gap-3">
+        <div className="flex space-x-6 overflow-x-auto max-w-full">
           <button
             onClick={() => setActiveView("grid")}
-            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${activeView === "grid"
+            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 whitespace-nowrap shrink-0 ${activeView === "grid"
               ? "border-sky-600 text-sky-700 font-extrabold"
               : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
@@ -2361,7 +2361,7 @@ export default function DispatcherDashboard({
           <button
             id="ltl-consolidation-tab"
             onClick={() => setActiveView("consolidation")}
-            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 ${activeView === "consolidation"
+            className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 whitespace-nowrap shrink-0 ${activeView === "consolidation"
               ? "border-sky-600 text-sky-700 font-extrabold"
               : "border-transparent text-slate-500 hover:text-slate-800"
               }`}
@@ -2371,7 +2371,7 @@ export default function DispatcherDashboard({
           </button>
         </div>
 
-        <div className="flex items-center space-x-2.5">
+        <div className="flex flex-wrap items-center space-x-2.5 gap-y-2">
           <button
             type="button"
             onClick={() => {
@@ -2403,7 +2403,7 @@ export default function DispatcherDashboard({
       </div>
 
       <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 border-l-4 border-l-amber-500 mb-8 space-y-4 text-slate-900">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
             <FileText className="h-5 w-5 text-amber-500" />
             <span>Pending BOL Approvals Awaiting Review ({pendingBOLs.length})</span>
@@ -2556,7 +2556,7 @@ export default function DispatcherDashboard({
             </div>
 
             {/* Modal Content Body - Full PDF Document Container */}
-            <div className="p-6 space-y-6 overflow-y-auto bg-slate-100/80 flex-1">
+            <div className="p-3 sm:p-6 space-y-6 overflow-y-auto bg-slate-100/80 flex-1">
               {/* UPLOADED DRIVER BOL DOCUMENT ATTACHMENT CARD */}
               <div className="bg-slate-900 p-4 rounded-2xl border border-slate-700 text-center space-y-3 shadow-lg">
                 <div className="flex items-center justify-between text-xs">
@@ -2666,6 +2666,7 @@ export default function DispatcherDashboard({
 
                 {/* Freight Commodities Table */}
                 <div className="border border-slate-300 rounded-xl overflow-hidden">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-left border-collapse">
                     <thead className="bg-slate-100 font-bold text-slate-700 text-3xs uppercase border-b border-slate-300">
                       <tr>
@@ -2692,6 +2693,7 @@ export default function DispatcherDashboard({
                       </tr>
                     </tbody>
                   </table>
+                  </div>
                 </div>
 
                 {/* Driver Signature Stamp & Dispatch Note */}
@@ -4092,7 +4094,7 @@ export default function DispatcherDashboard({
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
                         {getDriverRecommendations(weight, pallets, origin).map(
                           ({
                             driver,
@@ -4720,7 +4722,7 @@ export default function DispatcherDashboard({
               </button>
             </div>
             <div className="p-5 space-y-4 max-h-[70vh] overflow-y-auto">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase mb-1">
                     Dispatcher Name
@@ -4818,7 +4820,7 @@ export default function DispatcherDashboard({
                   />
                 </div>
 
-                <div className="col-span-2 border-t border-slate-100 pt-4 mt-2">
+                <div className="col-span-full border-t border-slate-100 pt-4 mt-2">
                   <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center gap-1.5">
                     <Clock className="h-4 w-4 text-indigo-500" />
                     Delivery Commitment & Appointment Status
@@ -4888,7 +4890,7 @@ export default function DispatcherDashboard({
                   </div>
                 </div>
 
-                <div className="col-span-2 grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mt-2">
+                <div className="col-span-full grid grid-cols-1 md:grid-cols-2 gap-4 bg-indigo-50/50 p-4 rounded-xl border border-indigo-100 mt-2">
                   <div className="col-span-1 md:col-span-2">
                     <label className="block text-xs font-bold text-slate-800 uppercase mb-1">
                       Assign Driver Profile (Quick Dispatch)

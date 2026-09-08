@@ -130,7 +130,7 @@ export default function HRDashboard({
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 h-full overflow-hidden">
+    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:h-full lg:overflow-hidden">
       {/* Left and Middle Column: Directory List */}
       <div className="lg:col-span-2 flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">

@@ -58,7 +58,7 @@ export default function ReportingPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 print:p-0">
       {/* Executive Command Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-2xs">
@@ -156,7 +156,7 @@ export default function ReportingPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 whitespace-nowrap transition-all cursor-pointer ${
+              className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 whitespace-nowrap shrink-0 transition-all cursor-pointer ${
                 isActive
                   ? "border-sky-600 text-sky-700 bg-sky-50/50 rounded-t-xl"
                   : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300"

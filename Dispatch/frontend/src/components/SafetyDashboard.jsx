@@ -39,7 +39,7 @@ export default function SafetyDashboard({ incidents, scores, hosLogs, onResolveI
               {
     /* Filters */
   }
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-y-2 space-x-2">
                 <div className="relative">
                   <Search className="h-3 w-3 absolute left-2.5 top-2 text-slate-400" />
                   <input

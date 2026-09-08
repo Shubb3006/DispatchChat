@@ -176,7 +176,7 @@ export default function PublicTrackingPage() {
           <div>
             <div className="flex items-center gap-2">
               <span className="text-sm font-extrabold text-slate-900 tracking-wide">OZACK LOGISTICS</span>
-              <span className="text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="hidden sm:inline text-[10px] font-bold font-mono px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">
                 LIVE GPS RADAR
               </span>
             </div>
@@ -184,7 +184,7 @@ export default function PublicTrackingPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
           <button
             onClick={handleManualRefresh}
             disabled={refreshing}
@@ -248,7 +248,7 @@ export default function PublicTrackingPage() {
 
         {/* Milestone Progress Stepper */}
         <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
-          <div className="flex items-center justify-between border-b border-slate-200 pb-3">
+          <div className="flex flex-wrap gap-2 items-center justify-between border-b border-slate-200 pb-3">
             <h2 className="text-xs font-extrabold uppercase tracking-wider text-slate-800 font-sans flex items-center gap-2">
               <Clock className="w-4 h-4 text-sky-600" />
               <span>Shipment Milestones & Verification Timeline</span>
@@ -285,7 +285,7 @@ export default function PublicTrackingPage() {
 
         {/* Interactive Live GPS Radar Canvas */}
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+          <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap gap-2 items-center justify-between">
             <div className="flex items-center gap-2 text-xs font-bold text-slate-900">
               <Radio className="w-4 h-4 text-emerald-600 animate-pulse" />
               <span>Live Vehicle Telematics & Corridor Tracking</span>
@@ -295,7 +295,7 @@ export default function PublicTrackingPage() {
             </span>
           </div>
 
-          <div className="h-[380px] w-full relative">
+          <div className="h-[300px] sm:h-[380px] w-full relative">
             <div ref={mapContainerRef} className="w-full h-full" style={{ background: "#f8fafc" }} />
           </div>
         </div>

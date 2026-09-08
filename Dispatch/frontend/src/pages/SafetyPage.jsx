@@ -73,7 +73,7 @@ export default function SafetyPage() {
                 <h2 className="text-base font-semibold text-slate-900">Safety Incidents</h2>
                 <span className="text-xs text-slate-400">({filteredIncidents.length})</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2">
                 <div className="relative">
                   <Search className="h-3.5 w-3.5 absolute left-2.5 top-2.5 text-slate-400" />
                   <input
@@ -106,7 +106,7 @@ export default function SafetyPage() {
                 filteredIncidents.map((inc) => {
                   const styles = SEVERITY_STYLES[inc.severity] || SEVERITY_STYLES.low;
                   return (
-                    <div key={inc.id} className="p-4 flex items-start justify-between gap-4 hover:bg-slate-50 transition-colors">
+                    <div key={inc.id} className="p-4 flex flex-col sm:flex-row items-start justify-between gap-4 hover:bg-slate-50 transition-colors">
                       <div className="flex items-start gap-3">
                         <div className={`p-2 rounded-lg mt-0.5 ${styles.icon}`}>
                           <AlertTriangle className="h-4 w-4" />

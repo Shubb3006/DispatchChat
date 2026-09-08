@@ -891,7 +891,7 @@ export default function ShipmentDetailsModal({
         className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden border border-slate-200"
       >
         {/* Modal Header */}
-        <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
+        <div className="px-3 sm:px-6 py-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-y-2 shrink-0">
           <div className="flex items-center space-x-3">
             <div className="p-2 bg-indigo-600 rounded-lg text-white">
               <FileText className="h-5 w-5" />
@@ -920,7 +920,7 @@ export default function ShipmentDetailsModal({
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          <div className="flex flex-wrap items-center space-x-3 gap-y-1.5">
             <button
               onClick={() => {
                 const printWindow = window.open("", "_blank");
@@ -1056,13 +1056,13 @@ export default function ShipmentDetailsModal({
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="px-6 bg-slate-50 border-b border-slate-200 flex space-x-6 overflow-x-auto shrink-0">
+        <div className="px-3 sm:px-6 bg-slate-50 border-b border-slate-200 flex space-x-6 overflow-x-auto shrink-0">
           <button
             onClick={() => {
               setActiveTab("overview");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === "overview"
                 ? "border-indigo-600 text-indigo-600 font-extrabold"
                 : "border-transparent text-slate-500 hover:text-slate-900"
@@ -1075,7 +1075,7 @@ export default function ShipmentDetailsModal({
               setActiveTab("route");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === "route"
                 ? "border-indigo-600 text-indigo-600 font-extrabold"
                 : "border-transparent text-slate-500 hover:text-slate-900"
@@ -1088,7 +1088,7 @@ export default function ShipmentDetailsModal({
               setActiveTab("customs");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 ${
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === "customs"
                 ? "border-indigo-600 text-indigo-600 font-extrabold"
                 : "border-transparent text-slate-500 hover:text-slate-900"
@@ -1104,7 +1104,7 @@ export default function ShipmentDetailsModal({
               setActiveTab("legs");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
               activeTab === "legs"
                 ? "border-indigo-600 text-indigo-600 font-extrabold"
                 : "border-transparent text-slate-500 hover:text-slate-900"
@@ -1115,7 +1115,7 @@ export default function ShipmentDetailsModal({
         </div>
 
         {/* Modal Main Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50/50">
           {/* TAB 1: OVERVIEW & GENERAL INFO */}
           {activeTab === "overview" && (
             <div className="space-y-6">
@@ -2804,7 +2804,7 @@ export default function ShipmentDetailsModal({
                   )}
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
                     <span className="text-3xs font-mono text-slate-400 block uppercase">
                       PAPS / Customs Barcode
@@ -3274,7 +3274,7 @@ export default function ShipmentDetailsModal({
             </div>
 
             {/* Document Viewer Content Body */}
-            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+            <div className="p-3 sm:p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
               {/* Real Uploaded Document Image / File Attachment Preview */}
               {docViewerModal?.url && docViewerModal.url.startsWith("http") && (
                 <div className="bg-slate-900 p-4 rounded-2xl border border-slate-700 text-center space-y-2">
@@ -3321,7 +3321,7 @@ export default function ShipmentDetailsModal({
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 text-3xs">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-3xs">
                   <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
                     <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
                     <div className="font-bold text-slate-900">{shipment.customerName || shipment.customer_name || "AeroParts Mfg Facility"}</div>
@@ -3335,6 +3335,7 @@ export default function ShipmentDetailsModal({
                 </div>
 
                 <div className="border border-slate-200 rounded-xl overflow-hidden text-3xs">
+                  <div className="overflow-x-auto">
                   <table className="w-full text-left">
                     <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
                       <tr>
@@ -3353,6 +3354,7 @@ export default function ShipmentDetailsModal({
                       </tr>
                     </tbody>
                   </table>
+                  </div>
                 </div>
 
                 <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-3xs">

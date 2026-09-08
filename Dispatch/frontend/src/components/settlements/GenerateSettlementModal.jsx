@@ -172,7 +172,7 @@ export default function GenerateSettlementModal({
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-5 bg-white text-xs">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-5 bg-white text-xs">
           {/* Driver & Date Range */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -218,7 +218,7 @@ export default function GenerateSettlementModal({
             <label className="block font-bold text-slate-800 uppercase tracking-wider font-mono text-[10px]">
               Compensation Pay Model
             </label>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               {[
                 { id: "PER_MILE", label: "Pay Per Mile (CPM)", desc: "Loaded & empty rates" },
                 { id: "PERCENTAGE_OF_GROSS", label: "% of Gross Revenue", desc: "e.g. 28% of freight" },
@@ -382,7 +382,7 @@ export default function GenerateSettlementModal({
           </div>
 
           {/* Live Summary Calculation Card */}
-          <div className="bg-slate-900 text-white rounded-2xl p-4 flex items-center justify-between shadow-md font-mono">
+          <div className="bg-slate-900 text-white rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-md font-mono">
             <div>
               <div className="text-[10px] text-slate-400 uppercase font-bold">Estimated Net Payout</div>
               <div className="text-2xl font-black text-emerald-400 mt-0.5">${calculation.netPayout.toLocaleString()} CAD</div>

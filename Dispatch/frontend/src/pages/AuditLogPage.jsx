@@ -126,7 +126,7 @@ export default function AuditLogPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Top Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-2xs">
@@ -149,7 +149,7 @@ export default function AuditLogPage() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => {
               fetchAuditLogs();
@@ -322,7 +322,7 @@ export default function AuditLogPage() {
 
       {/* Master Audit Log Stream Table */}
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <History className="w-4 h-4 text-sky-600" />
             <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
@@ -457,7 +457,7 @@ export default function AuditLogPage() {
 
         {/* Pagination Footer */}
         {pagination.totalPages > 1 && (
-          <div className="p-4 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs text-slate-500 font-medium">
               Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.total} total records)
             </span>

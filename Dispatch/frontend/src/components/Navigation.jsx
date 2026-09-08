@@ -26,6 +26,8 @@ export default function Navigation({
   unreadMessagesCount,
   currentUser,
   onLogout,
+  mobileOpen = false,
+  onCloseMobile,
 }) {
   const allTabs = [
     {
@@ -72,7 +74,78 @@ export default function Navigation({
   });
 
   return (
-    <aside className="w-16 flex flex-col items-center py-4 bg-white border-r border-slate-200 shrink-0 h-full select-none z-30 shadow-xs">
+    <>
+    {/* Mobile drawer (below md) — full labels, opened via header hamburger */}
+    {mobileOpen && (
+      <div className="md:hidden fixed inset-0 z-50 flex">
+        <div
+          className="absolute inset-0 bg-slate-900/50"
+          onClick={onCloseMobile}
+          aria-hidden="true"
+        />
+        <aside className="relative w-72 max-w-[85vw] h-full bg-white border-r border-slate-200 shadow-2xl flex flex-col py-4 px-3 overflow-y-auto">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 bg-gradient-to-tr from-sky-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-sm">
+                <span className="text-white font-black text-xs tracking-wider">NT</span>
+              </div>
+              <span className="font-extrabold text-slate-900 text-sm tracking-wide">NISHAN TMS</span>
+            </div>
+            <button
+              onClick={onCloseMobile}
+              className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 cursor-pointer"
+              aria-label="Close navigation menu"
+            >
+              ✕
+            </button>
+          </div>
+          <nav className="flex flex-col gap-1 flex-1">
+            {filteredTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = currentRole === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onChangeRole(tab.id)}
+                  className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-left text-sm font-semibold transition-colors cursor-pointer ${isActive
+                    ? "bg-sky-50 text-sky-700 border border-sky-200"
+                    : "text-slate-600 hover:bg-slate-100 border border-transparent"
+                    }`}
+                >
+                  <Icon className={`w-4.5 h-4.5 shrink-0 ${isActive ? "text-sky-600" : "text-slate-500"}`} />
+                  <span className="truncate">{tab.label}</span>
+                  {tab.badge > 0 && (
+                    <span className="ml-auto w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold text-white bg-rose-500 shrink-0">
+                      {tab.badge}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
+          <div className="flex items-center gap-3 mt-4 pt-3 border-t border-slate-200 px-1">
+            <div className="w-8 h-8 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center text-xs text-slate-700 font-bold">
+              {currentUser?.username?.[0]?.toUpperCase() || "N"}
+            </div>
+            <span className="text-xs font-bold text-slate-700 truncate flex-1">
+              {currentUser?.name || currentUser?.username || "Admin"}
+            </span>
+            {onLogout && (
+              <button
+                onClick={onLogout}
+                title="Sign Out"
+                className="w-8 h-8 flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl cursor-pointer transition-colors"
+              >
+                <LogOut className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </aside>
+      </div>
+    )}
+
+    {/* Desktop / tablet icon sidebar (md and up) */}
+    <aside className="hidden md:flex w-16 flex-col items-center py-4 bg-white border-r border-slate-200 shrink-0 h-full select-none z-30 shadow-xs">
       {/* Modern High-End Logo */}
       <div className="w-9 h-9 bg-gradient-to-tr from-sky-600 to-indigo-600 rounded-xl flex items-center justify-center mb-5 shrink-0 shadow-sm">
         <span className="text-white font-black text-xs tracking-wider">NT</span>
@@ -133,6 +206,7 @@ export default function Navigation({
         )}
       </div>
     </aside>
+    </>
   );
 
 }

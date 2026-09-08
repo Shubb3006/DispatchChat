@@ -221,7 +221,7 @@ export default function DetentionPage() {
     .reduce((acc, c) => acc + (c.totalClaimAmount || 0), 0);
 
   return (
-    <div className="p-6 space-y-6 max-w-7xl mx-auto select-none bg-slate-50 min-h-screen text-slate-900">
+    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto select-none bg-slate-50 min-h-screen text-slate-900">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
         <div>
@@ -238,7 +238,7 @@ export default function DetentionPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2.5">
+        <div className="flex flex-wrap items-center gap-2.5">
           <button
             onClick={() => {
               fetchData();
@@ -321,7 +321,7 @@ export default function DetentionPage() {
 
       {/* Live Facility Dock Dwell Radar (Active Trucks at Facilities) */}
       <div className="space-y-3">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-wrap items-center justify-between gap-2">
           <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
             <Clock className="w-4 h-4 text-sky-600" />
             <span>Live Facility Geofence Dwell Radar</span>
@@ -543,7 +543,7 @@ export default function DetentionPage() {
       {/* Modal: File Accessorial Claim */}
       {isInvoiceModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg overflow-hidden shadow-2xl p-6 space-y-4 text-slate-900">
+          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl p-4 sm:p-6 space-y-4 text-slate-900">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
                 <Plus className="w-4 h-4 text-sky-600" />

@@ -293,7 +293,7 @@ export default function ExecutivePnlTab({
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-3 shrink-0">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
             <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
               <div className="text-[10px] font-mono font-bold uppercase text-slate-500">Revenue / Mile (RPM)</div>
               <div className="text-lg font-black text-slate-900 font-mono mt-0.5">${pnl.rpm}</div>

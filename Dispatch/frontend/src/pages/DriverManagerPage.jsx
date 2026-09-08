@@ -96,7 +96,7 @@ export default function DriverManagerPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-5">
       {/* Tab Bar */}
-      <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-1.5 w-fit shadow-sm">
+      <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-1.5 w-fit max-w-full overflow-x-auto shadow-sm">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -104,7 +104,7 @@ export default function DriverManagerPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium cursor-pointer transition-all ${
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all ${
                 isActive ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
               }`}
             >
@@ -118,19 +118,19 @@ export default function DriverManagerPage() {
       {/* Manifests Tab */}
       {activeTab === "manifests" && (
         <div className="space-y-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="flex items-center gap-2">
               <Users className="h-5 w-5 text-slate-400" />
               <span className="font-medium text-slate-700">{filteredDrivers.length} drivers</span>
             </div>
-            <div className="relative">
+            <div className="relative w-full sm:w-auto">
               <Search className="h-3.5 w-3.5 absolute left-3 top-2.5 text-slate-400" />
               <input
                 type="text"
                 placeholder="Search drivers or loads..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-60"
+                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-full sm:w-60"
               />
             </div>
           </div>

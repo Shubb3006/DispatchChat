@@ -250,7 +250,7 @@ export default function WarehouseManagerPage() {
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => setActiveTab("intake")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 border ${activeTab === "intake"
@@ -276,7 +276,7 @@ export default function WarehouseManagerPage() {
       </div>
 
       {intakeSuccessMsg && (
-        <div className="bg-emerald-500 text-white p-4 rounded-xl shadow-lg flex items-center justify-between font-bold text-sm animate-fade-in">
+        <div className="bg-emerald-500 text-white p-4 rounded-xl shadow-lg flex flex-wrap items-center justify-between gap-2 font-bold text-sm animate-fade-in">
           <div className="flex items-center space-x-2">
             <CheckCircle2 className="h-5 w-5" />
             <span>{intakeSuccessMsg}</span>
@@ -301,7 +301,7 @@ export default function WarehouseManagerPage() {
       ) : (
         <div className="space-y-6">
           {/* Top Banner KPI Header */}
-          <div className="bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 rounded-2xl p-6 text-white shadow-xl border border-amber-500/20">
+          <div className="bg-gradient-to-r from-slate-900 via-amber-950 to-slate-900 rounded-2xl p-4 sm:p-6 text-white shadow-xl border border-amber-500/20">
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
               <div className="space-y-1">
                 <div className="flex items-center space-x-2">
@@ -326,7 +326,7 @@ export default function WarehouseManagerPage() {
                 </p>
               </div>
 
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => setWarehouseIntakeFilter("awaiting")}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${warehouseIntakeFilter === "awaiting"
@@ -476,6 +476,7 @@ export default function WarehouseManagerPage() {
 
           {/* Table of Shipments */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono uppercase text-slate-500 font-bold">
@@ -638,6 +639,7 @@ export default function WarehouseManagerPage() {
                 )}
               </tbody>
             </table>
+            </div>
           </div>
         </div>
       )}
@@ -645,7 +647,7 @@ export default function WarehouseManagerPage() {
       {/* Warehouse Intake & Inspection Modal */}
       {isIntakeModalOpen && intakeShipment && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full overflow-hidden animate-scale-up">
+          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-up">
             <div className="bg-gradient-to-r from-slate-900 to-amber-950 p-5 text-white flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-amber-500/20 text-amber-400 rounded-lg border border-amber-500/30">
@@ -670,7 +672,7 @@ export default function WarehouseManagerPage() {
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="p-4 sm:p-6 space-y-4">
               <div className="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-950 space-y-1">
                 <div className="flex justify-between font-bold">
                   <span>
@@ -688,7 +690,7 @@ export default function WarehouseManagerPage() {
                     intakeShipment.cargo_description ||
                     "General Freight"}
                 </p>
-                <div className="text-3xs text-slate-500 font-mono pt-1 border-t border-amber-200/50 flex justify-between">
+                <div className="text-3xs text-slate-500 font-mono pt-1 border-t border-amber-200/50 flex flex-wrap justify-between gap-2">
                   <span>
                     Origin: {intakeShipment.shipper_district},
                     {intakeShipment.shipper_state},

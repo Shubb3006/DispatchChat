@@ -242,7 +242,7 @@ export default function InvoicingDashboard({
                   Document Processing &amp; Verification Hub
                 </h3>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="flex flex-wrap items-center gap-y-1.5 space-x-2">
                 <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-3xs font-mono font-bold uppercase bg-slate-100 text-slate-600 border border-slate-200">
                   Total: {documents.length} Docs
                 </span>

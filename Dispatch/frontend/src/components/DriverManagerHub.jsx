@@ -121,10 +121,10 @@ export default function DriverManagerHub({
         </div>
 
         {/* Tab Controls */}
-        <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200">
+        <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200 max-w-full overflow-x-auto">
           <button
             onClick={() => setActiveTab("manifests")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === "manifests"
                 ? "bg-white text-cyan-700 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
@@ -136,7 +136,7 @@ export default function DriverManagerHub({
 
           <button
             onClick={() => setActiveTab("hos")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === "hos"
                 ? "bg-white text-cyan-700 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"
@@ -148,7 +148,7 @@ export default function DriverManagerHub({
 
           <button
             onClick={() => setActiveTab("safety")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
               activeTab === "safety"
                 ? "bg-white text-cyan-700 shadow-sm"
                 : "text-slate-600 hover:text-slate-900"

@@ -35,7 +35,7 @@ export default function SettlementPaystubModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Actions Bar (Hidden on Print) */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50 print:hidden">
+        <div className="px-4 sm:px-6 py-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50 print:hidden">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <FileText className="w-4 h-4" />
@@ -71,9 +71,9 @@ export default function SettlementPaystubModal({
         </div>
 
         {/* Printable Settlement Statement Document */}
-        <div className="flex-1 overflow-y-auto p-8 space-y-6 bg-white text-slate-900">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 bg-white text-slate-900">
           {/* Header Banner */}
-          <div className="flex justify-between items-start border-b-2 border-slate-900 pb-6">
+          <div className="flex flex-wrap justify-between items-start gap-4 border-b-2 border-slate-900 pb-6">
             <div>
               <div className="text-xl font-black tracking-tight text-slate-900 uppercase">
                 Nishan Transport Inc.
@@ -139,6 +139,7 @@ export default function SettlementPaystubModal({
             </div>
 
             <div className="border border-slate-200 rounded-xl overflow-hidden shadow-2xs">
+              <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
                   <tr className="bg-slate-100 text-slate-700 font-mono font-bold text-[10px] uppercase border-b border-slate-200">
@@ -169,6 +170,7 @@ export default function SettlementPaystubModal({
                   )}
                 </tbody>
               </table>
+              </div>
             </div>
           </div>
 
@@ -232,7 +234,7 @@ export default function SettlementPaystubModal({
           </div>
 
           {/* Final Net Pay Banner */}
-          <div className="bg-slate-900 text-white rounded-2xl p-5 flex items-center justify-between shadow-md">
+          <div className="bg-slate-900 text-white rounded-2xl p-5 flex flex-wrap items-center justify-between gap-3 shadow-md">
             <div>
               <div className="text-[10px] font-mono font-bold uppercase tracking-wider text-slate-400">
                 Final Net Driver Payout
@@ -247,7 +249,7 @@ export default function SettlementPaystubModal({
           </div>
 
           {/* Signatures Block */}
-          <div className="grid grid-cols-2 gap-8 pt-8 border-t border-slate-200 text-xs">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 pt-8 border-t border-slate-200 text-xs">
             <div className="space-y-4">
               <div className="h-10 border-b border-slate-400" />
               <div className="font-mono text-[11px] text-slate-600">
