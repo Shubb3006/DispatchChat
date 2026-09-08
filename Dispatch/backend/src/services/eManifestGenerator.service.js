@@ -1,4 +1,11 @@
 import pool from "../config/db.js";
+import {
+  transmitAceManifestToCbp as borderConnectTransmit,
+  getRealBorderWaitTimes,
+  pollManifestAcknowledgment,
+  validateCustomsEntry,
+  checkCustomsHold,
+} from "./borderConnect.service.js";
 
 /**
  * E-Manifest Generator — Autonomous ACE/ACI manifest + BOL generation
@@ -9,6 +16,7 @@ import pool from "../config/db.js";
  * 3. BOL (Bill of Lading) for driver/shipper/consignee
  *
  * Flow: Load dispatched → Query all data → Generate manifest XML → Store as document
+ * Transmission: Local draft → BorderConnect API → CBP real-time → acknowledgment tracking
  */
 
 /**
@@ -421,19 +429,47 @@ export async function generateEManifest(loadId) {
 }
 
 /**
- * Transmit manifest to CBP (mock implementation)
+ * Transmit manifest to CBP via BorderConnect real-time API
  */
 export async function transmitManifestToCbp(manifestId) {
   try {
-    const result = await pool.query(
-      `UPDATE emanifests SET status = 'transmitted', transmitted_at = NOW() WHERE id = $1 RETURNING *`,
+    // Fetch manifest from database
+    const manifestResult = await pool.query(
+      `SELECT em.*, l.truck_id, l.driver_id, l.load_number, ce.port_of_entry_code
+       FROM emanifests em
+       LEFT JOIN loads l ON em.load_id = l.id
+       LEFT JOIN customs_entries ce ON em.customs_entry_id = ce.id
+       WHERE em.id = $1`,
       [manifestId]
     );
 
-    const manifest = result.rows[0];
-    console.log(`✈️ [E-Manifest] Transmitted ${manifest.manifest_number} to CBP`);
+    if (manifestResult.rows.length === 0) {
+      throw new Error(`Manifest ${manifestId} not found`);
+    }
 
-    return manifest;
+    const manifest = manifestResult.rows[0];
+
+    console.log(`🌐 [E-Manifest] Transmitting ${manifest.manifest_number} to CBP via BorderConnect...`);
+
+    // Transmit via BorderConnect API
+    const transmissionResult = await borderConnectTransmit({
+      manifestId: manifest.id,
+      manifestXml: manifest.manifest_xml,
+      portOfEntry: manifest.port_of_entry_code || "3801",
+      carrierScac: "NISD",
+      truckNumber: manifest.truck_id || "TBD",
+      driverLicense: manifest.driver_id || "TBD",
+    });
+
+    console.log(`✅ [E-Manifest] CBP Reference: ${transmissionResult.cbpReferenceId}`);
+
+    // Fetch updated manifest with new transmission status
+    const updatedResult = await pool.query(
+      `SELECT * FROM emanifests WHERE id = $1`,
+      [manifestId]
+    );
+
+    return updatedResult.rows[0];
   } catch (err) {
     console.error("[E-Manifest] Transmission error:", err.message);
     throw err;

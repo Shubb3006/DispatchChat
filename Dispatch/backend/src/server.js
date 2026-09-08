@@ -35,6 +35,7 @@ import reportingRoutes from "./routes/reporting.routes.js";
 import quoteRoutes from "./routes/quote.routes.js";
 import exceptionRoutes from "./routes/exception.routes.js";
 import eManifestRoutes from "./routes/emanifest.routes.js";
+import borderConnectRoutes from "./routes/borderConnect.routes.js";
 import { startAutomationWorker } from "./workers/automationWorker.js";
 import { startGeofenceWorker } from "./workers/geofenceWorker.js";
 import { ensurePortalSchema } from "./services/portalSchema.service.js";
@@ -133,6 +134,7 @@ app.use("/api/reporting", reportingRoutes);
 app.use("/api/quotes", quoteRoutes);
 app.use("/api/exceptions", exceptionRoutes);
 app.use("/api/emanifests", eManifestRoutes);
+app.use("/api/border-connect", borderConnectRoutes);
 
 
 
