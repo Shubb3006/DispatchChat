@@ -5,8 +5,13 @@ export const protectedRoute = async (req,res,next) => {
 
     try {
 
-        const token = req.cookies.jwt_token;
+        let token = req.cookies.jwt_token;
 
+        // Mobile fallback: iOS Safari blocks cross-site cookies, so the client
+        // may send the JWT as an Authorization: Bearer header instead.
+        if (!token && req.headers.authorization?.startsWith("Bearer ")) {
+            token = req.headers.authorization.slice(7);
+        }
 
         if (!token) {
             return res.status(401).json({

@@ -188,6 +188,11 @@ export const useAuthStore = create((set, get) => ({
     try {
       const res = await axiosInstance.post("/auth/login", payload);
       const user = res.data?.user || res.data;
+      // Keep the token for the Bearer-header fallback — iOS Safari never
+      // stores the cross-site cookie, so this is the phone's only auth path.
+      try {
+        if (res.data?.token) localStorage.setItem("jwt_token", res.data.token);
+      } catch { /* private mode — cookie auth still applies */ }
       console.log(res.data);
       toast.success("Sign in successful");
       set({
@@ -237,6 +242,9 @@ export const useAuthStore = create((set, get) => ({
     } catch (error) {
       toast.error(error.response?.data?.message || "Logout failed");
     } finally {
+      try {
+        localStorage.removeItem("jwt_token");
+      } catch { /* ignore */ }
       set({
         authUser: null,
         currentUser: null,

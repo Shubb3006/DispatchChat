@@ -63,11 +63,14 @@ export const login = async (req, res) => {
     //   });
     // }
 
-    generateToken(user.id, res);
-    
-    
+    const token = generateToken(user.id, res);
+
+
     return res.json({
         success:true,
+        // iOS Safari blocks cross-site cookies even with SameSite=None, so the
+        // client also stores this and sends it back as a Bearer header.
+        token,
         // user:{
         //     id:user.id,
         //     username:user.username,

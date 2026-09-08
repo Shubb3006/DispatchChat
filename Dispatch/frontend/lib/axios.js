@@ -11,3 +11,16 @@ export const axiosInstance = axios.create({
     "Content-Type": "application/json",
   },
 });
+
+// Mobile fallback: iOS Safari blocks the cross-site auth cookie (Vercel
+// frontend → Render API), so the token saved at login is also sent as a
+// Bearer header. The backend accepts either.
+axiosInstance.interceptors.request.use((config) => {
+  try {
+    const token = localStorage.getItem("jwt_token");
+    if (token) config.headers.Authorization = `Bearer ${token}`;
+  } catch {
+    // localStorage unavailable (private mode) — cookie auth still applies
+  }
+  return config;
+});
