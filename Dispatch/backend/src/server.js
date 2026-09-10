@@ -28,6 +28,8 @@ import maintenanceRoutes from "./routes/maintenance.routes.js";
 import etaRadarRoutes from "./routes/etaRadar.routes.js";
 import auditRoutes from "./routes/audit.routes.js";
 import settlementRoutes from "./routes/settlement.routes.js";
+import portalRoutes from "./routes/portal.routes.js";
+import { publicTrackByToken } from "./controllers/portalLoad.controller.js";
 import pcmilerRoutes from "./routes/pcmiler.routes.js";
 import loadJourneyRoutes from "./routes/loadJourney.routes.js";
 import routeOptimizationRoutes from "./routes/routeOptimization.routes.js";
@@ -90,6 +92,10 @@ app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use("/api/auth", authRoutes);
+// Customer/broker portal surface (see routes/portal.routes.js).
+app.use("/api/portal", portalRoutes);
+// Public, token-only shipment tracking — the link a broker forwards on.
+app.get("/api/track/:token", publicTrackByToken);
 app.use("/api/load", loadRoutes);
 app.use("/api/loads", loadRoutes);
 app.use("/api/v1/loads", loadRoutes);

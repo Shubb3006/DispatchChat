@@ -11,6 +11,9 @@ import {
   DISPATCH_ALERT,
 } from "../services/notification.service.js";
 import { sendEmail } from "../services/emailNotifier.service.js";
+import { sanitizeFreightDetails, summarizeFreight } from "../services/rateRequestFreight.service.js";
+import { buildEta } from "../services/portalEta.service.js";
+import { buildLifecycle } from "../services/portalLifecycle.service.js";
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -136,20 +139,10 @@ export const createRateRequest = async (req, res) => {
       return res.status(400).json({ success: false, message: "origin and destination are required" });
     }
 
-    const fd = freight_details && typeof freight_details === "object" ? freight_details : {};
-    const freight = {
-      skids: Number(fd.skids ?? fd.pieces) || null,
-      weight_lbs: Number(fd.weight_lbs ?? fd.weight) || null,
-      dims: fd.dims && typeof fd.dims === "object"
-        ? {
-            length_in: Number(fd.dims.length_in ?? fd.dims.l) || null,
-            width_in: Number(fd.dims.width_in ?? fd.dims.w) || null,
-            height_in: Number(fd.dims.height_in ?? fd.dims.h) || null,
-          }
-        : null,
-      commodity: typeof fd.commodity === "string" ? fd.commodity.slice(0, 500) : null,
-      notes: typeof fd.notes === "string" ? fd.notes.slice(0, 2000) : null,
-    };
+    // Equipment, temperature, hazmat, windows, extra stops and accessorials all
+    // ride in freight_details; the whitelist lives in one place so the
+    // dispatcher screen can trust every value it renders.
+    const freight = sanitizeFreightDetails(freight_details);
 
     const inserted = await pool.query(
       `
@@ -168,7 +161,7 @@ export const createRateRequest = async (req, res) => {
     await notifyDispatchers({
       type: "RATE_REQUEST",
       title: `New rate request from ${companyName}`,
-      message: `${origin.trim()} → ${destination.trim()}${freight.skids ? ` | ${freight.skids} skids` : ""}${freight.weight_lbs ? ` | ${freight.weight_lbs} lbs` : ""}`,
+      message: [`${origin.trim()} → ${destination.trim()}`, summarizeFreight(freight)].filter(Boolean).join(" | "),
       data: { rate_request_id: rateRequest.id, customer_id: req.customerId },
     });
 
@@ -540,8 +533,10 @@ export const customsUpload = async (req, res) => {
     // Nudge the customs record forward if one exists (best-effort).
     await pool
       .query(
+        // Entries open as DRAFT (tender pipeline) or PAPS_PARS_ACTIVE (staff
+        // createLoad); both mean "not filed yet", so both advance here.
         `UPDATE customs_entries SET customs_status = 'SUBMITTED_TO_BROKER', updated_at = CURRENT_TIMESTAMP
-         WHERE load_id = $1 AND customs_status = 'DRAFT'`,
+         WHERE load_id = $1 AND customs_status IN ('DRAFT', 'PAPS_PARS_ACTIVE')`,
         [load.id]
       )
       .catch(() => {});
@@ -609,9 +604,24 @@ export const customerLoads = async (req, res) => {
       rows = result.rows;
     }
 
+    // Same ETA and lifecycle functions the shipment detail uses, computed from
+    // the row we already have — no per-row query. The detail page additionally
+    // feeds in the timeline and the customs entry, so it can land a stage
+    // further along than this list does; the list never claims MORE progress
+    // than the detail, which is the direction that matters to a customer.
+    const loads = rows.map((row) => {
+      const lifecycle = buildLifecycle(row);
+      return {
+        ...row,
+        eta: buildEta(row),
+        lifecycle_rank: lifecycle.current_rank,
+        lifecycle_label: lifecycle.current.label,
+      };
+    });
+
     res.json({
       success: true,
-      loads: rows,
+      loads,
       totalCount,
       page,
       limit,

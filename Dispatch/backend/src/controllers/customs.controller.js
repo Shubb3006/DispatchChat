@@ -1,5 +1,6 @@
 import pool from "../config/db.js";
 import { recordAuditLog } from "../services/auditLogger.service.js";
+import { notifyCustomsStatusIfNeeded } from "../services/loadStatus.service.js";
 
 // Standard US and Canadian Ports of Entry Reference List
 export const PORTS_OF_ENTRY = [
@@ -1200,6 +1201,12 @@ export const updateCustomsStatus = async (req, res) => {
       }
     });
 
+    // Cross-border customers watch customs more closely than anything else:
+    // mirror this transition into their portal bell (and email, if opted in).
+    notifyCustomsStatusIfNeeded(updated.load_id, status).catch((err) =>
+      console.warn("customs notify warning:", err.message)
+    );
+
     res.json({
       success: true,
       customs_entry: updated,
@@ -1261,14 +1268,24 @@ export const checkBorderConnectStatus = async (req, res) => {
 
     // If entry exists in database, update status accordingly
     if (result.status) {
-      await pool.query(
-        `UPDATE customs_entries 
-         SET customs_status = $1, 
+      const updated = await pool.query(
+        `UPDATE customs_entries
+         SET customs_status = $1,
              broker_entry_number = COALESCE($2, broker_entry_number),
              updated_at = CURRENT_TIMESTAMP
-         WHERE lead_number = $3`,
+         WHERE lead_number = $3
+         RETURNING load_id, customs_status`,
         [result.status, result.entryNumber || null, barcode]
-      ).catch(() => {});
+      ).catch(() => ({ rows: [] }));
+
+      // A broker checking a barcode is often how a clearance is first noticed
+      // here — pass it on to the customer's portal.
+      const loadId = updated.rows[0]?.load_id;
+      if (loadId) {
+        notifyCustomsStatusIfNeeded(loadId, result.status).catch((err) =>
+          console.warn("customs notify warning:", err.message)
+        );
+      }
     }
 
     res.json(result);

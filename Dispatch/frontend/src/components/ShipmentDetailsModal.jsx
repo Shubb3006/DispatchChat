@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion } from "motion/react";
+import StaffLoadThread from "./StaffLoadThread";
 // "@" points at the frontend root (vite.config.ts), not src/, so the packing
 // engine is reached relatively like the other src/ modules.
 import {
@@ -1112,10 +1113,31 @@ export default function ShipmentDetailsModal({
           >
             🚚 Trip Legs
           </button>
+          <button
+            onClick={() => {
+              setActiveTab("customer_thread");
+              setIsEditing(false);
+            }}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
+              activeTab === "customer_thread"
+                ? "border-indigo-600 text-indigo-600 font-extrabold"
+                : "border-transparent text-slate-500 hover:text-slate-900"
+            }`}
+          >
+            💬 Customer Portal Chat
+          </button>
         </div>
 
         {/* Modal Main Content Body */}
         <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50">
+          {/* The broker's side of this thread lives in the customer portal;
+              both sides read and write the same /api/portal/loads/:id/messages. */}
+          {activeTab === "customer_thread" && (
+            <div className="bg-white rounded-xl border border-slate-200">
+              <StaffLoadThread loadId={shipment.id} loadNumber={shipment.load_number} />
+            </div>
+          )}
+
           {/* TAB 1: OVERVIEW & GENERAL INFO */}
           {activeTab === "overview" && (
             <div className="space-y-6">

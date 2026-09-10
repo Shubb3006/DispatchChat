@@ -245,3 +245,82 @@ export function buildCustomsDocumentRequestEmail({
     text: `Customs Documents Required — Load NISHAN-${loadNumber}. Origin: ${origin}, Destination: ${destination}. Please provide Commercial Invoice, Packing List, and Broker Info. Lead #: ${leadNumber}`,
   };
 }
+
+/**
+ * Milestone update for a customer: "Picked Up", "In Transit", "Delivered".
+ *
+ * Written for loadStatus.service.notifyMilestoneIfNeeded, whose import of this
+ * symbol previously failed at link time and took the whole module — tracking
+ * tokens, milestone emails — down with it.
+ */
+export function buildLoadMilestoneEmail({ load = {}, milestoneLabel = "Update", trackingUrl = "" }) {
+  const loadNumber = load.load_number || load.id || "";
+  const origin = load.origin || "Origin";
+  const destination = load.destination || "Destination";
+  const subject = `${milestoneLabel} — Load NISHAN-${loadNumber}`;
+
+  const deliveryDate = load.delivery_date
+    ? new Date(load.delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "Scheduled";
+
+  const trackButton = trackingUrl
+    ? `<a class="btn" href="${trackingUrl}">Track this shipment</a>`
+    : "";
+
+  const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>${subject}</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background-color: #f1f5f9; margin: 0; padding: 24px; color: #1e293b; }
+    .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; }
+    .header { background: #0f172a; color: #ffffff; padding: 24px; }
+    .logo { font-size: 20px; font-weight: 900; color: #38bdf8; letter-spacing: -0.5px; }
+    .status-badge { display: inline-block; background: #0ea5e9; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px; font-family: monospace; }
+    .content { padding: 24px; line-height: 1.6; font-size: 14px; }
+    .lane { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 18px 0; font-weight: 700; }
+    .btn { display: inline-block; background: #0284c7; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; margin-top: 8px; }
+    .footer { padding: 18px 24px; background: #f8fafc; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo">NISHAN TRANSPORT INC.</div>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Shipment status update</div>
+      <div class="status-badge">${milestoneLabel} • LOAD NISHAN-${loadNumber}</div>
+    </div>
+
+    <div class="content">
+      <p>Your shipment is now <strong>${milestoneLabel}</strong>.</p>
+
+      <div class="lane">${origin} &rarr; ${destination}</div>
+
+      <p style="font-size: 13px; color: #475569;">
+        Scheduled delivery: <strong>${deliveryDate}</strong><br />
+        Commodity: ${load.commodity || "Freight"}
+      </p>
+
+      ${trackButton}
+    </div>
+
+    <div class="footer">
+      Nishan Transport Inc. • Dispatch Operations<br />
+      You are receiving this because your company opted in to shipment updates. Manage them in the customer portal.
+    </div>
+  </div>
+</body>
+</html>
+`;
+
+  return {
+    subject,
+    html,
+    text: `${milestoneLabel} — Load NISHAN-${loadNumber}. ${origin} -> ${destination}. Scheduled delivery: ${deliveryDate}.${
+      trackingUrl ? ` Track: ${trackingUrl}` : ""
+    }`,
+  };
+}

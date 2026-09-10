@@ -13,6 +13,7 @@ import {
   autoAssignDriverToLoad,
 } from "../services/aiDispatcherOptimizer.service.js";
 import { recordAuditLog, computeFieldDiff } from "../services/auditLogger.service.js";
+import { notifyMilestoneIfNeeded } from "../services/loadStatus.service.js";
 
 
 import { createClient } from '@supabase/supabase-js';
@@ -969,11 +970,23 @@ export const updateLoadStatus = async (req, res) => {
     const { id } = req.params;
     const { status } = req.body;
 
-    // Update load status
+    // Remember what it was: the customer milestone alert must only fire on a
+    // real transition, not on a repeated save of the same status.
+    const before = await pool
+      .query(`SELECT status FROM loads WHERE id = $1`, [id])
+      .catch(() => ({ rows: [] }));
+    const previousStatus = before.rows[0]?.status ?? null;
+
+    // Update load status (stamping delivered_at on the first delivery, so the
+    // portal can show an actual delivery time).
     const result = await pool.query(
       `
         UPDATE loads
-        SET status = $1
+        SET status = $1,
+            delivered_at = CASE
+              WHEN LOWER(TRIM($1)) = 'delivered' THEN COALESCE(delivered_at, CURRENT_TIMESTAMP)
+              ELSE delivered_at
+            END
         WHERE id = $2
         RETURNING *;
         `,
@@ -1058,9 +1071,17 @@ export const updateLoadStatus = async (req, res) => {
       changeSummary: `Changed load #${updatedLoad.load_number} status to ${status.toUpperCase()}`,
       details: {
         new_status: status,
+        status,
+        previous_status: previousStatus,
         updated_at: new Date().toISOString()
       }
     });
+
+    // Customer-facing milestone: portal bell + branded email, honouring
+    // customers.notify_prefs. Never blocks or fails the status update.
+    notifyMilestoneIfNeeded(updatedLoad, previousStatus, { source: "staff_status_update" }).catch((err) =>
+      console.warn("milestone notify warning:", err.message)
+    );
 
     res.json({
       success: true,
