@@ -34,7 +34,11 @@ export const getServerBaseHost = () => {
   // 3. Detect Capacitor Native Mobile App (Android/iOS)
   const isCapacitor =
     typeof window !== "undefined" &&
-    (Boolean(window.Capacitor) ||
+    // @capacitor/core registers a window.Capacitor shim even in a plain browser,
+    // so ask it whether we are actually running natively instead of just testing
+    // for the global -- otherwise the web app is sent to DEFAULT_SERVER_IP.
+    ((typeof window.Capacitor?.isNativePlatform === "function" &&
+      window.Capacitor.isNativePlatform()) ||
       window.location.protocol === "capacitor:" ||
       window.location.protocol === "file:");
 

@@ -1,7 +1,12 @@
 {
-  "short_name": "Fleet Hub",
-  "name": "Fleet Hub - Logistics & Fleet Operations",
+  "short_name": "Nishan_teams",
+  "name": "Nishan_teams - Dispatch Communication",
   "icons": [
+    {
+      "src": "/brand-mark.svg",
+      "type": "image/svg+xml",
+      "sizes": "any"
+    },
     {
       "src": "/avatar.png",
       "type": "image/png",

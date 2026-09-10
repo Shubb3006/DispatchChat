@@ -116,8 +116,19 @@ const LoadCard = ({ text, rawMessage }) => {
     }
 
     const reader = new FileReader();
-    reader.readAsDataURL(file);
+
+    reader.onerror = () => {
+      toast.error("Could not read that file. Please try again.");
+    };
+
     reader.onload = async () => {
+      // readAsDataURL leaves a "data:image/...;base64,..." URL on reader.result.
+      // The backend's uploadToCloudinary detects that data: prefix and decodes
+      // it, so the data URL is exactly what the upload endpoints expect. This
+      // was previously referenced as a bare `base64Image` that no scope ever
+      // defined, so every POD / skid-picture upload threw a ReferenceError.
+      const base64Image = reader.result;
+
       setIsUploading(true);
       try {
         if (uploadDocType === "bol") {
@@ -163,6 +174,8 @@ const LoadCard = ({ text, rawMessage }) => {
         if (fileInputRef.current) fileInputRef.current.value = "";
       }
     };
+
+    reader.readAsDataURL(file);
   };
 
   const getStatusColor = (st) => {

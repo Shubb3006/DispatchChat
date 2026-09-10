@@ -12,23 +12,26 @@ const HomePage = () => {
   const hasSelectedChat = Boolean(selectedUser || selectedGroup);
 
   return (
-    <div className="h-screen w-full pt-14 sm:pt-16 bg-base-200/50 overflow-hidden flex flex-col">
-      <div className="flex-1 w-full max-w-7xl mx-auto flex min-h-0 overflow-hidden relative">
-        {/* Sidebar / Conversation List */}
-        <div className={`${hasSelectedChat ? "hidden lg:flex" : "flex"} w-full lg:w-96 h-full flex-col shrink-0 border-r border-base-300 bg-base-100`}>
+    /* Full-bleed shell. This previously used `max-w-7xl mx-auto`, which capped
+       the workspace at 1280px and left large dead margins on wide monitors. */
+    <div className="h-screen w-full overflow-hidden bg-base-200 pt-14 sm:pt-16">
+      <div className="relative flex h-full min-h-0 w-full overflow-hidden">
+        {/* Conversation list */}
+        <aside
+          className={`${hasSelectedChat ? "hidden lg:flex" : "flex"}
+            h-full w-full shrink-0 flex-col border-r border-base-300 bg-base-100
+            lg:w-[340px] xl:w-[380px] 2xl:w-[420px]`}
+        >
           <Sidebar />
-        </div>
+        </aside>
 
-        {/* Chat Area */}
-        <div className={`${!hasSelectedChat ? "hidden lg:flex" : "flex"} flex-1 h-full min-w-0 bg-base-100`}>
-          {!hasSelectedChat ? (
-            <div className="hidden lg:flex flex-1">
-               <NoSelectedUser />
-            </div>
-          ) : (
-            <ChatContainer />
-          )}
-        </div>
+        {/* Conversation surface */}
+        <main
+          className={`${!hasSelectedChat ? "hidden lg:flex" : "flex"}
+            h-full min-w-0 flex-1 bg-base-200`}
+        >
+          {!hasSelectedChat ? <NoSelectedUser /> : <ChatContainer />}
+        </main>
       </div>
     </div>
   );

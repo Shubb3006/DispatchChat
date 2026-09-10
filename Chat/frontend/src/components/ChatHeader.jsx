@@ -1,10 +1,11 @@
 import React, { useState } from "react";
 import Avatar from "./Avatar";
-import { Search, X, Radio, Truck, Folder, FileText, Download, Image as ImageIcon, Mic, Edit2, CheckCircle, Calendar, ChevronLeft, UserPlus, UserMinus, Users, Phone, FileDown } from "lucide-react";
+import { Search, X, Radio, Folder, FileText, Edit2, ChevronLeft, UserPlus, UserMinus, Users, Phone, FileDown, WifiOff } from "lucide-react";
 import { useChatStore } from "../store/useChatStore.js";
 import { useAuthStore } from "../store/useAuthStore.js";
 import { useGroupStore } from "../store/useGroupStore.js";
 import { useCallStore } from "../store/useCallStore.js";
+import { getRole, roleToneClass, getDuty, cleanName } from "../lib/roles.js";
 import toast from "react-hot-toast";
 import { jsPDF } from "jspdf";
 
@@ -37,6 +38,18 @@ const ChatHeader = () => {
   );
   const imageMessages = activeMessages.filter((m) => m.image);
   const audioMessages = activeMessages.filter((m) => m.audio);
+  const vaultTotal = documentMessages.length + imageMessages.length + audioMessages.length;
+
+  // Mirrors the filter in ChatContainer so the header can show a match count.
+  const matchCount = activeMessages.filter((m) => {
+    const okText = searchQuery
+      ? m.text?.toLowerCase().includes(searchQuery.toLowerCase())
+      : true;
+    const okDate = searchDate
+      ? new Date(m.createdAt).toISOString().slice(0, 10) === searchDate
+      : true;
+    return okText && okDate;
+  }).length;
 
   const isAuthorizedToEdit =
     selectedGroup &&
@@ -119,12 +132,15 @@ const ChatHeader = () => {
   }, []);
 
   return (
-    <div className="h-16 px-4 border-b border-base-300 glass-nav flex items-center justify-between z-40 relative">
+    <div className="relative z-40 border-b border-base-300 bg-base-100">
       {isAppOffline && (
-        <div className="absolute top-0 left-0 right-0 bg-warning text-warning-content text-[10px] font-mono font-bold text-center py-0.5 uppercase tracking-wider z-50 flex items-center justify-center gap-1.5 shadow-sm">
-          <span>📡 Offline Mode Active — Driver Messages & Document Uploads Queued</span>
+        <div className="absolute inset-x-0 top-0 z-50 flex items-center justify-center gap-1.5 bg-warning py-1 text-[10px] font-bold uppercase tracking-wider text-warning-content">
+          <WifiOff className="size-3" />
+          <span>Offline — messages and uploads are queued</span>
         </div>
       )}
+
+      <div className="flex h-16 items-center justify-between gap-3 px-3 sm:px-4">
       <div className="flex items-center gap-3 min-w-0">
         <button
           onClick={() => {
@@ -137,19 +153,57 @@ const ChatHeader = () => {
         </button>
 
         {selectedUser ? (
-          <div className="flex items-center gap-3">
-            <Avatar src={selectedUser?.profilePic} name={selectedUser?.fullName} size="size-10" isOnline={isOnline} />
+          <div className="flex min-w-0 items-center gap-3">
+            <Avatar
+              src={selectedUser?.profilePic}
+              name={selectedUser?.fullName}
+              size="size-10"
+              isOnline={isOnline}
+              showPresence
+            />
             <div className="min-w-0">
-              <h3 className="font-bold text-sm sm:text-base text-base-content truncate">{selectedUser?.fullName}</h3>
-              <div className="flex items-center gap-1.5">
-                <span className={`size-2 rounded-full ${isOnline ? "bg-success animate-pulse" : "bg-base-content/20"}`}></span>
-                <span className="text-[10px] font-bold uppercase tracking-wider opacity-50">{isOnline ? "Active" : "Offline"}</span>
+              <div className="flex min-w-0 items-center gap-2">
+                <h3 className="truncate text-sm font-bold sm:text-base">
+                  {cleanName(selectedUser?.fullName)}
+                </h3>
+                {(() => {
+                  const r = getRole(selectedUser?.role);
+                  return (
+                    <span
+                      className={`hidden shrink-0 items-center gap-1 rounded px-1.5 py-0.5 text-[10px]
+                        font-bold uppercase tracking-wide ring-1 ring-inset sm:inline-flex
+                        ${roleToneClass(selectedUser?.role)}`}
+                    >
+                      <r.icon className="size-2.5" />
+                      {r.label}
+                    </span>
+                  );
+                })()}
+                {selectedUser?.unitNumber && (
+                  <span className="nums shrink-0 text-[11px] font-semibold text-base-content/40">
+                    #{selectedUser.unitNumber}
+                  </span>
+                )}
+              </div>
+              <div className="mt-0.5 flex items-center gap-1.5">
+                <span className={`size-2 rounded-full ${isOnline ? "bg-success" : "bg-base-content/20"}`} />
+                <span className="text-[11px] font-medium text-base-content/55">
+                  {isOnline ? "Active now" : "Offline"}
+                </span>
+                {selectedUser?.role === "driver" && (
+                  <>
+                    <span className="text-base-content/25">·</span>
+                    <span className="text-[11px] font-medium capitalize text-base-content/55">
+                      {getDuty(selectedUser?.dutyStatus).label}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
           </div>
         ) : (
           <div className="flex items-center gap-3 min-w-0">
-            <div className="size-10 rounded-xl bg-primary flex items-center justify-center text-primary-content shadow-lg shadow-primary/20 shrink-0">
+            <div className="grid size-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-sky-500 to-indigo-600 text-white shadow-sm">
               <Radio className="size-5" />
             </div>
             <div className="min-w-0">
@@ -161,34 +215,108 @@ const ChatHeader = () => {
                   </button>
                 )}
               </div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-primary truncate block">
-                 {selectedGroup?.members?.length || 0} Members • Fleet Channel
+              <span className="mt-0.5 block truncate text-[11px] font-medium text-base-content/55">
+                Fleet channel · <span className="nums">{selectedGroup?.members?.length || 0}</span> members
               </span>
             </div>
           </div>
         )}
       </div>
 
-      <div className="flex items-center gap-1">
+      <div className="flex shrink-0 items-center gap-0.5">
         {selectedUser && (
           <button
             onClick={() => initCall({ id: selectedUser._id, name: selectedUser.fullName, profilePic: selectedUser.profilePic })}
-            className="btn btn-ghost btn-circle btn-sm text-primary"
-            title="Audio Call"
+            className="btn btn-ghost btn-sm btn-square rounded-lg text-primary"
+            title={`Call ${cleanName(selectedUser.fullName)}`}
           >
-            <Phone className="size-5" />
+            <Phone className="size-4.5" />
           </button>
         )}
-        <button onClick={() => setShowMediaVault(true)} className="btn btn-ghost btn-circle btn-sm text-base-content/60">
-          <Folder className="size-5" />
+
+        <button
+          onClick={() => setShowMediaVault(true)}
+          className="btn btn-ghost btn-sm gap-1.5 rounded-lg font-semibold"
+          title="Media vault: documents, photos and voice notes"
+        >
+          <Folder className="size-4.5" />
+          {vaultTotal > 0 && <span className="nums text-[11px]">{vaultTotal}</span>}
         </button>
-        <button onClick={() => setShowSearch(!showSearch)} className="btn btn-ghost btn-circle btn-sm text-base-content/60">
-          <Search className="size-5" />
+
+        <button
+          onClick={() => setShowSearch(!showSearch)}
+          className={`btn btn-sm btn-square rounded-lg ${showSearch ? "btn-active" : "btn-ghost"}`}
+          title="Search in conversation"
+        >
+          <Search className="size-4.5" />
         </button>
-        <button onClick={() => {setSelectedUser(null); setSelectedGroup(null);}} className="btn btn-ghost btn-circle btn-sm text-base-content/60">
-          <X className="size-5" />
+
+        <button
+          onClick={() => {
+            setSelectedUser(null);
+            setSelectedGroup(null);
+          }}
+          className="btn btn-ghost btn-sm btn-square rounded-lg"
+          title="Close conversation"
+        >
+          <X className="size-4.5" />
         </button>
       </div>
+      </div>
+
+      {/* In-conversation search. The store and ChatContainer already filtered
+          on searchQuery/searchDate, but no input was ever rendered -- so the
+          toolbar search button toggled state that nothing consumed. */}
+      {showSearch && (
+        <div className="flex flex-col gap-2 border-t border-base-300 bg-base-200/60 px-3 py-2.5 sm:flex-row sm:items-center sm:px-4">
+          <div className="relative flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-base-content/40" />
+            <input
+              autoFocus
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search messages in this conversation"
+              className="input input-sm w-full rounded-lg border-base-300 bg-base-100 pl-9 pr-8 text-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-base-content/50 hover:bg-base-300"
+                title="Clear text filter"
+              >
+                <X className="size-3.5" />
+              </button>
+            )}
+          </div>
+
+          <input
+            type="date"
+            value={searchDate}
+            onChange={(e) => setSearchDate(e.target.value)}
+            className="input input-sm nums rounded-lg border-base-300 bg-base-100 text-xs sm:w-40"
+            title="Jump to a date"
+          />
+
+          <div className="flex items-center gap-2">
+            {(searchQuery || searchDate) && (
+              <span className="nums whitespace-nowrap text-[11px] font-semibold text-base-content/55">
+                {matchCount} match{matchCount === 1 ? "" : "es"}
+              </span>
+            )}
+            <button
+              onClick={() => {
+                setSearchQuery("");
+                setSearchDate("");
+                setShowSearch(false);
+              }}
+              className="btn btn-ghost btn-sm rounded-lg"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Edit Group & Member Management Modal */}
       {showEditGroupModal && (

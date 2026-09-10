@@ -2,13 +2,16 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "dev",
+      "name": "chat-backend",
       "runtimeExecutable": "npm",
-      "runtimeArgs": [
-        "run",
-        "dev"
-      ],
-      "port": 3000
+      "runtimeArgs": ["--prefix", "Chat/backend", "run", "dev"],
+      "port": 5500
+    },
+    {
+      "name": "chat-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "Chat/frontend", "run", "dev"],
+      "port": 5173
     }
   ]
 }
