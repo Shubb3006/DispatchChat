@@ -1,18 +1,23 @@
 import React, { useState } from "react";
-import { Radio, X, Send, Truck, Building2, Globe, AlertTriangle, Image as ImageIcon, CheckCircle } from "lucide-react";
+import { Radio, X, Send, Truck, Building2, Globe, AlertTriangle, ImagePlus } from "lucide-react";
 import { useChatStore } from "../store/useChatStore";
+import Modal from "./Modal";
+
+const AUDIENCES = [
+  { id: "drivers", label: "Drivers", hint: "On-road staff", icon: Truck },
+  { id: "office", label: "Office", hint: "Dispatch & admin", icon: Building2 },
+  { id: "all", label: "Entire fleet", hint: "Everyone", icon: Globe },
+];
 
 const BroadcastModal = ({ isOpen, onClose }) => {
   const { sendBroadcastAnnouncement } = useChatStore();
 
-  const [targetAudience, setTargetAudience] = useState("drivers"); // "drivers" | "office" | "all"
+  const [targetAudience, setTargetAudience] = useState("drivers");
   const [title, setTitle] = useState("");
   const [text, setText] = useState("");
   const [isUrgent, setIsUrgent] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
   const [isSending, setIsSending] = useState(false);
-
-  if (!isOpen) return null;
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -46,166 +51,165 @@ const BroadcastModal = ({ isOpen, onClose }) => {
     }
   };
 
+  const audienceLabel =
+    AUDIENCES.find((a) => a.id === targetAudience)?.label.toLowerCase() ?? "the fleet";
+
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="bg-base-100 p-6 rounded-3xl border border-base-300 max-w-lg w-full shadow-2xl space-y-5 animate-in fade-in zoom-in duration-200">
-        {/* Header */}
-        <div className="flex items-center justify-between border-b border-base-300 pb-3">
-          <div className="flex items-center gap-2.5">
-            <div className="size-10 rounded-2xl bg-primary/10 flex items-center justify-center text-primary">
-              <Radio className="size-6 animate-pulse" />
-            </div>
-            <div>
-              <h3 className="text-lg font-black tracking-tight">Fleet Broadcast Announcement</h3>
-              <p className="text-xs text-base-content/60">Send mass notification to Drivers or Office Staff</p>
-            </div>
-          </div>
-          <button onClick={onClose} className="btn btn-ghost btn-xs btn-circle">
-            <X className="size-4" />
-          </button>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {/* Target Audience Selector */}
-          <div>
-            <label className="label text-xs font-bold uppercase tracking-wider text-base-content/70">
-              Target Audience
-            </label>
-            <div className="grid grid-cols-3 gap-2">
-              <button
-                type="button"
-                onClick={() => setTargetAudience("drivers")}
-                className={`p-3 rounded-2xl border text-xs flex flex-col items-center gap-1.5 transition-all ${
-                  targetAudience === "drivers"
-                    ? "bg-primary/10 border-primary text-primary font-bold shadow-sm"
-                    : "bg-base-200 border-base-300 text-base-content/70 hover:bg-base-300"
-                }`}
-              >
-                <Truck className="size-5" />
-                <span>🚛 All Drivers</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setTargetAudience("office")}
-                className={`p-3 rounded-2xl border text-xs flex flex-col items-center gap-1.5 transition-all ${
-                  targetAudience === "office"
-                    ? "bg-sky-500/10 border-sky-500 text-sky-600 font-bold shadow-sm"
-                    : "bg-base-200 border-base-300 text-base-content/70 hover:bg-base-300"
-                }`}
-              >
-                <Building2 className="size-5" />
-                <span>🏢 Office Staff</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setTargetAudience("all")}
-                className={`p-3 rounded-2xl border text-xs flex flex-col items-center gap-1.5 transition-all ${
-                  targetAudience === "all"
-                    ? "bg-amber-500/10 border-amber-500 text-amber-600 font-bold shadow-sm"
-                    : "bg-base-200 border-base-300 text-base-content/70 hover:bg-base-300"
-                }`}
-              >
-                <Globe className="size-5" />
-                <span>🌐 Entire Fleet</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Priority Toggle */}
-          <div className="flex items-center justify-between p-3 rounded-2xl bg-base-200 border border-base-300">
-            <div className="flex items-center gap-2">
-              <AlertTriangle className={`size-5 ${isUrgent ? "text-error" : "text-base-content/50"}`} />
-              <div className="text-xs">
-                <div className="font-bold">Mark as High Priority / Urgent</div>
-                <div className="text-[10px] opacity-60">Pins alert and triggers urgent toast</div>
-              </div>
-            </div>
-            <input
-              type="checkbox"
-              checked={isUrgent}
-              onChange={(e) => setIsUrgent(e.target.checked)}
-              className="toggle toggle-error toggle-sm"
-            />
-          </div>
-
-          {/* Title Input */}
-          <div>
-            <label className="label text-xs font-semibold">Announcement Title / Topic</label>
-            <input
-              type="text"
-              placeholder="e.g. Mandatory Safety Inspection Notice"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              className="input input-bordered w-full text-sm rounded-xl"
-            />
-          </div>
-
-          {/* Message Textarea */}
-          <div>
-            <label className="label text-xs font-semibold">Announcement Message Content *</label>
-            <textarea
-              placeholder="Write the full broadcast instructions for the selected team members..."
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              rows={4}
-              className="textarea textarea-bordered w-full text-sm rounded-xl"
-              required
-            />
-          </div>
-
-          {/* Optional Attachment */}
-          <div>
-            <label className="label text-xs font-semibold">Optional Image Attachment</label>
-            <div className="flex items-center gap-3">
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleImageChange}
-                className="file-input file-input-sm file-input-bordered w-full rounded-xl"
-              />
-              {imagePreview && (
-                <div className="relative size-10 rounded-lg overflow-hidden border border-base-300 shrink-0">
-                  <img src={imagePreview} alt="Preview" className="size-full object-cover" />
-                  <button
-                    type="button"
-                    onClick={() => setImagePreview(null)}
-                    className="absolute top-0 right-0 bg-red-500 text-white p-0.5"
-                  >
-                    <X className="size-3" />
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-2 pt-2 border-t border-base-300">
-            <button
-              type="button"
-              onClick={onClose}
-              className="btn btn-ghost btn-sm rounded-xl"
-            >
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Fleet broadcast"
+      subtitle="Send one announcement to a whole group at once"
+      icon={Radio}
+      size="lg"
+      footer={
+        <div className="flex items-center justify-between gap-3">
+          <p className="hidden text-[11px] text-base-content/55 sm:block">
+            Sending to <span className="font-semibold">{audienceLabel}</span>
+            {isUrgent && <span className="font-semibold text-error"> · urgent</span>}
+          </p>
+          <div className="ml-auto flex items-center gap-2">
+            <button type="button" onClick={onClose} className="btn btn-ghost btn-sm rounded-lg">
               Cancel
             </button>
             <button
               type="submit"
+              form="broadcast-form"
               disabled={isSending || !text.trim()}
-              className="btn btn-primary btn-sm rounded-xl gap-2 px-5"
+              className="btn btn-primary btn-sm gap-2 rounded-lg px-4 font-semibold"
             >
               {isSending ? (
-                "Broadcasting..."
+                <>
+                  <span className="loading loading-spinner loading-xs" />
+                  Broadcasting
+                </>
               ) : (
                 <>
-                  <Send className="size-4" /> Send Broadcast
+                  <Send className="size-4" /> Send broadcast
                 </>
               )}
             </button>
           </div>
-        </form>
-      </div>
-    </div>
+        </div>
+      }
+    >
+      <form id="broadcast-form" onSubmit={handleSubmit} className="space-y-5">
+        {/* Audience */}
+        <fieldset className="space-y-2">
+          <legend className="label-caps mb-1.5">Audience</legend>
+          <div className="grid grid-cols-3 gap-2">
+            {AUDIENCES.map((a) => {
+              const active = targetAudience === a.id;
+              return (
+                <button
+                  key={a.id}
+                  type="button"
+                  onClick={() => setTargetAudience(a.id)}
+                  aria-pressed={active}
+                  className={`flex flex-col items-center gap-1.5 rounded-xl border px-2 py-3 transition-colors
+                    ${
+                      active
+                        ? "border-primary bg-primary/10 text-primary"
+                        : "border-base-300 bg-base-200 text-base-content/70 hover:bg-base-300/60"
+                    }`}
+                >
+                  <a.icon className="size-5" />
+                  <span className="text-xs font-semibold">{a.label}</span>
+                  <span className="text-[10px] opacity-60">{a.hint}</span>
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+
+        {/* Priority */}
+        <label
+          className={`flex cursor-pointer items-center justify-between gap-3 rounded-xl border p-3 transition-colors
+            ${isUrgent ? "border-error/40 bg-error/5" : "border-base-300 bg-base-200"}`}
+        >
+          <span className="flex items-center gap-2.5">
+            <AlertTriangle className={`size-5 ${isUrgent ? "text-error" : "text-base-content/40"}`} />
+            <span>
+              <span className="block text-xs font-semibold">Mark as urgent</span>
+              <span className="block text-[11px] text-base-content/55">
+                Pins the alert and raises a priority notification
+              </span>
+            </span>
+          </span>
+          <input
+            type="checkbox"
+            checked={isUrgent}
+            onChange={(e) => setIsUrgent(e.target.checked)}
+            className="toggle toggle-error toggle-sm"
+          />
+        </label>
+
+        {/* Title */}
+        <div className="space-y-1.5">
+          <label htmlFor="bc-title" className="label-caps block">
+            Title <span className="font-normal normal-case tracking-normal opacity-70">(optional)</span>
+          </label>
+          <input
+            id="bc-title"
+            type="text"
+            placeholder="Mandatory safety inspection notice"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="input input-bordered w-full rounded-lg text-sm"
+          />
+        </div>
+
+        {/* Message */}
+        <div className="space-y-1.5">
+          <label htmlFor="bc-text" className="label-caps flex items-center justify-between">
+            <span>Message</span>
+            <span className="nums font-normal tracking-normal opacity-60">{text.length}</span>
+          </label>
+          <textarea
+            id="bc-text"
+            placeholder="Write the full instructions for the selected team..."
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={4}
+            className="textarea textarea-bordered w-full rounded-lg text-sm"
+            required
+          />
+        </div>
+
+        {/* Attachment */}
+        <div className="space-y-1.5">
+          <label className="label-caps block">
+            Attachment{" "}
+            <span className="font-normal normal-case tracking-normal opacity-70">(optional)</span>
+          </label>
+          <div className="flex items-center gap-3">
+            <label
+              className="flex flex-1 cursor-pointer items-center gap-2 rounded-lg border border-dashed
+                border-base-300 bg-base-200 px-3 py-2.5 text-xs font-medium text-base-content/60
+                transition-colors hover:border-primary/50 hover:text-base-content"
+            >
+              <ImagePlus className="size-4" />
+              {imagePreview ? "Replace image" : "Attach an image"}
+              <input type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+            </label>
+
+            {imagePreview && (
+              <div className="relative size-11 shrink-0 overflow-hidden rounded-lg border border-base-300">
+                <img src={imagePreview} alt="Attachment preview" className="size-full object-cover" />
+                <button
+                  type="button"
+                  onClick={() => setImagePreview(null)}
+                  className="absolute right-0 top-0 grid size-4 place-items-center bg-error text-error-content"
+                  aria-label="Remove attachment"
+                >
+                  <X className="size-2.5" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      </form>
+    </Modal>
   );
 };
 

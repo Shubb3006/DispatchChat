@@ -1,14 +1,12 @@
 import React, { useState } from "react";
 import toast from "react-hot-toast";
-import { Link } from "react-router-dom";
 import { useAuthStore } from "../store/useAuthStore";
-import { Loader2 } from "lucide-react";
+import { Loader2, Eye, EyeOff, LogIn } from "lucide-react";
+import { BrandMark } from "../components/BrandLogo";
 
 const SigninPage = () => {
-  const [formData, setFormData] = useState({
-    username: "",
-    password: "",
-  });
+  const [formData, setFormData] = useState({ username: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
   const { signin, isSigningIn } = useAuthStore();
 
   const validateform = () => {
@@ -37,103 +35,80 @@ const SigninPage = () => {
     }
   }
 
-  const fillCredentials = (username) => {
-    setFormData({
-      username,
-      password: "Nick 2656@",
-    });
-  };
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 p-4 pt-20">
-      <div className="card max-w-md w-full bg-base-100 shadow-2xl p-6 border border-base-300 rounded-3xl space-y-4">
-        <div className="text-center">
-          <h2 className="text-2xl font-black tracking-tight">Fleet Portal Sign In</h2>
-          <p className="text-xs text-base-content/60 mt-1">Enter your fleet username to continue</p>
+    <div className="grid-canvas flex min-h-screen items-center justify-center bg-base-200 p-4 pt-20">
+      <div className="fade-in w-full max-w-sm">
+        <div className="surface-panel rounded-2xl p-6">
+          {/* Brand */}
+          <div className="flex flex-col items-center text-center">
+            <BrandMark className="size-14 rounded-[22%] elevated" detail />
+            <h2 className="mt-4 text-xl font-extrabold tracking-tight">Sign in to Nishan_teams</h2>
+            <p className="mt-1 text-xs text-base-content/55">
+              Use the fleet credentials issued by your dispatcher
+            </p>
+          </div>
+
+          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+            <div className="space-y-1.5">
+              <label htmlFor="username" className="label-caps block">
+                Username
+              </label>
+              <input
+                id="username"
+                name="username"
+                type="text"
+                autoComplete="username"
+                value={formData.username}
+                onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+                placeholder="Your fleet username"
+                className="input input-bordered w-full rounded-lg text-sm"
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="label-caps block">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  value={formData.password}
+                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  placeholder="Enter password"
+                  className="input input-bordered w-full rounded-lg pr-10 text-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((v) => !v)}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 rounded-md p-1.5
+                    text-base-content/45 transition-colors hover:bg-base-200 hover:text-base-content"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+                </button>
+              </div>
+            </div>
+
+            <button
+              disabled={isSigningIn}
+              className="btn btn-primary w-full gap-2 rounded-lg font-semibold"
+            >
+              {isSigningIn ? (
+                <Loader2 className="size-4 animate-spin" />
+              ) : (
+                <>
+                  <LogIn className="size-4" /> Sign in
+                </>
+              )}
+            </button>
+          </form>
         </div>
 
-        {/* Quick Demo Login Presets */}
-        <div className="p-3 bg-base-200 rounded-2xl border border-base-300 space-y-2">
-          <span className="text-[11px] font-bold text-base-content/70 uppercase tracking-wider block">
-            ⚡ Quick 1-Click Role Username Login:
-          </span>
-          <div className="flex flex-wrap gap-1.5 text-xs">
-            <button
-              type="button"
-              onClick={() => fillCredentials("NIS_Nick2656")}
-              className="px-2.5 py-1 rounded-lg bg-amber-500/20 text-amber-600 font-semibold hover:bg-amber-500/30 transition-colors"
-            >
-              👑 NIS_Nick2656
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials("NIS_Admin")}
-              className="px-2.5 py-1 rounded-lg bg-purple-500/20 text-purple-600 font-semibold hover:bg-purple-500/30 transition-colors"
-            >
-              🛠️ NIS_Admin
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials("NIS_Dispatch")}
-              className="px-2.5 py-1 rounded-lg bg-sky-500/20 text-sky-600 font-semibold hover:bg-sky-500/30 transition-colors"
-            >
-              📻 NIS_Dispatch
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials("NIS_Driver101")}
-              className="px-2.5 py-1 rounded-lg bg-emerald-500/20 text-emerald-600 font-semibold hover:bg-emerald-500/30 transition-colors"
-            >
-              🚛 NIS_Driver101
-            </button>
-            <button
-              type="button"
-              onClick={() => fillCredentials("NIS_HR")}
-              className="px-2.5 py-1 rounded-lg bg-rose-500/20 text-rose-600 font-semibold hover:bg-rose-500/30 transition-colors"
-            >
-              👥 NIS_HR
-            </button>
-          </div>
-        </div>
-
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-xs font-semibold">Username</span>
-            </label>
-            <input
-              type="text"
-              value={formData.username}
-              onChange={(e) => {
-                setFormData({ ...formData, username: e.target.value });
-              }}
-              placeholder="e.g. NIS_Nick2656"
-              className="input input-bordered rounded-xl text-sm font-mono"
-            />
-          </div>
-
-          <div className="form-control">
-            <label className="label">
-              <span className="label-text text-xs font-semibold">Password</span>
-            </label>
-            <input
-              type="password"
-              value={formData.password}
-              onChange={(e) => {
-                setFormData({ ...formData, password: e.target.value });
-              }}
-              placeholder="Enter password"
-              className="input input-bordered rounded-xl text-sm"
-            />
-          </div>
-
-          <button disabled={isSigningIn} className="btn btn-primary mt-2 rounded-xl">
-            {!isSigningIn ? "Sign In to Fleet Hub" : <Loader2 className="animate-spin" />}
-          </button>
-        </form>
-
-        <p className="text-center text-xs text-base-content/60 pt-2">
-          Password for all role accounts: <code className="bg-base-200 px-1.5 py-0.5 rounded font-mono text-primary font-bold">Nick 2656@</code>
+        <p className="mt-4 text-center text-[11px] text-base-content/45">
+          Trouble signing in? Contact your dispatch administrator.
         </p>
       </div>
     </div>

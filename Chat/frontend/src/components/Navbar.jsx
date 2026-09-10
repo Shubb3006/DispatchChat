@@ -1,38 +1,97 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback, useSyncExternalStore } from "react";
 import { useAuthStore } from "../store/useAuthStore";
 import { useThemeStore } from "../store/useThemeStore";
 import { useLanguageStore } from "../store/useLanguageStore";
 import { LANGUAGES } from "../lib/translations";
 import { getServerBaseHost, DEFAULT_SERVER_IP } from "../lib/config";
+import { getRole, roleToneClass, cleanName } from "../lib/roles";
 import {
   Sun,
   Moon,
   LogOut,
-  MessageSquare,
   User,
   Shield,
   Globe,
   Radio,
   Smartphone,
-  Wifi,
   Server,
-  X,
-  CheckCircle,
-  RefreshCw,
+  Activity,
+  ChevronDown,
+  CircleDot,
+  Check,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import BroadcastModal from "./BroadcastModal";
 import Avatar from "./Avatar";
+import BrandLogo from "./BrandLogo";
+import Modal from "./Modal";
 import toast from "react-hot-toast";
 
+/* Browser reachability and socket state are external stores, so they are read
+   with useSyncExternalStore rather than mirrored into state from an effect. */
+const subscribeToNetwork = (onChange) => {
+  window.addEventListener("online", onChange);
+  window.addEventListener("offline", onChange);
+  return () => {
+    window.removeEventListener("online", onChange);
+    window.removeEventListener("offline", onChange);
+  };
+};
+
+const useIsOnline = () =>
+  useSyncExternalStore(
+    subscribeToNetwork,
+    () => navigator.onLine,
+    () => true
+  );
+
+const useSocketConnected = (socket) => {
+  const subscribe = useCallback(
+    (onChange) => {
+      if (!socket) return () => {};
+      socket.on("connect", onChange);
+      socket.on("disconnect", onChange);
+      return () => {
+        socket.off("connect", onChange);
+        socket.off("disconnect", onChange);
+      };
+    },
+    [socket]
+  );
+
+  return useSyncExternalStore(
+    subscribe,
+    () => Boolean(socket?.connected),
+    () => false
+  );
+};
+
+/** Live transport state: socket connection + browser reachability. */
+const useConnectionState = (socket) => {
+  const online = useIsOnline();
+  const connected = useSocketConnected(socket);
+
+  if (!online) return { tone: "error", label: "Offline", detail: "Messages will queue and send on reconnect" };
+  if (!connected) return { tone: "warning", label: "Connecting", detail: "Reaching the dispatch server" };
+  return { tone: "success", label: "Live", detail: "Real-time channel connected" };
+};
+
+const TONE_PILL = {
+  success: "bg-success/10 text-success ring-success/20",
+  warning: "bg-warning/10 text-warning ring-warning/20",
+  error: "bg-error/10 text-error ring-error/20",
+};
+
 const Navbar = () => {
-  const { authUser, logout, checkAuth } = useAuthStore();
+  const { authUser, logout, checkAuth, socket, onlineUsers } = useAuthStore();
   const { theme, toggleTheme } = useThemeStore();
-  const { language, setLanguage, t } = useLanguageStore();
+  const { language, setLanguage } = useLanguageStore();
   const [showBroadcastModal, setShowBroadcastModal] = useState(false);
   const [showServerModal, setShowServerModal] = useState(false);
   const [customServerUrl, setCustomServerUrl] = useState("");
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  const conn = useConnectionState(socket);
 
   useEffect(() => {
     const handleBeforeInstallPrompt = (e) => {
@@ -43,19 +102,20 @@ const Navbar = () => {
     return () => window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
   }, []);
 
-  useEffect(() => {
+
+  /* Seeded on open rather than in an effect keyed on the modal flag. */
+  const openServerModal = () => {
     setCustomServerUrl(localStorage.getItem("custom_server_url") || "");
-  }, [showServerModal]);
+    setShowServerModal(true);
+  };
 
   const handleInstallApp = async () => {
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const choiceResult = await deferredPrompt.userChoice;
-      if (choiceResult.outcome === "accepted") {
-        setDeferredPrompt(null);
-      }
+      if (choiceResult.outcome === "accepted") setDeferredPrompt(null);
     } else {
-      alert("To install Fleet Hub on iOS or Android: tap Share ➡️ 'Add to Home Screen' in your mobile browser!");
+      toast("On mobile: tap Share, then 'Add to Home Screen'.", { icon: "📲" });
     }
   };
 
@@ -67,198 +127,307 @@ const Navbar = () => {
         formatted = `http://${formatted}`;
       }
       localStorage.setItem("custom_server_url", formatted);
-      toast.success(`Server backend updated to ${formatted}`);
+      toast.success(`Server updated to ${formatted}`);
     } else {
       localStorage.removeItem("custom_server_url");
-      toast.success("Reset to default server IP host!");
+      toast.success("Reset to the default server host");
     }
     setShowServerModal(false);
     checkAuth();
   };
 
-  function handleLogout() {
-    logout();
-  }
-
   const currentLangObj = LANGUAGES.find((l) => l.code === language) || LANGUAGES[0];
   const activeBackendHost = getServerBaseHost();
+  const role = getRole(authUser?.role);
+  const canBroadcast = ["super_user", "admin"].includes(authUser?.role);
+  const canAdmin = ["super_user", "admin", "hr"].includes(authUser?.role);
+  const peersOnline = Math.max((onlineUsers?.length || 0) - 1, 0);
 
   return (
-    <header className="glass-nav h-14 sm:h-16 px-4 border-b border-base-300/50">
-      <div className="container mx-auto h-full flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="size-8 sm:size-9 rounded-xl bg-primary flex items-center justify-center shadow-lg shadow-primary/30">
-              <img src="/logo.png" className="size-6 object-contain" alt="Logo" />
-            </div>
-            <h1 className="text-header text-sm sm:text-base hidden xs:block font-bold">
-              OZACK_CHAT
-            </h1>
-          </Link>
-        </div>
+    <header className="glass-nav h-14 sm:h-16">
+      <div className="mx-auto flex h-full max-w-none items-center justify-between gap-3 px-3 sm:px-5">
+        {/* Brand */}
+        <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Nishan_teams home">
+          <BrandLogo
+            markClass="size-8 sm:size-9"
+            subtitle="Dispatch Suite"
+            className="hidden sm:flex"
+          />
+          <BrandLogo markClass="size-8" showWordmark={false} className="sm:hidden" />
+        </Link>
 
-        <div className="flex items-center gap-2 sm:gap-4">
-          {/* Admin / Broadcast Actions */}
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {authUser && ["super_user", "admin"].includes(authUser?.role) && (
+        {authUser ? (
+          <div className="flex min-w-0 items-center gap-1 sm:gap-2">
+            {/* Connection status */}
+            <button
+              onClick={openServerModal}
+              title={`${conn.detail} — ${activeBackendHost}`}
+              className={`hidden items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-semibold
+                ring-1 ring-inset transition-colors sm:flex ${TONE_PILL[conn.tone]}`}
+            >
+              <CircleDot className={`size-3 ${conn.tone === "success" ? "animate-pulse" : ""}`} />
+              <span>{conn.label}</span>
+            </button>
+
+            {/* Fleet presence count */}
+            {peersOnline > 0 && (
+              <span
+                className="hidden items-center gap-1.5 rounded-full bg-base-200 px-2.5 py-1 text-[11px]
+                  font-semibold text-base-content/70 ring-1 ring-inset ring-base-300 xl:flex"
+                title={`${peersOnline} teammate${peersOnline === 1 ? "" : "s"} online now`}
+              >
+                <Activity className="size-3 text-success" />
+                <span className="nums">{peersOnline}</span>
+                <span className="opacity-60">online</span>
+              </span>
+            )}
+
+            <span className="mx-1 hidden h-6 w-px bg-base-300 sm:block" />
+
+            {/* Primary actions */}
+            {canBroadcast && (
               <button
                 onClick={() => setShowBroadcastModal(true)}
-                className="btn btn-xs sm:btn-sm btn-primary gap-1.5 rounded-xl shadow-sm"
-                title="Send Fleet Announcement"
+                className="btn btn-primary btn-sm gap-1.5 rounded-lg font-semibold shadow-sm"
+                title="Send an announcement to the whole fleet"
               >
-                <Radio className="size-3.5 sm:size-4 animate-pulse" />
-                <span className="hidden md:inline font-bold">Broadcast</span>
+                <Radio className="size-4" />
+                <span className="hidden md:inline">Broadcast</span>
               </button>
             )}
 
-            {authUser && ["super_user", "admin", "hr"].includes(authUser?.role) && (
-              <Link to="/admin" className="btn btn-xs sm:btn-sm btn-outline btn-primary gap-1.5 rounded-xl" title="Admin Panel">
-                <Shield className="size-3.5 sm:size-4" />
+            {canAdmin && (
+              <Link
+                to="/admin"
+                className="btn btn-ghost btn-sm gap-1.5 rounded-lg font-semibold"
+                title="Admin panel"
+              >
+                <Shield className="size-4 text-secondary" />
+                <span className="hidden lg:inline">Admin</span>
               </Link>
             )}
-          </div>
 
-          <div className="h-6 w-[1px] bg-base-300/50 mx-1 hidden sm:block"></div>
+            <span className="mx-1 hidden h-6 w-px bg-base-300 sm:block" />
 
-          <div className="flex items-center gap-1.5 sm:gap-2">
-            {/* Server Settings */}
-            <button
-              onClick={() => setShowServerModal(true)}
-              className="btn btn-xs sm:btn-sm btn-ghost btn-circle text-primary hover:bg-primary/10"
-              title={`Server: ${activeBackendHost}`}
-            >
-              <Wifi className="size-3.5 sm:size-4 animate-pulse text-emerald-500" />
-            </button>
-
-            {/* Install App */}
+            {/* Utilities */}
             <button
               onClick={handleInstallApp}
-              className="btn btn-xs sm:btn-sm btn-ghost btn-circle text-accent"
-              title="Install App"
+              className="btn btn-ghost btn-sm btn-square rounded-lg"
+              title="Install as an app"
             >
-              <Smartphone className="size-3.5 sm:size-4" />
+              <Smartphone className="size-4" />
             </button>
 
-            {/* Language Selector */}
             <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
                 role="button"
-                className="btn btn-xs sm:btn-sm btn-ghost gap-1 rounded-xl px-2"
+                className="btn btn-ghost btn-sm gap-1 rounded-lg px-2"
+                title="Language"
               >
-                <Globe className="size-3.5 sm:size-4 text-primary" />
-                <span className="text-[10px] sm:text-xs font-bold">{currentLangObj.flag}</span>
+                <Globe className="size-4" />
+                <span className="text-xs">{currentLangObj.flag}</span>
               </div>
-              <ul tabIndex={0} className="dropdown-content z-[50] menu p-2 shadow-2xl bg-base-100 rounded-2xl w-44 border border-base-300 mt-2 gap-1">
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content elevated z-50 mt-2 w-48 gap-0.5 rounded-xl
+                  border border-base-300 bg-base-100 p-1.5"
+              >
+                <li className="menu-title px-2 pb-1 pt-1.5 text-[10px] uppercase tracking-widest">
+                  Language
+                </li>
                 {LANGUAGES.map((lang) => (
                   <li key={lang.code}>
                     <button
                       onClick={() => setLanguage(lang.code)}
-                      className={`flex items-center justify-between text-xs rounded-xl ${
-                        language === lang.code ? "active font-bold btn-primary" : ""
-                      }`}
+                      className="flex items-center justify-between rounded-lg text-sm"
                     >
                       <span className="flex items-center gap-2">
                         <span>{lang.flag}</span>
                         <span>{lang.label}</span>
                       </span>
+                      {language === lang.code && <Check className="size-4 text-primary" />}
                     </button>
                   </li>
                 ))}
               </ul>
             </div>
 
-            {/* Theme Toggle */}
             <button
               onClick={toggleTheme}
-              className="btn btn-xs sm:btn-sm btn-ghost btn-circle"
-              title="Toggle Theme"
+              className="btn btn-ghost btn-sm btn-square rounded-lg"
+              title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
             >
               {theme === "dark" ? (
-                <Sun className="size-4 text-amber-400" />
+                <Sun className="size-4 text-warning" />
               ) : (
-                <Moon className="size-4 text-sky-600" />
+                <Moon className="size-4" />
               )}
             </button>
-          </div>
 
-          <div className="h-6 w-[1px] bg-base-300/50 mx-1"></div>
+            <span className="mx-1 h-6 w-px bg-base-300" />
 
-          {/* User Profile / Auth */}
-          {authUser ? (
-            <div className="flex items-center gap-2">
-              <Link to="/profile" className="flex items-center gap-2 group">
-                <Avatar src={authUser.profilePic} name={authUser.fullName} size="size-7 sm:size-8" />
-                <span className="hidden lg:inline text-xs font-semibold max-w-[100px] truncate">{authUser.fullName}</span>
-              </Link>
-              <button onClick={handleLogout} className="btn btn-ghost btn-circle btn-xs sm:btn-sm text-error" title="Logout">
-                <LogOut className="size-3.5 sm:size-4" />
-              </button>
+            {/* Account menu */}
+            <div className="dropdown dropdown-end">
+              <div
+                tabIndex={0}
+                role="button"
+                className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 transition-colors hover:bg-base-200"
+                title="Account"
+              >
+                <Avatar
+                  src={authUser.profilePic}
+                  name={authUser.fullName}
+                  size="size-8"
+                  isOnline
+                  showPresence
+                />
+                <span className="hidden min-w-0 flex-col items-start leading-tight lg:flex">
+                  <span className="max-w-[130px] truncate text-xs font-semibold">
+                    {cleanName(authUser.fullName)}
+                  </span>
+                  <span className="text-[10px] font-medium text-base-content/50">{role.label}</span>
+                </span>
+                <ChevronDown className="hidden size-3.5 opacity-40 lg:block" />
+              </div>
+
+              <ul
+                tabIndex={0}
+                className="menu dropdown-content elevated z-50 mt-2 w-64 gap-0.5 rounded-xl
+                  border border-base-300 bg-base-100 p-1.5"
+              >
+                <li className="pointer-events-none px-2 pb-2 pt-1">
+                  <div className="flex items-center gap-3 hover:bg-transparent">
+                    <Avatar src={authUser.profilePic} name={authUser.fullName} size="size-10" />
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold">
+                        {cleanName(authUser.fullName)}
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-1.5">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px]
+                            font-bold uppercase tracking-wide ring-1 ring-inset ${roleToneClass(authUser?.role)}`}
+                        >
+                          <role.icon className="size-2.5" />
+                          {role.label}
+                        </span>
+                        {authUser.unitNumber && (
+                          <span className="nums text-[10px] text-base-content/50">
+                            #{authUser.unitNumber}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+                <li className="menu-title px-2 py-1 text-[10px] uppercase tracking-widest">Account</li>
+                <li>
+                  <Link to="/profile" className="rounded-lg text-sm">
+                    <User className="size-4" /> Profile & settings
+                  </Link>
+                </li>
+                <li>
+                  <Link to="/status" className="rounded-lg text-sm">
+                    <Activity className="size-4" /> Fleet status board
+                  </Link>
+                </li>
+                <li>
+                  <button onClick={openServerModal} className="rounded-lg text-sm">
+                    <Server className="size-4" /> Connection settings
+                  </button>
+                </li>
+
+                <div className="my-1 h-px bg-base-300" />
+                <li>
+                  <button onClick={logout} className="rounded-lg text-sm text-error">
+                    <LogOut className="size-4" /> Sign out
+                  </button>
+                </li>
+              </ul>
             </div>
-          ) : (
-            <Link to="/signin" className="btn btn-primary btn-xs sm:btn-sm rounded-xl px-3 sm:px-4 font-bold text-[10px] sm:text-xs">
-              SIGN IN
-            </Link>
-          )}
-        </div>
+          </div>
+        ) : (
+          <Link to="/signin" className="btn btn-primary btn-sm rounded-lg px-4 font-semibold">
+            Sign in
+          </Link>
+        )}
       </div>
 
       <BroadcastModal isOpen={showBroadcastModal} onClose={() => setShowBroadcastModal(false)} />
 
-      {/* Server Connection Modal */}
-      {showServerModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-base-100 p-6 rounded-3xl border border-base-300 max-w-md w-full shadow-2xl space-y-4">
-            <div className="flex items-center justify-between border-b border-base-300 pb-3">
-              <h3 className="text-base sm:text-lg font-bold flex items-center gap-2">
-                <Server className="size-5 text-primary" /> Connection Settings
-              </h3>
-              <button onClick={() => setShowServerModal(false)} className="btn btn-ghost btn-xs btn-circle">
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <div className="bg-base-200/80 p-3 rounded-2xl border border-base-300/80 space-y-2 text-xs">
-              <div className="flex items-center justify-between font-medium">
-                <span className="opacity-70">Active Endpoint:</span>
-                <span className="font-mono text-emerald-500 font-bold truncate max-w-[200px]">{activeBackendHost}</span>
-              </div>
-            </div>
-
-            <form onSubmit={handleSaveServerConfig} className="space-y-4">
-              <div>
-                <label className="label text-xs font-semibold">Custom Server URL:</label>
-                <input
-                  type="text"
-                  placeholder={`http://${DEFAULT_SERVER_IP}:5500`}
-                  value={customServerUrl}
-                  onChange={(e) => setCustomServerUrl(e.target.value)}
-                  className="input input-bordered w-full text-xs font-mono rounded-xl"
-                />
-              </div>
-
-              <div className="flex items-center justify-end gap-2 pt-2 border-t border-base-300">
-                <button
-                  type="button"
-                  onClick={() => {
-                    localStorage.removeItem("custom_server_url");
-                    setCustomServerUrl("");
-                    toast.success("Reset to default!");
-                    setShowServerModal(false);
-                    checkAuth();
-                  }}
-                  className="btn btn-ghost btn-xs text-error"
-                >
-                  Reset
-                </button>
-                <button type="submit" className="btn btn-primary btn-sm rounded-xl text-xs font-bold px-4">
-                  Save
-                </button>
-              </div>
-            </form>
+      {/* Connection settings */}
+      <Modal
+        isOpen={showServerModal}
+        onClose={() => setShowServerModal(false)}
+        title="Connection settings"
+        subtitle="Where this app looks for the dispatch server"
+        icon={Server}
+        size="md"
+        footer={
+          <div className="flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                localStorage.removeItem("custom_server_url");
+                setCustomServerUrl("");
+                toast.success("Reset to default");
+                setShowServerModal(false);
+                checkAuth();
+              }}
+              className="btn btn-ghost btn-sm rounded-lg text-error"
+            >
+              Reset
+            </button>
+            <button
+              type="submit"
+              form="server-form"
+              className="btn btn-primary btn-sm rounded-lg px-4 font-semibold"
+            >
+              Save
+            </button>
           </div>
+        }
+      >
+        <div className="space-y-4">
+          <dl className="space-y-2 rounded-xl border border-base-300 bg-base-200 p-3 text-xs">
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-base-content/60">Status</dt>
+              <dd>
+                <span
+                  className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px]
+                    font-semibold ring-1 ring-inset ${TONE_PILL[conn.tone]}`}
+                >
+                  <CircleDot className="size-3" /> {conn.label}
+                </span>
+              </dd>
+            </div>
+            <div className="flex items-center justify-between gap-3">
+              <dt className="text-base-content/60">Endpoint</dt>
+              <dd className="nums max-w-[220px] truncate text-[11px] font-semibold">
+                {activeBackendHost}
+              </dd>
+            </div>
+          </dl>
+
+          <form id="server-form" onSubmit={handleSaveServerConfig}>
+            <label htmlFor="server-url" className="label-caps mb-1 block">
+              Custom server URL
+            </label>
+            <input
+              id="server-url"
+              type="text"
+              placeholder={`http://${DEFAULT_SERVER_IP}:5500`}
+              value={customServerUrl}
+              onChange={(e) => setCustomServerUrl(e.target.value)}
+              className="input input-bordered nums w-full rounded-lg text-xs"
+            />
+            <p className="mt-1.5 text-[11px] text-base-content/50">
+              Leave blank to auto-detect. Useful when testing from a phone on the same network.
+            </p>
+          </form>
         </div>
-      )}
+      </Modal>
     </header>
   );
 };
