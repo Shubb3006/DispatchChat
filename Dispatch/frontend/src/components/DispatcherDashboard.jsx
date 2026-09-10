@@ -288,15 +288,12 @@ const TrailerFloorPlan = ({ plan }) => {
                       row.rotated ? row.skidAcrossIn : row.depthIn
                     )}L × ${asInches(
                       row.rotated ? row.depthIn : row.skidAcrossIn
-                    )}W · ${row.rotated ? "rotated 90°" : "square to trailer"}${
-                      row.stackHeight > 1 ? ` · stacked ${row.stackHeight} high` : ""
-                    } · at ${asFeet(row.startIn)} from the nose`}
+                    )}W · ${row.rotated ? "rotated 90°" : "square to trailer"}${row.stackHeight > 1 ? ` · stacked ${row.stackHeight} high` : ""
+                      } · at ${asFeet(row.startIn)} from the nose`}
                     style={{ height: pctWidth(row.skidAcrossIn) }}
-                    className={`shrink-0 w-full rounded-[3px] border ${color.bg} ${
-                      color.border
-                    } shadow-md flex flex-col items-center justify-center overflow-hidden px-0.5 ${
-                      pastDoors ? "ring-2 ring-rose-500 ring-inset" : ""
-                    }`}
+                    className={`shrink-0 w-full rounded-[3px] border ${color.bg} ${color.border
+                      } shadow-md flex flex-col items-center justify-center overflow-hidden px-0.5 ${pastDoors ? "ring-2 ring-rose-500 ring-inset" : ""
+                      }`}
                   >
                     <span className="text-[9px] leading-tight font-extrabold font-mono text-white truncate max-w-full">
                       #{row.loadNumber}
@@ -458,17 +455,15 @@ const TrailerHeightProfile = ({ plan }) => {
               className="flex flex-col justify-end items-center h-full min-w-[76px] flex-1"
             >
               <span
-                className={`text-[9px] font-mono font-extrabold mb-1 ${
-                  over ? "text-rose-400" : "text-slate-400"
-                }`}
+                className={`text-[9px] font-mono font-extrabold mb-1 ${over ? "text-rose-400" : "text-slate-400"
+                  }`}
               >
                 {asInches(stackedIn)}
               </span>
               <div
                 style={{ height: `${pct}%` }}
-                className={`w-full rounded-t-lg border ${
-                  over ? "bg-rose-600 border-rose-400" : `${color.bg} ${color.border}`
-                } flex flex-col items-center justify-start pt-1 shadow-lg`}
+                className={`w-full rounded-t-lg border ${over ? "bg-rose-600 border-rose-400" : `${color.bg} ${color.border}`
+                  } flex flex-col items-center justify-start pt-1 shadow-lg`}
               >
                 {pl.stackHeight > 1 && (
                   <span className="text-[8px] font-mono font-extrabold text-white flex items-center gap-0.5">
@@ -579,11 +574,10 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
                 key={tab.id}
                 type="button"
                 onClick={() => setViewMode(tab.id)}
-                className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${
-                  viewMode === tab.id
-                    ? "bg-indigo-600 text-white shadow-sm font-mono"
-                    : "text-slate-400 hover:text-white"
-                }`}
+                className={`px-3 py-1 text-3xs font-bold rounded-lg transition-all cursor-pointer ${viewMode === tab.id
+                  ? "bg-indigo-600 text-white shadow-sm font-mono"
+                  : "text-slate-400 hover:text-white"
+                  }`}
               >
                 {tab.label}
               </button>
@@ -613,9 +607,8 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
         <CapacityMeter
           label="Payload"
           primary={`${totalWeight.toLocaleString()} lbs`}
-          secondary={`${plan.totalSkids} skids across ${plan.rows.length} ${
-            plan.rows.length === 1 ? "row" : "rows"
-          }`}
+          secondary={`${plan.totalSkids} skids across ${plan.rows.length} ${plan.rows.length === 1 ? "row" : "rows"
+            }`}
           capacity={`of ${trailer.maxPayloadLbs.toLocaleString()} lbs`}
           pct={plan.weightUsagePct}
           over={totalWeight > trailer.maxPayloadLbs}
@@ -636,9 +629,8 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
               {axle.label}
             </div>
             <div
-              className={`text-xs font-extrabold ${
-                axle.value > axle.max ? "text-rose-400" : axle.tone
-              }`}
+              className={`text-xs font-extrabold ${axle.value > axle.max ? "text-rose-400" : axle.tone
+                }`}
             >
               {axle.value.toLocaleString()}
             </div>
@@ -703,9 +695,8 @@ const CapacityMeter = ({ label, primary, secondary, capacity, pct, over }) => {
           {label}
         </span>
         <span
-          className={`text-3xs font-extrabold ${
-            over ? "text-rose-400" : "text-slate-400"
-          }`}
+          className={`text-3xs font-extrabold ${over ? "text-rose-400" : "text-slate-400"
+            }`}
         >
           {pct}%
         </span>
@@ -713,9 +704,8 @@ const CapacityMeter = ({ label, primary, secondary, capacity, pct, over }) => {
 
       <div className="flex items-baseline gap-1.5">
         <span
-          className={`text-lg font-extrabold leading-none ${
-            over ? "text-rose-400" : "text-white"
-          }`}
+          className={`text-lg font-extrabold leading-none ${over ? "text-rose-400" : "text-white"
+            }`}
         >
           {primary}
         </span>
@@ -833,11 +823,10 @@ const SkidDimensionEditor = ({
                             skid_height_in: preset.heightIn,
                           })
                         }
-                        className={`px-2 py-1.5 rounded-lg border text-3xs font-mono font-bold text-center truncate transition-colors cursor-pointer ${
-                          active
-                            ? "border-indigo-500 bg-indigo-500/20 text-white"
-                            : "border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500 hover:text-white"
-                        }`}
+                        className={`px-2 py-1.5 rounded-lg border text-3xs font-mono font-bold text-center truncate transition-colors cursor-pointer ${active
+                          ? "border-indigo-500 bg-indigo-500/20 text-white"
+                          : "border-slate-700 bg-slate-900 text-slate-300 hover:border-indigo-500 hover:text-white"
+                          }`}
                       >
                         {preset.label}
                       </button>
@@ -857,27 +846,26 @@ const SkidDimensionEditor = ({
                   const tooSmall =
                     Number.isFinite(raw) && raw > 0 && raw < MIN_PLAUSIBLE_IN;
                   return (
-                  <label key={field} className="space-y-1">
-                    <span className="block text-3xs font-mono font-bold uppercase text-slate-500">
-                      {label} <span className="text-slate-600">(in)</span>
-                    </span>
-                    <input
-                      type="number"
-                      min="1"
-                      // Whole inches. A 0.1 step let a stray spinner click turn
-                      // an empty field into a 0.3" skid, which then planned as
-                      // real freight.
-                      step="1"
-                      value={valueOf(field)}
-                      placeholder="—"
-                      onChange={(e) =>
-                        onDraftChange(load.id, { [field]: e.target.value })
-                      }
-                      className={`${fieldClass} ${
-                        tooSmall ? "border-rose-500 ring-1 ring-rose-500/40" : ""
-                      }`}
-                    />
-                  </label>
+                    <label key={field} className="space-y-1">
+                      <span className="block text-3xs font-mono font-bold uppercase text-slate-500">
+                        {label} <span className="text-slate-600">(in)</span>
+                      </span>
+                      <input
+                        type="number"
+                        min="1"
+                        // Whole inches. A 0.1 step let a stray spinner click turn
+                        // an empty field into a 0.3" skid, which then planned as
+                        // real freight.
+                        step="1"
+                        value={valueOf(field)}
+                        placeholder="—"
+                        onChange={(e) =>
+                          onDraftChange(load.id, { [field]: e.target.value })
+                        }
+                        className={`${fieldClass} ${tooSmall ? "border-rose-500 ring-1 ring-rose-500/40" : ""
+                          }`}
+                      />
+                    </label>
                   );
                 })}
               </div>
@@ -945,11 +933,10 @@ const SkidDimensionEditor = ({
                   type="button"
                   disabled={!dirty || saving}
                   onClick={() => onSave(load)}
-                  className={`px-3 py-1 rounded-lg text-3xs font-mono font-bold flex items-center gap-1.5 transition-all shrink-0 ${
-                    !dirty || saving
-                      ? "bg-slate-800 text-slate-600 cursor-not-allowed"
-                      : "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
-                  }`}
+                  className={`px-3 py-1 rounded-lg text-3xs font-mono font-bold flex items-center gap-1.5 transition-all shrink-0 ${!dirty || saving
+                    ? "bg-slate-800 text-slate-600 cursor-not-allowed"
+                    : "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer"
+                    }`}
                 >
                   <Save className="h-3 w-3" />
                   <span>{saving ? "Saving…" : dirty ? "Save" : "Saved"}</span>
@@ -2165,7 +2152,7 @@ export default function DispatcherDashboard({
 
     return (
       trip.trip_number.toLowerCase().includes(q) ||
-      trip.driver_name.toLowerCase().includes(q) ||
+      trip?.driver_name?.toLowerCase().includes(q) ||
       tripLoads.some((load) =>
         [load.customer_name, load.destination, load.tracking_number]
           .filter(Boolean)
@@ -2667,32 +2654,32 @@ export default function DispatcherDashboard({
                 {/* Freight Commodities Table */}
                 <div className="border border-slate-300 rounded-xl overflow-hidden">
                   <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse">
-                    <thead className="bg-slate-100 font-bold text-slate-700 text-3xs uppercase border-b border-slate-300">
-                      <tr>
-                        <th className="p-2.5">Handling Units</th>
-                        <th className="p-2.5">Commodity Description</th>
-                        <th className="p-2.5">Weight</th>
-                        <th className="p-2.5">Verification</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-200 text-3xs">
-                      <tr>
-                        <td className="p-2.5 font-bold font-mono">
-                          {pendingDocPreview.loadItem?.pieces || pendingDocPreview.loadItem?.pallets || 4} Pallets / Skids
-                        </td>
-                        <td className="p-2.5 font-bold text-slate-900 font-sans">
-                          {pendingDocPreview.loadItem?.cargo || pendingDocPreview.loadItem?.cargoDescription || "Industrial Logistics Cargo Parts"}
-                        </td>
-                        <td className="p-2.5 font-mono">
-                          {(pendingDocPreview.loadItem?.weight || pendingDocPreview.loadItem?.weightLbs || 6000).toLocaleString()} lbs
-                        </td>
-                        <td className="p-2.5 text-emerald-700 font-bold font-mono">
-                          ✔ Driver Inspected & Uploaded
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <table className="w-full text-left border-collapse">
+                      <thead className="bg-slate-100 font-bold text-slate-700 text-3xs uppercase border-b border-slate-300">
+                        <tr>
+                          <th className="p-2.5">Handling Units</th>
+                          <th className="p-2.5">Commodity Description</th>
+                          <th className="p-2.5">Weight</th>
+                          <th className="p-2.5">Verification</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-200 text-3xs">
+                        <tr>
+                          <td className="p-2.5 font-bold font-mono">
+                            {pendingDocPreview.loadItem?.pieces || pendingDocPreview.loadItem?.pallets || 4} Pallets / Skids
+                          </td>
+                          <td className="p-2.5 font-bold text-slate-900 font-sans">
+                            {pendingDocPreview.loadItem?.cargo || pendingDocPreview.loadItem?.cargoDescription || "Industrial Logistics Cargo Parts"}
+                          </td>
+                          <td className="p-2.5 font-mono">
+                            {(pendingDocPreview.loadItem?.weight || pendingDocPreview.loadItem?.weightLbs || 6000).toLocaleString()} lbs
+                          </td>
+                          <td className="p-2.5 text-emerald-700 font-bold font-mono">
+                            ✔ Driver Inspected & Uploaded
+                          </td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
