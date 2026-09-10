@@ -4,7 +4,7 @@
 -- Filing lifecycle persisted on customs_entries.border_connect_status:
 --   DRAFT -> QUEUED -> SENT -> ACCEPTED | REJECTED | ERROR
 --
--- The owning service (Dispatch/backend/src/services/borderconnect.service.js)
+-- The owning service (Dispatch/backend/src/services/borderConnect.service.js)
 -- also runs these statements lazily (ADD COLUMN IF NOT EXISTS) at first use,
 -- so the feature works on next boot without manual steps.
 

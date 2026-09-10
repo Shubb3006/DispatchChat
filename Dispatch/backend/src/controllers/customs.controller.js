@@ -1246,7 +1246,7 @@ import {
   getBorderConnectCredentials,
   setBorderConnectCredentials,
   syncAllCrossBorderShipments,
-} from "../services/borderconnect.service.js";
+} from "../services/borderConnect.service.js";
 
 // GET BorderConnect Connection Info
 export const getBorderConnectConfig = (req, res) => {
