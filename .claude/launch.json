@@ -5,13 +5,29 @@
       "name": "chat-backend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "Chat/backend", "run", "dev"],
-      "port": 5500
+      "port": 5500,
+      "autoPort": false
     },
     {
       "name": "chat-frontend",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "Chat/frontend", "run", "dev"],
-      "port": 5173
+      "port": 5173,
+      "autoPort": false
+    },
+    {
+      "name": "dispatch-backend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "Dispatch/backend", "run", "dev"],
+      "port": 5555,
+      "autoPort": false
+    },
+    {
+      "name": "dispatch-frontend",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["--prefix", "Dispatch/frontend", "run", "dev"],
+      "port": 5174,
+      "autoPort": false
     }
   ]
 }
