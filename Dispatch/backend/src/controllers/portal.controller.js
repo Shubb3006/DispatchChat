@@ -45,13 +45,14 @@ export const customerLogin = async (req, res) => {
     );
 
     const user = result.rows[0];
+
     // One generic message for unknown user AND wrong password — the portal is
     // internet-facing for third parties, so no account enumeration.
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
-    if (user.role !== "customer" || !user.customer_id) {
+    if (user.role !== "customer") {
       return res.status(403).json({
         success: false,
         message: "This account is not a customer portal account",
@@ -539,7 +540,7 @@ export const customsUpload = async (req, res) => {
          WHERE load_id = $1 AND customs_status IN ('DRAFT', 'PAPS_PARS_ACTIVE')`,
         [load.id]
       )
-      .catch(() => {});
+      .catch(() => { });
 
     await notifyDispatchers({
       type: "CUSTOMS_DOCS",

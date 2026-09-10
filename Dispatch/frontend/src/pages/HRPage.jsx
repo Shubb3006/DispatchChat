@@ -42,6 +42,7 @@ const AVAILABLE_MODULES = [
     label: "Warehouse Portal",
     description: "Checks in the loads to the warehouse",
   },
+
 ];
 
 const ROLE_COLORS = {
@@ -81,6 +82,7 @@ export default function HRPage() {
   const handleRoleChange = (newRole) => {
     setRole(newRole);
     const defaults = {
+      customer: ["customer"],
       driver: ["driver"],
       dispatcher: ["dispatcher"],
       driver_manager: ["dispatcher"],
@@ -149,13 +151,13 @@ export default function HRPage() {
       allowedModules:
         role === "admin" || role === "super_admin"
           ? [
-              "dispatcher",
-              "driver",
-              "safety",
-              "warehouse",
-              "invoicing",
-              "customer",
-            ]
+            "dispatcher",
+            "driver",
+            "safety",
+            "warehouse",
+            "invoicing",
+            "customer",
+          ]
           : selectedModules,
       createdAt: new Date().toISOString().split("T")[0],
     };
@@ -353,6 +355,7 @@ export default function HRPage() {
               className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
             >
               <option value="driver">Driver</option>
+              <option value="customer">Customer</option>
               <option value="dispatcher">Dispatcher</option>
               <option value="driver_manager">Driver Manager</option>
               <option value="customs">Customs Specialist</option>
@@ -382,18 +385,16 @@ export default function HRPage() {
                       key={mod.id}
                       type="button"
                       onClick={() => handleToggleModule(mod.id)}
-                      className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left cursor-pointer transition-all ${
-                        isSelected
-                          ? "bg-blue-50 border-blue-200 text-slate-800"
-                          : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
-                      }`}
+                      className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left cursor-pointer transition-all ${isSelected
+                        ? "bg-blue-50 border-blue-200 text-slate-800"
+                        : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
+                        }`}
                     >
                       <div
-                        className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${
-                          isSelected
-                            ? "bg-blue-600 border-blue-600"
-                            : "border border-slate-300 bg-white"
-                        }`}
+                        className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${isSelected
+                          ? "bg-blue-600 border-blue-600"
+                          : "border border-slate-300 bg-white"
+                          }`}
                       >
                         {isSelected && (
                           <Check
