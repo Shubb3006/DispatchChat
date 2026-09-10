@@ -1,7 +1,7 @@
 // POST /api/users
 
 import pool from "../config/db.js";
-import  bcrypt  from 'bcrypt';
+import bcrypt from 'bcrypt';
 
 // export const createUser = async (req, res) => {
 //     try {
@@ -13,12 +13,12 @@ import  bcrypt  from 'bcrypt';
 //         password,
 //         allowedModules
 //       } = req.body;
-  
+
 //       const usernameExists = await pool.query(
 //         "SELECT id FROM users WHERE username = $1",
 //         [username]
 //       );
-  
+
 //       if (usernameExists.rows.length > 0) {
 //         return res.status(400).json({
 //           success: false,
@@ -47,9 +47,9 @@ import  bcrypt  from 'bcrypt';
 //           allowedModules || []
 //         ]
 //       );
-  
+
 //     console.log("user")
-  
+
 //       return res.status(201).json({
 //         success: true,
 //         message: "User created successfully",
@@ -63,6 +63,232 @@ import  bcrypt  from 'bcrypt';
 //     }
 //   };
 
+// export const createUser = async (req, res) => {
+//   const client = await pool.connect();
+
+//   try {
+//     const {
+//       username,
+//       name,
+//       role,
+//       password,
+//       allowedModules,
+//       license_number,
+//       license_expiry,
+//       eld_id,
+//     } = req.body;
+
+//     await client.query("BEGIN");
+
+//     // Check username
+//     const usernameExists = await client.query(
+//       "SELECT id FROM users WHERE username = $1",
+//       [username]
+//     );
+
+//     if (usernameExists.rows.length > 0) {
+//       await client.query("ROLLBACK");
+//       return res.status(400).json({
+//         success: false,
+//         message: "Username already exists",
+//       });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Create user
+//     const userResult = await client.query(
+//       `
+//       INSERT INTO users
+//       (
+//         username,
+//         full_name,
+//         password,
+//         role,
+//         allowed_modules
+//       )
+//       VALUES ($1,$2,$3,$4,$5)
+//       RETURNING id, username, full_name, role, allowed_modules
+//       `,
+//       [
+//         username,
+//         name,
+//         hashedPassword,
+//         role || "DISPATCHER",
+//         allowedModules || [],
+//       ]
+//     );
+
+//     const user = userResult.rows[0];
+
+//     // If user is a driver, create driver record
+//     console.log(user.role)
+//     if (user.role === "driver") {
+//       await client.query(
+//         `
+//         INSERT INTO drivers
+//         (
+//           user_id,
+//           license_number,
+//           license_expiry,
+//           eld_id
+//         )
+//         VALUES ($1,$2,$3,$4)
+//         `,
+//         [
+//           user.id,
+//           license_number || null,
+//           license_expiry || null,
+//           eld_id || null,
+//         ]
+//       );
+//     }
+
+//     await client.query("COMMIT");
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "User created successfully",
+//       user,
+//     });
+//   } catch (err) {
+//     await client.query("ROLLBACK");
+//     console.log(err);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: err.message,
+//     });
+//   } finally {
+//     client.release();
+//   }
+// };
+// export const createUser = async (req, res) => {
+//   const client = await pool.connect();
+//   try {
+//     const {
+//       username,
+//       name,
+//       role,
+//       password,
+//       allowedModules,
+
+//       // Driver
+//       license_number,
+//       license_expiry,
+//       eld_id,
+
+//       // Customer
+//       companyName,
+//       brokerContactNumber,
+//       brokerEmail
+//     } = req.body;
+
+//     await client.query("BEGIN");
+
+//     // Check username
+//     const usernameExists = await client.query(
+//       "SELECT id FROM users WHERE username = $1",
+//       [username]
+//     );
+
+//     if (usernameExists.rows.length > 0) {
+//       await client.query("ROLLBACK");
+
+//       return res.status(400).json({
+//         success: false,
+//         message: "Username already exists",
+//       });
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10);
+
+//     // Generate customer ID
+//     let customerId = null;
+
+//     // if (role === "customer") {
+//     //   const result = await client.query(`
+//     //     SELECT COUNT(*) + 1 AS next_number
+//     //     FROM users
+//     //     WHERE customer_id IS NOT NULL
+//     //   `);
+
+//     //   const nextNumber = Number(result.rows[0].next_number);
+
+//     //   customerId = `CUST-${String(nextNumber).padStart(5, "0")}`;
+//     // }
+
+//     // Create user
+//     let customerId = null;
+
+//     if (role === "customer") {
+//       const customerResult = await client.query(
+//         `
+//     INSERT INTO customers
+//     (
+//       company_name,
+//       broker_contact_number,
+//       broker_email
+//     )
+//     VALUES ($1, $2, $3)
+//     RETURNING id
+//     `,
+//         [
+//           companyName || null,
+//           brokerContactNumber || null,
+//           brokerEmail || null,
+//         ]
+//       );
+
+//       customerId = customerResult.rows[0].id;
+//     }
+
+//     const user = userResult.rows[0];
+
+//     console.log("Created user:", user);
+
+//     // Driver
+//     if (user.role === "driver") {
+//       await client.query(
+//         `
+//         INSERT INTO drivers
+//         (
+//           user_id,
+//           license_number,
+//           license_expiry,
+//           eld_id
+//         )
+//         VALUES ($1,$2,$3,$4)
+//         `,
+//         [
+//           user.id,
+//           license_number || null,
+//           license_expiry || null,
+//           eld_id || null,
+//         ]
+//       );
+//     }
+
+//     await client.query("COMMIT");
+
+//     return res.status(201).json({
+//       success: true,
+//       message: "User created successfully",
+//       user,
+//     });
+
+//   } catch (err) {
+//     await client.query("ROLLBACK");
+//     console.log(err);
+
+//     return res.status(500).json({
+//       success: false,
+//       message: err.message,
+//     });
+//   } finally {
+//     client.release();
+//   }
+// };
 export const createUser = async (req, res) => {
   const client = await pool.connect();
 
@@ -73,14 +299,23 @@ export const createUser = async (req, res) => {
       role,
       password,
       allowedModules,
+
+      // Driver
       license_number,
       license_expiry,
       eld_id,
+
+      // Customer
+      companyName,
+      brokerContactNumber,
+      brokerEmail,
     } = req.body;
 
     await client.query("BEGIN");
 
-    // Check username
+    // --------------------------------------------------
+    // 1. Check username
+    // --------------------------------------------------
     const usernameExists = await client.query(
       "SELECT id FROM users WHERE username = $1",
       [username]
@@ -88,15 +323,51 @@ export const createUser = async (req, res) => {
 
     if (usernameExists.rows.length > 0) {
       await client.query("ROLLBACK");
+
       return res.status(400).json({
         success: false,
         message: "Username already exists",
       });
     }
 
+    // --------------------------------------------------
+    // 2. Hash password
+    // --------------------------------------------------
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
+    // --------------------------------------------------
+    // 3. Create customer record if role is customer
+    // --------------------------------------------------
+    let customerId = null;
+
+    if (role === "customer") {
+      const customerResult = await client.query(
+        `
+        INSERT INTO customers
+        (
+          company_name,
+          broker_contact_number,
+          broker_email,
+          broker_name
+        )
+        VALUES ($1, $2, $3, $4)
+        RETURNING id
+        `,
+        [
+          companyName || null,
+          brokerContactNumber || null,
+          brokerEmail || null,
+          name || null
+        ]
+      );
+
+      // UUID generated by customers.id
+      customerId = customerResult.rows[0].id;
+    }
+
+    // --------------------------------------------------
+    // 4. Create user
+    // --------------------------------------------------
     const userResult = await client.query(
       `
       INSERT INTO users
@@ -105,10 +376,17 @@ export const createUser = async (req, res) => {
         full_name,
         password,
         role,
-        allowed_modules
+        allowed_modules,
+        customer_id
       )
-      VALUES ($1,$2,$3,$4,$5)
-      RETURNING id, username, full_name, role, allowed_modules
+      VALUES ($1, $2, $3, $4, $5, $6)
+      RETURNING
+        id,
+        username,
+        full_name,
+        role,
+        allowed_modules,
+        customer_id
       `,
       [
         username,
@@ -116,13 +394,20 @@ export const createUser = async (req, res) => {
         hashedPassword,
         role || "DISPATCHER",
         allowedModules || [],
+
+        // Customer UUID
+        customerId,
+
       ]
     );
 
     const user = userResult.rows[0];
 
-    // If user is a driver, create driver record
-    console.log(user.role)
+    console.log("Created user:", user);
+
+    // --------------------------------------------------
+    // 5. Create driver record if role is driver
+    // --------------------------------------------------
     if (user.role === "driver") {
       await client.query(
         `
@@ -133,7 +418,7 @@ export const createUser = async (req, res) => {
           license_expiry,
           eld_id
         )
-        VALUES ($1,$2,$3,$4)
+        VALUES ($1, $2, $3, $4)
         `,
         [
           user.id,
@@ -144,6 +429,9 @@ export const createUser = async (req, res) => {
       );
     }
 
+    // --------------------------------------------------
+    // 6. Commit transaction
+    // --------------------------------------------------
     await client.query("COMMIT");
 
     return res.status(201).json({
@@ -151,9 +439,11 @@ export const createUser = async (req, res) => {
       message: "User created successfully",
       user,
     });
+
   } catch (err) {
     await client.query("ROLLBACK");
-    console.log(err);
+
+    console.error("Create user error:", err);
 
     return res.status(500).json({
       success: false,

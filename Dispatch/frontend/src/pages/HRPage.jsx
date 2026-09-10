@@ -74,6 +74,9 @@ export default function HRPage() {
   const [selectedModules, setSelectedModules] = useState(["driver"]);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [companyName, setCompanyName] = useState("");
+  const [brokerEmail, setBrokerEmail] = useState("");
+  const [brokerContactNumber, setBrokerContactNumber] = useState("");
 
   useEffect(() => {
     fetchUsers();
@@ -148,6 +151,9 @@ export default function HRPage() {
       username: cleanUsername,
       password,
       role,
+      brokerContactNumber,
+      brokerEmail,
+      companyName,
       allowedModules:
         role === "admin" || role === "super_admin"
           ? [
@@ -161,6 +167,7 @@ export default function HRPage() {
           : selectedModules,
       createdAt: new Date().toISOString().split("T")[0],
     };
+    console.log(newUser)
 
     await addUser(newUser);
     setSuccess(`"${newUser.name}" added as ${role}.`);
@@ -169,6 +176,9 @@ export default function HRPage() {
     setPassword("");
     setRole("driver");
     setSelectedModules(["driver"]);
+    setBrokerContactNumber("");
+    setBrokerEmail("");
+    setCompanyName("")
   };
 
   const handleDeleteUser = async (id) => {
@@ -330,22 +340,47 @@ export default function HRPage() {
               type: "password",
               minLength: 6,
             },
-          ].map(({ label, value, set, placeholder, type, minLength }) => (
-            <div key={label} className="space-y-1.5">
-              <label className="text-sm font-medium text-slate-700">
-                {label}
-              </label>
-              <input
-                type={type}
-                required
-                minLength={minLength}
-                value={value}
-                onChange={(e) => set(e.target.value)}
-                placeholder={placeholder}
-                className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
-              />
-            </div>
-          ))}
+            ...(role === "customer"
+              ? [
+                {
+                  label: "Company Name",
+                  value: companyName,
+                  set: setCompanyName,
+                  placeholder: "e.g. ABC Logistics",
+                  type: "text",
+                },
+                {
+                  label: "Broker Phone Number",
+                  value: brokerContactNumber,
+                  set: setBrokerContactNumber,
+                  placeholder: "e.g. +1 555 123 4567",
+                  type: "tel",
+                },
+                {
+                  label: "Broker Email",
+                  value: brokerEmail,
+                  set: setBrokerEmail,
+                  placeholder: "e.g. customer@example.com",
+                  type: "email",
+                },
+              ]
+              : []),]
+            .map(({ label, value, set, placeholder, type, minLength }) => (
+              <div key={label} className="space-y-1.5">
+                <label className="text-sm font-medium text-slate-700">
+                  {label}
+                </label>
+                <input
+                  type={type}
+                  required
+                  minLength={minLength}
+                  value={value}
+                  onChange={(e) => set(e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 transition-all"
+                />
+              </div>
+            ))}
 
           <div className="space-y-1.5">
             <label className="text-sm font-medium text-slate-700">Role</label>

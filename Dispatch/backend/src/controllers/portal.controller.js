@@ -36,7 +36,7 @@ export const customerLogin = async (req, res) => {
       SELECT
         u.id, u.username, u.full_name, u.password, u.role,
         u.allowed_modules, u.is_active, u.customer_id,
-        c.company_name, c.email AS company_email
+        c.company_name, c.broker_email AS broker_email
       FROM users u
       LEFT JOIN customers c ON c.id = u.customer_id
       WHERE u.username = $1
@@ -151,9 +151,10 @@ export const createRateRequest = async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [req.customerId, req.user.id, origin.trim(), destination.trim(), JSON.stringify(freight)]
+      [req.user.id, req.user.id, origin.trim(), destination.trim(), JSON.stringify(freight)]
     );
     const rateRequest = inserted.rows[0];
+    console.log(rateRequest)
 
     const company = await pool.query(`SELECT company_name FROM customers WHERE id = $1`, [req.customerId]);
     const companyName = company.rows[0]?.company_name || "A customer";
