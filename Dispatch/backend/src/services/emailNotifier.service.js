@@ -247,26 +247,25 @@ export function buildCustomsDocumentRequestEmail({
 }
 
 /**
- * Generates Load Milestone Update Email
- * Subject: Load [Status] — NISHAN-[Load Number]
+ * Milestone update for a customer: "Picked Up", "In Transit", "Delivered".
+ *
+ * Written for loadStatus.service.notifyMilestoneIfNeeded, whose import of this
+ * symbol previously failed at link time and took the whole module — tracking
+ * tokens, milestone emails — down with it.
  */
-export function buildLoadMilestoneEmail({
-  loadNumber,
-  status,
-  trackingUrl,
-  customerName = "Valued Customer",
-  driverName = null,
-  truckNumber = null,
-  estimatedDelivery = null,
-}) {
-  const statusTitles = {
-    picked_up: "Load Picked Up",
-    in_transit: "Load in Transit",
-    delivered: "Load Delivered",
-    exception: "Load Exception",
-  };
+export function buildLoadMilestoneEmail({ load = {}, milestoneLabel = "Update", trackingUrl = "" }) {
+  const loadNumber = load.load_number || load.id || "";
+  const origin = load.origin || "Origin";
+  const destination = load.destination || "Destination";
+  const subject = `${milestoneLabel} — Load NISHAN-${loadNumber}`;
 
-  const subject = `Load ${statusTitles[status] || status} — NISHAN-${loadNumber}`;
+  const deliveryDate = load.delivery_date
+    ? new Date(load.delivery_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
+    : "Scheduled";
+
+  const trackButton = trackingUrl
+    ? `<a class="btn" href="${trackingUrl}">Track this shipment</a>`
+    : "";
 
   const html = `
 <!DOCTYPE html>
@@ -280,9 +279,10 @@ export function buildLoadMilestoneEmail({
     .container { max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 16px; border: 1px solid #e2e8f0; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
     .header { background: #0f172a; color: #ffffff; padding: 24px; text-align: left; }
     .logo { font-size: 20px; font-weight: 900; color: #38bdf8; letter-spacing: -0.5px; }
-    .status-badge { display: inline-block; background: #10b981; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px; font-family: monospace; }
+    .status-badge { display: inline-block; background: #0ea5e9; color: #ffffff; padding: 4px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; text-transform: uppercase; margin-top: 10px; font-family: monospace; }
     .content { padding: 24px; line-height: 1.6; font-size: 14px; }
-    .btn { display: inline-block; background: #0284c7; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; text-align: center; margin-top: 10px; }
+    .lane { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; padding: 16px; margin: 18px 0; font-weight: 700; }
+    .btn { display: inline-block; background: #0284c7; color: #ffffff !important; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-weight: 700; font-size: 13px; text-align: center; margin-top: 8px; }
     .footer { padding: 18px 24px; background: #f8fafc; font-size: 11px; color: #64748b; border-top: 1px solid #e2e8f0; text-align: center; }
   </style>
 </head>
@@ -290,29 +290,27 @@ export function buildLoadMilestoneEmail({
   <div class="container">
     <div class="header">
       <div class="logo">NISHAN TRANSPORT INC.</div>
-      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Real-Time Load Status Update</div>
-      <div class="status-badge">STATUS: ${status.toUpperCase()} • LOAD NISHAN-${loadNumber}</div>
+      <div style="font-size: 13px; color: #94a3b8; margin-top: 4px;">Shipment status update</div>
+      <div class="status-badge">${milestoneLabel} • LOAD NISHAN-${loadNumber}</div>
     </div>
 
     <div class="content">
-      <p>Hello <strong>${customerName}</strong>,</p>
+      <p>Your shipment is now <strong>${milestoneLabel}</strong>.</p>
 
-      <p>Your load <strong>NISHAN-${loadNumber}</strong> has reached a new milestone: <strong>${statusTitles[status] || status}</strong>.</p>
+      <div class="lane">${origin} &rarr; ${destination}</div>
 
-      ${driverName ? `<p><strong>Driver:</strong> ${driverName}</p>` : ""}
-      ${truckNumber ? `<p><strong>Equipment:</strong> ${truckNumber}</p>` : ""}
-      ${estimatedDelivery ? `<p><strong>Estimated Delivery:</strong> ${estimatedDelivery}</p>` : ""}
+      <p style="font-size: 13px; color: #475569;">
+        Scheduled delivery: <strong>${deliveryDate}</strong><br />
+        Commodity: ${load.commodity || "Freight"}
+      </p>
 
-      <p>Click below to view live tracking details and full shipment status:</p>
-
-      <div style="text-align: center; margin: 24px 0;">
-        <a href="${trackingUrl}" class="btn">View Live Tracking ➔</a>
-      </div>
+      ${trackButton}
     </div>
 
     <div class="footer">
-      Nishan Transport Inc. • 24/7 Dedicated Logistics & Cross-Border Dispatch<br />
-      Carrier SCAC: <strong>NISD</strong> • CBSA Code: <strong>22GY</strong> • US DOT: 3891024
+      Nishan Transport Inc. • 24/7 Dedicated Logistics &amp; Cross-Border Dispatch<br />
+      Carrier SCAC: <strong>NISD</strong> • CBSA Code: <strong>22GY</strong> • US DOT: 3891024<br />
+      You are receiving this because your company opted in to shipment updates. Manage them in the customer portal.
     </div>
   </div>
 </body>
@@ -320,9 +318,10 @@ export function buildLoadMilestoneEmail({
 `;
 
   return {
-    to: customerName ? undefined : trackingUrl, // Placeholder — real to: address comes from load record
     subject,
     html,
-    text: `${subject}. Click here to view: ${trackingUrl}`,
+    text: `${milestoneLabel} — Load NISHAN-${loadNumber}. ${origin} -> ${destination}. Scheduled delivery: ${deliveryDate}.${
+      trackingUrl ? ` Track: ${trackingUrl}` : ""
+    }`,
   };
 }

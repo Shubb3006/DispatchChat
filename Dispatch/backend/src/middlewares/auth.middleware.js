@@ -39,7 +39,7 @@ export const protectedRoute = async (req,res,next) => {
     u.username,
     u.role,
     u.allowed_modules,
-    ${withCustomerId ? "u.customer_id," : ""}
+    ${withCustomerId ? "u.customer_id, c.company_name," : ""}
 
     d.id AS driver_id,
     d.driver_code,
@@ -55,6 +55,7 @@ export const protectedRoute = async (req,res,next) => {
 FROM users u
 LEFT JOIN drivers d
 ON u.id = d.user_id
+${withCustomerId ? "LEFT JOIN customers c ON c.id = u.customer_id" : ""}
 
 WHERE u.id = $1
             `;
@@ -92,6 +93,9 @@ req.user = {
   role: user.role,
   allowed_modules: user.allowed_modules,
   customer_id: user.customer_id || null,
+  // Portal pages greet the broker by company; without this the name is lost
+  // on every reload (the login response carried it, /auth/check did not).
+  company_name: user.company_name || null,
 
   driver: user.driver_id
     ? {

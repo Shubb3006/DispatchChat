@@ -220,12 +220,24 @@ export const notifyMilestoneIfNeeded = async (load, previousStatus, { source = "
   const customer = await resolveCustomerForLoad(load);
   const recipientEmail = customer?.email || load.customer_email || null;
 
-  if (!recipientEmail) {
-    return { sent: false, reason: "no_customer_email" };
+  // No email on file is not a reason to stay silent: the portal bell still
+  // fires for every user at that company.
+  if (!recipientEmail && !customer?.id) {
+    return { sent: false, reason: "no_customer_contact" };
   }
   if (!notifyPrefEnabled(customer, "milestones", true)) {
     return { sent: false, reason: "customer_opted_out" };
   }
+
+  // Per-milestone switches from the portal's notification settings:
+  // notify_prefs = { email: bool, milestones: { picked_up: bool, ... } }
+  const prefs = customer?.notify_prefs || {};
+  const milestonePrefs = prefs.milestones && typeof prefs.milestones === "object" ? prefs.milestones : null;
+  if (milestonePrefs && milestonePrefs[milestone.key] === false) {
+    return { sent: false, reason: "milestone_opted_out" };
+  }
+  // Email can be muted while the in-app bell keeps working.
+  const channels = prefs.email === false || !recipientEmail ? ["inapp"] : ["email", "inapp"];
 
   const token = await ensureTrackingToken(load);
   const trackingUrl = buildPublicTrackingUrl(token || load.load_number || load.id);
@@ -251,6 +263,7 @@ export const notifyMilestoneIfNeeded = async (load, previousStatus, { source = "
       previous_status: previousStatus ?? null,
       source,
     },
+    channels,
   });
 
   return {
@@ -337,4 +350,54 @@ export const updateLoadStatus = async (loadId, newStatus, options = {}) => {
   }
 
   return { ok: true, load, tripStatus, notification };
+};
+
+/**
+ * Customs is the part of a cross-border move a broker worries about most, so
+ * the portal treats a customs transition like a milestone: bell + optional
+ * email, honouring notify_prefs.milestones.customs.
+ *
+ * Silent (returns a reason, never throws) when the load is not cross-border,
+ * has no customer, or the status is one customers should not be shown.
+ */
+const CUSTOMER_VISIBLE_CUSTOMS = {
+  SUBMITTED_TO_BROKER: { label: "Customs entry filed", detail: "Your entry has been submitted ahead of the crossing." },
+  ACCEPTED: { label: "Cleared at the border", detail: "Customs released this shipment." },
+  CLEARED: { label: "Cleared at the border", detail: "Customs released this shipment." },
+  RELEASED: { label: "Cleared at the border", detail: "Customs released this shipment." },
+  REJECTED: { label: "Customs needs attention", detail: "Our customs desk is working it — reply in the portal if you have the missing paperwork." },
+  TIMEOUT: { label: "Customs needs attention", detail: "The filing did not confirm in time; our customs desk is re-submitting." },
+};
+
+export const notifyCustomsStatusIfNeeded = async (loadIdOrNumber, newStatus) => {
+  try {
+    const status = String(newStatus || "").toUpperCase();
+    const milestone = CUSTOMER_VISIBLE_CUSTOMS[status];
+    if (!milestone) return { sent: false, reason: "not_customer_visible" };
+
+    const load = await findLoadByIdOrNumber(loadIdOrNumber);
+    if (!load || !load.customer_id) return { sent: false, reason: "no_customer" };
+
+    const customer = await resolveCustomerForLoad(load);
+    const prefs = customer?.notify_prefs || {};
+    const milestonePrefs = prefs.milestones && typeof prefs.milestones === "object" ? prefs.milestones : null;
+    if (milestonePrefs && milestonePrefs.customs === false) {
+      return { sent: false, reason: "customs_opted_out" };
+    }
+
+    const email = prefs.email === false ? null : customer?.email || load.customer_email || null;
+
+    return await notify({
+      customerId: load.customer_id,
+      email,
+      type: "CUSTOMS_STATUS",
+      title: `${milestone.label} — Load NISHAN-${load.load_number}`,
+      body: `${milestone.detail} (${load.origin} → ${load.destination})`,
+      meta: { load_id: load.id, load_number: load.load_number, customs_status: status },
+      channels: email ? ["email", "inapp"] : ["inapp"],
+    });
+  } catch (err) {
+    console.warn("notifyCustomsStatusIfNeeded warning:", err.message);
+    return { sent: false, reason: err.message };
+  }
 };
