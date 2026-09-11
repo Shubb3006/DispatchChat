@@ -147,7 +147,8 @@ const AdminPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 pt-20 pb-10 min-h-screen max-w-6xl">
+    // <div className="container mx-auto px-4 pt-5 pb-10 min-h-screen max-w-6xl">
+    <div className="container mx-auto px-4 pt-5 pb-20 max-w-6xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-3">
@@ -162,6 +163,7 @@ const AdminPage = () => {
         </div>
       </div>
 
+      {/* <div className="min-h-[500px] overflow-x-auto overflow-y-auto grid grid-cols-1 lg:grid-cols-1 gap-8"> */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Create User Card */}
         <div className="bg-base-200 p-6 rounded-2xl border border-base-300 shadow-xl h-fit">
@@ -270,6 +272,7 @@ const AdminPage = () => {
         </div>
 
         {/* Users Directory Table */}
+        {/* <div className="lg:col-span-2 bg-base-200 p-6 rounded-2xl border border-base-300 shadow-xl max-h-[700px] overflow-y-hidden"> */}
         <div className="lg:col-span-2 bg-base-200 p-6 rounded-2xl border border-base-300 shadow-xl">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-3">
             <h2 className="text-lg font-bold flex items-center gap-2">
@@ -295,7 +298,7 @@ const AdminPage = () => {
               <Loader2 className="size-8 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="overflow-x-auto">
+            <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
               <table className="table table-zebra w-full text-sm">
                 <thead>
                   <tr>
@@ -326,21 +329,20 @@ const AdminPage = () => {
                       </td>
                       <td>
                         <span
-                          className={`badge badge-sm font-semibold capitalize ${
-                            u.role === "super_user"
-                              ? "badge-warning text-black font-extrabold"
-                              : u.role === "admin"
+                          className={`badge badge-sm font-semibold capitalize ${u.role === "super_user"
+                            ? "badge-warning text-black font-extrabold"
+                            : u.role === "admin"
                               ? "badge-error text-white"
                               : u.role === "dispatch"
-                              ? "badge-primary"
-                              : u.role === "hr"
-                              ? "badge-accent text-white"
-                              : u.role === "office_staff"
-                              ? "badge-info text-white"
-                              : u.role === "driver_manager"
-                              ? "badge-secondary"
-                              : "badge-ghost"
-                          }`}
+                                ? "badge-primary"
+                                : u.role === "hr"
+                                  ? "badge-accent text-white"
+                                  : u.role === "office_staff"
+                                    ? "badge-info text-white"
+                                    : u.role === "driver_manager"
+                                      ? "badge-secondary"
+                                      : "badge-ghost"
+                            }`}
                         >
                           {u.role?.replace("_", " ")}
                         </span>
@@ -356,15 +358,14 @@ const AdminPage = () => {
                       </td>
                       <td>
                         <span
-                          className={`badge badge-xs font-medium ${
-                            u.dutyStatus === "driving"
-                              ? "badge-info"
-                              : u.dutyStatus === "on_duty"
+                          className={`badge badge-xs font-medium ${u.dutyStatus === "driving"
+                            ? "badge-info"
+                            : u.dutyStatus === "on_duty"
                               ? "badge-success text-white"
                               : u.dutyStatus === "break"
-                              ? "badge-warning"
-                              : "badge-ghost"
-                          }`}
+                                ? "badge-warning"
+                                : "badge-ghost"
+                            }`}
                         >
                           {u.dutyStatus?.replace("_", " ") || "off duty"}
                         </span>

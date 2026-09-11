@@ -49,13 +49,13 @@ function App() {
     );
   }
   return (
-    <div className="h-screen w-screen bg-base-100 flex flex-col overflow-hidden">
+    <div className="h-screen w-screen bg-base-100 flex flex-col">
       <Toaster />
       <CallOverlay />
       <Navbar />
       <Routes>
         <Route
-          path="/"  
+          path="/"
           element={authUser ? <HomePage /> : <Navigate to="/signin" />}
         />
         <Route
