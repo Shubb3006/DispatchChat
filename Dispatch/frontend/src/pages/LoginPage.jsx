@@ -14,8 +14,8 @@ import {
 export default function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const users = useAuthStore((state) => state.users);
-  const fetchUsers = useAuthStore((state) => state.fetchUsers);
+  // const users = useAuthStore((state) => state.users);
+  // const fetchUsers = useAuthStore((state) => state.fetchUsers);
   // Force rebuild with production API URL fix
   const authLogin = useAuthStore((state) => state.login);
   const authSignUp = useAuthStore((state) => state.signUp);
@@ -31,9 +31,9 @@ export default function LoginPage() {
   const [success, setSuccess] = useState(null);
 
   // Fetch users on load of the login page
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  // useEffect(() => {
+  //   fetchUsers();
+  // }, [fetchUsers]);
 
   // const handleLoginSuccess = (user) => {
   //   const isSuperOrAdmin = user.role === "super_admin" || user.role === "admin";
