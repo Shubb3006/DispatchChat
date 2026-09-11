@@ -51,17 +51,17 @@ export async function processLoadConfirmationPipeline({
   }
 
   // Generate unique Load Number
-  let generatedLoadNumber = tenderData.load_number ? String(tenderData.load_number).replace(/[^0-9]/g, "") : "";
-  if (!generatedLoadNumber || generatedLoadNumber.length < 4) {
-    generatedLoadNumber = await generateNextLoadNumber();
-  } else {
-    // Verify uniqueness
-    const existsCheck = await pool.query("SELECT id FROM loads WHERE load_number = $1", [parseInt(generatedLoadNumber, 10)]).catch(() => ({ rows: [] }));
-    if (existsCheck.rows.length > 0) {
-      generatedLoadNumber = await generateNextLoadNumber();
-    }
-  }
-  tenderData.load_number = generatedLoadNumber;
+  // let generatedLoadNumber = tenderData.load_number ? String(tenderData.load_number).replace(/[^0-9]/g, "") : "";
+  // if (!generatedLoadNumber || generatedLoadNumber.length < 4) {
+  //   generatedLoadNumber = await generateNextLoadNumber();
+  // } else {
+  //   // Verify uniqueness
+  //   const existsCheck = await pool.query("SELECT id FROM loads WHERE load_number = $1", [parseInt(generatedLoadNumber, 10)]).catch(() => ({ rows: [] }));
+  //   if (existsCheck.rows.length > 0) {
+  //     generatedLoadNumber = await generateNextLoadNumber();
+  //   }
+  // }
+  // tenderData.load_number = generatedLoadNumber;
 
 
   // Step 6: Route-based Team Assignment Evaluation
@@ -81,7 +81,9 @@ export async function processLoadConfirmationPipeline({
 
   // Step 5: Creating the Load Record in Supabase / PostgreSQL (status: 'Entered')
   let insertedLoad = null;
-  const numericLoadNumber = parseInt(String(generatedLoadNumber).replace(/[^0-9]/g, "") || "582440", 10);
+  let generatedLoadNumber = null;
+  let numericLoadNumber = null;
+  // const numericLoadNumber = parseInt(String(generatedLoadNumber).replace(/[^0-9]/g, "") || "582440", 10);
 
   // Ensure loads table has document tracking columns
   try {
@@ -96,93 +98,216 @@ export async function processLoadConfirmationPipeline({
     }
   }
 
+  // try {
+  //   const insertSql = `
+  //     INSERT INTO loads (
+  //       customer_name,
+  //       customer_email,
+  //       customer_phone,
+  //       customer_billing_address,
+  //       shipper_name,
+  //       shipper_phone,
+  //       shipper_street_address,
+  //       shipper_district,
+  //       shipper_state,
+  //       shipper_country,
+  //       shipper_zipcode,
+  //       origin,
+  //       consignee_name,
+  //       consignee_phone,
+  //       consignee_street_address,
+  //       consignee_district,
+  //       consignee_state,
+  //       consignee_country,
+  //       consignee_zipcode,
+  //       destination,
+  //       pickup_date,
+  //       delivery_date,
+  //       commodity,
+  //       weight,
+  //       pieces,
+  //       rate,
+  //       status,
+  //       customer_reference,
+  //       customer_broker,
+  //       created_at
+  //     ) VALUES (
+  //       $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+  //       $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+  //       $21, $22, $23, $24, $25, $26, $27, $28, $29,
+  //       CURRENT_TIMESTAMP
+  //     ) RETURNING *;
+  //   `;
+
+  //   const values = [
+  //     // numericLoadNumber,
+  //     tenderData.customer_name,
+  //     tenderData.customer_email || senderEmail,
+  //     tenderData.customer_phone || "N/A",
+  //     tenderData.customer_billing_address || "Billing Dept",
+  //     tenderData.shipper_name,
+  //     tenderData.shipper_phone || "N/A",
+  //     tenderData.shipper_street_address || tenderData.shipper_address || tenderData.origin,
+  //     tenderData.shipper_district || "",
+  //     tenderData.shipper_state || "ON",
+  //     tenderData.shipper_country || "CAN",
+  //     tenderData.shipper_zipcode || "L6T 1G1",
+  //     tenderData.origin,
+  //     tenderData.consignee_name,
+  //     tenderData.consignee_phone || "N/A",
+  //     tenderData.consignee_street_address || tenderData.consignee_address || tenderData.destination,
+  //     tenderData.consignee_district || "",
+  //     tenderData.consignee_state || "FL",
+  //     tenderData.consignee_country || "USA",
+  //     tenderData.consignee_zipcode || "33896",
+  //     tenderData.destination,
+  //     tenderData.pickup_date ? new Date(tenderData.pickup_date) : new Date(),
+  //     tenderData.delivery_date ? new Date(tenderData.delivery_date) : new Date(Date.now() + 86400000 * 2),
+  //     tenderData.commodity,
+  //     tenderData.weight || 3856,
+  //     tenderData.pieces || 1,
+  //     tenderData.rate || 2850,
+  //     "Entered",
+  //     tenderData.po_number || `PO-${numericLoadNumber}`,
+  //     tenderData.customs_broker || "Livingston International",
+  //   ];
+
+  //   // const dbRes = await pool.query(insertSql, values);
+  //   // insertedLoad = dbRes.rows[0];
+  //   // console.log(`✅ [Database] Created Load record ID: ${insertedLoad.id} (#${numericLoadNumber}) with status 'Entered'`);
+  //   const dbRes = await pool.query(insertSql, values);
+
+  //   insertedLoad = dbRes.rows[0];
+
+  //   const generatedLoadNumber = insertedLoad.load_number;
+  //   console.log(generatedLoadNumber)
+  //   const numericLoadNumber = Number(insertedLoad.load_number);
+
+  //   tenderData.load_number = generatedLoadNumber;
+
+  //   console.log(
+  //     `✅ [Database] Created Load record ID: ${insertedLoad.id} (#${generatedLoadNumber}) with status 'Entered'`
+  //   );
+  // } catch (err) {
+  //   console.warn("⚠️ Direct SQL insert fallback:", err.message);
+  //   insertedLoad = {
+  //     id: `LOAD-${numericLoadNumber}`,
+  //     load_number: numericLoadNumber,
+  //     ...tenderData,
+  //     status: "Entered",
+  //     created_at: new Date().toISOString(),
+  //   };
+  // }
   try {
     const insertSql = `
-      INSERT INTO loads (
-        load_number,
-        customer_name,
-        customer_email,
-        customer_phone,
-        customer_billing_address,
-        shipper_name,
-        shipper_phone,
-        shipper_street_address,
-        shipper_district,
-        shipper_state,
-        shipper_country,
-        shipper_zipcode,
-        origin,
-        consignee_name,
-        consignee_phone,
-        consignee_street_address,
-        consignee_district,
-        consignee_state,
-        consignee_country,
-        consignee_zipcode,
-        destination,
-        pickup_date,
-        delivery_date,
-        commodity,
-        weight,
-        pieces,
-        rate,
-        status,
-        customer_reference,
-        customer_broker,
-        created_at
-      ) VALUES (
-        $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
-        $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
-        $21, $22, $23, $24, $25, $26, $27, $28, $29, $30,
-        CURRENT_TIMESTAMP
-      ) RETURNING *;
-    `;
+    INSERT INTO loads (
+      customer_name,
+      customer_email,
+      customer_phone,
+      customer_billing_address,
+      shipper_name,
+      shipper_phone,
+      shipper_street_address,
+      shipper_district,
+      shipper_state,
+      shipper_country,
+      shipper_zipcode,
+      origin,
+      consignee_name,
+      consignee_phone,
+      consignee_street_address,
+      consignee_district,
+      consignee_state,
+      consignee_country,
+      consignee_zipcode,
+      destination,
+      pickup_date,
+      delivery_date,
+      commodity,
+      weight,
+      pieces,
+      rate,
+      status,
+      customer_reference,
+      customer_broker,
+      created_at
+    ) VALUES (
+      $1, $2, $3, $4, $5, $6, $7, $8, $9, $10,
+      $11, $12, $13, $14, $15, $16, $17, $18, $19, $20,
+      $21, $22, $23, $24, $25, $26, $27, $28, $29,
+      CURRENT_TIMESTAMP
+    )
+    RETURNING *;
+  `;
 
     const values = [
-      numericLoadNumber,
       tenderData.customer_name,
       tenderData.customer_email || senderEmail,
       tenderData.customer_phone || "N/A",
       tenderData.customer_billing_address || "Billing Dept",
+
       tenderData.shipper_name,
       tenderData.shipper_phone || "N/A",
-      tenderData.shipper_street_address || tenderData.shipper_address || tenderData.origin,
+      tenderData.shipper_street_address ||
+      tenderData.shipper_address ||
+      tenderData.origin,
       tenderData.shipper_district || "",
       tenderData.shipper_state || "ON",
       tenderData.shipper_country || "CAN",
       tenderData.shipper_zipcode || "L6T 1G1",
+
       tenderData.origin,
+
       tenderData.consignee_name,
       tenderData.consignee_phone || "N/A",
-      tenderData.consignee_street_address || tenderData.consignee_address || tenderData.destination,
+      tenderData.consignee_street_address ||
+      tenderData.consignee_address ||
+      tenderData.destination,
       tenderData.consignee_district || "",
       tenderData.consignee_state || "FL",
       tenderData.consignee_country || "USA",
       tenderData.consignee_zipcode || "33896",
+
       tenderData.destination,
-      tenderData.pickup_date ? new Date(tenderData.pickup_date) : new Date(),
-      tenderData.delivery_date ? new Date(tenderData.delivery_date) : new Date(Date.now() + 86400000 * 2),
+
+      tenderData.pickup_date
+        ? new Date(tenderData.pickup_date)
+        : new Date(),
+
+      tenderData.delivery_date
+        ? new Date(tenderData.delivery_date)
+        : new Date(Date.now() + 86400000 * 2),
+
       tenderData.commodity,
       tenderData.weight || 3856,
       tenderData.pieces || 1,
       tenderData.rate || 2850,
+
       "Entered",
-      tenderData.po_number || `PO-${numericLoadNumber}`,
+
+      tenderData.po_number || null,
       tenderData.customs_broker || "Livingston International",
     ];
 
     const dbRes = await pool.query(insertSql, values);
+
     insertedLoad = dbRes.rows[0];
-    console.log(`✅ [Database] Created Load record ID: ${insertedLoad.id} (#${numericLoadNumber}) with status 'Entered'`);
+
+    // PostgreSQL generated this number
+    generatedLoadNumber = insertedLoad.load_number;
+    numericLoadNumber = Number(insertedLoad.load_number);
+
+    // Keep extracted data synchronized
+    tenderData.load_number = generatedLoadNumber;
+
+    console.log(
+      `✅ [Database] Created Load record ID: ${insertedLoad.id} (#${generatedLoadNumber}) with status 'Entered'`
+    );
+
   } catch (err) {
-    console.warn("⚠️ Direct SQL insert fallback:", err.message);
-    insertedLoad = {
-      id: `LOAD-${numericLoadNumber}`,
-      load_number: numericLoadNumber,
-      ...tenderData,
-      status: "Entered",
-      created_at: new Date().toISOString(),
-    };
+    console.error("❌ [Database] Load insert failed:", err);
+
+    throw new Error(`Failed to create load: ${err.message}`);
   }
 
   const loadId = insertedLoad?.id;
@@ -332,11 +457,11 @@ export async function processLoadConfirmationPipeline({
 
   const customsEmailPayload = routeTeam.isCrossBorder
     ? buildCustomsDocumentRequestEmail({
-        loadNumber: generatedLoadNumber,
-        tenderData,
-        borderDirection: routeTeam.borderDirection,
-        leadNumber: customsEntry?.lead_number || `NISD${generatedLoadNumber}`,
-      })
+      loadNumber: generatedLoadNumber,
+      tenderData,
+      borderDirection: routeTeam.borderDirection,
+      leadNumber: customsEntry?.lead_number || `NISD${generatedLoadNumber}`,
+    })
     : null;
 
   // Background dispatch for emails (non-blocking)
