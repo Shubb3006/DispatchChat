@@ -151,7 +151,7 @@ export const createRateRequest = async (req, res) => {
       VALUES ($1, $2, $3, $4, $5)
       RETURNING *
       `,
-      [req.user.id, req.user.id, origin.trim(), destination.trim(), JSON.stringify(freight)]
+      [req.user.customer_id, req.user.id, origin.trim(), destination.trim(), JSON.stringify(freight)]
     );
     const rateRequest = inserted.rows[0];
     console.log(rateRequest)
@@ -397,7 +397,7 @@ export const tenderUpload = async (req, res) => {
     }
 
     const customerRow = await pool.query(
-      `SELECT company_name, email, phone, address, city, state, zip_code, country FROM customers WHERE id = $1`,
+      `SELECT company_name, broker_email, broker_contact_number,broker_name FROM customers WHERE id = $1`,
       [req.customerId]
     );
     const customer = customerRow.rows[0] || {};
@@ -407,7 +407,7 @@ export const tenderUpload = async (req, res) => {
     const result = await processLoadConfirmationPipeline({
       emailText: `Portal tender upload by ${customer.company_name || "customer"} (${req.user.username})`,
       emailSubject: `Load Tender - ${file.originalname}`,
-      senderEmail: customer.email || "",
+      senderEmail: customer.broker_email || "",
       pdfBuffer: file.buffer,
       fileName: file.originalname,
     });

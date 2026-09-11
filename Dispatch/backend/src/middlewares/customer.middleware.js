@@ -24,7 +24,7 @@ export const requireCustomer = (req, res, next) => {
     return res.status(403).json({
       success: false,
       message:
-        "This account is not linked to a customer company. Ask your Nishan Transport contact to link it.",
+        "This account is not linked to a customer company. Ask Nishan Transport contact to link it.",
     });
   }
 
