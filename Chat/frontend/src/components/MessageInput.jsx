@@ -240,10 +240,10 @@ const MessageInput = () => {
         isUrgent,
         replyTo: replyingToMessage
           ? {
-              messageId: replyingToMessage._id,
-              text: replyingToMessage.text || (replyingToMessage.image ? "📷 Photo" : "🎤 Voice Note"),
-              senderName: replyingToMessage.senderName,
-            }
+            messageId: replyingToMessage._id,
+            text: replyingToMessage.text || (replyingToMessage.image ? "📷 Photo" : "🎤 Voice Note"),
+            senderName: replyingToMessage.senderName,
+          }
           : null,
       };
 
@@ -491,7 +491,7 @@ const MessageInput = () => {
             {/* Message Input Field */}
             <input
               type="text"
-              className="w-full bg-transparent py-2.5 text-sm focus:outline-none"
+              className="w-full bg-transparent py-2.5 text-sm"
               placeholder={
                 selectedGroup
                   ? `${t("messageChannel")} #${selectedGroup.name}...`
@@ -517,9 +517,8 @@ const MessageInput = () => {
             {/* Image Upload Button */}
             <button
               type="button"
-              className={`btn btn-ghost btn-circle btn-sm ${
-                imagePreview ? "text-primary" : "text-base-content/70"
-              }`}
+              className={`btn btn-ghost btn-circle btn-sm ${imagePreview ? "text-primary" : "text-base-content/70"
+                }`}
               onClick={() => fileRef.current?.click()}
               title="Attach Image"
             >

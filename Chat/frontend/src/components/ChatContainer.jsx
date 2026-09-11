@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import ChatHeader from "./ChatHeader";
 import MessageSkeleton from "./skeletons/MessageSkeleton";
 import MessageInput from "./MessageInput";
@@ -97,9 +97,18 @@ const ChatContainer = () => {
   const activeLoading = selectedGroup ? isGroupMessagesLoading : isMessagesLoading;
   const pinnedMessages = activeMessagesList.filter((m) => m.isPinned);
 
-  useEffect(() => {
-    messageEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [activeMessagesList, isTyping]);
+  // useEffect(() => {
+  //   messageEndRef.current?.scrollIntoView({ behavior: "auto" });
+  // }, [activeMessagesList, isTyping]);
+
+  useLayoutEffect(() => {
+    if (!activeLoading && messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "instant",
+        block: "end",
+      });
+    }
+  }, [activeMessagesList, activeLoading]);
 
   const handleStartEdit = (message) => {
     setEditingMessageId(message._id);
@@ -187,8 +196,13 @@ const ChatContainer = () => {
           </div>
         </div>
       )}
+      {/* <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 overflow-x-hidden">
+        {filteredMessages.length === 0 && !activeLoading && !isTyping ? ( */}
+
       <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 overflow-x-hidden">
-        {filteredMessages.length === 0 && !activeLoading && !isTyping ? (
+        {activeLoading ? (
+          <MessageSkeleton />
+        ) : filteredMessages.length === 0 && !isTyping ? (
           <div className="flex items-center justify-center h-full text-sm text-base-content/60">
             {searchQuery ? "No matching messages found" : "No messages yet"}
           </div>
@@ -198,8 +212,8 @@ const ChatContainer = () => {
               typeof message.senderId === "object"
                 ? message.senderId
                 : message.senderId === currentUserId
-                ? authUser
-                : selectedUser;
+                  ? authUser
+                  : selectedUser;
 
             const senderIdVal = senderObj?._id || senderObj?.id || message.senderId;
             const isSender = senderIdVal === currentUserId;
@@ -345,9 +359,8 @@ const ChatContainer = () => {
                   {/* Hover Quick Reactions & Menu */}
                   {hoveredMessageId === message._id && !isEditing && (
                     <div
-                      className={`absolute -top-11 z-30 flex items-center gap-1 bg-base-100/95 backdrop-blur-md px-2 py-1 rounded-full shadow-xl border border-base-300 transition-all ${
-                        isSender ? "right-0" : "left-0"
-                      }`}
+                      className={`absolute -top-11 z-30 flex items-center gap-1 bg-base-100/95 backdrop-blur-md px-2 py-1 rounded-full shadow-xl border border-base-300 transition-all ${isSender ? "right-0" : "left-0"
+                        }`}
                     >
                       {QUICK_EMOJIS.map((emoji) => (
                         <button
@@ -379,9 +392,8 @@ const ChatContainer = () => {
                       {/* Pin Button */}
                       <button
                         onClick={() => togglePinMessage(message._id)}
-                        className={`btn btn-ghost btn-xs btn-circle ${
-                          message.isPinned ? "text-warning fill-warning" : "text-base-content/70 hover:text-warning"
-                        }`}
+                        className={`btn btn-ghost btn-xs btn-circle ${message.isPinned ? "text-warning fill-warning" : "text-base-content/70 hover:text-warning"
+                          }`}
                         title={message.isPinned ? "Unpin message" : "Pin message"}
                       >
                         <Pin className="size-3.5" />
@@ -420,15 +432,13 @@ const ChatContainer = () => {
 
                   {/* Bubble Content with Urgent Red Banner styling */}
                   <div
-                    className={`chat-bubble flex flex-col min-w-fit max-w-full break-words whitespace-pre-wrap p-3.5 shadow-md transition-all text-[15px] leading-relaxed border border-black/5 ${
-                      isSender
-                        ? "bg-primary text-primary-content rounded-2xl rounded-tr-none shadow-lg shadow-primary/20"
-                        : "bg-base-100 text-base-content rounded-2xl rounded-tl-none border-base-300/50"
-                    } ${
-                      message.isUrgent
+                    className={`chat-bubble flex flex-col min-w-fit max-w-full break-words whitespace-pre-wrap p-3.5 shadow-md transition-all text-[15px] leading-relaxed border border-black/5 ${isSender
+                      ? "bg-primary text-primary-content rounded-2xl rounded-tr-none shadow-lg shadow-primary/20"
+                      : "bg-base-100 text-base-content rounded-2xl rounded-tl-none border-base-300/50"
+                      } ${message.isUrgent
                         ? "border-l-4 border-amber-500 shadow-xl"
                         : ""
-                    }`}
+                      }`}
                   >
                     {/* Quoted Reply Block */}
                     {message.replyTo && (
@@ -535,7 +545,7 @@ const ChatContainer = () => {
                     ) : (
                       message.text && (
                         <div className="space-y-2">
-                           <p className="text-sm font-normal select-text leading-snug">{message.text}</p>
+                          <p className="text-sm font-normal select-text leading-snug">{message.text}</p>
                         </div>
                       )
                     )}
@@ -544,9 +554,8 @@ const ChatContainer = () => {
                   {/* Reaction Badges */}
                   {Object.keys(reactionsMap).length > 0 && (
                     <div
-                      className={`flex flex-wrap gap-1 mt-1.5 ${
-                        isSender ? "justify-end" : "justify-start"
-                      }`}
+                      className={`flex flex-wrap gap-1 mt-1.5 ${isSender ? "justify-end" : "justify-start"
+                        }`}
                     >
                       {Object.entries(reactionsMap).map(([emoji, count]) => (
                         <button
