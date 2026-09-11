@@ -718,7 +718,7 @@ export default function RateRequestsPage() {
                       <Marker className={rateTone(r.status)}>{humanize(r.status) || "Unknown"}</Marker>
                     </div>
                     <p className="text-sm font-semibold text-slate-700 mt-1 break-words">
-                      {r.shipper_district},{r.shipper_state},{r.shipper_country} → {r.consignee_district},{r.consignee_state},{r.consignee_country}
+                      {r.origin}→ {r.destination}
                     </p>
                     {summary && <p className="text-xs text-slate-500 mt-1 break-words">{summary}</p>}
                     <FreightMarkers fd={fd} />

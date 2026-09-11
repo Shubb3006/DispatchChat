@@ -110,11 +110,11 @@ export const usePortalStore = create((set, get) => ({
     }
   },
 
-  createRateRequest: async ({ shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry, freight_details }) => {
+  createRateRequest: async ({ origin, destination, freight_details }) => {
     set({ isSubmittingRate: true });
     try {
       const res = await axiosInstance.post("/rates/request", {
-        shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry,
+        origin, destination,
         freight_details,
       });
       if (res.data?.success) {
