@@ -48,7 +48,7 @@ const useIsOnline = () =>
 const useSocketConnected = (socket) => {
   const subscribe = useCallback(
     (onChange) => {
-      if (!socket) return () => {};
+      if (!socket) return () => { };
       socket.on("connect", onChange);
       socket.on("disconnect", onChange);
       return () => {
@@ -144,7 +144,7 @@ const Navbar = () => {
   const peersOnline = Math.max((onlineUsers?.length || 0) - 1, 0);
 
   return (
-    <header className="glass-nav h-14 sm:h-16">
+    <header className="sticky top-0 z-0 glass-nav h-14 sm:h-16">
       <div className="mx-auto flex h-full max-w-none items-center justify-between gap-3 px-3 sm:px-5">
         {/* Brand */}
         <Link to="/" className="flex shrink-0 items-center gap-2.5" aria-label="Nishan_teams home">

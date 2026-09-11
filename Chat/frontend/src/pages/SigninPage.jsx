@@ -36,7 +36,7 @@ const SigninPage = () => {
   }
 
   return (
-    <div className="grid-canvas flex min-h-screen items-center justify-center bg-base-200 p-4 pt-20">
+    <div className="grid-canvas flex min-h-[calc(100vh-64px)] items-center justify-center bg-base-200 p-4">
       <div className="fade-in w-full max-w-sm">
         <div className="surface-panel rounded-2xl p-6">
           {/* Brand */}

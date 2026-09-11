@@ -14,7 +14,7 @@ const HomePage = () => {
   return (
     /* Full-bleed shell. This previously used `max-w-7xl mx-auto`, which capped
        the workspace at 1280px and left large dead margins on wide monitors. */
-    <div className="h-screen w-full overflow-hidden bg-base-200">
+    <div className="h-[calc(100vh-64px)] w-full overflow-hidden bg-base-200">
       <div className="relative flex h-full min-h-0 w-full overflow-hidden">
         {/* Conversation list */}
         <aside

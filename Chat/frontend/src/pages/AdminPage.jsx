@@ -148,7 +148,7 @@ const AdminPage = () => {
 
   return (
     // <div className="container mx-auto px-4 pt-5 pb-10 min-h-screen max-w-6xl">
-    <div className="container mx-auto px-4 pt-5 pb-20 max-w-6xl">
+    <div className="min-h-[calc(100vh-64px)] container mx-auto px-4 pt-5 max-w-6xl">
       <div className="flex flex-col md:flex-row items-start md:items-center justify-between mb-8 gap-4">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold flex items-center gap-3">

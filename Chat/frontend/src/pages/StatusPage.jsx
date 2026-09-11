@@ -77,7 +77,7 @@ const StatusPage = () => {
   if (isLoading || !authUser._id) return <StatusSkeleton />;
 
   return (
-    <div className="pt-20 bg-base-200 min-h-screen">
+    <div className="bg-base-200 min-h-[calc(100vh-64px)] ">
       {/* Status Row */}
       <div className="flex gap-4 px-4 py-3 overflow-x-auto">
         {/* My Status */}
@@ -95,9 +95,8 @@ const StatusPage = () => {
               <img
                 src={selectedImage || authUser.profilePic || "/avatar.png"}
                 alt="My Status"
-                className={`w-20 h-20 rounded-full object-cover border-2 relative ${
-                  hasStatus ? "border-green-500" : "border-gray-500"
-                }`}
+                className={`w-20 h-20 rounded-full object-cover border-2 relative ${hasStatus ? "border-green-500" : "border-gray-500"
+                  }`}
               />
             </button>
 

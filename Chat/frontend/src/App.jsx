@@ -48,8 +48,9 @@ function App() {
       </div>
     );
   }
+
   return (
-    <div className="h-screen w-screen bg-base-100 flex flex-col">
+    <div className="min-h-[calc(100vh-64px)] w-screen bg-base-100 flex flex-col">
       <Toaster />
       <CallOverlay />
       <Navbar />

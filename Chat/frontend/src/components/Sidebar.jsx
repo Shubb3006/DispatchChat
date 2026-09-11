@@ -261,10 +261,9 @@ const Sidebar = () => {
                   onClick={() => setActiveFilter(f.id)}
                   className={`flex flex-1 items-center justify-center gap-1 rounded-md px-2 py-1.5
                     text-[11px] font-semibold transition-colors
-                    ${
-                      isActive
-                        ? "bg-base-100 text-primary shadow-sm ring-1 ring-inset ring-base-300"
-                        : "text-base-content/55 hover:text-base-content"
+                    ${isActive
+                      ? "bg-base-100 text-primary shadow-sm ring-1 ring-inset ring-base-300"
+                      : "text-base-content/55 hover:text-base-content"
                     }`}
                   title={f.label}
                 >
@@ -398,9 +397,8 @@ const Sidebar = () => {
                 <div className="min-w-0 flex-1 text-left">
                   <div className="flex items-baseline gap-2">
                     <h3
-                      className={`min-w-0 flex-1 truncate text-sm ${
-                        unreadCount > 0 ? "font-bold text-base-content" : "font-semibold text-base-content/90"
-                      }`}
+                      className={`min-w-0 flex-1 truncate text-sm ${unreadCount > 0 ? "font-bold text-base-content" : "font-semibold text-base-content/90"
+                        }`}
                     >
                       {isGroup ? item.name : cleanName(item.fullName)}
                     </h3>

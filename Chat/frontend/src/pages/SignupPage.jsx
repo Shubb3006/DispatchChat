@@ -37,7 +37,7 @@ const SignupPage = () => {
     if (success) signup(formData);
   }
   return (
-    <div className="min-h-screen flex items-center justify-center bg-base-200 pt-20">
+    <div className="min-h-[calc(100vh-64px)] flex items-center justify-center bg-base-200 ">
       <div className="card w-96 bg-base-100 shadow-xl p-6">
         <h2 className="text-2xl font-bold text-center mb-4">Sign Up</h2>
 
@@ -87,7 +87,7 @@ const SignupPage = () => {
           </div>
 
           <button disabled={isSigningUp} className="btn btn-primary mt-2">
-            {!isSigningUp ? "Sign Up" : <Loader2 className="animate-spin"/>}
+            {!isSigningUp ? "Sign Up" : <Loader2 className="animate-spin" />}
           </button>
         </form>
         <p className="mt-4 text-center text-sm">

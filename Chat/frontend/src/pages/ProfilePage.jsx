@@ -38,7 +38,7 @@ const ProfilePage = () => {
     setIsEditingBio(false);
   }
   return (
-    <div className=" container mx-auto px-4 pt-20 bg-base-100 rounded-lg shadow-cl w-full max-w-6xl min-h-[80vh]">
+    <div className="container mx-auto px-4 bg-base-100 rounded-lg shadow-cl w-full max-w-6xl min-h-[calc(100vh-64px)] ">
       <div className="max-w-2xl mx-auto p-4 py-8">
         <div className="bg-base-300 rounded-xl p-6 space-y-8">
           <div className="text-center">
@@ -60,8 +60,7 @@ const ProfilePage = () => {
                   bg-base-content hover:scale-105
                   p-2 rounded-full cursor-pointer 
                   transition-all duration-200
-                  ${
-                    isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
+                  ${isUpdatingProfile ? "animate-pulse pointer-events-none" : ""
                   }
                 `}
               >
