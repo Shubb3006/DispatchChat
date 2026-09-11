@@ -413,11 +413,17 @@ export const INITIAL_CUSTOMS_ENTRIES = [
 ];
 
 export const useCustomsStore = create((set, get) => ({
-  customsEntries: INITIAL_CUSTOMS_ENTRIES,
-  selectedEntry: INITIAL_CUSTOMS_ENTRIES[0],
-  portsOfEntry: DEFAULT_PORTS_OF_ENTRY,
-  htsCatalog: DEFAULT_HTS_CATALOG,
-  customsBrokers: DEFAULT_BROKERS,
+  // customsEntries: [INITIAL_CUSTOMS_ENTRIES],
+  // selectedEntry: INITIAL_CUSTOMS_ENTRIES[0],
+  // portsOfEntry: DEFAULT_PORTS_OF_ENTRY,
+  // htsCatalog: DEFAULT_HTS_CATALOG,
+  // customsBrokers: DEFAULT_BROKERS,
+
+  customsEntries: [],
+  selectedEntry: null,
+  portsOfEntry: [],
+  htsCatalog: [],
+  customsBrokers: [],
   isLoading: false,
   filters: {
     direction: "all", // 'all' | 'inbound_us' | 'inbound_ca'
@@ -478,7 +484,7 @@ export const useCustomsStore = create((set, get) => ({
       const leadType = entryData.lead_number_type || (isCanada ? "PARS" : "PAPS");
       const carrierCode = entryData.scac_or_carrier_code || (isCanada ? "22GY" : "NISD");
       const cleanNum = String(entryData.load_number || "1000").replace(/\D/g, "").padStart(6, "0").slice(-6);
-      
+
       const generatedLeadNumber = entryData.lead_number || `${carrierCode}${cleanNum}`;
 
       const newEntry = {
@@ -574,11 +580,11 @@ export const useCustomsStore = create((set, get) => ({
 
         const updatedSelected = state.selectedEntry?.id === id
           ? {
-              ...state.selectedEntry,
-              customs_status: status,
-              cleared_at: clearedAt || state.selectedEntry.cleared_at,
-              inspection_notes: notes || state.selectedEntry.inspection_notes,
-            }
+            ...state.selectedEntry,
+            customs_status: status,
+            cleared_at: clearedAt || state.selectedEntry.cleared_at,
+            inspection_notes: notes || state.selectedEntry.inspection_notes,
+          }
           : state.selectedEntry;
 
         return { customsEntries: updatedList, selectedEntry: updatedSelected };
@@ -672,20 +678,20 @@ export const useCustomsStore = create((set, get) => ({
           customsEntries: state.customsEntries.map((e) =>
             e.lead_number === leadNumber
               ? {
-                  ...e,
-                  customs_status: newStatus,
-                  broker_entry_number: entryNum || e.broker_entry_number,
-                  updated_at: new Date().toISOString(),
-                }
+                ...e,
+                customs_status: newStatus,
+                broker_entry_number: entryNum || e.broker_entry_number,
+                updated_at: new Date().toISOString(),
+              }
               : e
           ),
           selectedEntry:
             state.selectedEntry?.lead_number === leadNumber
               ? {
-                  ...state.selectedEntry,
-                  customs_status: newStatus,
-                  broker_entry_number: entryNum || state.selectedEntry.broker_entry_number,
-                }
+                ...state.selectedEntry,
+                customs_status: newStatus,
+                broker_entry_number: entryNum || state.selectedEntry.broker_entry_number,
+              }
               : state.selectedEntry,
         }));
 
@@ -743,10 +749,10 @@ export const useCustomsStore = create((set, get) => ({
           customsEntries: state.customsEntries.map((e) =>
             e.id === entryId
               ? {
-                  ...e,
-                  ace_trip_number: res.data.aceTripNumber,
-                  customs_status: "ACCEPTED",
-                }
+                ...e,
+                ace_trip_number: res.data.aceTripNumber,
+                customs_status: "ACCEPTED",
+              }
               : e
           ),
         }));
@@ -769,10 +775,10 @@ export const useCustomsStore = create((set, get) => ({
           customsEntries: state.customsEntries.map((e) =>
             e.id === entryId
               ? {
-                  ...e,
-                  aci_cargo_control_number: res.data.aciCargoControlNumber,
-                  customs_status: "ACCEPTED",
-                }
+                ...e,
+                aci_cargo_control_number: res.data.aciCargoControlNumber,
+                customs_status: "ACCEPTED",
+              }
               : e
           ),
         }));

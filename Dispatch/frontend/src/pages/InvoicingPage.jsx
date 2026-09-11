@@ -16,6 +16,7 @@ import {
   Printer,
   CheckCircle2,
   Package,
+  Loader2,
 } from "lucide-react";
 
 export default function InvoicingPage() {
@@ -25,6 +26,8 @@ export default function InvoicingPage() {
   const fetchShipments = useShipmentStore((state) => state.fetchShipments);
   const documents = useDocumentStore((state) => state.documents);
   const fetchDocuments = useDocumentStore((state) => state.fetchDocuments);
+
+  const isLoading = useInvoiceStore((state) => state.isLoading)
 
   useEffect(() => {
     fetchInvoices();
@@ -289,6 +292,15 @@ export default function InvoicingPage() {
     .filter((l) => !invoicedLoadIds.includes(l.id) && !invoicedLoadIds.includes(l.load_number))
     .reduce((a, l) => a + (l.priceInvoice || 0), 0);
 
+
+  if (invoices.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading Invoices...
+      </div>
+    );
+  }
   return (
     <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
       {/* Top Metrics Banner */}
@@ -431,9 +443,8 @@ export default function InvoicingPage() {
                         <tr
                           key={load.id}
                           onClick={() => setSelectedLoad(load)}
-                          className={`hover:bg-slate-50 transition-colors cursor-pointer ${
-                            selectedLoad?.id === load.id ? "bg-sky-50/50" : ""
-                          }`}
+                          className={`hover:bg-slate-50 transition-colors cursor-pointer ${selectedLoad?.id === load.id ? "bg-sky-50/50" : ""
+                            }`}
                         >
                           <td className="px-5 py-4 font-mono font-bold text-sky-700 text-sm">
                             #{load.load_number || load.tracking_number || "10015"}

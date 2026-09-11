@@ -21,9 +21,9 @@ import {
   Zap,
   Radio,
   Sliders,
+  Loader2,
 } from "lucide-react";
 import { useMaintenanceStore } from "../stores/useMaintenanceStore";
-import toast from "react-hot-toast";
 
 export default function MaintenanceRadarPage() {
   const {
@@ -210,6 +210,15 @@ export default function MaintenanceRadarPage() {
     }, 400);
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading.....
+      </div>
+    );
+  }
+
   return (
     <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
       {/* Top Header */}
@@ -316,11 +325,10 @@ export default function MaintenanceRadarPage() {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
         <button
           onClick={() => setActiveTab("faults")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "faults"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "faults"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <AlertTriangle className="w-4 h-4 text-rose-500" />
           <span>Live DTC Engine Fault Radar ({activeFaultCodes.filter((f) => f.status === "OPEN").length})</span>
@@ -328,11 +336,10 @@ export default function MaintenanceRadarPage() {
 
         <button
           onClick={() => setActiveTab("pm")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "pm"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "pm"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <Clock className="w-4 h-4 text-amber-500" />
           <span>Predictive PM Service Calendar</span>
@@ -340,11 +347,10 @@ export default function MaintenanceRadarPage() {
 
         <button
           onClick={() => setActiveTab("work_orders")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "work_orders"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "work_orders"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <FileText className="w-4 h-4 text-sky-600" />
           <span>Terminal Work Orders & Shop Ledger ({workOrders.length})</span>
@@ -365,27 +371,25 @@ export default function MaintenanceRadarPage() {
               return (
                 <div
                   key={fault.id}
-                  className={`bg-white rounded-2xl border p-5 shadow-xs transition-all ${
-                    !isOpen
-                      ? "opacity-60 border-slate-200"
-                      : isCritical
+                  className={`bg-white rounded-2xl border p-5 shadow-xs transition-all ${!isOpen
+                    ? "opacity-60 border-slate-200"
+                    : isCritical
                       ? "border-rose-300 ring-1 ring-rose-200"
                       : isWarning
-                      ? "border-amber-300 ring-1 ring-amber-200"
-                      : "border-slate-200"
-                  }`}
+                        ? "border-amber-300 ring-1 ring-amber-200"
+                        : "border-slate-200"
+                    }`}
                 >
                   <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     {/* Left: Fault Details */}
                     <div className="flex items-start gap-4">
                       <div
-                        className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shrink-0 shadow-2xs ${
-                          isCritical
-                            ? "bg-rose-50 text-rose-600 border border-rose-200"
-                            : isWarning
+                        className={`w-12 h-12 rounded-2xl flex items-center justify-center font-bold shrink-0 shadow-2xs ${isCritical
+                          ? "bg-rose-50 text-rose-600 border border-rose-200"
+                          : isWarning
                             ? "bg-amber-50 text-amber-600 border border-amber-200"
                             : "bg-sky-50 text-sky-600 border border-sky-200"
-                        }`}
+                          }`}
                       >
                         <AlertTriangle className="w-6 h-6" />
                       </div>
@@ -396,13 +400,12 @@ export default function MaintenanceRadarPage() {
                             Tractor #{fault.truckNumber}
                           </span>
                           <span
-                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${
-                              isCritical
-                                ? "bg-rose-100 text-rose-800 border border-rose-200 animate-pulse"
-                                : isWarning
+                            className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold uppercase tracking-wider ${isCritical
+                              ? "bg-rose-100 text-rose-800 border border-rose-200 animate-pulse"
+                              : isWarning
                                 ? "bg-amber-100 text-amber-800 border border-amber-200"
                                 : "bg-sky-100 text-sky-800 border border-sky-200"
-                            }`}
+                              }`}
                           >
                             {fault.severity} — {fault.lampStatus}
                           </span>
@@ -541,26 +544,24 @@ export default function MaintenanceRadarPage() {
                       </td>
                       <td className="px-5 py-4">
                         <span
-                          className={`font-mono font-bold text-sm ${
-                            isOverdue
-                              ? "text-rose-600"
-                              : isUpcoming
+                          className={`font-mono font-bold text-sm ${isOverdue
+                            ? "text-rose-600"
+                            : isUpcoming
                               ? "text-amber-600"
                               : "text-emerald-700"
-                          }`}
+                            }`}
                         >
                           {pm.milesUntilDue > 0 ? `${pm.milesUntilDue.toLocaleString()} mi` : "OVERDUE"}
                         </span>
                       </td>
                       <td className="px-5 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                            isOverdue
-                              ? "bg-rose-50 text-rose-700 border border-rose-200"
-                              : isUpcoming
+                          className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${isOverdue
+                            ? "bg-rose-50 text-rose-700 border border-rose-200"
+                            : isUpcoming
                               ? "bg-amber-50 text-amber-700 border border-amber-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}
+                            }`}
                         >
                           <span className={`w-1.5 h-1.5 rounded-full ${isOverdue ? "bg-rose-500" : isUpcoming ? "bg-amber-500" : "bg-emerald-500"}`} />
                           {pm.status} ({pm.estimatedDueDate})
@@ -653,13 +654,12 @@ export default function MaintenanceRadarPage() {
                       <select
                         value={wo.status}
                         onChange={(e) => updateWorkOrderStatus(wo.id, e.target.value)}
-                        className={`text-xs font-bold rounded-xl px-2.5 py-1.5 border cursor-pointer focus:outline-none ${
-                          wo.status === "COMPLETED"
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : wo.status === "IN_PROGRESS"
+                        className={`text-xs font-bold rounded-xl px-2.5 py-1.5 border cursor-pointer focus:outline-none ${wo.status === "COMPLETED"
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : wo.status === "IN_PROGRESS"
                             ? "bg-sky-50 text-sky-700 border-sky-200"
                             : "bg-amber-50 text-amber-700 border-amber-200"
-                        }`}
+                          }`}
                       >
                         <option value="PENDING">PENDING</option>
                         <option value="IN_PROGRESS">IN PROGRESS</option>

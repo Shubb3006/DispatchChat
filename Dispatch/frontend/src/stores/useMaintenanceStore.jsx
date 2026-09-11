@@ -7,13 +7,13 @@ const API_BASE = `${API_BASE_URL}/v1/maintenance`;
 
 export const useMaintenanceStore = create((set, get) => ({
   summary: {
-    totalTractorsMonitored: 330,
-    activeEngineFaultsCount: 3,
-    criticalFaultsCount: 1,
-    warningFaultsCount: 1,
-    overduePmServicesCount: 1,
-    activeWorkOrdersCount: 1,
-    fleetHealthIndexPct: 88,
+    totalTractorsMonitored: 0,
+    activeEngineFaultsCount: 0,
+    criticalFaultsCount: 0,
+    warningFaultsCount: 0,
+    overduePmServicesCount: 0,
+    activeWorkOrdersCount: 0,
+    fleetHealthIndexPct: 0,
   },
   activeFaultCodes: [],
   fleetPmSchedule: [],

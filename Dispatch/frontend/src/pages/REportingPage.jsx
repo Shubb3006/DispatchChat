@@ -19,6 +19,7 @@ import {
   Radio,
   FileText,
   SlidersHorizontal,
+  Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -29,6 +30,7 @@ import ExecutiveArCashFlowTab from "../components/reporting/ExecutiveArCashFlowT
 import ExecutiveAiForecastTab from "../components/reporting/ExecutiveAiForecastTab";
 
 export default function ReportingPage() {
+  const isLoading = useInvoiceStore((state) => state.isLoading)
   const shipments = useShipmentStore((state) => state.shipments);
   const fetchShipments = useShipmentStore((state) => state.fetchShipments);
   const invoices = useInvoiceStore((state) => state.invoices);
@@ -58,6 +60,15 @@ export default function ReportingPage() {
   const handlePrint = () => {
     window.print();
   };
+
+  if (invoices.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading Invoices...
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 print:p-0">
@@ -90,17 +101,15 @@ export default function ReportingPage() {
           <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs font-mono font-bold">
             <button
               onClick={() => setCurrency("USD")}
-              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                currency === "USD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "USD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                }`}
             >
               USD ($)
             </button>
             <button
               onClick={() => setCurrency("CAD")}
-              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${
-                currency === "CAD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "CAD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                }`}
             >
               CAD ($)
             </button>
@@ -156,11 +165,10 @@ export default function ReportingPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 whitespace-nowrap shrink-0 transition-all cursor-pointer ${
-                isActive
-                  ? "border-sky-600 text-sky-700 bg-sky-50/50 rounded-t-xl"
-                  : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300"
-              }`}
+              className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 whitespace-nowrap shrink-0 transition-all cursor-pointer ${isActive
+                ? "border-sky-600 text-sky-700 bg-sky-50/50 rounded-t-xl"
+                : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300"
+                }`}
             >
               <Icon className={`w-4 h-4 ${isActive ? "text-sky-600" : "text-slate-400"}`} />
               <span>{tab.label}</span>

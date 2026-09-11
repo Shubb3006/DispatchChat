@@ -25,6 +25,7 @@ import {
   Thermometer,
   Eye,
   Calendar,
+  Loader2,
 } from "lucide-react";
 import { useEtaRadarStore } from "../stores/useEtaRadarStore";
 
@@ -74,6 +75,15 @@ export default function EtaWeatherRadarPage() {
     setSelectedShipment(shipment);
     setIsDetailModalOpen(true);
   };
+
+  if (trackedShipments.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading.....
+      </div>
+    );
+  }
 
   return (
     <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-slate-900">
@@ -160,9 +170,8 @@ export default function EtaWeatherRadarPage() {
             <Wind className="w-4 h-4 text-rose-500" />
           </div>
           <div
-            className={`text-2xl font-extrabold mt-1 ${
-              summary.severeWeatherAlertsCount > 0 ? "text-rose-600" : "text-slate-800"
-            }`}
+            className={`text-2xl font-extrabold mt-1 ${summary.severeWeatherAlertsCount > 0 ? "text-rose-600" : "text-slate-800"
+              }`}
           >
             {summary.severeWeatherAlertsCount}
           </div>
@@ -188,11 +197,10 @@ export default function EtaWeatherRadarPage() {
       <div className="flex items-center gap-2 border-b border-slate-200 pb-3 flex-wrap">
         <button
           onClick={() => setActiveTab("shipments")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "shipments"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "shipments"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <Radio className="w-4 h-4 text-sky-600" />
           <span>Live Shipment ETA Radar ({trackedShipments.length})</span>
@@ -200,11 +208,10 @@ export default function EtaWeatherRadarPage() {
 
         <button
           onClick={() => setActiveTab("border")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "border"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "border"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <Clock className="w-4 h-4 text-amber-500" />
           <span>Cross-Border Bridge Wait Times (US CBP / CBSA)</span>
@@ -212,11 +219,10 @@ export default function EtaWeatherRadarPage() {
 
         <button
           onClick={() => setActiveTab("weather")}
-          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${
-            activeTab === "weather"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-          }`}
+          className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "weather"
+            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            }`}
         >
           <CloudRain className="w-4 h-4 text-sky-600" />
           <span>Corridor Weather & Severe Storm Radar ({weatherCorridors.length})</span>
@@ -277,22 +283,20 @@ export default function EtaWeatherRadarPage() {
                         {s.customerName}
                       </span>
                       <span
-                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                          isOnTime
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : isCritical
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${isOnTime
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : isCritical
                             ? "bg-rose-50 text-rose-700 border border-rose-200 animate-pulse"
                             : "bg-amber-50 text-amber-700 border border-amber-200"
-                        }`}
+                          }`}
                       >
                         <span
-                          className={`w-1.5 h-1.5 rounded-full ${
-                            isOnTime
-                              ? "bg-emerald-500"
-                              : isCritical
+                          className={`w-1.5 h-1.5 rounded-full ${isOnTime
+                            ? "bg-emerald-500"
+                            : isCritical
                               ? "bg-rose-500"
                               : "bg-amber-500"
-                          }`}
+                            }`}
                         />
                         {s.statusBadge} ({s.confidencePct}% Confidence)
                       </span>
@@ -423,13 +427,12 @@ export default function EtaWeatherRadarPage() {
                       <div className="text-[11px] text-slate-500">{port.jurisdiction}</div>
                     </div>
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                        isNormal
-                          ? "bg-emerald-100 text-emerald-800"
-                          : isSevere
+                      className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isNormal
+                        ? "bg-emerald-100 text-emerald-800"
+                        : isSevere
                           ? "bg-rose-100 text-rose-800 animate-pulse"
                           : "bg-amber-100 text-amber-800"
-                      }`}
+                        }`}
                     >
                       {port.delayStatus}
                     </span>
@@ -498,9 +501,8 @@ export default function EtaWeatherRadarPage() {
               return (
                 <div
                   key={c.id}
-                  className={`bg-slate-50 rounded-2xl border p-5 space-y-4 shadow-2xs transition-all ${
-                    hasAlerts ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
-                  }`}
+                  className={`bg-slate-50 rounded-2xl border p-5 space-y-4 shadow-2xs transition-all ${hasAlerts ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
+                    }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div>
@@ -650,24 +652,22 @@ export default function EtaWeatherRadarPage() {
                 {selectedShipment.milestones?.map((m, idx) => (
                   <div key={idx} className="relative space-y-1">
                     <div
-                      className={`absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white ${
-                        m.status === "COMPLETED"
-                          ? "bg-emerald-500"
-                          : m.status === "ACTIVE"
+                      className={`absolute -left-[23px] top-1 w-3.5 h-3.5 rounded-full border-2 border-white ${m.status === "COMPLETED"
+                        ? "bg-emerald-500"
+                        : m.status === "ACTIVE"
                           ? "bg-sky-500 animate-pulse"
                           : "bg-slate-300"
-                      }`}
+                        }`}
                     />
                     <div className="text-xs font-extrabold text-slate-900 flex items-center justify-between">
                       <span>{m.name}</span>
                       <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded ${
-                          m.status === "COMPLETED"
-                            ? "bg-emerald-50 text-emerald-700"
-                            : m.status === "ACTIVE"
+                        className={`text-[10px] font-bold px-2 py-0.5 rounded ${m.status === "COMPLETED"
+                          ? "bg-emerald-50 text-emerald-700"
+                          : m.status === "ACTIVE"
                             ? "bg-sky-50 text-sky-700"
                             : "bg-slate-100 text-slate-600"
-                        }`}
+                          }`}
                       >
                         {m.status}
                       </span>

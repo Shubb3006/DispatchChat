@@ -29,6 +29,7 @@ import {
   User,
   Zap,
   TableIcon,
+  Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -253,6 +254,14 @@ export default function KanbanDispatchPage() {
     document.body.removeChild(link);
     toast.success("Kanban freight pipeline exported to CSV!");
   };
+  if (shipments.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading Loads...
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-5 max-w-full pb-10">
@@ -286,27 +295,24 @@ export default function KanbanDispatchPage() {
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
             <button
               onClick={() => setViewMode("comfortable")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === "comfortable" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "comfortable" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
               <span>Full Cards</span>
             </button>
             <button
               onClick={() => setViewMode("compact")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === "compact" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "compact" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                }`}
             >
               <List className="w-3.5 h-3.5" />
               <span>Compact</span>
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${
-                viewMode === "table" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-              }`}
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "table" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+                }`}
             >
               <TableIcon className="w-3.5 h-3.5" />
               <span>Table</span>
@@ -452,34 +458,34 @@ export default function KanbanDispatchPage() {
 
       {/* Horizontal Scrollable Kanban Columns Board */}
       {viewMode !== "table" && (
-      <div className="flex gap-4 overflow-x-auto pb-4 pt-1 select-none no-scrollbar">
-        {columns.map((column) => {
-          const columnShipments = filteredShipments.filter((s) => {
-            const status = s.status ? s.status.toLowerCase() : "pending";
-            return column.matchingStatuses.includes(status);
-          });
+        <div className="flex gap-4 overflow-x-auto pb-4 pt-1 select-none no-scrollbar">
+          {columns.map((column) => {
+            const columnShipments = filteredShipments.filter((s) => {
+              const status = s.status ? s.status.toLowerCase() : "pending";
+              return column.matchingStatuses.includes(status);
+            });
 
-          return (
-            <KanbanColumn
-              key={column.id}
-              column={column}
-              shipments={columnShipments}
-              cardDensity={viewMode}
-              onDropLoad={handleDropLoad}
-              onOpenHistory={(shipment) => {
-                setAuditModal({
-                  isOpen: true,
-                  loadId: shipment.id,
-                  loadIdentifier: `Load #${shipment.load_number || shipment.id}`,
-                });
-              }}
-              onOpenDetails={(shipment) => {
-                setSelectedShipmentForDrawer(shipment);
-              }}
-            />
-          );
-        })}
-      </div>
+            return (
+              <KanbanColumn
+                key={column.id}
+                column={column}
+                shipments={columnShipments}
+                cardDensity={viewMode}
+                onDropLoad={handleDropLoad}
+                onOpenHistory={(shipment) => {
+                  setAuditModal({
+                    isOpen: true,
+                    loadId: shipment.id,
+                    loadIdentifier: `Load #${shipment.load_number || shipment.id}`,
+                  });
+                }}
+                onOpenDetails={(shipment) => {
+                  setSelectedShipmentForDrawer(shipment);
+                }}
+              />
+            );
+          })}
+        </div>
       )}
 
       {/* Embedded Entity History / Audit Trail Modal */}

@@ -39,6 +39,7 @@ import {
   DollarSign,
   Layers,
   Send,
+  Loader2,
 } from "lucide-react";
 import toast from "react-hot-toast";
 
@@ -517,6 +518,15 @@ export default function CustomsPage() {
     }
   };
 
+  if (customsEntries.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading All customs...
+      </div>
+    );
+  }
+
   return (
     <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-slate-900">
       {/* Top Banner / Hero */}
@@ -646,9 +656,8 @@ export default function CustomsPage() {
               Inspections / Holds
             </div>
             <div
-              className={`text-2xl font-extrabold mt-1 font-mono ${
-                stats.holds > 0 ? "text-rose-600" : "text-slate-800"
-              }`}
+              className={`text-2xl font-extrabold mt-1 font-mono ${stats.holds > 0 ? "text-rose-600" : "text-slate-800"
+                }`}
             >
               {stats.holds}
             </div>
@@ -657,11 +666,10 @@ export default function CustomsPage() {
             </div>
           </div>
           <div
-            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-2xs ${
-              stats.holds > 0
-                ? "bg-rose-50 text-rose-600 border border-rose-200"
-                : "bg-slate-50 text-slate-500 border border-slate-200"
-            }`}
+            className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-2xs ${stats.holds > 0
+              ? "bg-rose-50 text-rose-600 border border-rose-200"
+              : "bg-slate-50 text-slate-500 border border-slate-200"
+              }`}
           >
             <AlertTriangle className="w-5 h-5" />
           </div>
@@ -673,11 +681,10 @@ export default function CustomsPage() {
         <div className="flex items-center gap-1.5 overflow-x-auto">
           <button
             onClick={() => setActiveTab("all")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "all"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "all"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <Layers className="w-3.5 h-3.5 text-sky-600" />
             <span>All Customs Entries</span>
@@ -688,11 +695,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("inbound_us")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "inbound_us"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "inbound_us"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <span>🇺🇸 Inbound US (PAPS)</span>
             <span className="px-1.5 py-0.2 bg-sky-50 text-sky-800 text-[11px] rounded font-mono font-bold">
@@ -702,11 +708,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("inbound_ca")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "inbound_ca"
-                ? "bg-white text-emerald-700 border border-emerald-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "inbound_ca"
+              ? "bg-white text-emerald-700 border border-emerald-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <span>🇨🇦 Inbound Canada (PARS)</span>
             <span className="px-1.5 py-0.2 bg-emerald-50 text-emerald-800 text-[11px] rounded font-mono font-bold">
@@ -716,11 +721,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("borderconnect")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "borderconnect"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "borderconnect"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
             <span>BorderConnect Live EDI & Sync</span>
@@ -731,11 +735,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("barcodes")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "barcodes"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "barcodes"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <Barcode className="w-3.5 h-3.5 text-slate-500" />
             <span>PAPS / PARS Barcode Studio</span>
@@ -743,11 +746,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("hts")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "hts"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "hts"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <Search className="w-3.5 h-3.5 text-slate-500" />
             <span>HTS Codes & Tariffs</span>
@@ -755,11 +757,10 @@ export default function CustomsPage() {
 
           <button
             onClick={() => setActiveTab("ports")}
-            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-              activeTab === "ports"
-                ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-                : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
-            }`}
+            className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "ports"
+              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              }`}
           >
             <MapPin className="w-3.5 h-3.5 text-slate-500" />
             <span>Ports of Entry & Brokers</span>
@@ -770,33 +771,33 @@ export default function CustomsPage() {
         {(activeTab === "all" ||
           activeTab === "inbound_us" ||
           activeTab === "inbound_ca") && (
-          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
-            <div className="relative flex-1 min-w-[180px] md:w-64">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-              <input
-                type="text"
-                placeholder="Search PAPS, PARS, IRS, Load #..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
-              />
-            </div>
+            <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+              <div className="relative flex-1 min-w-[180px] md:w-64">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Search PAPS, PARS, IRS, Load #..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
+                />
+              </div>
 
-            <select
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-              className="bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
-            >
-              <option value="all">All Statuses</option>
-              <option value="CLEARED">Cleared / Green Light</option>
-              <option value="ACCEPTED">ACE/ACI Accepted</option>
-              <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
-              <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
-              <option value="HOLD_INSPECTION">Border Exam Hold</option>
-              <option value="REFUSED">Border Refused</option>
-            </select>
-          </div>
-        )}
+              <select
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+                className="bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+              >
+                <option value="all">All Statuses</option>
+                <option value="CLEARED">Cleared / Green Light</option>
+                <option value="ACCEPTED">ACE/ACI Accepted</option>
+                <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
+                <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
+                <option value="HOLD_INSPECTION">Border Exam Hold</option>
+                <option value="REFUSED">Border Refused</option>
+              </select>
+            </div>
+          )}
       </div>
 
 
@@ -804,240 +805,237 @@ export default function CustomsPage() {
       {(activeTab === "all" ||
         activeTab === "inbound_us" ||
         activeTab === "inbound_ca") && (
-        <div className="space-y-4">
-          {filteredEntries.length === 0 ? (
-            <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 text-center shadow-xl">
-              <FileSignature className="w-12 h-12 text-slate-500 mx-auto mb-3" />
-              <h3 className="text-base font-bold text-white">
-                No Cross-Border Customs Entries Found
-              </h3>
-              <p className="text-xs text-slate-400 max-w-md mx-auto mt-1 mb-4">
-                No shipments match the current filter or search criteria. Create a new customs entry or generate PAPS/PARS lead barcode.
-              </p>
-              <button
-                onClick={() => handleOpenCreateModal()}
-                className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg transition-all cursor-pointer"
-              >
-                + Create First Customs Entry
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-4">
-              {filteredEntries.map((entry) => {
-                const badge = getStatusBadge(entry.customs_status);
-                const isUS = entry.border_direction === "INBOUND_US";
-                const isSelected = selectedEntry?.id === entry.id;
+          <div className="space-y-4">
+            {filteredEntries.length === 0 ? (
+              <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 text-center shadow-xl">
+                <FileSignature className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <h3 className="text-base font-bold text-white">
+                  No Cross-Border Customs Entries Found
+                </h3>
+                <p className="text-xs text-slate-400 max-w-md mx-auto mt-1 mb-4">
+                  No shipments match the current filter or search criteria. Create a new customs entry or generate PAPS/PARS lead barcode.
+                </p>
+                <button
+                  onClick={() => handleOpenCreateModal()}
+                  className="px-4 py-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 text-white text-xs font-bold rounded-xl shadow-lg transition-all cursor-pointer"
+                >
+                  + Create First Customs Entry
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-4">
+                {filteredEntries.map((entry) => {
+                  const badge = getStatusBadge(entry.customs_status);
+                  const isUS = entry.border_direction === "INBOUND_US";
+                  const isSelected = selectedEntry?.id === entry.id;
 
-                return (
-                  <div
-                    key={entry.id}
-                    className={`bg-white rounded-2xl border transition-all shadow-xs hover:border-slate-300 p-5 ${
-                      isSelected
+                  return (
+                    <div
+                      key={entry.id}
+                      className={`bg-white rounded-2xl border transition-all shadow-xs hover:border-slate-300 p-5 ${isSelected
                         ? "border-sky-500 ring-2 ring-sky-500/20"
                         : "border-slate-200"
-                    }`}
-                  >
-                    <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
-                      {/* Left: Lead Barcode, Direction & Status */}
-                      <div className="flex items-start gap-4">
-                        <div
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl shrink-0 shadow-2xs ${
-                            isUS
+                        }`}
+                    >
+                      <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+                        {/* Left: Lead Barcode, Direction & Status */}
+                        <div className="flex items-start gap-4">
+                          <div
+                            className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xl shrink-0 shadow-2xs ${isUS
                               ? "bg-blue-50 text-blue-700 border border-blue-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}
-                        >
-                          {isUS ? "🇺🇸" : "🇨🇦"}
-                        </div>
+                              }`}
+                          >
+                            {isUS ? "🇺🇸" : "🇨🇦"}
+                          </div>
 
-                        <div className="space-y-1">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className="font-mono text-base font-extrabold text-slate-900 tracking-tight">
-                              {entry.lead_number}
-                            </span>
-                            <span
-                              className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider ${
-                                isUS
+                          <div className="space-y-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="font-mono text-base font-extrabold text-slate-900 tracking-tight">
+                                {entry.lead_number}
+                              </span>
+                              <span
+                                className={`px-2.5 py-0.5 text-[10px] font-bold rounded-md uppercase tracking-wider ${isUS
                                   ? "bg-blue-100 text-blue-800 border border-blue-200"
                                   : "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                              }`}
-                            >
-                              {entry.lead_number_type} ({isUS ? "US INBOUND" : "CA INBOUND"})
-                            </span>
-                            <span
-                              className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge.bg}`}
-                            >
+                                  }`}
+                              >
+                                {entry.lead_number_type} ({isUS ? "US INBOUND" : "CA INBOUND"})
+                              </span>
                               <span
-                                className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}
-                              />
-                              {badge.label}
-                            </span>
+                                className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-bold border ${badge.bg}`}
+                              >
+                                <span
+                                  className={`w-1.5 h-1.5 rounded-full ${badge.dot}`}
+                                />
+                                {badge.label}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                              <span className="font-bold text-sky-700 font-mono">
+                                Load #{entry.load_number || "10016"}
+                              </span>
+                              <span>•</span>
+                              <span className="font-mono text-slate-600">Ref: {entry.entry_number}</span>
+                              <span>•</span>
+                              <span className="flex items-center gap-1 font-medium text-slate-700">
+                                <MapPin className="w-3.5 h-3.5 text-sky-600" />
+                                POE: {entry.port_of_entry_name} ({entry.port_of_entry_code})
+                              </span>
+                            </div>
                           </div>
+                        </div>
 
-                          <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
-                            <span className="font-bold text-sky-700 font-mono">
-                              Load #{entry.load_number || "10016"}
-                            </span>
-                            <span>•</span>
-                            <span className="font-mono text-slate-600">Ref: {entry.entry_number}</span>
-                            <span>•</span>
-                            <span className="flex items-center gap-1 font-medium text-slate-700">
-                              <MapPin className="w-3.5 h-3.5 text-sky-600" />
-                              POE: {entry.port_of_entry_name} ({entry.port_of_entry_code})
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Right: Quick Action Controls */}
-                      <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
-                        {/* Status Change Dropdown */}
-                        <select
-                          value={entry.customs_status}
-                          onChange={(e) =>
-                            updateCustomsStatus(entry.id, e.target.value)
-                          }
-                          className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer shadow-2xs"
-                        >
-                          <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
-                          <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
-                          <option value="ACCEPTED">ACE/ACI Accepted</option>
-                          <option value="CLEARED">Cleared / Green Light</option>
-                          <option value="HOLD_INSPECTION">Border Exam Hold</option>
-                          <option value="REFUSED">Border Refused</option>
-                        </select>
-
-                        <button
-                          onClick={async () => {
-                            await syncBorderConnectStatus(
-                              entry.lead_number,
-                              entry.lead_number_type
-                            );
-                          }}
-                          title="Sync live status with BorderConnect"
-                          className="flex items-center gap-1.5 px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
-                        >
-                          <RefreshCw className="w-3.5 h-3.5" />
-                          <span>BC Sync</span>
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setSelectedEntry(entry);
-                            setIsBarcodeModalOpen(true);
-                          }}
-                          title="Print Barcode & Lead Sheet"
-                          className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
-                        >
-                          <Barcode className="w-4 h-4 text-slate-700" />
-                        </button>
-
-                        <button
-                          onClick={() => {
-                            setSelectedEntry(entry);
-                            setIsInvoiceModalOpen(true);
-                          }}
-                          title="View Customs Commercial Invoice"
-                          className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
-                        >
-                          <FileText className="w-4 h-4 text-slate-700" />
-                        </button>
-
-                        <button
-                          onClick={() => handleOpenEditModal(entry)}
-                          className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs"
-                        >
-                          Edit Details
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Middle Section: Route & Tax / Broker Data Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
-                      {/* Origin to Destination */}
-                      <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Origin / Consignee Route
-                        </div>
-                        <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
-                          {entry.origin || "Toronto, ON, Canada"}
-                        </div>
-                        <div className="text-xs font-medium text-slate-600 truncate">
-                          ➔ {entry.destination || "Chicago, IL, USA"}
-                        </div>
-                      </div>
-
-                      {/* Tax & Business IDs */}
-                      <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Tax & Importer IDs
-                        </div>
-                        <div className="text-xs font-mono font-semibold text-slate-700 mt-0.5">
-                          IRS/EIN: {entry.irs_number || "Not specified"}
-                        </div>
-                        <div className="text-xs font-mono font-semibold text-slate-700">
-                          INS/CRA: {entry.ins_number || "Not specified"}
-                        </div>
-                      </div>
-
-                      {/* Customs Broker */}
-                      <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          Customs Broker
-                        </div>
-                        <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
-                          {entry.customs_broker_name}
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          Filer: {entry.customs_broker_filer_code} • {entry.broker_entry_number || "Pending"}
-                        </div>
-                      </div>
-
-                      {/* HTS Summary & Valuation */}
-                      <div>
-                        <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          HTS Items & Valuation
-                        </div>
-                        <div className="text-xs font-bold text-emerald-700 mt-0.5 font-mono">
-                          ${(entry.declared_value || 0).toLocaleString()} {entry.currency || "USD"}
-                        </div>
-                        <div className="text-[11px] text-slate-500">
-                          {entry.hts_items?.length || 0} HTS classification(s)
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bottom: HTS Codes Pills */}
-                    {entry.hts_items && entry.hts_items.length > 0 && (
-                      <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
-                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                          HTS Codes:
-                        </span>
-                        {entry.hts_items.map((item, idx) => (
-                          <div
-                            key={idx}
-                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs shadow-2xs font-mono"
+                        {/* Right: Quick Action Controls */}
+                        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+                          {/* Status Change Dropdown */}
+                          <select
+                            value={entry.customs_status}
+                            onChange={(e) =>
+                              updateCustomsStatus(entry.id, e.target.value)
+                            }
+                            className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer shadow-2xs"
                           >
-                            <span className="font-bold text-sky-700">{item.hts_code}</span>
-                            <span className="text-slate-300">|</span>
-                            <span className="text-[11px] text-slate-600 truncate max-w-[200px]">
-                              {item.description}
-                            </span>
-                            <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1 rounded">
-                              ({item.duty_rate_percent || 0}% duty)
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+                            <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
+                            <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
+                            <option value="ACCEPTED">ACE/ACI Accepted</option>
+                            <option value="CLEARED">Cleared / Green Light</option>
+                            <option value="HOLD_INSPECTION">Border Exam Hold</option>
+                            <option value="REFUSED">Border Refused</option>
+                          </select>
 
-            </div>
-          )}
-        </div>
-      )}
+                          <button
+                            onClick={async () => {
+                              await syncBorderConnectStatus(
+                                entry.lead_number,
+                                entry.lead_number_type
+                              );
+                            }}
+                            title="Sync live status with BorderConnect"
+                            className="flex items-center gap-1.5 px-3 py-2 bg-sky-50 hover:bg-sky-100 text-sky-700 border border-sky-200 text-xs font-bold rounded-xl transition-all cursor-pointer shadow-2xs"
+                          >
+                            <RefreshCw className="w-3.5 h-3.5" />
+                            <span>BC Sync</span>
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedEntry(entry);
+                              setIsBarcodeModalOpen(true);
+                            }}
+                            title="Print Barcode & Lead Sheet"
+                            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                          >
+                            <Barcode className="w-4 h-4 text-slate-700" />
+                          </button>
+
+                          <button
+                            onClick={() => {
+                              setSelectedEntry(entry);
+                              setIsInvoiceModalOpen(true);
+                            }}
+                            title="View Customs Commercial Invoice"
+                            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                          >
+                            <FileText className="w-4 h-4 text-slate-700" />
+                          </button>
+
+                          <button
+                            onClick={() => handleOpenEditModal(entry)}
+                            className="px-3.5 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-xl transition-colors cursor-pointer shadow-xs"
+                          >
+                            Edit Details
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Middle Section: Route & Tax / Broker Data Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
+                        {/* Origin to Destination */}
+                        <div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Origin / Consignee Route
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
+                            {entry.origin || "Toronto, ON, Canada"}
+                          </div>
+                          <div className="text-xs font-medium text-slate-600 truncate">
+                            ➔ {entry.destination || "Chicago, IL, USA"}
+                          </div>
+                        </div>
+
+                        {/* Tax & Business IDs */}
+                        <div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Tax & Importer IDs
+                          </div>
+                          <div className="text-xs font-mono font-semibold text-slate-700 mt-0.5">
+                            IRS/EIN: {entry.irs_number || "Not specified"}
+                          </div>
+                          <div className="text-xs font-mono font-semibold text-slate-700">
+                            INS/CRA: {entry.ins_number || "Not specified"}
+                          </div>
+                        </div>
+
+                        {/* Customs Broker */}
+                        <div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Customs Broker
+                          </div>
+                          <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
+                            {entry.customs_broker_name}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            Filer: {entry.customs_broker_filer_code} • {entry.broker_entry_number || "Pending"}
+                          </div>
+                        </div>
+
+                        {/* HTS Summary & Valuation */}
+                        <div>
+                          <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            HTS Items & Valuation
+                          </div>
+                          <div className="text-xs font-bold text-emerald-700 mt-0.5 font-mono">
+                            ${(entry.declared_value || 0).toLocaleString()} {entry.currency || "USD"}
+                          </div>
+                          <div className="text-[11px] text-slate-500">
+                            {entry.hts_items?.length || 0} HTS classification(s)
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Bottom: HTS Codes Pills */}
+                      {entry.hts_items && entry.hts_items.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 mt-3 pt-3 border-t border-slate-100">
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            HTS Codes:
+                          </span>
+                          {entry.hts_items.map((item, idx) => (
+                            <div
+                              key={idx}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs shadow-2xs font-mono"
+                            >
+                              <span className="font-bold text-sky-700">{item.hts_code}</span>
+                              <span className="text-slate-300">|</span>
+                              <span className="text-[11px] text-slate-600 truncate max-w-[200px]">
+                                {item.description}
+                              </span>
+                              <span className="text-[10px] font-semibold text-emerald-600 bg-emerald-50 px-1 rounded">
+                                ({item.duty_rate_percent || 0}% duty)
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+
+              </div>
+            )}
+          </div>
+        )}
 
       {/* TAB CONTENT: BorderConnect Live EDI Gateway & Real-Time Shipment Sync */}
       {activeTab === "borderconnect" && (
@@ -1195,13 +1193,12 @@ export default function CustomsPage() {
 
                         <td className="px-5 py-4">
                           <span
-                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${
-                              isHold
-                                ? "bg-rose-50 text-rose-700 border border-rose-200 animate-pulse"
-                                : isCleared
+                            className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold ${isHold
+                              ? "bg-rose-50 text-rose-700 border border-rose-200 animate-pulse"
+                              : isCleared
                                 ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
                                 : "bg-amber-50 text-amber-700 border border-amber-200"
-                            }`}
+                              }`}
                           >
                             <span className={`w-1.5 h-1.5 rounded-full ${isHold ? "bg-rose-500" : isCleared ? "bg-emerald-500" : "bg-amber-500"}`} />
                             {isCleared ? "CLEAR TO CROSS" : isHold ? "SECONDARY EXAM HOLD" : "WITH BROKER"}
@@ -1277,11 +1274,10 @@ export default function CustomsPage() {
               >
                 <div className="flex items-center justify-between">
                   <span
-                    className={`px-2.5 py-0.5 text-xs font-black rounded-lg uppercase ${
-                      entry.border_direction === "INBOUND_US"
-                        ? "bg-blue-600 text-white"
-                        : "bg-emerald-600 text-white"
-                    }`}
+                    className={`px-2.5 py-0.5 text-xs font-black rounded-lg uppercase ${entry.border_direction === "INBOUND_US"
+                      ? "bg-blue-600 text-white"
+                      : "bg-emerald-600 text-white"
+                      }`}
                   >
                     {entry.lead_number_type} • {entry.border_direction === "INBOUND_US" ? "US CBP" : "CBSA"}
                   </span>
@@ -1516,11 +1512,10 @@ export default function CustomsPage() {
                       CODE: {p.code}
                     </span>
                     <span
-                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${
-                        p.country === "US"
-                          ? "bg-blue-100 text-blue-800"
-                          : "bg-emerald-100 text-emerald-800"
-                      }`}
+                      className={`text-xs font-bold px-2 py-0.5 rounded-full ${p.country === "US"
+                        ? "bg-blue-100 text-blue-800"
+                        : "bg-emerald-100 text-emerald-800"
+                        }`}
                     >
                       {p.country === "US" ? "🇺🇸 US CBP" : "🇨🇦 CBSA"}
                     </span>
@@ -2272,28 +2267,28 @@ export default function CustomsPage() {
 
               {/* Line Items Table */}
               <div className="overflow-x-auto">
-              <table className="w-full text-left border-collapse border border-slate-200">
-                <thead>
-                  <tr className="bg-slate-100 font-bold text-slate-600 border-b">
-                    <th className="p-2">HTS Code</th>
-                    <th className="p-2">Description of Goods</th>
-                    <th className="p-2">Qty</th>
-                    <th className="p-2">Unit Value</th>
-                    <th className="p-2 text-right">Total ({selectedEntry.currency})</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-slate-100">
-                  {selectedEntry.hts_items?.map((item, idx) => (
-                    <tr key={idx}>
-                      <td className="p-2 font-mono font-bold text-blue-600">{item.hts_code}</td>
-                      <td className="p-2">{item.description}</td>
-                      <td className="p-2">{item.quantity} {item.unit}</td>
-                      <td className="p-2">${item.unit_price}</td>
-                      <td className="p-2 text-right font-bold">${item.total_value?.toLocaleString()}</td>
+                <table className="w-full text-left border-collapse border border-slate-200">
+                  <thead>
+                    <tr className="bg-slate-100 font-bold text-slate-600 border-b">
+                      <th className="p-2">HTS Code</th>
+                      <th className="p-2">Description of Goods</th>
+                      <th className="p-2">Qty</th>
+                      <th className="p-2">Unit Value</th>
+                      <th className="p-2 text-right">Total ({selectedEntry.currency})</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {selectedEntry.hts_items?.map((item, idx) => (
+                      <tr key={idx}>
+                        <td className="p-2 font-mono font-bold text-blue-600">{item.hts_code}</td>
+                        <td className="p-2">{item.description}</td>
+                        <td className="p-2">{item.quantity} {item.unit}</td>
+                        <td className="p-2">${item.unit_price}</td>
+                        <td className="p-2 text-right font-bold">${item.total_value?.toLocaleString()}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
               </div>
 
               <div className="flex flex-wrap justify-between items-center gap-2 bg-slate-900 text-white p-4 rounded-xl font-bold">

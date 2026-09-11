@@ -47,6 +47,8 @@ import {
   Save,
   Info,
   AlertTriangle,
+  Loader,
+  Loader2,
 } from "lucide-react";
 
 import { useShipmentStore } from "../stores/useShipmentStore";
@@ -516,6 +518,8 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
     { id: "height", label: "Height Profile" },
   ];
 
+
+
   return (
     <div className="bg-slate-900 rounded-2xl border border-slate-700 p-5 space-y-4 text-white shadow-xl">
       {/* Header controls */}
@@ -959,6 +963,7 @@ import EntityHistoryModal from "./EntityHistoryModal";
 import MultiStopRouteBuilderModal from "./trips/MultiStopRouteBuilderModal";
 import { History, LayoutGrid, Map } from "lucide-react";
 import { Link } from "react-router-dom";
+
 
 export default function DispatcherDashboard({
   shipments,
@@ -2160,6 +2165,14 @@ export default function DispatcherDashboard({
       )
     );
   });
+  if (shipments.length === 0 && isLoading) {
+    return (
+      <div className="flex flex-col min-h-[300px] items-center justify-center">
+        <Loader2 className="animate-spin" />
+        Loading Loads...
+      </div>
+    );
+  }
   return (
     <div
       id="dispatcher-suite"
@@ -4506,7 +4519,8 @@ export default function DispatcherDashboard({
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-xs text-slate-800">
-                    {filteredAndSortedShipments.length === 0 ? (
+
+                    {!isLoading && filteredAndSortedShipments.length === 0 ? (
                       <tr>
                         <td
                           colSpan={7}

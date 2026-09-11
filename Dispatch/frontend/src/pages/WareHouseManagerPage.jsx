@@ -47,7 +47,6 @@ export default function WarehouseManagerPage() {
   const [intakeNotes, setIntakeNotes] = useState("");
   const [intakePallets, setIntakePallets] = useState(1);
   const [intakeWeight, setIntakeWeight] = useState(1000);
-  console.log(intakeWeight);
   const [intakeCondition, setIntakeCondition] = useState(
     "Passed Inspection (100% Intact)"
   );
@@ -254,8 +253,8 @@ export default function WarehouseManagerPage() {
           <button
             onClick={() => setActiveTab("intake")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 border ${activeTab === "intake"
-                ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+              ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
+              : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
               }`}
           >
             <Boxes className="h-4 w-4" />
@@ -265,8 +264,8 @@ export default function WarehouseManagerPage() {
           <button
             onClick={() => setActiveTab("whatsapp")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 border ${activeTab === "whatsapp"
-                ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+              ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
+              : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
               }`}
           >
             <MessageSquare className="h-4 w-4" />
@@ -330,8 +329,8 @@ export default function WarehouseManagerPage() {
                 <button
                   onClick={() => setWarehouseIntakeFilter("awaiting")}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${warehouseIntakeFilter === "awaiting"
-                      ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                      : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
+                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
                     }`}
                 >
                   <PackageCheck className="h-4 w-4" />
@@ -340,8 +339,8 @@ export default function WarehouseManagerPage() {
                 <button
                   onClick={() => setWarehouseIntakeFilter("at_warehouse")}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${warehouseIntakeFilter === "at_warehouse"
-                      ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                      : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
+                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
                     }`}
                 >
                   <Warehouse className="h-4 w-4" />
@@ -477,168 +476,168 @@ export default function WarehouseManagerPage() {
           {/* Table of Shipments */}
           <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono uppercase text-slate-500 font-bold">
-                  <th className="p-3">Tracking / Customer</th>
-                  <th className="p-3">Commitment Level</th>
-                  <th className="p-3">Route (Origin → Dest)</th>
-                  <th className="p-3">Cargo & Weight</th>
-                  <th className="p-3">Status</th>
-                  <th className="p-3">Warehouse Location</th>
-                  <th className="p-3 text-right">Intake Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {filteredLoads.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={7}
-                      className="p-8 text-center text-slate-400 text-xs"
-                    >
-                      No matching shipments found for the selected warehouse
-                      filter.
-                    </td>
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono uppercase text-slate-500 font-bold">
+                    <th className="p-3">Tracking / Customer</th>
+                    <th className="p-3">Commitment Level</th>
+                    <th className="p-3">Route (Origin → Dest)</th>
+                    <th className="p-3">Cargo & Weight</th>
+                    <th className="p-3">Status</th>
+                    <th className="p-3">Warehouse Location</th>
+                    <th className="p-3 text-right">Intake Actions</th>
                   </tr>
-                ) : (
-                  filteredLoads.map((s) => {
-                    const { st, isAtWh, isPostWarehouse, isAwaitingIntake } =
-                      getStatusStage(s);
-                    const info = getCommitmentInfo(s);
-
-                    return (
-                      <tr
-                        key={s.id}
-                        className="hover:bg-slate-50/80 transition-colors"
+                </thead>
+                <tbody className="divide-y divide-slate-100">
+                  {filteredLoads.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan={7}
+                        className="p-8 text-center text-slate-400 text-xs"
                       >
-                        <td className="p-3">
-                          <div className="font-mono font-bold text-indigo-600 text-xs">
-                            {s.load_number || s.tracking_number}
-                          </div>
-                          <div className="text-xs font-semibold text-slate-900 mt-0.5">
-                            {s.customerName || s.customer_name}
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <span
-                            className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-3xs font-extrabold border ${info.badgeClass}`}
-                          >
-                            <span>{info.icon}</span>
-                            <span>{info.label}</span>
-                          </span>
-                        </td>
-                        <td className="p-3 text-xs text-slate-600">
-                          <div className="font-semibold text-slate-800">
-                            {s.shipper_district},{s.shipper_state},
-                            {s.shipper_country}
-                          </div>
-                          <div className="text-3xs text-slate-400">
-                            → {s.consignee_district},{s.consignee_state},
-                            {s.consignee_country}
-                          </div>
-                        </td>
-                        <td className="p-3 text-xs text-slate-700">
-                          <div className="font-medium text-slate-900">
-                            {s.cargo ||
-                              s.cargo_description ||
-                              "General Freight"}
-                          </div>
-                          <div className="text-3xs font-mono text-slate-500 mt-0.5">
-                            {s.pieces || s.pallets || 1} Pallets •{" "}
-                            {s.weight || s.weight || 1000} Lbs
-                          </div>
-                        </td>
-                        <td className="p-3">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-3xs font-bold uppercase tracking-wider inline-block ${isAtWh
+                        No matching shipments found for the selected warehouse
+                        filter.
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredLoads.map((s) => {
+                      const { st, isAtWh, isPostWarehouse, isAwaitingIntake } =
+                        getStatusStage(s);
+                      const info = getCommitmentInfo(s);
+
+                      return (
+                        <tr
+                          key={s.id}
+                          className="hover:bg-slate-50/80 transition-colors"
+                        >
+                          <td className="p-3">
+                            <div className="font-mono font-bold text-indigo-600 text-xs">
+                              {s.load_number || s.tracking_number}
+                            </div>
+                            <div className="text-xs font-semibold text-slate-900 mt-0.5">
+                              {s.customerName || s.customer_name}
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <span
+                              className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-3xs font-extrabold border ${info.badgeClass}`}
+                            >
+                              <span>{info.icon}</span>
+                              <span>{info.label}</span>
+                            </span>
+                          </td>
+                          <td className="p-3 text-xs text-slate-600">
+                            <div className="font-semibold text-slate-800">
+                              {s.shipper_district},{s.shipper_state},
+                              {s.shipper_country}
+                            </div>
+                            <div className="text-3xs text-slate-400">
+                              → {s.consignee_district},{s.consignee_state},
+                              {s.consignee_country}
+                            </div>
+                          </td>
+                          <td className="p-3 text-xs text-slate-700">
+                            <div className="font-medium text-slate-900">
+                              {s.cargo ||
+                                s.cargo_description ||
+                                "General Freight"}
+                            </div>
+                            <div className="text-3xs font-mono text-slate-500 mt-0.5">
+                              {s.pieces || s.pallets || 1} Pallets •{" "}
+                              {s.weight || s.weight || 1000} Lbs
+                            </div>
+                          </td>
+                          <td className="p-3">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-3xs font-bold uppercase tracking-wider inline-block ${isAtWh
                                 ? "bg-amber-100 text-amber-900 border border-amber-300"
                                 : st === "delivered"
                                   ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
                                   : isPostWarehouse
                                     ? "bg-indigo-100 text-indigo-900 border border-indigo-300"
                                     : "bg-blue-50 text-blue-700 border border-blue-200"
-                              }`}
-                          >
-                            {isAtWh
-                              ? "At Warehouse"
-                              : st === "in_transit"
-                                ? "In Transit"
-                                : st === "out_for_delivery"
-                                  ? "Out for Delivery"
-                                  : st === "delivered"
-                                    ? "Delivered"
-                                    : st === "trip_assigned"
-                                      ? "Trip Assigned"
-                                      : s.status || "Pending"}
-                          </span>
-                        </td>
-                        <td className="p-3 text-xs">
-                          {isAtWh ? (
-                            <span className="font-mono font-bold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-3xs">
-                              📍{" "}
-                              {s.warehouse_location ||
-                                s.warehouseBay ||
-                                "Bay A-1 (Origin Hub)"}
-                            </span>
-                          ) : isPostWarehouse ? (
-                            <span className="text-3xs text-slate-400 font-mono">
-                              En Route Linehaul
-                            </span>
-                          ) : (
-                            <span className="text-3xs text-slate-400 italic">
-                              Unassigned Dock
-                            </span>
-                          )}
-                        </td>
-                        <td className="p-3 text-right">
-                          <div className="flex items-center justify-end space-x-2">
-                            <button
-                              onClick={() => {
-                                setSelectedShipment(s);
-                                setIsDetailModalOpen(true);
-                              }}
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
-                              title="View Load Details"
+                                }`}
                             >
-                              <Eye className="h-4 w-4" />
-                            </button>
-
-                            {isPostWarehouse ? (
+                              {isAtWh
+                                ? "At Warehouse"
+                                : st === "in_transit"
+                                  ? "In Transit"
+                                  : st === "out_for_delivery"
+                                    ? "Out for Delivery"
+                                    : st === "delivered"
+                                      ? "Delivered"
+                                      : st === "trip_assigned"
+                                        ? "Trip Assigned"
+                                        : s.status || "Pending"}
+                            </span>
+                          </td>
+                          <td className="p-3 text-xs">
+                            {isAtWh ? (
+                              <span className="font-mono font-bold text-amber-900 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded text-3xs">
+                                📍{" "}
+                                {s.warehouse_location ||
+                                  s.warehouseBay ||
+                                  "Bay A-1 (Origin Hub)"}
+                              </span>
+                            ) : isPostWarehouse ? (
+                              <span className="text-3xs text-slate-400 font-mono">
+                                En Route Linehaul
+                              </span>
+                            ) : (
+                              <span className="text-3xs text-slate-400 italic">
+                                Unassigned Dock
+                              </span>
+                            )}
+                          </td>
+                          <td className="p-3 text-right">
+                            <div className="flex items-center justify-end space-x-2">
                               <button
                                 onClick={() => {
                                   setSelectedShipment(s);
                                   setIsDetailModalOpen(true);
                                 }}
-                                className="px-3 py-1.5 rounded-lg text-3xs font-bold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer inline-flex items-center space-x-1"
-                                title="This load has already departed or been delivered. Click to view load record."
+                                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                                title="View Load Details"
                               >
-                                <Eye className="h-3 w-3" />
-                                <span>Departed (View)</span>
+                                <Eye className="h-4 w-4" />
                               </button>
-                            ) : (
-                              <button
-                                onClick={() => handleOpenIntakeModal(s)}
-                                className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer inline-flex items-center space-x-1.5 ${isAtWh
+
+                              {isPostWarehouse ? (
+                                <button
+                                  onClick={() => {
+                                    setSelectedShipment(s);
+                                    setIsDetailModalOpen(true);
+                                  }}
+                                  className="px-3 py-1.5 rounded-lg text-3xs font-bold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer inline-flex items-center space-x-1"
+                                  title="This load has already departed or been delivered. Click to view load record."
+                                >
+                                  <Eye className="h-3 w-3" />
+                                  <span>Departed (View)</span>
+                                </button>
+                              ) : (
+                                <button
+                                  onClick={() => handleOpenIntakeModal(s)}
+                                  className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all shadow-sm cursor-pointer inline-flex items-center space-x-1.5 ${isAtWh
                                     ? "bg-slate-100 hover:bg-slate-200 text-slate-800 border border-slate-300"
                                     : "bg-amber-600 hover:bg-amber-700 text-white font-extrabold shadow-amber-200"
-                                  }`}
-                              >
-                                <Warehouse className="h-3.5 w-3.5" />
-                                <span>
-                                  {isAtWh
-                                    ? "Edit Bay / Notes"
-                                    : "Receive at Warehouse"}
-                                </span>
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
+                                    }`}
+                                >
+                                  <Warehouse className="h-3.5 w-3.5" />
+                                  <span>
+                                    {isAtWh
+                                      ? "Edit Bay / Notes"
+                                      : "Receive at Warehouse"}
+                                  </span>
+                                </button>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
             </div>
           </div>
         </div>
