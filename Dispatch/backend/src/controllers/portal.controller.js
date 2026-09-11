@@ -410,6 +410,7 @@ export const tenderUpload = async (req, res) => {
       senderEmail: customer.broker_email || "",
       pdfBuffer: file.buffer,
       fileName: file.originalname,
+      rateRequest,
     });
 
     // The pipeline swallows DB insert failures; for the portal a load that

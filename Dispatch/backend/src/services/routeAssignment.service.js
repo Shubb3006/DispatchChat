@@ -11,7 +11,7 @@
 
 const WESTERN_PROVINCES = ["AB", "BC", "SK", "MB", "ALBERTA", "BRITISH COLUMBIA", "SASKATCHEWAN", "MANITOBA"];
 const WESTERN_CITIES = [
-  "VANCOUVER", "SURREY", "CALGARY", "EDMONTON", "WINNIPEG", 
+  "VANCOUVER", "SURREY", "CALGARY", "EDMONTON", "WINNIPEG",
   "REGINA", "SASKATOON", "KELOWNA", "KAMLOOPS", "LETHBRIDGE"
 ];
 
@@ -49,8 +49,8 @@ export function parseLocationComponents({ city = "", state = "", country = "", f
   return {
     country: detectedCountry,
     rawText: text,
-    city: city.toUpperCase().trim(),
-    state: state.toUpperCase().trim(),
+    city: city?.toUpperCase().trim(),
+    state: state?.toUpperCase().trim(),
   };
 }
 

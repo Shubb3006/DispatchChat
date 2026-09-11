@@ -186,8 +186,8 @@ function heuristicParseEmail(text = "", subject = "", sender = "") {
   const customerName = subject.includes("Weston")
     ? "Weston Wood Solutions"
     : subject.includes("Gap")
-    ? "Gap Transport"
-    : sender ? sender.split("@")[0].replace(/[._]/g, " ").toUpperCase() : "Eilden Logistics Solutions Inc";
+      ? "Gap Transport"
+      : sender ? sender.split("@")[0].replace(/[._]/g, " ").toUpperCase() : "Eilden Logistics Solutions Inc";
 
   const isCrossBorder = clean.toLowerCase().includes("brampton") || clean.toLowerCase().includes("ontario") || clean.toLowerCase().includes("canada");
 
@@ -243,42 +243,42 @@ function normalizeTenderData(data, senderEmail) {
   return {
     load_number: data.load_number || data.po_number || "",
     status: "Entered",
-    customer_name: data.customer_name || "Logistics Customer",
-    customer_email: data.customer_email || senderEmail || "dispatch@customer.com",
-    customer_phone: data.customer_phone || "N/A",
-    customer_billing_address: data.customer_billing_address || "Accounts Payable Dept",
+    customer_name: data.customer_name || null,
+    customer_email: data.customer_email || senderEmail || null,
+    customer_phone: data.customer_phone || null,
+    customer_billing_address: data.customer_billing_address || null,
     rate: typeof data.rate === "number" ? data.rate : parseFloat(data.rate) || 2850.0,
     currency: data.currency || "USD",
     po_number: data.po_number || data.load_number || `PO-${Math.floor(1000 + Math.random() * 9000)}`,
-    shipper_name: data.shipper_name || "Shipper Facility",
-    shipper_street_address: data.shipper_street_address || data.shipper_address || "300 Orenda Road",
-    shipper_district: data.shipper_district || "",
-    shipper_city: data.shipper_city || "Brampton",
-    shipper_state: data.shipper_state || "ON",
-    shipper_country: data.shipper_country || "CAN",
-    shipper_zipcode: data.shipper_zipcode || "L6T 1G1",
+    shipper_name: data.shipper_name || null,
+    shipper_street_address: data.shipper_street_address || data.shipper_address || null,
+    shipper_district: data.shipper_district || null,
+    shipper_city: data.shipper_city || null,
+    shipper_state: data.shipper_state || null,
+    shipper_country: data.shipper_country || null,
+    shipper_zipcode: data.shipper_zipcode || null,
     origin: originStr,
-    shipper_phone: data.shipper_phone || "N/A",
+    shipper_phone: data.shipper_phone || null,
     pickup_date: data.pickup_date || new Date().toISOString().slice(0, 10),
-    pickup_time: data.pickup_time || "08:00 - 16:00",
-    consignee_name: data.consignee_name || "Receiving Facility",
-    consignee_street_address: data.consignee_street_address || data.consignee_address || "45150 Highway 27",
-    consignee_district: data.consignee_district || "",
-    consignee_city: data.consignee_city || "Davenport",
-    consignee_state: data.consignee_state || "FL",
-    consignee_country: data.consignee_country || "USA",
-    consignee_zipcode: data.consignee_zipcode || "33896",
+    pickup_time: data.pickup_time || null,
+    consignee_name: data.consignee_name || null,
+    consignee_street_address: data.consignee_street_address || data.consignee_address || null,
+    consignee_district: data.consignee_district || null,
+    consignee_city: data.consignee_city || null,
+    consignee_state: data.consignee_state || null,
+    consignee_country: data.consignee_country || null,
+    consignee_zipcode: data.consignee_zipcode || null,
     destination: destStr,
-    consignee_phone: data.consignee_phone || "N/A",
+    consignee_phone: data.consignee_phone || null,
     delivery_date: data.delivery_date || new Date(Date.now() + 86400000 * 2).toISOString().slice(0, 10),
-    delivery_time: data.delivery_time || "08:00 - 16:00",
-    commodity: data.commodity || "General Freight Cargo",
+    delivery_time: data.delivery_time || null,
+    commodity: data.commodity || null,
     pieces: parseInt(data.pieces, 10) || 1,
     piece_type: (data.piece_type || "SKIDS").toUpperCase(),
     weight: parseInt(data.weight, 10) || 3856,
     load_type: data.load_type || "FTL",
-    special_instructions: data.special_instructions || "Standard carrier delivery.",
-    customs_broker: data.customs_broker || "Livingston International",
+    special_instructions: data.special_instructions || null,
+    customs_broker: data.customs_broker || null,
   };
 }
 

@@ -24,6 +24,7 @@ export async function processLoadConfirmationPipeline({
   pdfBuffer = null,
   fileName = "load-confirmation.pdf",
   explicitTender = null,
+  rateRequest = null,
 }) {
   console.log(`\n🚀 [Pipeline Start] Processing inbound Load Confirmation: "${emailSubject}" from ${senderEmail}`);
 
@@ -31,6 +32,24 @@ export async function processLoadConfirmationPipeline({
   let tenderData;
   let extractionSource = "gemini-ai";
   let fallbackReason = null;
+
+  // if (explicitTender && explicitTender.shipper_name) {
+  //   tenderData = explicitTender;
+  //   extractionSource = "explicit-payload";
+  // } else {
+  //   const extraction = await extractLoadTenderWithGemini({
+  //     emailText,
+  //     emailSubject,
+  //     senderEmail,
+  //     pdfBuffer,
+  //   });
+  //   tenderData = extraction.data;
+  //   extractionSource = extraction.source;
+  //   fallbackReason = extraction.fallback_reason || null;
+  //   if (extractionSource !== "gemini-ai") {
+  //     console.warn(`⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`);
+  //   }
+  // }
 
   if (explicitTender && explicitTender.shipper_name) {
     tenderData = explicitTender;
@@ -42,13 +61,94 @@ export async function processLoadConfirmationPipeline({
       senderEmail,
       pdfBuffer,
     });
+
     tenderData = extraction.data;
     extractionSource = extraction.source;
     fallbackReason = extraction.fallback_reason || null;
+
     if (extractionSource !== "gemini-ai") {
-      console.warn(`⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`);
+      console.warn(
+        `⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`
+      );
     }
   }
+
+
+  /* =========================================================
+     MERGE RATE REQUEST + GEMINI DATA
+     ========================================================= */
+  console.log(tenderData)
+  const finalTenderData = {
+    ...tenderData,
+
+    // PDF/Gemini first, Rate Request as fallback
+    origin: tenderData.origin || rateRequest?.origin || null,
+    destination: tenderData.destination || rateRequest?.destination || null,
+
+    shipper_name:
+      tenderData.shipper_name ||
+      rateRequest?.shipper_name ||
+      null,
+
+    shipper_address:
+      tenderData.shipper_address ||
+      rateRequest?.shipper_street_address ||
+      null,
+
+    shipper_district:
+      tenderData.shipper_district ||
+      rateRequest?.shipper_district ||
+      null,
+
+    shipper_state:
+      tenderData.shipper_state ||
+      rateRequest?.shipper_state ||
+      null,
+
+    shipper_country:
+      tenderData.shipper_country ||
+      rateRequest?.shipper_country ||
+      null,
+
+    shipper_zipcode:
+      tenderData.shipper_zipcode ||
+      rateRequest?.shipper_zipcode ||
+      null,
+
+    consignee_name:
+      tenderData.consignee_name ||
+      rateRequest?.consignee_name ||
+      null,
+
+    consignee_address:
+      tenderData.consignee_address ||
+      rateRequest?.consignee_address ||
+      null,
+
+    consignee_district:
+      tenderData.consignee_district ||
+      rateRequest?.consignee_district ||
+      null,
+
+    consignee_state:
+      tenderData.consignee_state ||
+      rateRequest?.consignee_state ||
+      null,
+
+    consignee_country:
+      tenderData.consignee_country ||
+      rateRequest?.consignee_country ||
+      null,
+
+    consignee_zipcode:
+      tenderData.consignee_zipcode ||
+      rateRequest?.consignee_zipcode ||
+      null,
+  };
+
+  tenderData = finalTenderData;
+
+
 
   // Generate unique Load Number
   // let generatedLoadNumber = tenderData.load_number ? String(tenderData.load_number).replace(/[^0-9]/g, "") : "";
