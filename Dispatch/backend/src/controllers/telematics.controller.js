@@ -189,7 +189,8 @@ export const getGeofenceAlerts = async (req, res) => {
 export const getPublicTracking = async (req, res) => {
   try {
     const { trackingNumber } = req.params;
-    
+    console.log(trackingNumber)
+
     // Live tracking payload with current tractor GPS telemetry
     const fleetData = await getVehicleLocations();
     const liveVehicle = fleetData?.vehicles?.[0] || {

@@ -431,9 +431,8 @@ export default function PublicTrackingPage() {
           <div className="mx-auto w-full max-w-md">
             <section className="rounded-xl border border-slate-200 bg-white p-5 text-center shadow-sm sm:p-6">
               <span
-                className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full ${
-                  missing ? "bg-rose-50" : "bg-amber-50"
-                }`}
+                className={`mx-auto flex h-11 w-11 items-center justify-center rounded-full ${missing ? "bg-rose-50" : "bg-amber-50"
+                  }`}
               >
                 <AlertCircle className={`h-5 w-5 ${missing ? "text-rose-600" : "text-amber-600"}`} />
               </span>

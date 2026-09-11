@@ -313,11 +313,11 @@ export const getPortalLoadDetail = async (req, res) => {
         .catch(() => ({ rows: [{ total: 0, unread: 0 }] })),
       load.rate_request_id
         ? pool
-            .query(
-              `SELECT quoted_price, quote_currency, responded_at FROM rate_requests WHERE id = $1`,
-              [load.rate_request_id]
-            )
-            .catch(() => ({ rows: [] }))
+          .query(
+            `SELECT quoted_price, quote_currency, responded_at FROM rate_requests WHERE id = $1`,
+            [load.rate_request_id]
+          )
+          .catch(() => ({ rows: [] }))
         : Promise.resolve({ rows: [] }),
       pool
         .query(
@@ -344,20 +344,20 @@ export const getPortalLoadDetail = async (req, res) => {
       load: shapeLoad(load),
       quote: quoteResult.rows[0]
         ? {
-            price: quoteResult.rows[0].quoted_price,
-            currency: quoteResult.rows[0].quote_currency || "USD",
-            accepted_at: quoteResult.rows[0].responded_at,
-          }
+          price: quoteResult.rows[0].quoted_price,
+          currency: quoteResult.rows[0].quote_currency || "USD",
+          accepted_at: quoteResult.rows[0].responded_at,
+        }
         : null,
       carrier:
         driverName || carrierRow.truck_number || load.pickup_trailer_number
           ? {
-              driver_name: driverName || null,
-              truck_number: carrierRow.truck_number || null,
-              // A trailer number is not a truck number; the portal labels the
-              // two apart, so never let one stand in for the other.
-              trailer_number: load.pickup_trailer_number || null,
-            }
+            driver_name: driverName || null,
+            truck_number: carrierRow.truck_number || null,
+            // A trailer number is not a truck number; the portal labels the
+            // two apart, so never let one stand in for the other.
+            trailer_number: load.pickup_trailer_number || null,
+          }
           : null,
       eta: buildEta(load),
       lifecycle: buildLifecycle(load, { customsEntry: entry, timeline }),
@@ -373,11 +373,11 @@ export const getPortalLoadDetail = async (req, res) => {
       // works in dev and behind whatever domain the portal is deployed on.
       tracking: token
         ? {
-            token,
-            public_url: process.env.PUBLIC_TRACKING_BASE_URL
-              ? buildPublicTrackingUrl(token)
-              : `${String(req.headers.origin || "").replace(/\/+$/, "") || buildPublicTrackingUrl("").replace(/\/track\/$/, "")}/track/${token}`,
-          }
+          token,
+          public_url: process.env.PUBLIC_TRACKING_BASE_URL
+            ? buildPublicTrackingUrl(token)
+            : `${String(req.headers.origin || "").replace(/\/+$/, "") || buildPublicTrackingUrl("").replace(/\/track\/$/, "")}/track/${token}`,
+        }
         : null,
     });
   } catch (error) {
@@ -543,16 +543,19 @@ export const portalTrackLookup = async (req, res) => {
 // lane, milestones, ETA. No prices, no contacts, no documents.
 // ---------------------------------------------------------------------------
 export const publicTrackByToken = async (req, res) => {
+  // console.log(req.body)
   try {
     const token = String(req.params.token || "").trim();
-    if (!/^[a-f0-9]{16,64}$/i.test(token)) {
+    if (!/^\d+$/.test(token)) {
+      // console.log("fals")
       return res.status(404).json({
         success: false,
-        message: "That tracking link is not valid. Ask your Nishan Transport contact for a current link.",
+        message:
+          "That tracking link is not valid. Ask your Nishan Transport contact for a current link.",
       });
     }
 
-    const result = await pool.query(`SELECT * FROM loads WHERE tracking_token = $1`, [token]);
+    const result = await pool.query(`SELECT * FROM loads WHERE load_number = $1`, [token]);
     const load = result.rows[0];
     if (!load) {
       return res.status(404).json({
