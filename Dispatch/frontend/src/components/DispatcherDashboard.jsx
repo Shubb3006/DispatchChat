@@ -1076,13 +1076,11 @@ export default function DispatcherDashboard({
   const [editScheduledTime, setEditScheduledTime] = useState("");
   const [pendingDocPreview, setPendingDocPreview] = useState(null);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [customerId, setCustomerId] = useState("CUST001");
-  const [customerName, setCustomerName] = useState("AeroParts Manufacturing");
-  const [customerEmail, setCustomerEmail] = useState("logistics@aeroparts.com");
-  const [customerPhone, setCustomerPhone] = useState("+1 (416) 555-0100");
-  const [customerAddress, setCustomerAddress] = useState(
-    "150 Industrial Pkwy, Sector 4, Toronto, ON"
-  );
+  const [customerId, setCustomerId] = useState("");
+  const [customerName, setCustomerName] = useState("");
+  const [customerEmail, setCustomerEmail] = useState("");
+  const [customerPhone, setCustomerPhone] = useState("");
+  const [customerAddress, setCustomerAddress] = useState("");
   const [pbNum, setPbNum] = useState("");
   const [shipperName, setShipperName] = useState("");
   const [shipperAddress, setShipperAddress] = useState("");
@@ -2012,7 +2010,9 @@ export default function DispatcherDashboard({
   };
   const handleCreateLoad = async (e) => {
     e.preventDefault();
-    console.log("ss");
+    // console.log("ss");
+    // console.log(customerName)
+    // console.log(customerId)
     if (!customerName || !shipperAddress || !consigneeAddress) return;
     // Robust parsing of load/tracking numbers (supporting custom prefixes like "LOAD " or "L" or "LD-")
 
@@ -2105,11 +2105,11 @@ export default function DispatcherDashboard({
     if (success) {
       setSelectedShipment(newShipment);
       setShowAddForm(false);
-      setCustomerId("CUST001");
-      setCustomerName("AeroParts Manufacturing");
-      setCustomerEmail("logistics@aeroparts.com");
-      setCustomerPhone("+1 (416) 555-0100");
-      setCustomerAddress("150 Industrial Pkwy, Sector 4, Toronto, ON");
+      setCustomerId("");
+      setCustomerName("");
+      setCustomerEmail("");
+      setCustomerPhone("");
+      setCustomerAddress("");
 
       setShipperName("");
       setShipperAddress("");
@@ -3567,7 +3567,7 @@ export default function DispatcherDashboard({
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div>
                         <label className="block text-3xs font-bold text-slate-500 uppercase">
-                          Select Profile
+                          Customer / Broker
                         </label>
                         <select
                           value={customerId}
@@ -3576,9 +3576,9 @@ export default function DispatcherDashboard({
                             setCustomerId(val);
                             const chosen = customers.find((c) => c.id === val);
                             if (chosen) {
-                              setCustomerName(chosen.name);
-                              setCustomerEmail(chosen.email || "");
-                              setCustomerPhone(chosen.phone || "");
+                              setCustomerName(chosen.company_name);
+                              setCustomerEmail(chosen.broker_email || "");
+                              setCustomerPhone(chosen.broker_contact_number || "");
                               setCustomerAddress(chosen.address || "");
                             } else if (val === "NEW") {
                               setCustomerName("");
@@ -3589,9 +3589,10 @@ export default function DispatcherDashboard({
                           }}
                           className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
                         >
+                          <option>Select a Customer</option>
                           {customers.map((cust) => (
                             <option key={cust.id} value={cust.id}>
-                              {cust.name} ({cust.id})
+                              {cust.company_name} — {cust.broker_name}
                             </option>
                           ))}
                           <option value="NEW">Custom / New Profile</option>

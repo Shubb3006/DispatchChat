@@ -641,9 +641,8 @@ export default function PortalLoadDetailPage() {
                   <li key={`${event.at || index}-${index}`} className="flex gap-3 pb-5 last:pb-0">
                     <div className="flex flex-none flex-col items-center">
                       <span
-                        className={`mt-1.5 h-2.5 w-2.5 rounded-full ${
-                          TIMELINE_DOT[event.kind] || TIMELINE_DOT.system
-                        }`}
+                        className={`mt-1.5 h-2.5 w-2.5 rounded-full ${TIMELINE_DOT[event.kind] || TIMELINE_DOT.system
+                          }`}
                       />
                       {index < orderedTimeline.length - 1 && <span className="mt-1 w-px flex-1 bg-slate-200" />}
                     </div>
@@ -702,9 +701,8 @@ export default function PortalLoadDetailPage() {
                     )}
                     <div className="min-w-0">
                       <p
-                        className={`text-sm font-semibold ${
-                          stage.done ? "text-slate-900" : "text-slate-500"
-                        }`}
+                        className={`text-sm font-semibold ${stage.done ? "text-slate-900" : "text-slate-500"
+                          }`}
                       >
                         {stage.label}
                       </p>
@@ -762,13 +760,12 @@ export default function PortalLoadDetailPage() {
                   const file = event.dataTransfer?.files?.[0];
                   if (file) handleCustomsUpload(file);
                 }}
-                className={`mt-5 rounded-lg border-2 border-dashed p-5 text-center transition-colors ${
-                  customsDragActive
+                className={`mt-5 rounded-lg border-2 border-dashed p-5 text-center transition-colors ${customsDragActive
                     ? "border-sky-400 bg-sky-50"
                     : customsNeedsDocs
-                    ? "border-amber-400 bg-amber-50"
-                    : "border-slate-300 bg-white hover:border-slate-400"
-                }`}
+                      ? "border-amber-400 bg-amber-50"
+                      : "border-slate-300 bg-white hover:border-slate-400"
+                  }`}
               >
                 <Upload
                   className={`mx-auto h-6 w-6 ${customsNeedsDocs ? "text-amber-600" : "text-slate-400"}`}
@@ -888,9 +885,8 @@ export default function PortalLoadDetailPage() {
                     return (
                       <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                         <div
-                          className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm ${
-                            mine ? "bg-sky-600 text-white" : "border border-slate-200 bg-white text-slate-800"
-                          }`}
+                          className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm ${mine ? "bg-sky-600 text-white" : "border border-slate-200 bg-white text-slate-800"
+                            }`}
                         >
                           {!mine && (
                             <p className="text-[11px] font-semibold text-slate-500">

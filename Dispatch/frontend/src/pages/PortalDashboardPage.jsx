@@ -53,9 +53,8 @@ import { LifecycleBadge } from "../components/PortalLifecycle";
 function StatCard({ label, value, hint, icon: Icon, tone, highlight }) {
   return (
     <div
-      className={`rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md ${
-        highlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
-      }`}
+      className={`rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md ${highlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
+        }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
@@ -539,8 +538,7 @@ export default function PortalDashboardPage() {
                 `${quotedRates.length} quote${quotedRates.length > 1 ? "s" : ""} ready to review`}
               {quotedRates.length > 0 && awaitingTender.length > 0 && " · "}
               {awaitingTender.length > 0 &&
-                `${awaitingTender.length} accepted quote${
-                  awaitingTender.length > 1 ? "s" : ""
+                `${awaitingTender.length} accepted quote${awaitingTender.length > 1 ? "s" : ""
                 } awaiting a load tender`}
               .
             </p>
@@ -599,17 +597,15 @@ export default function PortalDashboardPage() {
               <button
                 key={tab.key}
                 onClick={() => setActiveTab(tab.key)}
-                className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors sm:px-4 ${
-                  activeTab === tab.key
-                    ? "border-sky-600 text-sky-700"
-                    : "border-transparent text-slate-500 hover:text-slate-900"
-                }`}
+                className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors sm:px-4 ${activeTab === tab.key
+                  ? "border-sky-600 text-sky-700"
+                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  }`}
               >
                 {tab.label}
                 <span
-                  className={`ml-2 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${
-                    activeTab === tab.key ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"
-                  }`}
+                  className={`ml-2 rounded-full px-1.5 py-0.5 text-xs tabular-nums ${activeTab === tab.key ? "bg-sky-100 text-sky-700" : "bg-slate-100 text-slate-600"
+                    }`}
                 >
                   {tab.count}
                 </span>
@@ -798,11 +794,10 @@ export default function PortalDashboardPage() {
                             </p>
                           </div>
                           <label
-                            className={`inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${
-                              uploading
-                                ? "cursor-wait bg-slate-100 text-slate-400"
-                                : "bg-sky-600 text-white hover:bg-sky-700"
-                            }`}
+                            className={`inline-flex cursor-pointer items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold transition-colors ${uploading
+                              ? "cursor-wait bg-slate-100 text-slate-400"
+                              : "bg-sky-600 text-white hover:bg-sky-700"
+                              }`}
                           >
                             {uploading ? (
                               <>
@@ -909,7 +904,8 @@ export default function PortalDashboardPage() {
                             )}
                           </td>
                           <td className="min-w-[260px] px-5 py-4 align-top">
-                            <Lane origin={load.origin} destination={load.destination} className="text-sm" />
+                            {/* <Lane origin={load.origin} destination={load.destination} className="text-sm" /> */}
+                            <span className="font-semibold text-slate-900">{load.shipper_district},{load.shipper_state},{load.shipper_country}</span> &rarr; <span className="font-semibold text-slate-900">{load.consignee_district},{load.consignee_state},{load.consignee_country}</span>
                             {load.commodity && <p className="mt-1 text-xs text-slate-500">{load.commodity}</p>}
                             <div className="mt-1.5 flex flex-wrap gap-1.5">
                               {load.is_cross_border && (
@@ -946,9 +942,8 @@ export default function PortalDashboardPage() {
                             <span className="inline-flex items-center justify-end gap-2">
                               {unreadByLoad[load.id] > 0 && (
                                 <span
-                                  title={`${unreadByLoad[load.id]} unread message${
-                                    unreadByLoad[load.id] > 1 ? "s" : ""
-                                  } from dispatch`}
+                                  title={`${unreadByLoad[load.id]} unread message${unreadByLoad[load.id] > 1 ? "s" : ""
+                                    } from dispatch`}
                                   className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 text-[11px] font-bold text-sky-700"
                                 >
                                   <MessageSquare className="h-3 w-3" />

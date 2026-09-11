@@ -303,9 +303,11 @@ const supabase = (supabaseUrl.startsWith('http'))
 export const createLoad = async (req, res) => {
   try {
     const dispatcher_id = req.body.dispatcher_id || (req.user ? req.user.id : null);
+    console.log(req.body)
     const {
       commitment,
 
+      customer_id,
       customer_name,
       customer_email,
       customer_phone,
@@ -345,6 +347,7 @@ export const createLoad = async (req, res) => {
         dispatcher_id,
         commitment,
 
+        customer_id,
         customer_name,
         customer_email,
         customer_phone,
@@ -380,7 +383,7 @@ export const createLoad = async (req, res) => {
         $10,$11,$12,$13,
         $14,$15,$16,$17,
         $18,$19,
-        $20,$21,$22,$23,$24,$25
+        $20,$21,$22,$23,$24,$25,$26
       )
       RETURNING *;
       `,
@@ -388,6 +391,7 @@ export const createLoad = async (req, res) => {
         dispatcher_id,
         commitment,
 
+        customer_id,
         customer_name,
         customer_email,
         customer_phone,
@@ -447,7 +451,7 @@ export const createLoad = async (req, res) => {
         // SOUTHBOUND / OUTBOUND FROM CANADA: Inbound US -> Generate PAPS (SCAC: NISD)
         const leadNumber = `NISD${loadNumClean}`;
         const entryNumber = `CUST-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-        
+
         let portCode = "3801";
         let portName = "Detroit Ambassador Bridge";
         if (String(consignee_state).toUpperCase() === "NY" || String(consignee_state).toUpperCase() === "NJ") {
@@ -890,8 +894,8 @@ export const updateLoad = async (req, res) => {
       changeSummary: status
         ? `Updated load #${updatedLoad.load_number} status to ${String(status).toUpperCase()}`
         : (driver_id
-            ? `Assigned driver ${updatedLoad.driver_name || 'Driver'} to load #${updatedLoad.load_number}`
-            : `Updated load #${updatedLoad.load_number}: ${changedColumns.join(", ")}`),
+          ? `Assigned driver ${updatedLoad.driver_name || 'Driver'} to load #${updatedLoad.load_number}`
+          : `Updated load #${updatedLoad.load_number}: ${changedColumns.join(", ")}`),
       details: {
         changed_columns: changedColumns,
         status: status || updatedLoad.status,

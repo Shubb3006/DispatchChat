@@ -173,6 +173,7 @@ export const useShipmentStore = create((set, get) => ({
 
   addShipment: async (shipment) => {
     set({ isLoading: true });
+    console.log(shipment)
 
     try {
       const payload = {
@@ -183,6 +184,7 @@ export const useShipmentStore = create((set, get) => ({
         truck_id: shipment.truckId,
         trailer_id: shipment.trailerId,
 
+        customer_id: shipment.customer_id,
         customer_name: shipment.customerName,
         customer_email: shipment.customerEmail,
         customer_phone: shipment.customerPhone,

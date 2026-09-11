@@ -2,39 +2,39 @@ import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "../../lib/axios";
 
-const FALLBACK_CUSTOMERS = [
-  {
-    id: "CUST001",
-    name: "AeroParts Manufacturing",
-    email: "logistics@aeroparts.com",
-    phone: "+1 (416) 555-0100",
-    status: "active",
-  },
-  {
-    id: "CUST002",
-    name: "Pacific Lumber & Mill",
-    email: "shipping@paclumber.com",
-    phone: "+1 (425) 555-3800",
-    status: "active",
-  },
-  {
-    id: "CUST003",
-    name: "Fresno Fresh Foods",
-    email: "billing@fresnofresh.com",
-    phone: "+1 (559) 555-4900",
-    status: "active",
-  },
-  {
-    id: "CUST004",
-    name: "Global Logistics Corp",
-    email: "contact@globallogistics.com",
-    phone: "+1 (800) 555-0199",
-    status: "active",
-  },
-];
+// const FALLBACK_CUSTOMERS = [
+//   {
+//     id: "CUST001",
+//     name: "AeroParts Manufacturing",
+//     email: "logistics@aeroparts.com",
+//     phone: "+1 (416) 555-0100",
+//     status: "active",
+//   },
+//   {
+//     id: "CUST002",
+//     name: "Pacific Lumber & Mill",
+//     email: "shipping@paclumber.com",
+//     phone: "+1 (425) 555-3800",
+//     status: "active",
+//   },
+//   {
+//     id: "CUST003",
+//     name: "Fresno Fresh Foods",
+//     email: "billing@fresnofresh.com",
+//     phone: "+1 (559) 555-4900",
+//     status: "active",
+//   },
+//   {
+//     id: "CUST004",
+//     name: "Global Logistics Corp",
+//     email: "contact@globallogistics.com",
+//     phone: "+1 (800) 555-0199",
+//     status: "active",
+//   },
+// ];
 
 export const useCustomerStore = create((set, get) => ({
-  customers: FALLBACK_CUSTOMERS,
+  customers: [],
   isLoading: false,
   error: null,
 
