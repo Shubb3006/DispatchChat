@@ -111,8 +111,20 @@ const FIELD_ORDER = [
 ];
 
 const EMPTY_FORM = {
-  origin: "",
-  destination: "",
+  shipperName: "",
+  shipperAddress: "",
+  shipperPhone: "",
+  shipperDistrict: "",
+  shipperZipcode: "",
+  shipperState: "",
+  shipperCountry: "",
+  consigneeName: "",
+  consigneeAddress: "",
+  consigneePhone: "",
+  consigneeDistrict: "",
+  consigneeZipcode: "",
+  consigneeState: "",
+  consigneeCountry: "",
   pickup_date: "",
   pickup_earliest: "",
   pickup_latest: "",
@@ -257,6 +269,22 @@ export default function PortalRateRequestPage() {
   const [accessorials, setAccessorials] = useState([]);
   const [files, setFiles] = useState([]);
   const [errors, setErrors] = useState({});
+
+
+  // const [shipperName, setShipperName] = useState("");
+  // const [shipperAddress, setShipperAddress] = useState("");
+  // const [shipperPhone, setShipperPhone] = useState("");
+  // const [shipperDistrict, setShipperDistrict] = useState("");
+  // const [shipperZipcode, setShipperZipcode] = useState("");
+  // const [shipperState, setShipperState] = useState("");
+  // const [shipperCountry, setShipperCountry] = useState("");
+  // const [consigneeName, setConsigneeName] = useState("");
+  // const [consigneeAddress, setConsigneeAddress] = useState("");
+  // const [consigneePhone, setConsigneePhone] = useState("");
+  // const [consigneeDistrict, setConsigneeDistrict] = useState("");
+  // const [consigneeZipcode, setConsigneeZipcode] = useState("");
+  // const [consigneeState, setConsigneeState] = useState("");
+  // const [consigneeCountry, setConsigneeCountry] = useState("");
   // "idle" -> "creating" -> "uploading". The store's isSubmittingRate only
   // covers the POST, but the button must stay busy through the attachments.
   const [phase, setPhase] = useState("idle");
@@ -350,8 +378,8 @@ export default function PortalRateRequestPage() {
   const validate = () => {
     const next = {};
 
-    if (!trimmed(form.origin)) next.origin = "Tell us where the freight picks up.";
-    if (!trimmed(form.destination)) next.destination = "Tell us where the freight delivers.";
+    // if (!trimmed(form.origin)) next.origin = "Tell us where the freight picks up.";
+    // if (!trimmed(form.destination)) next.destination = "Tell us where the freight delivers.";
     if (!trimmed(form.commodity)) next.commodity = "We need to know what we are hauling.";
 
     const positives = [
@@ -391,10 +419,10 @@ export default function PortalRateRequestPage() {
     const dims =
       trimmed(form.length_in) || trimmed(form.width_in) || trimmed(form.height_in)
         ? {
-            length_in: numOrNull(form.length_in),
-            width_in: numOrNull(form.width_in),
-            height_in: numOrNull(form.height_in),
-          }
+          length_in: numOrNull(form.length_in),
+          width_in: numOrNull(form.width_in),
+          height_in: numOrNull(form.height_in),
+        }
         : null;
 
     const declaredValue = numOrNull(form.declared_value);
@@ -424,12 +452,12 @@ export default function PortalRateRequestPage() {
         : null,
       hazmat: form.is_hazmat
         ? {
-            is_hazmat: true,
-            un_number: strOrNull(form.un_number),
-            hazard_class: strOrNull(form.hazard_class),
-            packing_group: strOrNull(form.packing_group),
-            emergency_contact: strOrNull(form.emergency_contact),
-          }
+          is_hazmat: true,
+          un_number: strOrNull(form.un_number),
+          hazard_class: strOrNull(form.hazard_class),
+          packing_group: strOrNull(form.packing_group),
+          emergency_contact: strOrNull(form.emergency_contact),
+        }
         : null,
       pickup_window: windowOrNull(form.pickup_date, form.pickup_earliest, form.pickup_latest),
       delivery_window: windowOrNull(form.delivery_date, form.delivery_earliest, form.delivery_latest),
@@ -442,6 +470,8 @@ export default function PortalRateRequestPage() {
   };
 
   const handleSubmit = async (e) => {
+    console.log(form)
+    console.log(trimmed(form.shipperName))
     e.preventDefault();
     if (busy) return;
 
@@ -460,8 +490,19 @@ export default function PortalRateRequestPage() {
 
     setPhase("creating");
     const created = await createRateRequest({
-      origin: trimmed(form.origin),
-      destination: trimmed(form.destination),
+
+      shipperName: trimmed(form.shipperName),
+      shipperAddress: trimmed(form.shipperAddress),
+      shipperDistrict: trimmed(form.shipperDistrict),
+      shipperState: trimmed(form.shipperState),
+      shipperZipcode: trimmed(form.shipperZipcode),
+      shipperCountry: trimmed(form.shipperCountry),
+      consigneeName: trimmed(form.consigneeName),
+      consigneeAddress: trimmed(form.consigneeAddress),
+      consigneeDistrict: trimmed(form.consigneeDistrict),
+      consigneeState: trimmed(form.consigneeState),
+      consigneeZipcode: trimmed(form.consigneeZipcode),
+      consigneeCountry: trimmed(form.consigneeCountry),
       freight_details: buildFreightDetails(),
     });
 
@@ -569,7 +610,7 @@ export default function PortalRateRequestPage() {
             title="Lane"
             hint="Where the freight starts and where it has to end up."
           >
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {/* <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <Field label="Pickup location" htmlFor="origin" required error={errors.origin}>
                 <input
                   id="origin"
@@ -598,6 +639,307 @@ export default function PortalRateRequestPage() {
                   className={inputClass("destination")}
                 />
               </Field>
+            </div> */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Shipper details */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                  2. Shipper (Pickup) Details
+                </div>
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        Shipper Name{" "}
+                        <span className="text-red-800">*</span>
+                      </label>
+                      <input
+                        id="shipperName"
+                        name="shipperName"
+                        required
+                        type="text"
+                        value={form.shipperName}
+                        onChange={handleChange}
+                        placeholder="e.g. AeroParts Toronto HQ"
+                        className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      />
+                    </div>
+                    {/* <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Shipper Phone
+                            </label>
+                            <input
+                              type="text"
+                              value={shipperPhone}
+                              onChange={(e) => setShipperPhone(e.target.value)}
+                              placeholder="+1 (416) 555-0199"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div> */}
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Shipper Street Address{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="shipperAddress"
+                      name="shipperAddress"
+                      required
+                      type="text"
+                      value={form.shipperAddress}
+                      onChange={handleChange}
+                      placeholder="e.g. 400 Britannia Rd E, Mississauga, ON"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                    />
+                  </div>
+                  <div></div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Shipper District{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="shipperDistrict"
+                      name="shipperDistrict"
+                      type="text"
+                      value={form.shipperDistrict}
+                      onChange={handleChange}
+                      placeholder="e.g. Montreal"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Shipper State{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="shipperState"
+                      name="shipperState"
+                      type="text"
+                      value={form.shipperState}
+                      onChange={handleChange}
+                      placeholder="e.g. Montreal"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Shipper Zipcode{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="shipperZipcode"
+                      name="shipperZipcode"
+                      type="number"
+                      value={form.shipperZipcode}
+                      onChange={handleChange}
+                      placeholder="e.g. 12503"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Shipper Country{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="shipperCountry"
+                      name="shipperCountry"
+                      type="text"
+                      value={form.shipperCountry}
+                      onChange={handleChange}
+                      placeholder="e.g. Canada"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Consignee details */}
+              <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
+                  3. Consignee (Delivery) Details
+                </div>
+                {/* <div className="space-y-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                          <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Consignee Name
+                            </label>
+                            <input
+                              type="text"
+                              value={consigneeName}
+                              onChange={(e) => setConsigneeName(e.target.value)}
+                              placeholder="e.g. Midwest Aero Chicago Assembly"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Consignee Phone
+                            </label>
+                            <input
+                              type="text"
+                              value={consigneePhone}
+                              onChange={(e) =>
+                                setConsigneePhone(e.target.value)
+                              }
+                              placeholder="+1 (312) 555-0210"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div>
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Consignee Street Address
+                          </label>
+                          <input
+                            type="text"
+                            value={consigneeAddress}
+                            onChange={(e) =>
+                              setConsigneeAddress(e.target.value)
+                            }
+                            placeholder="e.g. 1000 Assembly Dr, Chicago, IL"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            Destination City & State / Province
+                          </label>
+                          <input
+                            type="text"
+                            value={destination}
+                            onChange={(e) => setDestination(e.target.value)}
+                            placeholder="e.g. Chicago, IL"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            required
+                          />
+                        </div>
+                      </div> */}
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        Consignee Name{" "}
+                        <span className="text-red-800">*</span>
+                      </label>
+                      <input
+                        id="consigneeName"
+                        name="consigneeName"
+                        required
+                        type="text"
+                        value={form.consigneeName}
+                        onChange={handleChange}
+                        placeholder="e.g. AeroParts Toronto HQ"
+                        className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      />
+                    </div>
+                    {/* <div>
+                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                              Shipper Phone
+                            </label>
+                            <input
+                              type="text"
+                              value={shipperPhone}
+                              onChange={(e) => setShipperPhone(e.target.value)}
+                              placeholder="+1 (416) 555-0199"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            />
+                          </div> */}
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Consignee Street Address{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="consigneeAddress"
+                      name="consigneeAddress"
+                      required
+                      type="text"
+                      value={form.consigneeAddress}
+                      onChange={handleChange}
+                      placeholder="e.g. 400 Britannia Rd E, Mississauga, ON"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Consignee District{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="consigneeDistrict"
+                      name="consigneeDistrict"
+                      type="text"
+                      value={form.consigneeDistrict}
+                      onChange={handleChange
+                      }
+                      placeholder="e.g. Montreal"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Consignee State{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="consigneeState"
+                      name="consigneeState"
+                      type="text"
+                      value={form.consigneeState}
+                      onChange={handleChange}
+                      placeholder="e.g. Montreal"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Consignee Zipcode{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="consigneeZipcode"
+                      name="consigneeZipcode"
+                      type="number"
+                      value={form.consigneeZipcode}
+                      onChange={handleChange
+                      }
+                      placeholder="e.g. 12503"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-3xs font-bold text-slate-500 uppercase">
+                      Consignee Country{" "}
+                      <span className="text-red-800">*</span>
+                    </label>
+                    <input
+                      id="consigneeCountry"
+                      name="consigneeCountry"
+                      type="text"
+                      value={form.consigneeCountry}
+                      onChange={handleChange
+                      }
+                      placeholder="e.g. Canada"
+                      className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </Card>
 
@@ -894,11 +1236,10 @@ export default function PortalRateRequestPage() {
                     return (
                       <label
                         key={opt.value}
-                        className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
-                          selected
-                            ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
-                            : "border-slate-300 text-slate-700 hover:bg-slate-50"
-                        }`}
+                        className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${selected
+                          ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
+                          : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1200,11 +1541,10 @@ export default function PortalRateRequestPage() {
                 return (
                   <label
                     key={opt.value}
-                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${
-                      checked
-                        ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
-                        : "border-slate-300 text-slate-700 hover:bg-slate-50"
-                    }`}
+                    className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${checked
+                      ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
+                      : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                      }`}
                   >
                     <input
                       type="checkbox"
@@ -1265,9 +1605,8 @@ export default function PortalRateRequestPage() {
             hint="Packing lists, photos, previous rate confirmations. PDF, image, spreadsheet or Word — 5 MB each."
             action={
               <label
-                className={`inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors focus-within:ring-2 focus-within:ring-sky-500 ${
-                  busy ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-slate-50"
-                }`}
+                className={`inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors focus-within:ring-2 focus-within:ring-sky-500 ${busy ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-slate-50"
+                  }`}
               >
                 <FileUp className="h-4 w-4" />
                 Choose files

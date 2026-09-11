@@ -693,11 +693,13 @@ export default function PortalDashboardPage() {
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5">
                       <div className="min-w-0">
-                        <Lane
+                        {/* <Lane
                           origin={humanize(r.origin)}
                           destination={humanize(r.destination)}
                           className="text-base"
-                        />
+                        /> */}
+                        {r.shipper_district},{r.shipper_state},{r.shipper_zipcode} {"--"}
+                        {r.consignee_district},{r.consignee_state},{r.consignee_zipcode}
                         <div className="mt-2.5 flex flex-wrap gap-1.5">
                           <Chip icon={PackageCheck}>{fd.commodity ? humanize(fd.commodity) : null}</Chip>
                           <Chip icon={Truck}>

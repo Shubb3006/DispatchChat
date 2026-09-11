@@ -135,10 +135,10 @@ export const createRateRequest = async (req, res) => {
   try {
     await ensurePortalSchema();
 
-    const { origin, destination, freight_details } = req.body || {};
-    if (!origin?.trim() || !destination?.trim()) {
-      return res.status(400).json({ success: false, message: "origin and destination are required" });
-    }
+    const { shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry, freight_details } = req.body || {};
+    // if (!origin?.trim() || !destination?.trim()) {
+    //   return res.status(400).json({ success: false, message: "origin and destination are required" });
+    // }
 
     // Equipment, temperature, hazmat, windows, extra stops and accessorials all
     // ride in freight_details; the whitelist lives in one place so the
@@ -147,14 +147,14 @@ export const createRateRequest = async (req, res) => {
 
     const inserted = await pool.query(
       `
-      INSERT INTO rate_requests (customer_id, requested_by, origin, destination, freight_details)
-      VALUES ($1, $2, $3, $4, $5)
+      INSERT INTO rate_requests (customer_id, requested_by,shipper_name,shipper_address,shipper_district,shipper_state,shipper_zipcode,shipper_country,consignee_name,consignee_address,consignee_district,consignee_state,consignee_zipcode,consignee_country, freight_details)
+      VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15)
       RETURNING *
       `,
-      [req.user.customer_id, req.user.id, origin.trim(), destination.trim(), JSON.stringify(freight)]
+      [req.user.customer_id, req.user.id, shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry, JSON.stringify(freight)]
     );
     const rateRequest = inserted.rows[0];
-    console.log(rateRequest)
+    // console.log(rateRequest)
 
     const company = await pool.query(`SELECT company_name FROM customers WHERE id = $1`, [req.customerId]);
     const companyName = company.rows[0]?.company_name || "A customer";
@@ -163,7 +163,7 @@ export const createRateRequest = async (req, res) => {
     await notifyDispatchers({
       type: "RATE_REQUEST",
       title: `New rate request from ${companyName}`,
-      message: [`${origin.trim()} → ${destination.trim()}`, summarizeFreight(freight)].filter(Boolean).join(" | "),
+      message: [`${shipperDistrict.trim(), shipperState.trim(), shipperCountry.trim()} → ${consigneeDistrict.trim(), consigneeState.trim(), consigneeCountry.trim()}`, summarizeFreight(freight)].filter(Boolean).join(" | "),
       data: { rate_request_id: rateRequest.id, customer_id: req.customerId },
     });
 

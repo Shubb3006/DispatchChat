@@ -110,12 +110,11 @@ export const usePortalStore = create((set, get) => ({
     }
   },
 
-  createRateRequest: async ({ origin, destination, freight_details }) => {
+  createRateRequest: async ({ shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry, freight_details }) => {
     set({ isSubmittingRate: true });
     try {
       const res = await axiosInstance.post("/rates/request", {
-        origin,
-        destination,
+        shipperName, shipperAddress, shipperDistrict, shipperState, shipperZipcode, shipperCountry, consigneeName, consigneeAddress, consigneeDistrict, consigneeState, consigneeZipcode, consigneeCountry,
         freight_details,
       });
       if (res.data?.success) {
@@ -428,14 +427,14 @@ export const usePortalStore = create((set, get) => ({
    * unsubscribe function; falls back silently to the 30s poll on failure.
    */
   subscribeNotifications: () => {
-    if (typeof window === "undefined" || typeof window.EventSource === "undefined") return () => {};
+    if (typeof window === "undefined" || typeof window.EventSource === "undefined") return () => { };
     const base = String(axiosInstance.defaults.baseURL || "").replace(/\/+$/, "");
     let source;
     try {
       source = new EventSource(`${base}/portal/notifications/stream`, { withCredentials: true });
     } catch (err) {
       console.warn("notification stream unavailable:", err.message);
-      return () => {};
+      return () => { };
     }
 
     source.addEventListener("portal-alert", (event) => {

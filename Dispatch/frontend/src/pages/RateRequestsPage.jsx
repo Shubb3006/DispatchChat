@@ -374,37 +374,37 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
                 {stops.map((stop, index) => {
                   const stopDay = fmtDay(stop.date);
                   return (
-                  <li
-                    key={`${index}-${stop.location || stop.company || "stop"}`}
-                    className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
-                  >
-                    <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-white text-[11px] font-bold text-slate-600 ring-1 ring-slate-300">
-                      {index + 1}
-                    </span>
-                    <div className="min-w-0">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="min-w-0 break-words text-sm font-semibold text-slate-900">
-                          {stop.company || stop.location || "—"}
-                        </p>
-                        <Marker
-                          className={
-                            stop.type === "delivery"
-                              ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
-                              : "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20"
-                          }
-                        >
-                          {stop.type === "delivery" ? "Delivery" : "Pickup"}
-                        </Marker>
+                    <li
+                      key={`${index}-${stop.location || stop.company || "stop"}`}
+                      className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                    >
+                      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-white text-[11px] font-bold text-slate-600 ring-1 ring-slate-300">
+                        {index + 1}
+                      </span>
+                      <div className="min-w-0">
+                        <div className="flex flex-wrap items-center gap-2">
+                          <p className="min-w-0 break-words text-sm font-semibold text-slate-900">
+                            {stop.company || stop.location || "—"}
+                          </p>
+                          <Marker
+                            className={
+                              stop.type === "delivery"
+                                ? "bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20"
+                                : "bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/20"
+                            }
+                          >
+                            {stop.type === "delivery" ? "Delivery" : "Pickup"}
+                          </Marker>
+                        </div>
+                        {stop.company && stop.location && (
+                          <p className="mt-0.5 break-words text-xs text-slate-600">{stop.location}</p>
+                        )}
+                        {stopDay && <p className="mt-0.5 text-xs text-slate-500">{stopDay}</p>}
+                        {stop.notes && (
+                          <p className="mt-1 break-words text-xs italic text-slate-500">{stop.notes}</p>
+                        )}
                       </div>
-                      {stop.company && stop.location && (
-                        <p className="mt-0.5 break-words text-xs text-slate-600">{stop.location}</p>
-                      )}
-                      {stopDay && <p className="mt-0.5 text-xs text-slate-500">{stopDay}</p>}
-                      {stop.notes && (
-                        <p className="mt-1 break-words text-xs italic text-slate-500">{stop.notes}</p>
-                      )}
-                    </div>
-                  </li>
+                    </li>
                   );
                 })}
               </ol>
@@ -704,8 +704,8 @@ export default function RateRequestsPage() {
             const cardTone = isHazmat
               ? "border-rose-300 ring-1 ring-rose-100"
               : isTempControlled
-              ? "border-sky-300 ring-1 ring-sky-100"
-              : "border-slate-200";
+                ? "border-sky-300 ring-1 ring-sky-100"
+                : "border-slate-200";
 
             return (
               <div key={r.id} className={`bg-white rounded-lg border p-4 ${cardTone}`}>
@@ -718,7 +718,7 @@ export default function RateRequestsPage() {
                       <Marker className={rateTone(r.status)}>{humanize(r.status) || "Unknown"}</Marker>
                     </div>
                     <p className="text-sm font-semibold text-slate-700 mt-1 break-words">
-                      {r.origin} → {r.destination}
+                      {r.shipper_district},{r.shipper_state},{r.shipper_country} → {r.consignee_district},{r.consignee_state},{r.consignee_country}
                     </p>
                     {summary && <p className="text-xs text-slate-500 mt-1 break-words">{summary}</p>}
                     <FreightMarkers fd={fd} />
