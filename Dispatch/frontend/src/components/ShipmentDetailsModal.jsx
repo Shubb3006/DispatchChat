@@ -104,17 +104,17 @@ const DocumentCard = ({ name, size, status, accent = "slate", onOpen }) => {
       type="button"
       onClick={onOpen}
       title={`Open ${name}`}
-      className={`group w-full text-left bg-white border border-slate-200 rounded-xl p-3.5 flex items-start gap-3 transition-all cursor-pointer hover:shadow-md ${a.ring}`}
+      className={`group w-full text-left bg-base-100 border border-slate-200 rounded-xl p-3.5 flex items-start gap-3 transition-all cursor-pointer hover:shadow-md ${a.ring}`}
     >
       <span className={`shrink-0 p-2 rounded-lg text-white ${a.chip}`}>
         <FileText className="h-4 w-4" />
       </span>
 
       <span className="min-w-0 flex-1">
-        <span className="block text-xs font-bold text-slate-900 truncate">
+        <span className="block text-xs font-bold text-base-content truncate">
           {name}
         </span>
-        <span className="block text-[11px] text-slate-500 mt-0.5 truncate">
+        <span className="block text-[11px] text-base-content mt-0.5 truncate">
           {size} · {status}
         </span>
       </span>
@@ -158,7 +158,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
       label: "Freight Size",
       value: freightSize,
       options: FREIGHT_SIZES,
-      tone: "bg-white text-slate-900 border-slate-300",
+      tone: "bg-base-100 text-base-content border-slate-300",
       onChange: (v) => apply({ freight_size: v, freightSize: v }, "freight_size"),
     },
     {
@@ -171,7 +171,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
           ? "bg-sky-50 text-sky-800 border-sky-300"
           : freightType === "HEATER"
             ? "bg-orange-50 text-orange-800 border-orange-300"
-            : "bg-white text-slate-900 border-slate-300",
+            : "bg-base-100 text-base-content border-slate-300",
       onChange: (v) => apply({ freight_type: v, freightType: v }, "freight_type"),
     },
     {
@@ -181,7 +181,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
       options: TRAILER_TYPES,
       placeholder: "Not set",
       tone: trailerType
-        ? "bg-white text-slate-900 border-slate-300"
+        ? "bg-base-100 text-base-content border-slate-300"
         : "bg-amber-50 text-amber-800 border-amber-300",
       onChange: (v) => apply({ trailer_type: v, trailerType: v }, "trailer_type"),
     },
@@ -194,15 +194,15 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
         ? "bg-indigo-50 text-indigo-800 border-indigo-300"
         : commitment === "appointment"
           ? "bg-violet-50 text-violet-800 border-violet-300"
-          : "bg-white text-slate-900 border-slate-300",
+          : "bg-base-100 text-base-content border-slate-300",
       onChange: (v) =>
         apply({ commitment: v, deliveryCommitment: v }, "commitment"),
     },
   ];
 
   return (
-    <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-      <label className="block text-[11px] uppercase tracking-wider font-bold text-slate-500">
+    <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+      <label className="block text-[11px] uppercase tracking-wider font-bold text-base-content">
         Freight Classification
       </label>
 
@@ -212,7 +212,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
           visible at the point of choosing. */}
       <div>
         <div className="flex items-baseline justify-between gap-2 mb-1">
-          <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">
+          <span className="text-[10px] uppercase font-bold tracking-wider text-base-content">
             Status
           </span>
           {currentStage && (
@@ -236,7 +236,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
                 <option
                   key={opt.value}
                   value={opt.value}
-                  className="bg-white text-slate-900"
+                  className="bg-base-100 text-base-content"
                 >
                   {opt.label}
                 </option>
@@ -249,7 +249,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
         {fields.map((f) => (
           <div key={f.key}>
-            <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+            <span className="block text-[10px] uppercase font-bold tracking-wider text-base-content mb-1">
               {f.label}
             </span>
             <select
@@ -259,7 +259,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
               className={`${selectClass} ${f.tone}`}
             >
               {f.placeholder && (
-                <option value="" className="bg-white text-slate-500">
+                <option value="" className="bg-base-100 text-base-content">
                   {f.placeholder}
                 </option>
               )}
@@ -267,7 +267,7 @@ const FreightClassificationBar = ({ shipment, onUpdateShipment }) => {
                 <option
                   key={opt.value}
                   value={opt.value}
-                  className="bg-white text-slate-900 font-mono"
+                  className="bg-base-100 text-base-content font-mono"
                 >
                   {opt.label}
                 </option>
@@ -333,7 +333,7 @@ const SkidDimensionsCell = ({ shipment, onUpdateShipment }) => {
   };
 
   const inputClass =
-    "w-full bg-white border border-slate-300 rounded-md px-1.5 py-1 text-xs font-mono font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500";
+    "w-full bg-base-100 border border-slate-300 rounded-md px-1.5 py-1 text-xs font-mono font-semibold text-base-content focus:outline-none focus:ring-1 focus:ring-indigo-500";
 
   return (
     <div>
@@ -377,9 +377,8 @@ const SkidDimensionsCell = ({ shipment, onUpdateShipment }) => {
                     onChange={(e) =>
                       setDraft((d) => ({ ...d, [field]: e.target.value }))
                     }
-                    className={`${inputClass} ${
-                      tooSmall ? "border-rose-400 ring-1 ring-rose-300" : ""
-                    }`}
+                    className={`${inputClass} ${tooSmall ? "border-rose-400 ring-1 ring-rose-300" : ""
+                      }`}
                   />
                 </label>
               );
@@ -430,7 +429,7 @@ const SkidDimensionsCell = ({ shipment, onUpdateShipment }) => {
                 setDraft({});
                 setEditing(false);
               }}
-              className="px-2.5 py-1 rounded-md border border-slate-300 text-slate-600 text-[10px] font-bold cursor-pointer hover:bg-white"
+              className="px-2.5 py-1 rounded-md border border-slate-300 text-slate-600 text-[10px] font-bold cursor-pointer hover:bg-base-100"
             >
               Cancel
             </button>
@@ -438,11 +437,11 @@ const SkidDimensionsCell = ({ shipment, onUpdateShipment }) => {
         </div>
       ) : (
         <div className="space-y-0.5">
-          <p className="font-semibold text-slate-900 font-mono">
+          <p className="font-semibold text-base-content font-mono">
             {spec.lengthIn}" × {spec.widthIn}" × {spec.heightIn}"
           </p>
 
-          <p className="text-[10px] text-slate-500">
+          <p className="text-[10px] text-base-content">
             {soloLoad?.fits ? (
               <>
                 needs{" "}
@@ -627,25 +626,25 @@ export default function ShipmentDetailsModal({
   const effectiveWaypoints = (shipment?.waypoints && shipment.waypoints.length > 0)
     ? shipment.waypoints
     : [
-        {
-          id: "wp_1",
-          sequence: 1,
-          stopType: "pickup",
-          companyName: shipment?.shipperName || shipment?.shipper_name || shipment?.originCity || "Shipper Origin Terminal",
-          address: shipment?.shipperAddress || shipment?.shipper_street_address || shipment?.originState || "Origin Logistics Yard",
-          scheduledTime: shipment?.pickup_date || shipment?.pickupDate || new Date().toISOString(),
-          status: "completed",
-        },
-        {
-          id: "wp_2",
-          sequence: 2,
-          stopType: "delivery",
-          companyName: shipment?.consigneeName || shipment?.consignee_name || shipment?.destinationCity || "Consignee Receiving Hub",
-          address: shipment?.consigneeAddress || shipment?.consignee_street_address || shipment?.destinationState || "Consignee Unloading Dock",
-          scheduledTime: shipment?.delivery_date || shipment?.deliveryDate || new Date().toISOString(),
-          status: "pending",
-        },
-      ];
+      {
+        id: "wp_1",
+        sequence: 1,
+        stopType: "pickup",
+        companyName: shipment?.shipperName || shipment?.shipper_name || shipment?.originCity || "Shipper Origin Terminal",
+        address: shipment?.shipperAddress || shipment?.shipper_street_address || shipment?.originState || "Origin Logistics Yard",
+        scheduledTime: shipment?.pickup_date || shipment?.pickupDate || new Date().toISOString(),
+        status: "completed",
+      },
+      {
+        id: "wp_2",
+        sequence: 2,
+        stopType: "delivery",
+        companyName: shipment?.consigneeName || shipment?.consignee_name || shipment?.destinationCity || "Consignee Receiving Hub",
+        address: shipment?.consigneeAddress || shipment?.consignee_street_address || shipment?.destinationState || "Consignee Unloading Dock",
+        scheduledTime: shipment?.delivery_date || shipment?.deliveryDate || new Date().toISOString(),
+        status: "pending",
+      },
+    ];
   const activeChatMessages = (messages || []).filter(
     (m) =>
       m.shipmentId === shipment?.id ||
@@ -832,7 +831,7 @@ export default function ShipmentDetailsModal({
     } catch (err) {
       setAiError(
         err.message ||
-          "Could not reach server-side route optimizer. Verify your GEMINI_API_KEY inside the Secrets panel."
+        "Could not reach server-side route optimizer. Verify your GEMINI_API_KEY inside the Secrets panel."
       );
     } finally {
       setAiLoading(false);
@@ -889,7 +888,7 @@ export default function ShipmentDetailsModal({
       <motion.div
         initial={{ opacity: 0, scale: 0.95, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden border border-slate-200"
+        className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-5xl h-[85vh] flex flex-col overflow-hidden border border-slate-200"
       >
         {/* Modal Header */}
         <div className="px-3 sm:px-6 py-4 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-y-2 shrink-0">
@@ -1057,17 +1056,16 @@ export default function ShipmentDetailsModal({
         </div>
 
         {/* Modal Navigation Tabs */}
-        <div className="px-3 sm:px-6 bg-slate-50 border-b border-slate-200 flex space-x-6 overflow-x-auto shrink-0">
+        <div className="px-3 sm:px-6 bg-base-200 border-b border-slate-200 flex space-x-6 overflow-x-auto shrink-0">
           <button
             onClick={() => {
               setActiveTab("overview");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeTab === "overview"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === "overview"
+              ? "border-indigo-600 text-indigo-600 font-extrabold"
+              : "border-transparent text-base-content hover:text-base-content"
+              }`}
           >
             Load Info & Edit
           </button>
@@ -1076,11 +1074,10 @@ export default function ShipmentDetailsModal({
               setActiveTab("route");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeTab === "route"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === "route"
+              ? "border-indigo-600 text-indigo-600 font-extrabold"
+              : "border-transparent text-base-content hover:text-base-content"
+              }`}
           >
             📍 Waypoints & Route (AI)
           </button>
@@ -1089,11 +1086,10 @@ export default function ShipmentDetailsModal({
               setActiveTab("customs");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
-              activeTab === "customs"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${activeTab === "customs"
+              ? "border-indigo-600 text-indigo-600 font-extrabold"
+              : "border-transparent text-base-content hover:text-base-content"
+              }`}
           >
             <span>🌐 Customs Profile</span>
             <span className="text-3xs font-mono bg-blue-100 text-blue-800 px-1.5 py-0.2 rounded font-bold">
@@ -1105,11 +1101,10 @@ export default function ShipmentDetailsModal({
               setActiveTab("legs");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
-              activeTab === "legs"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer whitespace-nowrap shrink-0 ${activeTab === "legs"
+              ? "border-indigo-600 text-indigo-600 font-extrabold"
+              : "border-transparent text-base-content hover:text-base-content"
+              }`}
           >
             🚚 Trip Legs
           </button>
@@ -1118,22 +1113,21 @@ export default function ShipmentDetailsModal({
               setActiveTab("customer_thread");
               setIsEditing(false);
             }}
-            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${
-              activeTab === "customer_thread"
-                ? "border-indigo-600 text-indigo-600 font-extrabold"
-                : "border-transparent text-slate-500 hover:text-slate-900"
-            }`}
+            className={`py-3.5 text-xs font-bold font-mono tracking-wide uppercase border-b-2 transition-all cursor-pointer ${activeTab === "customer_thread"
+              ? "border-indigo-600 text-indigo-600 font-extrabold"
+              : "border-transparent text-base-content hover:text-base-content"
+              }`}
           >
             💬 Customer Portal Chat
           </button>
         </div>
 
         {/* Modal Main Content Body */}
-        <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-slate-50/50">
+        <div className="flex-1 overflow-y-auto p-3 sm:p-6 bg-base-200/50">
           {/* The broker's side of this thread lives in the customer portal;
               both sides read and write the same /api/portal/loads/:id/messages. */}
           {activeTab === "customer_thread" && (
-            <div className="bg-white rounded-xl border border-slate-200">
+            <div className="bg-base-100 rounded-xl border border-slate-200">
               <StaffLoadThread loadId={shipment.id} loadNumber={shipment.load_number} />
             </div>
           )}
@@ -1143,8 +1137,8 @@ export default function ShipmentDetailsModal({
             <div className="space-y-6">
 
               {/* View / Edit Mode Form */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-                <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div className="px-5 py-3.5 bg-base-200 border-b border-slate-200 flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     <Info className="h-4 w-4 text-indigo-600" />
                     <span className="text-xs font-bold text-slate-800 uppercase font-mono">
@@ -1222,8 +1216,8 @@ export default function ShipmentDetailsModal({
                       />
 
                       {/* Customer Info Card (4 Equal Columns) */}
-                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                      <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                           Customer Account Details
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 text-xs">
@@ -1231,7 +1225,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Name
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-base-content">
                               {shipment.customer_name || shipment.customerName || "Direct Client"}
                             </p>
                           </div>
@@ -1240,7 +1234,7 @@ export default function ShipmentDetailsModal({
                               Customer Email
                             </span>
                             <p
-                              className="font-semibold text-slate-900 truncate"
+                              className="font-semibold text-base-content truncate"
                               title={shipment.customer_email}
                             >
                               {shipment.customer_email || "N/A"}
@@ -1250,7 +1244,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Phone
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-base-content">
                               {shipment.customer_phone || "N/A"}
                             </p>
                           </div>
@@ -1258,7 +1252,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Customer Address
                             </span>
-                            <p className="font-semibold text-slate-900 truncate">
+                            <p className="font-semibold text-base-content truncate">
                               {shipment.customer_billing_address || "N/A"}
                             </p>
                           </div>
@@ -1268,9 +1262,9 @@ export default function ShipmentDetailsModal({
                       {/* Shipper & Consignee Side-by-Side Symmetrical Cards */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-sans">
                         {/* Shipper Card */}
-                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
+                        <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
                           <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 flex items-center gap-1.5">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content flex items-center gap-1.5">
                               <MapPin className="w-3.5 h-3.5 text-indigo-600" />
                               <span>Shipper (Pickup Location)</span>
                             </h4>
@@ -1283,8 +1277,8 @@ export default function ShipmentDetailsModal({
                                   shipment.pickup_date
                                     ? String(shipment.pickup_date).substring(0, 10)
                                     : shipment.pickupDate
-                                    ? String(shipment.pickupDate).substring(0, 10)
-                                    : ""
+                                      ? String(shipment.pickupDate).substring(0, 10)
+                                      : ""
                                 }
                                 onChange={(e) => {
                                   const val = e.target.value;
@@ -1300,7 +1294,7 @@ export default function ShipmentDetailsModal({
                               <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                 Shipper Name
                               </span>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-base-content">
                                 {shipment.shipper_name || shipment.shipperName || "N/A"}
                               </p>
                             </div>
@@ -1308,7 +1302,7 @@ export default function ShipmentDetailsModal({
                               <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                 Street Address
                               </span>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-base-content">
                                 {shipment.shipper_street_address || shipment.shipperAddress || "N/A"}
                               </p>
                             </div>
@@ -1317,7 +1311,7 @@ export default function ShipmentDetailsModal({
                                 <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                   City / State
                                 </span>
-                                <p className="font-semibold text-slate-900 truncate">
+                                <p className="font-semibold text-base-content truncate">
                                   {formatCleanCityState(shipment.shipper_city || shipment.originCity, shipment.shipper_state || shipment.shipperState)}
                                 </p>
                               </div>
@@ -1325,7 +1319,7 @@ export default function ShipmentDetailsModal({
                                 <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                   Zipcode & Country
                                 </span>
-                                <p className="font-semibold text-slate-900">
+                                <p className="font-semibold text-base-content">
                                   {[shipment.shipper_zipcode, shipment.shipper_country].filter(Boolean).join(" · ") || "N/A"}
                                 </p>
                               </div>
@@ -1339,8 +1333,8 @@ export default function ShipmentDetailsModal({
                                     shipment.pickup_date
                                       ? String(shipment.pickup_date).substring(0, 10)
                                       : shipment.pickupDate
-                                      ? String(shipment.pickupDate).substring(0, 10)
-                                      : ""
+                                        ? String(shipment.pickupDate).substring(0, 10)
+                                        : ""
                                   }
                                   onChange={(e) => {
                                     const val = e.target.value;
@@ -1354,9 +1348,9 @@ export default function ShipmentDetailsModal({
                         </div>
 
                         {/* Consignee Card */}
-                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
+                        <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3 flex flex-col justify-between">
                           <div className="flex items-center justify-between border-b border-slate-200/60 pb-2">
-                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500 flex items-center gap-1.5">
+                            <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content flex items-center gap-1.5">
                               <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
                               <span>Consignee (Delivery Location)</span>
                             </h4>
@@ -1369,8 +1363,8 @@ export default function ShipmentDetailsModal({
                                   shipment.delivery_date
                                     ? String(shipment.delivery_date).substring(0, 10)
                                     : shipment.deliveryDate
-                                    ? String(shipment.deliveryDate).substring(0, 10)
-                                    : ""
+                                      ? String(shipment.deliveryDate).substring(0, 10)
+                                      : ""
                                 }
                                 onChange={(e) => {
                                   const val = e.target.value;
@@ -1386,7 +1380,7 @@ export default function ShipmentDetailsModal({
                               <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                 Consignee Name
                               </span>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-base-content">
                                 {shipment.consignee_name || shipment.consigneeName || "N/A"}
                               </p>
                             </div>
@@ -1394,7 +1388,7 @@ export default function ShipmentDetailsModal({
                               <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                 Street Address
                               </span>
-                              <p className="font-semibold text-slate-900">
+                              <p className="font-semibold text-base-content">
                                 {shipment.consignee_street_address || shipment.consigneeAddress || "N/A"}
                               </p>
                             </div>
@@ -1403,7 +1397,7 @@ export default function ShipmentDetailsModal({
                                 <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                   City / State
                                 </span>
-                                <p className="font-semibold text-slate-900 truncate">
+                                <p className="font-semibold text-base-content truncate">
                                   {formatCleanCityState(shipment.consignee_city || shipment.destinationCity, shipment.consignee_state || shipment.consigneeState)}
                                 </p>
                               </div>
@@ -1411,7 +1405,7 @@ export default function ShipmentDetailsModal({
                                 <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                                   Zipcode & Country
                                 </span>
-                                <p className="font-semibold text-slate-900">
+                                <p className="font-semibold text-base-content">
                                   {[shipment.consignee_zipcode, shipment.consignee_country].filter(Boolean).join(" · ") || "N/A"}
                                 </p>
                               </div>
@@ -1425,8 +1419,8 @@ export default function ShipmentDetailsModal({
                                     shipment.delivery_date
                                       ? String(shipment.delivery_date).substring(0, 10)
                                       : shipment.deliveryDate
-                                      ? String(shipment.deliveryDate).substring(0, 10)
-                                      : ""
+                                        ? String(shipment.deliveryDate).substring(0, 10)
+                                        : ""
                                   }
                                   onChange={(e) => {
                                     const val = e.target.value;
@@ -1441,8 +1435,8 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Symmetrical 3x2 Cargo & Financial Specifications Grid (Exactly 6 items) */}
-                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                      <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                           Cargo, Dispatch & Financial Specifications
                         </h4>
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
@@ -1450,7 +1444,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Assigned Dispatcher
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-base-content">
                               {shipment.dispatcherName || "Unassigned"}
                             </p>
                           </div>
@@ -1458,7 +1452,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Broker / Logistics
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-base-content">
                               {shipment.broker || "Direct Client"}
                             </p>
                           </div>
@@ -1466,7 +1460,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               PO #
                             </span>
-                            <p className="font-semibold text-slate-900 font-mono">
+                            <p className="font-semibold text-base-content font-mono">
                               {shipment.poNumber || "—"}
                             </p>
                           </div>
@@ -1474,7 +1468,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Cargo Weight & Pallets
                             </span>
-                            <p className="font-semibold text-slate-900">
+                            <p className="font-semibold text-base-content">
                               {[Number(shipment?.weight || 0) > 0 ? `${Number(shipment.weight).toLocaleString()} lbs` : null, shipment.pieces ? `${shipment.pieces} Pallets` : null].filter(Boolean).join(" · ") || "—"}
                             </p>
                           </div>
@@ -1482,7 +1476,7 @@ export default function ShipmentDetailsModal({
                             <span className="text-slate-400 uppercase text-[10px] font-semibold tracking-wider block mb-0.5">
                               Cargo Description
                             </span>
-                            <div className="font-semibold text-slate-900">
+                            <div className="font-semibold text-base-content">
                               <FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription || "General Freight Cargo"} />
                             </div>
                           </div>
@@ -1533,11 +1527,11 @@ export default function ShipmentDetailsModal({
                           Driver Notes (Feedback from Road)
                         </h4>
                         {shipment.driver_notes ? (
-                          <p className="text-xs text-slate-800 bg-white border border-amber-100 p-3 rounded-lg leading-relaxed whitespace-pre-wrap font-sans">
+                          <p className="text-xs text-slate-800 bg-base-100 border border-amber-100 p-3 rounded-lg leading-relaxed whitespace-pre-wrap font-sans">
                             {shipment.driver_notes}
                           </p>
                         ) : (
-                          <p className="text-xs text-slate-400 italic bg-white/40 border border-dashed border-slate-200 p-3 rounded-lg">
+                          <p className="text-xs text-slate-400 italic bg-base-100/40 border border-dashed border-slate-200 p-3 rounded-lg">
                             No notes submitted by the driver yet.
                           </p>
                         )}
@@ -1548,13 +1542,13 @@ export default function ShipmentDetailsModal({
                     <div className="space-y-4 font-sans">
                       {/* Freight classification in edit mode — same five fields
                           as the read view, staged into editedShipment. */}
-                      <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
-                        <label className="text-[11px] uppercase tracking-wider font-bold text-slate-500 block">
+                      <div className="bg-base-200 p-4 rounded-2xl border border-slate-200 shadow-2xs space-y-3">
+                        <label className="text-[11px] uppercase tracking-wider font-bold text-base-content block">
                           Freight Classification
                         </label>
 
                         <div>
-                          <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+                          <span className="block text-[10px] uppercase font-bold tracking-wider text-base-content mb-1">
                             Status
                           </span>
                           <select
@@ -1570,7 +1564,7 @@ export default function ShipmentDetailsModal({
                             {STATUS_STAGES.map((stage) => (
                               <optgroup key={stage.id} label={stage.title}>
                                 {stage.statuses.map((opt) => (
-                                  <option key={opt.value} value={opt.value} className="bg-white text-slate-900">
+                                  <option key={opt.value} value={opt.value} className="bg-base-100 text-base-content">
                                     {opt.label}
                                   </option>
                                 ))}
@@ -1581,17 +1575,25 @@ export default function ShipmentDetailsModal({
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {[
-                            { label: "Freight Size", options: FREIGHT_SIZES, value: readFreightSize(editedShipment),
-                              patch: (v) => ({ freight_size: v, freightSize: v }) },
-                            { label: "Freight Type", options: FREIGHT_TYPES, value: readFreightType(editedShipment),
-                              patch: (v) => ({ freight_type: v, freightType: v }) },
-                            { label: "Trailer Type", options: TRAILER_TYPES, value: readTrailerType(editedShipment),
-                              placeholder: "Not set", patch: (v) => ({ trailer_type: v, trailerType: v }) },
-                            { label: "Commitment", options: COMMITMENTS, value: readCommitment(editedShipment),
-                              patch: (v) => ({ commitment: v, deliveryCommitment: v }) },
+                            {
+                              label: "Freight Size", options: FREIGHT_SIZES, value: readFreightSize(editedShipment),
+                              patch: (v) => ({ freight_size: v, freightSize: v })
+                            },
+                            {
+                              label: "Freight Type", options: FREIGHT_TYPES, value: readFreightType(editedShipment),
+                              patch: (v) => ({ freight_type: v, freightType: v })
+                            },
+                            {
+                              label: "Trailer Type", options: TRAILER_TYPES, value: readTrailerType(editedShipment),
+                              placeholder: "Not set", patch: (v) => ({ trailer_type: v, trailerType: v })
+                            },
+                            {
+                              label: "Commitment", options: COMMITMENTS, value: readCommitment(editedShipment),
+                              patch: (v) => ({ commitment: v, deliveryCommitment: v })
+                            },
                           ].map((f) => (
                             <div key={f.label}>
-                              <span className="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+                              <span className="block text-[10px] uppercase font-bold tracking-wider text-base-content mb-1">
                                 {f.label}
                               </span>
                               <select
@@ -1599,13 +1601,13 @@ export default function ShipmentDetailsModal({
                                 onChange={(e) =>
                                   setEditedShipment({ ...editedShipment, ...f.patch(e.target.value) })
                                 }
-                                className="w-full rounded-xl px-3 py-2 text-xs font-mono font-bold border border-slate-300 bg-white text-slate-900 cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-2xs"
+                                className="w-full rounded-xl px-3 py-2 text-xs font-mono font-bold border border-slate-300 bg-base-100 text-base-content cursor-pointer focus:outline-none focus:ring-2 focus:ring-indigo-400 shadow-2xs"
                               >
                                 {f.placeholder && (
-                                  <option value="" className="text-slate-500">{f.placeholder}</option>
+                                  <option value="" className="text-base-content">{f.placeholder}</option>
                                 )}
                                 {f.options.map((opt) => (
-                                  <option key={opt.value} value={opt.value} className="bg-white text-slate-900 font-mono">
+                                  <option key={opt.value} value={opt.value} className="bg-base-100 text-base-content font-mono">
                                     {opt.label}
                                   </option>
                                 ))}
@@ -1616,13 +1618,13 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Customer Details Edit */}
-                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                      <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                           1. Customer Details
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Customer Account
                             </label>
                             <input
@@ -1634,11 +1636,11 @@ export default function ShipmentDetailsModal({
                                   customer_name: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Customer Email
                             </label>
                             <input
@@ -1650,11 +1652,11 @@ export default function ShipmentDetailsModal({
                                   customer_email: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Customer Phone
                             </label>
                             <input
@@ -1666,11 +1668,11 @@ export default function ShipmentDetailsModal({
                                   customer_phone: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Customer Address
                             </label>
                             <input
@@ -1684,7 +1686,7 @@ export default function ShipmentDetailsModal({
                                   customer_billing_address: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                         </div>
@@ -1692,14 +1694,14 @@ export default function ShipmentDetailsModal({
 
                       {/* Shipper & Consignee Edit columns */}
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                        <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                             2. Shipper (Pickup)
                           </h4>
                           <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Shipper Name
                                 </label>
                                 <input
@@ -1711,12 +1713,12 @@ export default function ShipmentDetailsModal({
                                       shipper_name: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                              <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                 Shipper Street Address
                               </label>
                               <input
@@ -1730,12 +1732,12 @@ export default function ShipmentDetailsModal({
                                     shipper_street_address: e.target.value,
                                   })
                                 }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Shipper District
                                 </label>
                                 <input
@@ -1747,11 +1749,11 @@ export default function ShipmentDetailsModal({
                                       shipper_city: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Shipper Zipcode
                                 </label>
                                 <input
@@ -1763,13 +1765,13 @@ export default function ShipmentDetailsModal({
                                       shipper_zipcode: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Shipper State
                                 </label>
                                 <input
@@ -1781,11 +1783,11 @@ export default function ShipmentDetailsModal({
                                       shipper_state: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Shipper Country
                                 </label>
                                 <input
@@ -1797,21 +1799,21 @@ export default function ShipmentDetailsModal({
                                       shipper_country: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
                           </div>
                         </div>
 
-                        <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                        <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                          <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                             3. Consignee (Delivery)
                           </h4>
                           <div className="space-y-3">
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Consignee Name
                                 </label>
                                 <input
@@ -1823,12 +1825,12 @@ export default function ShipmentDetailsModal({
                                       consignee_name: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
                             <div>
-                              <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                              <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                 Consignee Street Address
                               </label>
                               <input
@@ -1842,12 +1844,12 @@ export default function ShipmentDetailsModal({
                                     consignee_street_address: e.target.value,
                                   })
                                 }
-                                className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                               />
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Consignee District
                                 </label>
                                 <input
@@ -1861,11 +1863,11 @@ export default function ShipmentDetailsModal({
                                       consignee_city: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Consignee Zipcode
                                 </label>
                                 <input
@@ -1877,13 +1879,13 @@ export default function ShipmentDetailsModal({
                                       consignee_zipcode: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
                             <div className="grid grid-cols-2 gap-2">
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Consignee State
                                 </label>
                                 <input
@@ -1895,11 +1897,11 @@ export default function ShipmentDetailsModal({
                                       consignee_state: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                               <div>
-                                <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                                <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                                   Consignee Country
                                 </label>
                                 <input
@@ -1911,7 +1913,7 @@ export default function ShipmentDetailsModal({
                                       consignee_country: e.target.value,
                                     })
                                   }
-                                  className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                                  className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                                 />
                               </div>
                             </div>
@@ -1920,13 +1922,13 @@ export default function ShipmentDetailsModal({
                       </div>
 
                       {/* Cargo, Broker, Admin Details Edit */}
-                      <div className="bg-white rounded-2xl p-4 border border-slate-200 space-y-3">
-                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-slate-500">
+                      <div className="bg-base-100 rounded-2xl p-4 border border-slate-200 space-y-3">
+                        <h4 className="text-[11px] uppercase tracking-wider font-bold text-base-content">
                           4. Logistics & Financial Details
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Broker Name
                             </label>
                             <input
@@ -1938,11 +1940,11 @@ export default function ShipmentDetailsModal({
                                   broker: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               PO Number
                             </label>
                             <input
@@ -1954,11 +1956,11 @@ export default function ShipmentDetailsModal({
                                   poNumber: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content font-mono"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               BOL Number
                             </label>
                             <input
@@ -1970,14 +1972,14 @@ export default function ShipmentDetailsModal({
                                   bolNumber: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900 font-mono"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content font-mono"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Weight (Lbs)
                             </label>
                             <input
@@ -1989,11 +1991,11 @@ export default function ShipmentDetailsModal({
                                   weight: Number(e.target.value),
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Pallet Count
                             </label>
                             <input
@@ -2005,11 +2007,11 @@ export default function ShipmentDetailsModal({
                                   pieces: Number(e.target.value),
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div className="col-span-1 md:col-span-2">
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Cargo Description
                             </label>
                             <input
@@ -2021,14 +2023,14 @@ export default function ShipmentDetailsModal({
                                   cargo: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                         </div>
 
                         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Total Distance (Miles)
                             </label>
                             <input
@@ -2040,11 +2042,11 @@ export default function ShipmentDetailsModal({
                                   totalDistanceMiles: Number(e.target.value),
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Dispatcher Assigned
                             </label>
                             <input
@@ -2056,11 +2058,11 @@ export default function ShipmentDetailsModal({
                                   dispatcherName: e.target.value,
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                               Invoice pricing ($)
                             </label>
                             <input
@@ -2072,7 +2074,7 @@ export default function ShipmentDetailsModal({
                                   priceInvoice: Number(e.target.value),
                                 })
                               }
-                              className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-900"
+                              className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-base-content"
                             />
                           </div>
                         </div>
@@ -2083,9 +2085,9 @@ export default function ShipmentDetailsModal({
                           <Clock className="h-4 w-4 text-indigo-500" />
                           Delivery Commitment & Appointment Status
                         </h4>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-base-200 p-3.5 rounded-xl border border-slate-200">
                           <div>
-                            <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                               Commitment Type
                             </label>
                             <select
@@ -2098,7 +2100,7 @@ export default function ShipmentDetailsModal({
                                   deliveryCommitment: e.target.value,
                                 })
                               }
-                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold focus:outline-none"
+                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 font-semibold focus:outline-none"
                             >
                               <option value="normal">Normal Delivery</option>
                               <option value="guaranteed">
@@ -2116,7 +2118,7 @@ export default function ShipmentDetailsModal({
                             editedShipment.deliveryCommitment !== "normal" && (
                               <>
                                 <div>
-                                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                                  <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                                     Commitment Date
                                   </label>
                                   <input
@@ -2128,11 +2130,11 @@ export default function ShipmentDetailsModal({
                                         commitmentDate: e.target.value,
                                       })
                                     }
-                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 focus:outline-none"
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 focus:outline-none"
                                   />
                                 </div>
                                 <div>
-                                  <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                                  <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                                     Commitment Time
                                   </label>
                                   <input
@@ -2144,7 +2146,7 @@ export default function ShipmentDetailsModal({
                                         commitmentTime: e.target.value,
                                       })
                                     }
-                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 focus:outline-none"
+                                    className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 focus:outline-none"
                                   />
                                 </div>
                               </>
@@ -2168,7 +2170,7 @@ export default function ShipmentDetailsModal({
                           }
                           rows={3}
                           placeholder="No notes submitted by the driver yet. Add or modify administrative/driver notes here..."
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-xs text-slate-900 focus:outline-none focus:border-indigo-500"
+                          className="w-full bg-base-100 border border-slate-300 rounded-lg px-3 py-2 text-xs text-base-content focus:outline-none focus:border-indigo-500"
                         />
                       </div>
 
@@ -2178,7 +2180,7 @@ export default function ShipmentDetailsModal({
                             setEditedShipment(shipment);
                             setIsEditing(false);
                           }}
-                          className="px-3.5 py-1.5 bg-white border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-slate-50 cursor-pointer"
+                          className="px-3.5 py-1.5 bg-base-100 border border-slate-300 text-slate-700 rounded-lg text-xs font-semibold hover:bg-base-200 cursor-pointer"
                         >
                           Cancel
                         </button>
@@ -2195,12 +2197,12 @@ export default function ShipmentDetailsModal({
               </div>
 
               {/* Saved Document Receipts & Rate Con Upload */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                   <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider font-mono">
                     Assigned Load Credentials, Rate Confirmation & Proofs
                   </h4>
-                  
+
                   {/* File Upload Input */}
                   <label className="px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-2xs font-bold font-mono transition-colors cursor-pointer inline-flex items-center space-x-1.5 shadow-2xs self-start sm:self-auto">
                     <Paperclip className="h-3.5 w-3.5" />
@@ -2282,11 +2284,11 @@ export default function ShipmentDetailsModal({
                 stops={effectiveWaypoints}
               >
                 {/* Delivery Stop Timeline & Sequence List */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+                <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3 flex-wrap gap-2">
                     <div className="flex items-center space-x-2">
                       <List className="h-4.5 w-4.5 text-indigo-600" />
-                      <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
+                      <h3 className="text-sm font-bold text-base-content font-mono uppercase">
                         Delivery Stop Timeline
                       </h3>
                       <span className="text-3xs bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-mono font-bold">
@@ -2315,7 +2317,7 @@ export default function ShipmentDetailsModal({
                           <select
                             value={newWaypointForm.stopType}
                             onChange={(e) => setNewWaypointForm({ ...newWaypointForm, stopType: e.target.value })}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold uppercase"
+                            className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold uppercase"
                           >
                             <option value="pickup">Pickup Facility</option>
                             <option value="delivery">Delivery Consignee</option>
@@ -2332,7 +2334,7 @@ export default function ShipmentDetailsModal({
                             placeholder="e.g. Metro Warehouse Hub"
                             value={newWaypointForm.companyName}
                             onChange={(e) => setNewWaypointForm({ ...newWaypointForm, companyName: e.target.value })}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                            className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold"
                           />
                         </div>
                         <div className="sm:col-span-2">
@@ -2343,7 +2345,7 @@ export default function ShipmentDetailsModal({
                             placeholder="e.g. 450 Logistics Way, Detroit, MI 48201"
                             value={newWaypointForm.address}
                             onChange={(e) => setNewWaypointForm({ ...newWaypointForm, address: e.target.value })}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                            className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold"
                           />
                         </div>
                         <div>
@@ -2352,7 +2354,7 @@ export default function ShipmentDetailsModal({
                             type="datetime-local"
                             value={newWaypointForm.scheduledTime}
                             onChange={(e) => setNewWaypointForm({ ...newWaypointForm, scheduledTime: e.target.value })}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                            className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold"
                           />
                         </div>
                         <div>
@@ -2362,7 +2364,7 @@ export default function ShipmentDetailsModal({
                             placeholder="e.g. Door 14 / Pin #991"
                             value={newWaypointForm.dockCode}
                             onChange={(e) => setNewWaypointForm({ ...newWaypointForm, dockCode: e.target.value })}
-                            className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold"
+                            className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold"
                           />
                         </div>
                       </div>
@@ -2395,35 +2397,33 @@ export default function ShipmentDetailsModal({
                         <div key={w.id} className="relative group">
                           {/* Dot / Pin Icon */}
                           <span
-                            className={`absolute -left-[35px] top-0.5 flex items-center justify-center h-6 w-6 rounded-full border shadow-2xs font-bold text-2xs ${
-                              isPickup
-                                ? "bg-indigo-600 text-white border-indigo-400"
-                                : isDelivery
+                            className={`absolute -left-[35px] top-0.5 flex items-center justify-center h-6 w-6 rounded-full border shadow-2xs font-bold text-2xs ${isPickup
+                              ? "bg-indigo-600 text-white border-indigo-400"
+                              : isDelivery
                                 ? "bg-emerald-600 text-white border-emerald-400"
                                 : isBorder
-                                ? "bg-sky-600 text-white border-sky-400"
-                                : "bg-amber-600 text-white border-amber-400"
-                            }`}
+                                  ? "bg-sky-600 text-white border-sky-400"
+                                  : "bg-amber-600 text-white border-amber-400"
+                              }`}
                           >
                             {w.sequence}
                           </span>
 
-                          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                          <div className="bg-base-200 border border-slate-200 rounded-xl p-4 hover:border-slate-300 transition-all flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                             <div className="space-y-1 flex-1">
                               <div className="flex items-center space-x-1.5 flex-wrap gap-1">
-                                <h5 className="text-xs font-bold text-slate-900 leading-none">
+                                <h5 className="text-xs font-bold text-base-content leading-none">
                                   {w.companyName}
                                 </h5>
                                 <span
-                                  className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wide ${
-                                    isPickup
-                                      ? "bg-indigo-100 text-indigo-800"
-                                      : isDelivery
+                                  className={`px-1.5 py-0.5 rounded text-[9px] font-mono font-bold uppercase tracking-wide ${isPickup
+                                    ? "bg-indigo-100 text-indigo-800"
+                                    : isDelivery
                                       ? "bg-emerald-100 text-emerald-800"
                                       : isBorder
-                                      ? "bg-sky-100 text-sky-800"
-                                      : "bg-amber-100 text-amber-800"
-                                  }`}
+                                        ? "bg-sky-100 text-sky-800"
+                                        : "bg-amber-100 text-amber-800"
+                                    }`}
                                 >
                                   {w.stopType.replace(/_/g, " ")}
                                 </span>
@@ -2432,15 +2432,14 @@ export default function ShipmentDetailsModal({
                                 <select
                                   value={statusStr}
                                   onChange={(e) => handleUpdateWaypointStatus(w.id, e.target.value)}
-                                  className={`px-2 py-0.5 rounded-full text-3xs font-mono font-bold uppercase border cursor-pointer ${
-                                    statusStr === "completed"
-                                      ? "bg-emerald-100 text-emerald-800 border-emerald-300"
-                                      : statusStr === "arrived"
+                                  className={`px-2 py-0.5 rounded-full text-3xs font-mono font-bold uppercase border cursor-pointer ${statusStr === "completed"
+                                    ? "bg-emerald-100 text-emerald-800 border-emerald-300"
+                                    : statusStr === "arrived"
                                       ? "bg-blue-100 text-blue-800 border-blue-300"
                                       : statusStr === "en_route"
-                                      ? "bg-amber-100 text-amber-800 border-amber-300"
-                                      : "bg-slate-100 text-slate-700 border-slate-200"
-                                  }`}
+                                        ? "bg-amber-100 text-amber-800 border-amber-300"
+                                        : "bg-slate-100 text-slate-700 border-slate-200"
+                                    }`}
                                 >
                                   <option value="pending">Pending</option>
                                   <option value="en_route">En Route</option>
@@ -2449,7 +2448,7 @@ export default function ShipmentDetailsModal({
                                   <option value="delayed">Delayed</option>
                                 </select>
                               </div>
-                              <p className="text-2xs text-slate-500 font-medium">
+                              <p className="text-2xs text-base-content font-medium">
                                 {w.address}
                               </p>
 
@@ -2467,7 +2466,7 @@ export default function ShipmentDetailsModal({
                                   </span>
                                 </div>
                                 {w.dockCode && (
-                                  <span className="bg-white border border-slate-200 px-1.5 py-0.2 rounded text-slate-600 font-bold">
+                                  <span className="bg-base-100 border border-slate-200 px-1.5 py-0.2 rounded text-slate-600 font-bold">
                                     Dock: {w.dockCode}
                                   </span>
                                 )}
@@ -2503,7 +2502,7 @@ export default function ShipmentDetailsModal({
                                     onChange={(e) =>
                                       setEditScheduledTime(e.target.value)
                                     }
-                                    className="bg-white border border-slate-300 text-2xs p-1 rounded font-semibold text-slate-800"
+                                    className="bg-base-100 border border-slate-300 text-2xs p-1 rounded font-semibold text-slate-800"
                                   />
                                   <button
                                     onClick={() => handleSaveWaypointTime(w.id)}
@@ -2529,7 +2528,7 @@ export default function ShipmentDetailsModal({
                                         : new Date().toISOString().slice(0, 16)
                                     );
                                   }}
-                                  className="px-2 py-1 bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 rounded text-3xs font-semibold cursor-pointer"
+                                  className="px-2 py-1 bg-base-100 border border-slate-300 hover:bg-base-200 text-slate-700 rounded text-3xs font-semibold cursor-pointer"
                                 >
                                   Edit Time
                                 </button>
@@ -2561,11 +2560,11 @@ export default function ShipmentDetailsModal({
           {activeTab === "telemetry" && (
             <div className="space-y-6">
               {/* Samsara Gauges */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center space-x-2">
                     <Gauge className="h-5 w-5 text-rose-600" />
-                    <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
+                    <h3 className="text-sm font-bold text-base-content font-mono uppercase">
                       Samsara ELD Live Fleet Telematics
                     </h3>
                   </div>
@@ -2575,45 +2574,45 @@ export default function ShipmentDetailsModal({
                 </div>
 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200">
                     <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">
                       Active Vehicle Speed
                     </div>
-                    <div className="text-xl font-extrabold text-slate-900 mt-1 flex items-baseline">
+                    <div className="text-xl font-extrabold text-base-content mt-1 flex items-baseline">
                       {shipment.status === "in_transit"
                         ? `${shipment.speedMph || 58} MPH`
                         : "0 MPH"}
-                      <span className="text-[10px] font-normal text-slate-500 font-mono ml-1">
+                      <span className="text-[10px] font-normal text-base-content font-mono ml-1">
                         realtime gps
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200">
                     <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">
                       Asset Fuel Level
                     </div>
-                    <div className="text-xl font-extrabold text-slate-900 mt-1 flex items-baseline">
+                    <div className="text-xl font-extrabold text-base-content mt-1 flex items-baseline">
                       {shipment.fuelLevelPercent || 85}%
-                      <span className="text-[10px] font-normal text-slate-500 font-mono ml-1">
+                      <span className="text-[10px] font-normal text-base-content font-mono ml-1">
                         diesel capacity
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200">
                     <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">
                       Engine Coolant Temp
                     </div>
-                    <div className="text-xl font-extrabold text-slate-900 mt-1 flex items-baseline">
+                    <div className="text-xl font-extrabold text-base-content mt-1 flex items-baseline">
                       {shipment.engineTempF || 185}°F
-                      <span className="text-[10px] font-normal text-slate-500 font-mono ml-1">
+                      <span className="text-[10px] font-normal text-base-content font-mono ml-1">
                         optimum safety
                       </span>
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200">
                     <div className="text-3xs font-mono text-slate-400 uppercase font-semibold">
                       ELD Duty HOS Log
                     </div>
@@ -2625,13 +2624,13 @@ export default function ShipmentDetailsModal({
               </div>
 
               {/* Interactive Route Map Container */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
                 <div className="flex items-center justify-between">
                   <div>
                     <h4 className="text-xs font-bold font-mono text-slate-800 uppercase tracking-wider">
                       Live Active GPS Track Plot
                     </h4>
-                    <p className="text-[10px] text-slate-500 mt-0.5">
+                    <p className="text-[10px] text-base-content mt-0.5">
                       Tracking route: {shipment.originCity} to{" "}
                       {shipment.destinationCity}
                     </p>
@@ -2715,8 +2714,8 @@ export default function ShipmentDetailsModal({
                               wpt.stopType === "pickup"
                                 ? "#4f46e5"
                                 : wpt.stopType === "delivery"
-                                ? "#059669"
-                                : "#d97706"
+                                  ? "#059669"
+                                  : "#d97706"
                             }
                             className="animate-pulse"
                           />
@@ -2792,7 +2791,7 @@ export default function ShipmentDetailsModal({
                       <span>
                         Origin: <strong>{shipment.originCity}</strong>
                       </span>
-                      <ArrowRight className="h-3 w-3 text-slate-500" />
+                      <ArrowRight className="h-3 w-3 text-base-content" />
                       <span>
                         Destination: <strong>{shipment.destinationCity}</strong>
                       </span>
@@ -2807,11 +2806,11 @@ export default function ShipmentDetailsModal({
           {activeTab === "border" && (
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
               {/* Border Status Manifest Overview */}
-              <div className="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
+              <div className="lg:col-span-7 bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-5">
                 <div className="flex items-center justify-between border-b border-slate-200 pb-3">
                   <div className="flex items-center space-x-2">
                     <ExternalLink className="h-4.5 w-4.5 text-indigo-600" />
-                    <h3 className="text-sm font-bold text-slate-900 font-mono uppercase">
+                    <h3 className="text-sm font-bold text-base-content font-mono uppercase">
                       Border Connect Manifest Portal
                     </h3>
                   </div>
@@ -2827,32 +2826,31 @@ export default function ShipmentDetailsModal({
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-base-200/50">
                     <span className="text-3xs font-mono text-slate-400 block uppercase">
                       PAPS / Customs Barcode
                     </span>
-                    <div className="bg-white border border-slate-200 px-4 py-3 rounded-lg text-center font-mono tracking-widest text-sm font-bold mt-1">
+                    <div className="bg-base-100 border border-slate-200 px-4 py-3 rounded-lg text-center font-mono tracking-widest text-sm font-bold mt-1">
                       {shipment.borderConnectManifestId
                         ? `*${shipment.borderConnectManifestId}*`
                         : "N/A"}
                     </div>
                   </div>
 
-                  <div className="p-4 rounded-xl border border-slate-200 bg-slate-50/50 flex flex-col justify-between">
+                  <div className="p-4 rounded-xl border border-slate-200 bg-base-200/50 flex flex-col justify-between">
                     <div>
                       <span className="text-3xs font-mono text-slate-400 block uppercase">
                         Sync Status
                       </span>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded text-2xs font-mono font-extrabold capitalize mt-1.5 ${
-                          shipment.borderConnectStatus === "accepted"
-                            ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
-                            : shipment.borderConnectStatus === "at_border"
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded text-2xs font-mono font-extrabold capitalize mt-1.5 ${shipment.borderConnectStatus === "accepted"
+                          ? "bg-emerald-100 text-emerald-800 border border-emerald-200"
+                          : shipment.borderConnectStatus === "at_border"
                             ? "bg-amber-100 text-amber-800 border border-amber-200"
                             : shipment.borderConnectStatus === "submitted"
-                            ? "bg-blue-100 text-blue-800 border border-blue-200"
-                            : "bg-slate-100 text-slate-700 border border-slate-200"
-                        }`}
+                              ? "bg-blue-100 text-blue-800 border border-blue-200"
+                              : "bg-slate-100 text-slate-700 border border-slate-200"
+                          }`}
                       >
                         {shipment.borderConnectStatus}
                       </span>
@@ -2876,7 +2874,7 @@ export default function ShipmentDetailsModal({
                         <span className="font-bold text-slate-800 font-mono">
                           11:42 AM EST - CBP Automated Release
                         </span>
-                        <p className="text-slate-500 mt-0.5">
+                        <p className="text-base-content mt-0.5">
                           Pre-Arrival Processing System (PAPS) matched and
                           approved. Cargo cleared for crossing.
                         </p>
@@ -2889,7 +2887,7 @@ export default function ShipmentDetailsModal({
                         <span className="font-bold text-slate-800 font-mono">
                           09:30 AM EST - Arrived At Customs Station
                         </span>
-                        <p className="text-slate-500 mt-0.5">
+                        <p className="text-base-content mt-0.5">
                           Truck reported geofence entrance at Fort Erie /
                           Buffalo bridge. Secondary inspection bypassed.
                         </p>
@@ -2902,7 +2900,7 @@ export default function ShipmentDetailsModal({
                         <span className="font-bold text-slate-800 font-mono">
                           07:15 AM EST - Manifest Transmitted to CBP
                         </span>
-                        <p className="text-slate-500 mt-0.5">
+                        <p className="text-base-content mt-0.5">
                           eManifest electronic data file successfully sent to
                           CBP ACE portal. Sync key: PAPS-ACE-92040.
                         </p>
@@ -2919,10 +2917,10 @@ export default function ShipmentDetailsModal({
                     <ShieldCheck className="h-4 w-4" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-bold text-slate-900 uppercase font-mono leading-none">
+                    <h4 className="text-xs font-bold text-base-content uppercase font-mono leading-none">
                       Customs Action Console
                     </h4>
-                    <p className="text-4xs text-slate-500 mt-0.5">
+                    <p className="text-4xs text-base-content mt-0.5">
                       Dispatch control over US/Canada CBP API sync
                     </p>
                   </div>
@@ -2933,11 +2931,11 @@ export default function ShipmentDetailsModal({
                   currentUser.role === "admin" ||
                   currentUser.role === "customs"
                 ) && (
-                  <div className="bg-cyan-50 border border-cyan-200 text-cyan-800 p-3 rounded-lg text-3xs font-medium">
-                    ℹ️ Border documentation & eManifest releases are restricted
-                    to Customs & Admin roles.
-                  </div>
-                )}
+                    <div className="bg-cyan-50 border border-cyan-200 text-cyan-800 p-3 rounded-lg text-3xs font-medium">
+                      ℹ️ Border documentation & eManifest releases are restricted
+                      to Customs & Admin roles.
+                    </div>
+                  )}
 
                 <div className="space-y-2.5">
                   <button
@@ -2949,7 +2947,7 @@ export default function ShipmentDetailsModal({
                       )
                     }
                     onClick={() => handleUpdateBorderStatus("submitted")}
-                    className="w-full text-left p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-white"
+                    className="w-full text-left p-3 bg-base-100 hover:bg-base-200 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-base-100"
                   >
                     <div>
                       <span className="text-xs font-bold text-slate-800 block">
@@ -2971,7 +2969,7 @@ export default function ShipmentDetailsModal({
                       )
                     }
                     onClick={() => handleUpdateBorderStatus("at_border")}
-                    className="w-full text-left p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-white"
+                    className="w-full text-left p-3 bg-base-100 hover:bg-base-200 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-base-100"
                   >
                     <div>
                       <span className="text-xs font-bold text-slate-800 block">
@@ -2993,7 +2991,7 @@ export default function ShipmentDetailsModal({
                       )
                     }
                     onClick={() => handleUpdateBorderStatus("accepted")}
-                    className="w-full text-left p-3 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-white"
+                    className="w-full text-left p-3 bg-base-100 hover:bg-base-200 border border-slate-200 rounded-xl transition-all flex items-center justify-between group cursor-pointer disabled:opacity-50 disabled:hover:bg-base-100"
                   >
                     <div>
                       <span className="text-xs font-bold text-slate-800 block">
@@ -3012,9 +3010,9 @@ export default function ShipmentDetailsModal({
 
           {/* TAB 5: REAL-TIME DRIVER MESSENGER CHAT */}
           {activeTab === "chat" && (
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[55vh]">
+            <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[55vh]">
               {/* Active channel ribbon bar */}
-              <div className="px-5 py-3.5 bg-slate-50 border-b border-slate-200 flex items-center justify-between shrink-0">
+              <div className="px-5 py-3.5 bg-base-200 border-b border-slate-200 flex items-center justify-between shrink-0">
                 <div className="flex items-center space-x-2.5">
                   <div className="p-1.5 bg-emerald-50 text-emerald-700 rounded-lg">
                     <MessageSquare className="h-4 w-4" />
@@ -3036,11 +3034,11 @@ export default function ShipmentDetailsModal({
               </div>
 
               {/* Chat timeline history */}
-              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-50/40">
+              <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-base-200/40">
                 {activeChatMessages.length === 0 ? (
                   <div className="text-center text-slate-400 py-16 text-2xs max-w-sm mx-auto space-y-1.5">
                     <AlertCircle className="h-8 w-8 text-slate-300 mx-auto" />
-                    <p className="font-semibold text-slate-500">
+                    <p className="font-semibold text-base-content">
                       No dispatcher logs recorded.
                     </p>
                     <p className="text-slate-400">
@@ -3056,16 +3054,14 @@ export default function ShipmentDetailsModal({
                     return (
                       <div
                         key={msg.id}
-                        className={`flex flex-col ${
-                          isDispatcher ? "items-end" : "items-start"
-                        }`}
+                        className={`flex flex-col ${isDispatcher ? "items-end" : "items-start"
+                          }`}
                       >
                         <div
-                          className={`max-w-[75%] rounded-xl px-4 py-3 text-xs shadow-3xs ${
-                            isDispatcher
-                              ? "bg-slate-900 text-white rounded-tr-none"
-                              : "bg-white text-slate-800 border border-slate-300 rounded-tl-none"
-                          }`}
+                          className={`max-w-[75%] rounded-xl px-4 py-3 text-xs shadow-3xs ${isDispatcher
+                            ? "bg-slate-900 text-white rounded-tr-none"
+                            : "bg-base-100 text-slate-800 border border-slate-300 rounded-tl-none"
+                            }`}
                         >
                           <div className="flex items-center justify-between space-x-4 mb-1">
                             <span className="font-bold text-[10px] opacity-75">
@@ -3088,11 +3084,10 @@ export default function ShipmentDetailsModal({
                           {/* Image Attachments */}
                           {msg.attachment && (
                             <div
-                              className={`mt-2 p-1.5 rounded-lg border text-2xs ${
-                                isDispatcher
-                                  ? "bg-slate-850 border-slate-800 text-slate-200"
-                                  : "bg-slate-50 border-slate-200 text-slate-700"
-                              }`}
+                              className={`mt-2 p-1.5 rounded-lg border text-2xs ${isDispatcher
+                                ? "bg-slate-850 border-slate-800 text-slate-200"
+                                : "bg-base-200 border-slate-200 text-slate-700"
+                                }`}
                             >
                               {msg.attachment.type === "photo" ? (
                                 <div className="space-y-1">
@@ -3181,7 +3176,7 @@ export default function ShipmentDetailsModal({
               )}
 
               {/* Messaging input pane */}
-              <div className="p-4 border-t border-slate-200 bg-white shrink-0">
+              <div className="p-4 border-t border-slate-200 bg-base-100 shrink-0">
                 <form
                   onSubmit={handleSendChatMessage}
                   className="flex items-center space-x-3.5"
@@ -3190,16 +3185,16 @@ export default function ShipmentDetailsModal({
                     <button
                       type="button"
                       title="Attach documents"
-                      className="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-slate-50 border border-slate-200 transition-colors cursor-pointer"
+                      className="p-2 text-slate-400 hover:text-indigo-600 rounded-lg hover:bg-base-200 border border-slate-200 transition-colors cursor-pointer"
                     >
                       <Paperclip className="h-4 w-4" />
                     </button>
 
-                    <div className="absolute bottom-10 left-0 hidden group-hover:block bg-white border border-slate-200 shadow-lg rounded-xl py-1.5 w-44 z-50 text-2xs">
+                    <div className="absolute bottom-10 left-0 hidden group-hover:block bg-base-100 border border-slate-200 shadow-lg rounded-xl py-1.5 w-44 z-50 text-2xs">
                       <button
                         type="button"
                         onClick={() => handleAttachMockFile("photo")}
-                        className="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center space-x-2 cursor-pointer text-slate-700"
+                        className="w-full text-left px-3.5 py-2 hover:bg-base-200 flex items-center space-x-2 cursor-pointer text-slate-700"
                       >
                         <Image className="h-4 w-4 text-slate-400" />
                         <span className="font-semibold">
@@ -3209,7 +3204,7 @@ export default function ShipmentDetailsModal({
                       <button
                         type="button"
                         onClick={() => handleAttachMockFile("document")}
-                        className="w-full text-left px-3.5 py-2 hover:bg-slate-50 flex items-center space-x-2 cursor-pointer text-slate-700"
+                        className="w-full text-left px-3.5 py-2 hover:bg-base-200 flex items-center space-x-2 cursor-pointer text-slate-700"
                       >
                         <FileText className="h-4 w-4 text-slate-400" />
                         <span className="font-semibold">
@@ -3224,7 +3219,7 @@ export default function ShipmentDetailsModal({
                     value={chatMessage}
                     onChange={(e) => setChatMessage(e.target.value)}
                     placeholder={`Type a secure message to ${shipment.driverName}...`}
-                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
+                    className="flex-1 rounded-xl border border-slate-200 px-4 py-2.5 text-xs bg-base-200 focus:bg-base-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-medium"
                   />
 
                   <button
@@ -3258,10 +3253,10 @@ export default function ShipmentDetailsModal({
         </div>
 
         {/* Modal Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-200 flex items-center justify-end space-x-3.5 shrink-0">
+        <div className="px-6 py-4 bg-base-200 border-t border-slate-200 flex items-center justify-end space-x-3.5 shrink-0">
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-xl text-xs font-bold hover:bg-slate-50 cursor-pointer transition-colors"
+            className="px-4 py-2 bg-base-100 border border-slate-300 text-slate-700 rounded-xl text-xs font-bold hover:bg-base-200 cursor-pointer transition-colors"
           >
             Close Window
           </button>
@@ -3271,7 +3266,7 @@ export default function ShipmentDetailsModal({
       {/* Document Viewer Modal Overlay */}
       {docViewerModal && (
         <div className="fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
+          <div className="bg-base-100 rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
             {/* Header */}
             <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -3296,7 +3291,7 @@ export default function ShipmentDetailsModal({
             </div>
 
             {/* Document Viewer Content Body */}
-            <div className="p-3 sm:p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+            <div className="p-3 sm:p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-base-200">
               {/* Real Uploaded Document Image / File Attachment Preview */}
               {docViewerModal?.url && docViewerModal.url.startsWith("http") && (
                 <div className="bg-slate-900 p-4 rounded-2xl border border-slate-700 text-center space-y-2">
@@ -3307,7 +3302,7 @@ export default function ShipmentDetailsModal({
                     </a>
                   </div>
                   {docViewerModal.url.toLowerCase().endsWith(".pdf") ? (
-                    <iframe src={docViewerModal.url} className="w-full h-64 rounded-xl border border-slate-800 bg-white" title="Uploaded PDF Preview" />
+                    <iframe src={docViewerModal.url} className="w-full h-64 rounded-xl border border-slate-800 bg-base-100" title="Uploaded PDF Preview" />
                   ) : (
                     <img src={docViewerModal.url} alt="Uploaded BOL" className="max-h-64 mx-auto rounded-xl border border-slate-800 object-contain shadow-lg" referrerPolicy="no-referrer" />
                   )}
@@ -3331,58 +3326,58 @@ export default function ShipmentDetailsModal({
               </div>
 
               {/* Simulated Paper Manifest Preview */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
+              <div className="bg-base-100 p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
                 <div className="flex justify-between items-start border-b border-slate-200 pb-3">
                   <div>
-                    <div className="text-sm font-extrabold text-slate-900 font-sans">LOGISYNC FREIGHT MANIFEST</div>
-                    <div className="text-3xs text-slate-500">Bill of Lading #{shipment.load_number || shipment.tracking_number}</div>
+                    <div className="text-sm font-extrabold text-base-content font-sans">LOGISYNC FREIGHT MANIFEST</div>
+                    <div className="text-3xs text-base-content">Bill of Lading #{shipment.load_number || shipment.tracking_number}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-3xs text-slate-500">ISSUED DATE</div>
+                    <div className="text-3xs text-base-content">ISSUED DATE</div>
                     <div className="text-xs font-bold text-indigo-600">{new Date().toLocaleDateString()}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-3xs">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
-                    <div className="font-bold text-slate-900">{shipment.customerName || shipment.customer_name || "AeroParts Mfg Facility"}</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Shipper / Pickup Origin</div>
+                    <div className="font-bold text-base-content">{shipment.customerName || shipment.customer_name || "AeroParts Mfg Facility"}</div>
                     <div>{shipment.shipper_state || shipment.originCity || "Toronto, ON"}</div>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Consignee / Destination</div>
-                    <div className="font-bold text-slate-900">Midwest Distribution Hub</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Consignee / Destination</div>
+                    <div className="font-bold text-base-content">Midwest Distribution Hub</div>
                     <div>{shipment.consignee_state || shipment.destinationCity || "Chicago, IL"}</div>
                   </div>
                 </div>
 
                 <div className="border border-slate-200 rounded-xl overflow-hidden text-3xs">
                   <div className="overflow-x-auto">
-                  <table className="w-full text-left">
-                    <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
-                      <tr>
-                        <th className="p-2">Item Description</th>
-                        <th className="p-2">Pallets</th>
-                        <th className="p-2">Weight</th>
-                        <th className="p-2">Status</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td className="p-2 font-bold"><FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription || "Industrial Cargo Components"} /></td>
-                        <td className="p-2 font-mono">{shipment.pieces || shipment.pallets || 4} Pallets</td>
-                        <td className="p-2 font-mono">{(shipment.weightLbs || shipment.weight || 6000).toLocaleString()} Lbs</td>
-                        <td className="p-2 text-emerald-600 font-bold">INSPECTED & SIGNED</td>
-                      </tr>
-                    </tbody>
-                  </table>
+                    <table className="w-full text-left">
+                      <thead className="bg-slate-100 font-bold text-slate-700 border-b border-slate-200">
+                        <tr>
+                          <th className="p-2">Item Description</th>
+                          <th className="p-2">Pallets</th>
+                          <th className="p-2">Weight</th>
+                          <th className="p-2">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td className="p-2 font-bold"><FormatCargoOrLink text={shipment.cargo || shipment.cargoDescription || "Industrial Cargo Components"} /></td>
+                          <td className="p-2 font-mono">{shipment.pieces || shipment.pallets || 4} Pallets</td>
+                          <td className="p-2 font-mono">{(shipment.weightLbs || shipment.weight || 6000).toLocaleString()} Lbs</td>
+                          <td className="p-2 text-emerald-600 font-bold">INSPECTED & SIGNED</td>
+                        </tr>
+                      </tbody>
+                    </table>
                   </div>
                 </div>
 
                 <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-3xs">
                   <div className="space-y-0.5">
-                    <div className="text-slate-500 font-bold">DRIVER SIGN-OFF STAMP</div>
-                    <div className="font-bold text-slate-900 font-sans">{shipment.driverName || shipment.driver_name || "Marcus Vance (Driver License Verified)"}</div>
+                    <div className="text-base-content font-bold">DRIVER SIGN-OFF STAMP</div>
+                    <div className="font-bold text-base-content font-sans">{shipment.driverName || shipment.driver_name || "Marcus Vance (Driver License Verified)"}</div>
                   </div>
                   <div className="px-3 py-1 bg-emerald-600 text-white font-mono font-bold rounded-lg text-3xs">
                     SIGNED & ATTACHED
@@ -3392,7 +3387,7 @@ export default function ShipmentDetailsModal({
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end space-x-3">
+            <div className="p-4 bg-base-100 border-t border-slate-200 flex items-center justify-end space-x-3">
               <button
                 onClick={() => {
                   if (docViewerModal?.url && docViewerModal.url.startsWith("http")) {

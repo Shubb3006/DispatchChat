@@ -724,7 +724,7 @@ const ChatContainer = () => {
       {/* Interactive Document Viewer Modal Overlay for BOL Documents */}
       {previewBolDoc && (
         <div className="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0 text-slate-900 font-sans">
+          <div className="bg-base-100 rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0 text-base-content font-sans">
             {/* Header */}
             <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -750,7 +750,7 @@ const ChatContainer = () => {
             </div>
 
             {/* Document Body */}
-            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-base-200">
               {/* Document Banner */}
               <div className="bg-emerald-950 text-emerald-100 p-4 rounded-2xl border border-emerald-800 flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
@@ -768,27 +768,27 @@ const ChatContainer = () => {
               </div>
 
               {/* Paper Manifest Preview */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
+              <div className="bg-base-100 p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
                 <div className="flex justify-between items-start border-b border-slate-200 pb-3">
                   <div>
-                    <div className="text-sm font-extrabold text-slate-900 font-sans">LOGISYNC FREIGHT MANIFEST</div>
-                    <div className="text-[10px] text-slate-500">Bill of Lading #{previewBolDoc.loadNum || "10001"}</div>
+                    <div className="text-sm font-extrabold text-base-content font-sans">LOGISYNC FREIGHT MANIFEST</div>
+                    <div className="text-[10px] text-base-content">Bill of Lading #{previewBolDoc.loadNum || "10001"}</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-[10px] text-slate-500">ISSUED DATE</div>
+                    <div className="text-[10px] text-base-content">ISSUED DATE</div>
                     <div className="text-xs font-bold text-indigo-600">{new Date().toLocaleDateString()}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-[10px]">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
-                    <div className="font-bold text-slate-900">GAP Transport Logistics INC.</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Shipper / Pickup Origin</div>
+                    <div className="font-bold text-base-content">GAP Transport Logistics INC.</div>
                     <div>QC</div>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Consignee / Destination</div>
-                    <div className="font-bold text-slate-900">Midwest Distribution Hub</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Consignee / Destination</div>
+                    <div className="font-bold text-base-content">Midwest Distribution Hub</div>
                     <div>OH</div>
                   </div>
                 </div>
@@ -816,8 +816,8 @@ const ChatContainer = () => {
 
                 <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-[10px]">
                   <div className="space-y-0.5">
-                    <div className="text-slate-500 font-bold">DRIVER SIGN-OFF STAMP</div>
-                    <div className="font-bold text-slate-900 font-sans">jhbvisd</div>
+                    <div className="text-base-content font-bold">DRIVER SIGN-OFF STAMP</div>
+                    <div className="font-bold text-base-content font-sans">jhbvisd</div>
                   </div>
                   <div className="px-3 py-1 bg-emerald-600 text-white font-mono font-bold rounded-lg text-[10px]">
                     SIGNED & ATTACHED
@@ -827,7 +827,7 @@ const ChatContainer = () => {
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end space-x-3">
+            <div className="p-4 bg-base-100 border-t border-slate-200 flex items-center justify-end space-x-3">
               <button
                 type="button"
                 onClick={() => {

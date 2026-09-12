@@ -22,13 +22,13 @@ export default function DriverManagerHub({
   currentUser,
 }) {
   const drivers = useDriverStore((state) => state.drivers);
-  const fetchDrivers=useDriverStore((state)=>state.fetchDrivers);
+  const fetchDrivers = useDriverStore((state) => state.fetchDrivers);
 
-  const {shipments,fetchShipments}=useShipmentStore();
-  useEffect(()=>{
+  const { shipments, fetchShipments } = useShipmentStore();
+  useEffect(() => {
     fetchDrivers();
     fetchShipments();
-  },[])
+  }, [])
 
   console.log(drivers)
   const [activeTab, setActiveTab] = useState("manifests");
@@ -40,47 +40,47 @@ export default function DriverManagerHub({
     const rawHos = hosLogs.find((l) => l.driverId === drv.id);
     const mappedHos = rawHos
       ? {
-          statusCode: rawHos.currentStatus,
-          statusLabel:
-            rawHos.currentStatus === "D"
-              ? "Driving"
-              : rawHos.currentStatus === "ON"
+        statusCode: rawHos.currentStatus,
+        statusLabel:
+          rawHos.currentStatus === "D"
+            ? "Driving"
+            : rawHos.currentStatus === "ON"
               ? "On Duty"
               : rawHos.currentStatus === "SB"
-              ? "Sleeper Berth"
-              : "Off Duty",
-          hoursRemainingToday: parseFloat(
-            (rawHos.drivingSecondsRemaining / 3600).toFixed(1)
-          ),
-          cycleHoursRemaining: parseFloat(
-            (rawHos.cycleSecondsRemaining / 3600).toFixed(1)
-          ),
-          violations:
-            rawHos.drivingSecondsRemaining <= 0
-              ? ["Drive Limit Violation"]
-              : [],
-        }
+                ? "Sleeper Berth"
+                : "Off Duty",
+        hoursRemainingToday: parseFloat(
+          (rawHos.drivingSecondsRemaining / 3600).toFixed(1)
+        ),
+        cycleHoursRemaining: parseFloat(
+          (rawHos.cycleSecondsRemaining / 3600).toFixed(1)
+        ),
+        violations:
+          rawHos.drivingSecondsRemaining <= 0
+            ? ["Drive Limit Violation"]
+            : [],
+      }
       : {
-          statusCode: "OFF",
-          statusLabel: "Off Duty",
-          hoursRemainingToday: 11,
-          cycleHoursRemaining: 70,
-          violations: [],
-        };
+        statusCode: "OFF",
+        statusLabel: "Off Duty",
+        hoursRemainingToday: 11,
+        cycleHoursRemaining: 70,
+        violations: [],
+      };
     const rawSafety = safetyScores.find((s) => s.driverId === drv.id);
     const mappedSafety = rawSafety
       ? {
-          score: rawSafety.score,
-          totalMiles: rawSafety.totalMiles,
-          totalViolations: rawSafety.totalViolations,
-          hosCompliancePercent: rawSafety.hosCompliancePercent,
-        }
+        score: rawSafety.score,
+        totalMiles: rawSafety.totalMiles,
+        totalViolations: rawSafety.totalViolations,
+        hosCompliancePercent: rawSafety.hosCompliancePercent,
+      }
       : {
-          score: 95,
-          totalMiles: 4500,
-          totalViolations: 0,
-          hosCompliancePercent: 100,
-        };
+        score: 95,
+        totalMiles: 4500,
+        totalViolations: 0,
+        hosCompliancePercent: 100,
+      };
     return {
       ...drv,
       activeShipment,
@@ -109,10 +109,10 @@ export default function DriverManagerHub({
               <Headphones className="h-5 w-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-slate-900 font-sans">
+              <h2 className="text-lg font-bold text-base-content font-sans">
                 Driver Support & Manifesting Control
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Corporate terminal for driver logistics, communication, and HOS
                 compliance.
               </p>
@@ -124,11 +124,10 @@ export default function DriverManagerHub({
         <div className="flex items-center space-x-1.5 bg-slate-100 p-1 rounded-xl self-start md:self-auto border border-slate-200 max-w-full overflow-x-auto">
           <button
             onClick={() => setActiveTab("manifests")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
-              activeTab === "manifests"
-                ? "bg-white text-cyan-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${activeTab === "manifests"
+              ? "bg-base-100 text-cyan-700 shadow-sm"
+              : "text-slate-600 hover:text-base-content"
+              }`}
           >
             <ClipboardList className="h-3.5 w-3.5" />
             <span>Active Manifests</span>
@@ -136,11 +135,10 @@ export default function DriverManagerHub({
 
           <button
             onClick={() => setActiveTab("hos")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
-              activeTab === "hos"
-                ? "bg-white text-cyan-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${activeTab === "hos"
+              ? "bg-base-100 text-cyan-700 shadow-sm"
+              : "text-slate-600 hover:text-base-content"
+              }`}
           >
             <Clock className="h-3.5 w-3.5" />
             <span>HOS & ELD Logs</span>
@@ -148,11 +146,10 @@ export default function DriverManagerHub({
 
           <button
             onClick={() => setActiveTab("safety")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${
-              activeTab === "safety"
-                ? "bg-white text-cyan-700 shadow-sm"
-                : "text-slate-600 hover:text-slate-900"
-            }`}
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold font-mono uppercase tracking-wide transition-all cursor-pointer flex items-center space-x-1.5 whitespace-nowrap shrink-0 ${activeTab === "safety"
+              ? "bg-base-100 text-cyan-700 shadow-sm"
+              : "text-slate-600 hover:text-base-content"
+              }`}
           >
             <ShieldAlert className="h-3.5 w-3.5" />
             <span>Driver Safety</span>
@@ -164,7 +161,7 @@ export default function DriverManagerHub({
       {activeTab === "manifests" && (
         <div className="space-y-4">
           {/* Filters & Summary */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-base-100 p-4 rounded-xl border border-slate-200 shadow-sm">
             <div className="flex items-center space-x-2">
               <Users className="h-5 w-5 text-cyan-600" />
               <span className="text-sm font-semibold text-slate-800">
@@ -179,7 +176,7 @@ export default function DriverManagerHub({
                 placeholder="Search drivers or loads..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 pr-4 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="w-full pl-9 pr-4 py-1.5 bg-base-200 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-1 focus:ring-cyan-500"
               />
             </div>
           </div>
@@ -189,12 +186,12 @@ export default function DriverManagerHub({
             {filteredDrivers.map((drv) => (
               <div
                 key={drv.id}
-                className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm space-y-4 hover:border-cyan-300 transition-all flex flex-col justify-between"
+                className="bg-base-100 rounded-xl border border-slate-200 p-4 shadow-sm space-y-4 hover:border-cyan-300 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-start justify-between border-b border-slate-100 pb-2.5">
                     <div>
-                      <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                      <h3 className="font-bold text-base-content text-sm flex items-center gap-1.5">
                         <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
                         {drv.name}
                       </h3>
@@ -218,7 +215,7 @@ export default function DriverManagerHub({
                       Active Load Manifest
                     </span>
                     {drv.activeShipment ? (
-                      <div className="bg-slate-50 p-3 rounded-lg border border-slate-200 space-y-2">
+                      <div className="bg-base-200 p-3 rounded-lg border border-slate-200 space-y-2">
                         <div className="flex items-center justify-between text-3xs font-mono">
                           <div className="flex items-center gap-1">
                             <span className="font-bold text-cyan-700 bg-cyan-50 px-1.5 py-0.5 rounded">
@@ -226,13 +223,12 @@ export default function DriverManagerHub({
                             </span>
                             {drv.activeShipment.priority && (
                               <span
-                                className={`px-1 py-0.5 rounded text-[9px] font-bold uppercase border ${
-                                  drv.activeShipment.priority === "urgent"
-                                    ? "bg-rose-100 text-rose-800 border-rose-200 animate-pulse"
-                                    : drv.activeShipment.priority === "high"
+                                className={`px-1 py-0.5 rounded text-[9px] font-bold uppercase border ${drv.activeShipment.priority === "urgent"
+                                  ? "bg-rose-100 text-rose-800 border-rose-200 animate-pulse"
+                                  : drv.activeShipment.priority === "high"
                                     ? "bg-amber-100 text-amber-800 border-amber-200"
                                     : "bg-slate-100 text-slate-600 border-slate-200"
-                                }`}
+                                  }`}
                               >
                                 {drv.activeShipment.priority}
                               </span>
@@ -245,7 +241,7 @@ export default function DriverManagerHub({
                         <p className="text-xs font-semibold text-slate-800 line-clamp-1">
                           {drv.activeShipment.cargoDescription}
                         </p>
-                        <div className="flex justify-between items-center text-3xs text-slate-500 font-mono">
+                        <div className="flex justify-between items-center text-3xs text-base-content font-mono">
                           <span>
                             Route: {drv.activeShipment.originCity} →{" "}
                             {drv.activeShipment.destinationCity}
@@ -289,9 +285,9 @@ export default function DriverManagerHub({
 
 
       {activeTab === "hos" && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900 font-sans">
+        <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-base-content font-sans">
               Samsara ELD Hours of Service Audit
             </h3>
             <span className="px-2 py-0.5 bg-emerald-50 text-emerald-700 border border-emerald-100 font-mono text-3xs font-bold rounded uppercase">
@@ -302,7 +298,7 @@ export default function DriverManagerHub({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-2xs font-bold uppercase tracking-wider">
+                <tr className="bg-base-200 border-b border-slate-200 text-base-content font-mono text-2xs font-bold uppercase tracking-wider">
                   <th className="px-5 py-3">Driver Name</th>
                   <th className="px-5 py-3">Duty Status</th>
                   <th className="px-5 py-3">Drive Time Left (Today)</th>
@@ -316,12 +312,12 @@ export default function DriverManagerHub({
                     D: "bg-emerald-100 text-emerald-800 border-emerald-200",
                     ON: "bg-blue-100 text-blue-800 border-blue-200",
                     SB: "bg-indigo-100 text-indigo-800 border-indigo-200",
-                    OFF: "bg-slate-100 text-slate-500 border-slate-200",
+                    OFF: "bg-slate-100 text-base-content border-slate-200",
                   };
                   return (
-                    <tr key={d.id} className="hover:bg-slate-50/50">
+                    <tr key={d.id} className="hover:bg-base-200/50">
                       <td className="px-5 py-3.5">
-                        <div className="font-semibold text-slate-900">
+                        <div className="font-semibold text-base-content">
                           {d.name}
                         </div>
                         <div className="text-3xs text-slate-400">
@@ -330,10 +326,9 @@ export default function DriverManagerHub({
                       </td>
                       <td className="px-5 py-3.5">
                         <span
-                          className={`px-2 py-0.5 border text-3xs font-bold uppercase rounded ${
-                            statusColors[d.hosLog.statusCode] ||
-                            "bg-slate-50 text-slate-500"
-                          }`}
+                          className={`px-2 py-0.5 border text-3xs font-bold uppercase rounded ${statusColors[d.hosLog.statusCode] ||
+                            "bg-base-200 text-base-content"
+                            }`}
                         >
                           {d.hosLog.statusLabel}
                         </span>
@@ -346,7 +341,7 @@ export default function DriverManagerHub({
                       </td>
                       <td className="px-5 py-3.5">
                         {d.hosLog.violations &&
-                        d.hosLog.violations.length > 0 ? (
+                          d.hosLog.violations.length > 0 ? (
                           <span className="flex items-center space-x-1 text-rose-600 font-bold">
                             <AlertTriangle className="h-3.5 w-3.5 shrink-0" />
                             <span className="text-[10px]">
@@ -370,9 +365,9 @@ export default function DriverManagerHub({
       )}
 
       {activeTab === "safety" && (
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-slate-900 font-sans">
+        <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex items-center justify-between">
+            <h3 className="text-sm font-semibold text-base-content font-sans">
               Driver Safety Scorecards (Samsara Telemetry)
             </h3>
             <span className="text-3xs text-slate-400 font-mono">
@@ -383,7 +378,7 @@ export default function DriverManagerHub({
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-2xs font-bold uppercase tracking-wider">
+                <tr className="bg-base-200 border-b border-slate-200 text-base-content font-mono text-2xs font-bold uppercase tracking-wider">
                   <th className="px-5 py-3">Driver Name</th>
                   <th className="px-5 py-3">Safety Score</th>
                   <th className="px-5 py-3">Total Miles (30d)</th>
@@ -398,12 +393,12 @@ export default function DriverManagerHub({
                     score >= 90
                       ? "text-emerald-600"
                       : score >= 80
-                      ? "text-amber-600"
-                      : "text-rose-600";
+                        ? "text-amber-600"
+                        : "text-rose-600";
                   return (
-                    <tr key={d.id} className="hover:bg-slate-50/50">
+                    <tr key={d.id} className="hover:bg-base-200/50">
                       <td className="px-5 py-3.5">
-                        <div className="font-semibold text-slate-900">
+                        <div className="font-semibold text-base-content">
                           {d.name}
                         </div>
                         <div className="text-3xs text-slate-400">

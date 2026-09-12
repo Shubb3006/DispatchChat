@@ -45,29 +45,29 @@ export default function TripSheetPrintModal({
       : "TRIP-UNCALCULATED");
   const formattedDate = calculatedAt
     ? calculatedAt.toLocaleString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      })
+      weekday: "short",
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    })
     : "—";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto print:p-0 print:bg-white">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden print:border-none print:shadow-none print:max-w-none print:max-h-none print:rounded-none">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/80 backdrop-blur-xs overflow-y-auto print:p-0 print:bg-base-100">
+      <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-2xl max-w-4xl w-full max-h-[92vh] flex flex-col overflow-hidden print:border-none print:shadow-none print:max-w-none print:max-h-none print:rounded-none">
         {/* Modal Header & Actions (Hidden on Print) */}
-        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-slate-50/80 print:hidden">
+        <div className="flex items-center justify-between p-5 border-b border-slate-100 bg-base-200/80 print:hidden">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-sky-600 text-white flex items-center justify-center shadow-md shadow-sky-600/20">
               <Printer className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-sm font-black text-slate-900 uppercase tracking-tight font-mono">
+              <h2 className="text-sm font-black text-base-content uppercase tracking-tight font-mono">
                 Commercial Driver Trip Sheet
               </h2>
-              <p className="text-xs text-slate-500 font-medium">
+              <p className="text-xs text-base-content font-medium">
                 Print or export the driver route manifest exactly as routed by {route.provider}.
               </p>
             </div>
@@ -83,7 +83,7 @@ export default function TripSheetPrintModal({
             </button>
             <button
               onClick={onClose}
-              className="p-2 hover:bg-slate-200 rounded-xl text-slate-500 transition cursor-pointer"
+              className="p-2 hover:bg-slate-200 rounded-xl text-base-content transition cursor-pointer"
             >
               <X className="w-5 h-5" />
             </button>
@@ -91,11 +91,11 @@ export default function TripSheetPrintModal({
         </div>
 
         {/* Printable Trip Sheet Body */}
-        <div ref={printContentRef} className="p-8 overflow-y-auto space-y-6 text-slate-900 font-sans print:p-4 print:space-y-4">
+        <div ref={printContentRef} className="p-8 overflow-y-auto space-y-6 text-base-content font-sans print:p-4 print:space-y-4">
           {/* Company & Document Official Header */}
           <div className="flex items-start justify-between border-b-2 border-slate-900 pb-4">
             <div>
-              <h1 className="text-2xl font-black tracking-tight text-slate-900">
+              <h1 className="text-2xl font-black tracking-tight text-base-content">
                 NISHAN TRANSPORT &amp; LOGISTICS INC.
               </h1>
               <div className="text-xs text-slate-600 font-mono mt-0.5 space-x-3">
@@ -104,13 +104,13 @@ export default function TripSheetPrintModal({
                 <span>US DOT: <b>3189421</b></span>
                 <span>MC: <b>1092834</b></span>
               </div>
-              <div className="text-[11px] text-slate-500 mt-1">
+              <div className="text-[11px] text-base-content mt-1">
                 Headquarters: 1805 Chemin Saint-Francois, Dorval, Quebec, H9P 2S1
               </div>
             </div>
 
             <div className="text-right font-mono">
-              <div className="text-xs text-slate-500 uppercase font-bold">Driver Trip Manifest</div>
+              <div className="text-xs text-base-content uppercase font-bold">Driver Trip Manifest</div>
               <div className="text-lg font-black text-sky-700">{tripId}</div>
               <div className="text-xs text-slate-600">{formattedDate}</div>
             </div>
@@ -129,19 +129,19 @@ export default function TripSheetPrintModal({
           )}
 
           {/* Route Overview & Axle Class Specifications Strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200 text-xs font-mono">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 bg-base-200 p-4 rounded-2xl border border-slate-200 text-xs font-mono">
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase font-bold">Corridor:</span>
-              <strong className="text-slate-900 text-sm truncate block">
+              <span className="text-base-content block text-[10px] uppercase font-bold">Corridor:</span>
+              <strong className="text-base-content text-sm truncate block">
                 {route.origin?.split(",")[0]} ➔ {route.destination?.split(",")[0]}
               </strong>
-              <span className="text-[10px] text-slate-500 block">{stops.length} Total Sequential Stops</span>
+              <span className="text-[10px] text-base-content block">{stops.length} Total Sequential Stops</span>
             </div>
 
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase font-bold">Power Unit Axle Class:</span>
+              <span className="text-base-content block text-[10px] uppercase font-bold">Power Unit Axle Class:</span>
               <strong className="text-sky-700">{restrictions.axleType || "—"}</strong>
-              <span className="text-[10px] text-slate-500 block">
+              <span className="text-[10px] text-base-content block">
                 Declared GVW:{" "}
                 {restrictions.grossWeightLbs ? `${Number(restrictions.grossWeightLbs).toLocaleString()} lbs` : "—"}
                 {restrictions.maxAllowedGrossWeight
@@ -151,9 +151,9 @@ export default function TripSheetPrintModal({
             </div>
 
             <div>
-              <span className="text-slate-500 block text-[10px] uppercase font-bold">Routed Mileage &amp; Drive Time:</span>
+              <span className="text-base-content block text-[10px] uppercase font-bold">Routed Mileage &amp; Drive Time:</span>
               <strong className="text-emerald-700 text-sm">{num(route.officialMiles)} Miles</strong>
-              <span className="text-[10px] text-slate-500 block">
+              <span className="text-[10px] text-base-content block">
                 Est Driving Time: ~{num(route.driveHours, 2)}h • Profile: {route.routingProfile}
               </span>
             </div>
@@ -162,27 +162,27 @@ export default function TripSheetPrintModal({
           {/* Fuel & Toll Summary */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
             <div className="border border-slate-200 rounded-2xl p-3">
-              <div className="text-[10px] uppercase font-bold text-slate-500 flex items-center gap-1.5">
+              <div className="text-[10px] uppercase font-bold text-base-content flex items-center gap-1.5">
                 <Fuel className="w-3 h-3 text-sky-600" />
                 <span>Diesel Fuel</span>
               </div>
-              <div className="text-lg font-black text-slate-900 mt-0.5">{money(fuel.cost)}</div>
-              <div className="text-[10px] text-slate-500">
+              <div className="text-lg font-black text-base-content mt-0.5">{money(fuel.cost)}</div>
+              <div className="text-[10px] text-base-content">
                 {num(fuel.gallons)} gal @ {money(fuel.dieselPricePerGal)}/gal
                 {fuel.mpgUsed ? ` • ${num(fuel.mpgUsed, 2)} MPG` : ""}
               </div>
             </div>
 
             <div className="border border-slate-200 rounded-2xl p-3">
-              <div className="text-[10px] uppercase font-bold text-slate-500">Tolls (partial)</div>
+              <div className="text-[10px] uppercase font-bold text-base-content">Tolls (partial)</div>
               <div className="text-lg font-black text-amber-700 mt-0.5">{money(route.totalTolls)}</div>
-              <div className="text-[10px] text-slate-500 leading-relaxed">{route.tollNote}</div>
+              <div className="text-[10px] text-base-content leading-relaxed">{route.tollNote}</div>
             </div>
           </div>
 
           {/* Sequential Multi-Stop Route & Delivery Schedule */}
           <div className="space-y-2">
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 font-mono flex items-center gap-1.5">
+            <h3 className="text-xs font-black uppercase tracking-wider text-base-content font-mono flex items-center gap-1.5">
               <MapPin className="w-3.5 h-3.5 text-sky-600" />
               <span>Sequential Multi-Stop Routing &amp; Delivery Schedule</span>
             </h3>
@@ -205,31 +205,30 @@ export default function TripSheetPrintModal({
                     const isLast = idx === stops.length - 1;
 
                     return (
-                      <tr key={idx} className="hover:bg-slate-50">
-                        <td className="py-3 px-3 font-black text-slate-900">Stop #{stop.stopNumber ?? idx + 1}</td>
+                      <tr key={idx} className="hover:bg-base-200">
+                        <td className="py-3 px-3 font-black text-base-content">Stop #{stop.stopNumber ?? idx + 1}</td>
                         <td className="py-3 px-3">
                           <span
-                            className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${
-                              isFirst
-                                ? "bg-sky-100 text-sky-800"
-                                : isLast
+                            className={`px-2 py-0.5 rounded text-[9px] font-black uppercase ${isFirst
+                              ? "bg-sky-100 text-sky-800"
+                              : isLast
                                 ? "bg-emerald-100 text-emerald-800"
                                 : "bg-amber-100 text-amber-800"
-                            }`}
+                              }`}
                           >
                             {stop.type}
                           </span>
                         </td>
                         <td className="py-3 px-3">
-                          <div className="font-bold text-slate-900">{stop.displayName || stop.address}</div>
-                          <div className="text-[10px] text-slate-500">{stop.label}</div>
+                          <div className="font-bold text-base-content">{stop.displayName || stop.address}</div>
+                          <div className="text-[10px] text-base-content">{stop.label}</div>
                         </td>
                         <td className="py-3 px-3 font-semibold text-slate-700">
                           {isFirst
                             ? "Departure"
                             : legInfo
-                            ? `${num(legInfo.distanceMiles)} mi (~${num(legInfo.driveHours, 2)}h)`
-                            : "—"}
+                              ? `${num(legInfo.distanceMiles)} mi (~${num(legInfo.driveHours, 2)}h)`
+                              : "—"}
                         </td>
                         <td className="py-3 px-3">
                           <div className="border-b border-dashed border-slate-300 w-36 h-6 flex items-end text-[9px] text-slate-400">
@@ -247,7 +246,7 @@ export default function TripSheetPrintModal({
           {/* Consolidated Load Manifest — only for a saved LTL trip */}
           {loads.length > 0 && (
             <div className="space-y-2">
-              <div className="flex items-center gap-2 text-[11px] font-black text-slate-900 uppercase font-mono">
+              <div className="flex items-center gap-2 text-[11px] font-black text-base-content uppercase font-mono">
                 <Package className="w-3.5 h-3.5 text-sky-600" />
                 <span>Consolidated Load Manifest ({loads.length})</span>
               </div>
@@ -265,7 +264,7 @@ export default function TripSheetPrintModal({
                   <tbody className="divide-y divide-slate-100">
                     {loads.map((l) => (
                       <tr key={l.id}>
-                        <td className="py-2 px-3 font-bold text-slate-900">
+                        <td className="py-2 px-3 font-bold text-base-content">
                           {l.load_number || "—"}
                         </td>
                         <td className="py-2 px-3 text-slate-700">{l.shipper_name || "—"}</td>
@@ -285,7 +284,7 @@ export default function TripSheetPrintModal({
           {/* Pre-Trip & Post-Trip Sign-Off Section */}
           <div className="pt-4 border-t-2 border-slate-900 grid grid-cols-2 gap-6 text-xs font-mono">
             <div className="space-y-2">
-              <span className="font-black text-slate-900 block text-[11px] uppercase">
+              <span className="font-black text-base-content block text-[11px] uppercase">
                 Driver Pre-Trip Vehicle Inspection Sign-Off:
               </span>
               <div className="text-[10px] text-slate-600 space-y-0.5">
@@ -301,7 +300,7 @@ export default function TripSheetPrintModal({
             </div>
 
             <div className="space-y-2">
-              <span className="font-black text-slate-900 block text-[11px] uppercase">
+              <span className="font-black text-base-content block text-[11px] uppercase">
                 Dispatcher Authorization &amp; Manifest Release:
               </span>
               <div className="text-[10px] text-slate-600">

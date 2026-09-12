@@ -123,9 +123,9 @@ function Pill({ className = "", children }) {
 function Lane({ origin, destination, className = "" }) {
   return (
     <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-1 ${className}`}>
-      <span className="font-semibold text-slate-900">{origin || "—"}</span>
+      <span className="font-semibold text-base-content">{origin || "—"}</span>
       <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
-      <span className="font-semibold text-slate-900">{destination || "—"}</span>
+      <span className="font-semibold text-base-content">{destination || "—"}</span>
     </span>
   );
 }
@@ -134,17 +134,17 @@ function Field({ label, value, className = "" }) {
   const shown = value === null || value === undefined || value === "" ? "—" : value;
   return (
     <div className={`min-w-0 ${className}`}>
-      <dt className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</dt>
-      <dd className="mt-0.5 break-words text-sm font-medium text-slate-900">{shown}</dd>
+      <dt className="text-[11px] font-semibold uppercase tracking-wider text-base-content">{label}</dt>
+      <dd className="mt-0.5 break-words text-sm font-medium text-base-content">{shown}</dd>
     </div>
   );
 }
 
 function Card({ title, icon: Icon, action, children, bodyClass = "p-4 sm:p-5" }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-base-100 shadow-sm">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 px-4 py-3 sm:px-5">
-        <h2 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+        <h2 className="flex items-center gap-2 text-sm font-bold text-base-content">
           {Icon && <Icon className="h-4 w-4 flex-none text-slate-400" />}
           {title}
         </h2>
@@ -160,7 +160,7 @@ function DetailSkeleton() {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="space-y-6 lg:col-span-2">
         {[0, 1, 2].map((i) => (
-          <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white p-5">
+          <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-base-100 p-5">
             <div className="h-4 w-1/3 rounded bg-slate-200" />
             <div className="mt-4 h-3 w-2/3 rounded bg-slate-100" />
             <div className="mt-2 h-3 w-1/2 rounded bg-slate-100" />
@@ -170,7 +170,7 @@ function DetailSkeleton() {
       </div>
       <div className="space-y-6">
         {[0, 1].map((i) => (
-          <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white p-5">
+          <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-base-100 p-5">
             <div className="h-4 w-1/2 rounded bg-slate-200" />
             <div className="mt-4 h-3 w-3/4 rounded bg-slate-100" />
             <div className="mt-2 h-3 w-2/3 rounded bg-slate-100" />
@@ -199,12 +199,12 @@ function Shell({ bar, children }) {
         </div>
       </header>
 
-      <div className="border-b border-slate-200 bg-white">{bar}</div>
+      <div className="border-b border-slate-200 bg-base-100">{bar}</div>
 
       <main className="mx-auto w-full max-w-7xl flex-1 space-y-6 px-4 py-6 sm:px-6">{children}</main>
 
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-slate-500 sm:px-6">
+      <footer className="border-t border-slate-200 bg-base-100">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-base-content sm:px-6">
           <p>© {new Date().getFullYear()} Nishan Transport. Customer Portal.</p>
           <p>Questions about a shipment? Contact your Nishan Transport dispatch coordinator.</p>
         </div>
@@ -425,7 +425,7 @@ export default function PortalLoadDetailPage() {
     const pendingBar = (
       <div className="mx-auto max-w-7xl px-4 py-5 sm:px-6">
         {backButton}
-        <h1 className="mt-2 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+        <h1 className="mt-2 text-xl font-bold tracking-tight text-base-content sm:text-2xl">
           {isLoadingDetail || !hasResolved ? "Loading shipment…" : "Shipment not found"}
         </h1>
       </div>
@@ -441,12 +441,12 @@ export default function PortalLoadDetailPage() {
 
     return (
       <Shell bar={pendingBar}>
-        <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+        <div className="rounded-xl border border-dashed border-slate-300 bg-base-100 px-6 py-14 text-center">
           <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
             <AlertCircle className="h-5 w-5 text-slate-400" />
           </span>
-          <p className="mt-4 text-sm font-semibold text-slate-900">We couldn&apos;t find that shipment</p>
-          <p className="mx-auto mt-1 max-w-md text-sm text-slate-500">
+          <p className="mt-4 text-sm font-semibold text-base-content">We couldn&apos;t find that shipment</p>
+          <p className="mx-auto mt-1 max-w-md text-sm text-base-content">
             The reference <span className="break-all font-mono text-slate-700">{id}</span> isn&apos;t on your account, it
             has not been booked yet, or we could not reach the server. If you expected it here, contact your
             dispatch coordinator.
@@ -461,7 +461,7 @@ export default function PortalLoadDetailPage() {
             </button>
             <button
               onClick={() => fetchLoadDetail(id)}
-              className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              className="rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             >
               Try again
             </button>
@@ -499,7 +499,7 @@ export default function PortalLoadDetailPage() {
       <div className="mx-auto flex max-w-7xl flex-wrap items-start justify-between gap-4 px-4 py-5 sm:px-6">
         <div className="min-w-0">
           {backButton}
-          <h1 className="mt-2 text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">
+          <h1 className="mt-2 text-xl font-bold tracking-tight text-base-content sm:text-2xl">
             Load #{load.load_number || "—"}
           </h1>
           <div className="mt-2 flex flex-wrap items-center gap-2">
@@ -519,7 +519,7 @@ export default function PortalLoadDetailPage() {
             <button
               onClick={handleCopyTracking}
               title="Copy a public tracking link for this shipment. It works without a login — safe to send to your consignee or receiver."
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             >
               <Link2 className="h-4 w-4" />
               Copy tracking link
@@ -566,13 +566,13 @@ export default function PortalLoadDetailPage() {
           <Card title="Live tracking" icon={Navigation}>
             <PortalLifecycle lifecycle={detail?.lifecycle} variant="full" />
 
-            <div className="mt-5 rounded-lg border border-slate-200 bg-slate-50/70 p-4">
+            <div className="mt-5 rounded-lg border border-slate-200 bg-base-300 p-4">
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                  <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">
                     Estimated delivery
                   </p>
-                  <p className="mt-1 text-lg font-bold leading-tight text-slate-900">
+                  <p className="mt-1 text-lg font-bold leading-tight text-base-content">
                     {eta?.label || "To be confirmed"}
                   </p>
                   <p className="mt-0.5 flex items-center gap-1.5 text-sm font-medium text-slate-600">
@@ -589,14 +589,14 @@ export default function PortalLoadDetailPage() {
               {eta?.detail && <p className="mt-2.5 text-sm text-slate-600">{eta.detail}</p>}
 
               {etaScheduled && (
-                <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-slate-500">
+                <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-base-content">
                   <Info className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
                   This is the scheduled appointment on the booking, not a live prediction from the truck.
                 </p>
               )}
 
               {(!eta || eta.source === "none") && (
-                <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-slate-500">
+                <p className="mt-2.5 flex items-start gap-1.5 text-xs leading-relaxed text-base-content">
                   <Info className="mt-0.5 h-3.5 w-3.5 flex-none text-slate-400" />
                   No delivery appointment has been set on this shipment yet.
                 </p>
@@ -605,22 +605,22 @@ export default function PortalLoadDetailPage() {
 
             {position ? (
               <div className="mt-4 rounded-lg border border-slate-200 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">
                   Last reported position
                 </p>
-                <p className="mt-1 flex items-start gap-2 text-sm font-medium text-slate-900">
+                <p className="mt-1 flex items-start gap-2 text-sm font-medium text-base-content">
                   <MapPin className="mt-0.5 h-4 w-4 flex-none text-sky-600" />
                   <span className="break-words">{positionPlace(position)}</span>
                 </p>
-                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-slate-500">
+                <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-xs text-base-content">
                   <span>Unit {position.unit || "—"}</span>
                   <span>{relativeTime(position.reported_at) || fmtDateTime(position.reported_at)}</span>
                 </div>
               </div>
             ) : (
-              <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-4">
+              <div className="mt-4 rounded-lg border border-dashed border-slate-300 bg-base-200 p-4">
                 <p className="text-sm font-semibold text-slate-700">Live GPS is not reporting on this shipment</p>
-                <p className="mt-1 text-sm text-slate-500">
+                <p className="mt-1 text-sm text-base-content">
                   We have no position pings for this load. The milestones below are posted by the dispatch team
                   as the freight moves.
                 </p>
@@ -631,7 +631,7 @@ export default function PortalLoadDetailPage() {
           {/* ----------------------------------------------------------- Timeline */}
           <Card title="Shipment timeline" icon={CalendarDays}>
             {orderedTimeline.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-base-content">
                 Nothing has been posted on this shipment yet. Pickup, border and delivery milestones will appear
                 here as they happen.
               </p>
@@ -647,7 +647,7 @@ export default function PortalLoadDetailPage() {
                       {index < orderedTimeline.length - 1 && <span className="mt-1 w-px flex-1 bg-slate-200" />}
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="text-sm font-semibold text-slate-900">{event.label || "Update"}</p>
+                      <p className="text-sm font-semibold text-base-content">{event.label || "Update"}</p>
                       {event.detail && <p className="mt-0.5 text-sm text-slate-600">{event.detail}</p>}
                       <p className="mt-1 text-xs text-slate-400">
                         {fmtDateTime(event.at)}
@@ -701,12 +701,12 @@ export default function PortalLoadDetailPage() {
                     )}
                     <div className="min-w-0">
                       <p
-                        className={`text-sm font-semibold ${stage.done ? "text-slate-900" : "text-slate-500"
+                        className={`text-sm font-semibold ${stage.done ? "text-base-content" : "text-base-content"
                           }`}
                       >
                         {stage.label}
                       </p>
-                      {stage.hint && <p className="mt-0.5 text-xs text-slate-500">{stage.hint}</p>}
+                      {stage.hint && <p className="mt-0.5 text-xs text-base-content">{stage.hint}</p>}
                       {stage.at && (
                         <p className="mt-0.5 text-xs font-medium text-emerald-700">{fmtDate(stage.at)}</p>
                       )}
@@ -716,20 +716,20 @@ export default function PortalLoadDetailPage() {
               </ol>
 
               <div className="mt-5 border-t border-slate-100 pt-4">
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">
                   {customs.lead_number_type || "Lead"} number
                 </p>
                 {customs.lead_number ? (
                   <button
                     onClick={handleCopyLead}
                     title="Copy this reference to your clipboard"
-                    className="mt-1.5 inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-slate-50 px-2.5 py-1.5 font-mono text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                    className="mt-1.5 inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-base-200 px-2.5 py-1.5 font-mono text-sm font-semibold text-slate-800 transition-colors hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                   >
                     {customs.lead_number}
                     <Copy className="h-3.5 w-3.5 text-slate-400" />
                   </button>
                 ) : (
-                  <p className="mt-1.5 text-sm font-medium text-slate-500">Not yet issued</p>
+                  <p className="mt-1.5 text-sm font-medium text-base-content">Not yet issued</p>
                 )}
               </div>
 
@@ -761,16 +761,16 @@ export default function PortalLoadDetailPage() {
                   if (file) handleCustomsUpload(file);
                 }}
                 className={`mt-5 rounded-lg border-2 border-dashed p-5 text-center transition-colors ${customsDragActive
-                    ? "border-sky-400 bg-sky-50"
-                    : customsNeedsDocs
-                      ? "border-amber-400 bg-amber-50"
-                      : "border-slate-300 bg-white hover:border-slate-400"
+                  ? "border-sky-400 bg-sky-50"
+                  : customsNeedsDocs
+                    ? "border-amber-400 bg-amber-50"
+                    : "border-slate-300 bg-base-100 hover:border-slate-400"
                   }`}
               >
                 <Upload
                   className={`mx-auto h-6 w-6 ${customsNeedsDocs ? "text-amber-600" : "text-slate-400"}`}
                 />
-                <p className="mt-2 text-sm font-semibold text-slate-900">
+                <p className="mt-2 text-sm font-semibold text-base-content">
                   {customsNeedsDocs ? "We still need your customs paperwork" : "Upload customs paperwork"}
                 </p>
                 {customsNeedsDocs && (
@@ -778,7 +778,7 @@ export default function PortalLoadDetailPage() {
                     Commercial invoice, packing list, and any permits or certificates.
                   </p>
                 )}
-                <p className="mt-1 text-xs text-slate-500">Drag a file here, or</p>
+                <p className="mt-1 text-xs text-base-content">Drag a file here, or</p>
                 <label className="mt-1 inline-block cursor-pointer text-sm font-semibold text-sky-700 hover:underline">
                   browse your files
                   <input
@@ -805,7 +805,7 @@ export default function PortalLoadDetailPage() {
           {/* ---------------------------------------------------------- Documents */}
           <Card title="Documents" icon={FileText} bodyClass="">
             {documents.length === 0 ? (
-              <p className="px-4 py-6 text-sm text-slate-500 sm:px-5">
+              <p className="px-4 py-6 text-sm text-base-content sm:px-5">
                 No documents yet — your BOL and proof of delivery will appear here as soon as they are filed.
               </p>
             ) : (
@@ -813,15 +813,15 @@ export default function PortalLoadDetailPage() {
                 {documents.map((doc) => (
                   <li key={doc.id} className="flex flex-wrap items-center gap-3 px-4 py-3 sm:px-5">
                     <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-slate-100">
-                      <FileText className="h-4 w-4 text-slate-500" />
+                      <FileText className="h-4 w-4 text-base-content" />
                     </span>
                     <div className="min-w-[9rem] flex-1">
-                      <p className="truncate text-sm font-semibold text-slate-900">
+                      <p className="truncate text-sm font-semibold text-base-content">
                         {doc.label || humanize(doc.document_type) || "Document"}
                       </p>
-                      <p className="truncate text-xs text-slate-500">{doc.file_name || "—"}</p>
+                      <p className="truncate text-xs text-base-content">{doc.file_name || "—"}</p>
                     </div>
-                    <span className="text-xs text-slate-500">{fmtDate(doc.created_at)}</span>
+                    <span className="text-xs text-base-content">{fmtDate(doc.created_at)}</span>
                     {doc.is_approved && (
                       <Pill className="bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20">Approved</Pill>
                     )}
@@ -830,7 +830,7 @@ export default function PortalLoadDetailPage() {
                         href={apiFileUrl(doc.download_url)}
                         target="_blank"
                         rel="noopener"
-                        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                       >
                         <Download className="h-4 w-4" />
                         Download
@@ -858,7 +858,7 @@ export default function PortalLoadDetailPage() {
             >
               <div
                 ref={threadRef}
-                className="max-h-[26rem] space-y-3 overflow-y-auto bg-slate-50/60 p-4 sm:p-5"
+                className="max-h-[26rem] space-y-3 overflow-y-auto bg-base-200/60 p-4 sm:p-5"
               >
                 {isLoadingMessages && messages.length === 0 ? (
                   <div className="space-y-3">
@@ -870,11 +870,11 @@ export default function PortalLoadDetailPage() {
                   </div>
                 ) : messages.length === 0 ? (
                   <div className="py-8 text-center">
-                    <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-white ring-1 ring-slate-200">
+                    <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-base-100 ring-1 ring-slate-200">
                       <MessageSquare className="h-5 w-5 text-slate-400" />
                     </span>
-                    <p className="mt-3 text-sm font-semibold text-slate-900">No messages yet</p>
-                    <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">
+                    <p className="mt-3 text-sm font-semibold text-base-content">No messages yet</p>
+                    <p className="mx-auto mt-1 max-w-sm text-sm text-base-content">
                       A message here goes straight to the dispatch team handling this load — appointment
                       changes, paperwork questions, anything.
                     </p>
@@ -885,11 +885,11 @@ export default function PortalLoadDetailPage() {
                     return (
                       <div key={message.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                         <div
-                          className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm ${mine ? "bg-sky-600 text-white" : "border border-slate-200 bg-white text-slate-800"
+                          className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 shadow-sm ${mine ? "bg-sky-600 text-white" : "border border-slate-200 bg-base-100 text-slate-800"
                             }`}
                         >
                           {!mine && (
-                            <p className="text-[11px] font-semibold text-slate-500">
+                            <p className="text-[11px] font-semibold text-base-content">
                               {message.sender_name || "Nishan Dispatch"}
                             </p>
                           )}
@@ -907,7 +907,7 @@ export default function PortalLoadDetailPage() {
               <div className="border-t border-slate-100 p-4 sm:p-5">
                 <label
                   htmlFor="portal-message-body"
-                  className="text-[11px] font-semibold uppercase tracking-wider text-slate-500"
+                  className="text-[11px] font-semibold uppercase tracking-wider text-base-content"
                 >
                   Message dispatch about Load #{load.load_number || id}
                 </label>
@@ -958,16 +958,16 @@ export default function PortalLoadDetailPage() {
 
             <div className="mt-4 space-y-3 border-t border-slate-100 pt-4">
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Shipper</p>
-                <p className="mt-0.5 text-sm font-medium text-slate-900">{load.shipper_name || "—"}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">Shipper</p>
+                <p className="mt-0.5 text-sm font-medium text-base-content">{load.shipper_name || "—"}</p>
+                <p className="text-sm text-base-content">
                   {cityLine(load.shipper_city, load.shipper_state, load.shipper_country) || "—"}
                 </p>
               </div>
               <div>
-                <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">Consignee</p>
-                <p className="mt-0.5 text-sm font-medium text-slate-900">{load.consignee_name || "—"}</p>
-                <p className="text-sm text-slate-500">
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">Consignee</p>
+                <p className="mt-0.5 text-sm font-medium text-base-content">{load.consignee_name || "—"}</p>
+                <p className="text-sm text-base-content">
                   {cityLine(load.consignee_city, load.consignee_state, load.consignee_country) || "—"}
                 </p>
               </div>
@@ -977,21 +977,21 @@ export default function PortalLoadDetailPage() {
           {quote && (
             <Card title="Quote" icon={CalendarDays}>
               {quotedPrice === null ? (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-base-content">
                   No price has been quoted on this shipment yet — your dispatch coordinator will send one
                   through.
                 </p>
               ) : (
                 <>
-                  <p className="text-2xl font-bold tabular-nums text-slate-900">
+                  <p className="text-2xl font-bold tabular-nums text-base-content">
                     {fmtMoney(quotedPrice, quote.currency || "USD")}
-                    <span className="ml-1.5 text-sm font-semibold text-slate-500">
+                    <span className="ml-1.5 text-sm font-semibold text-base-content">
                       {quote.currency || "USD"}
                     </span>
                   </p>
                   {/* responded_at is stamped on both accept and reject, so this
                       date is the response — not proof the quote was accepted. */}
-                  <p className="mt-1 text-sm text-slate-500">
+                  <p className="mt-1 text-sm text-base-content">
                     {quote.accepted_at ? `Responded ${fmtDate(quote.accepted_at)}` : "Awaiting your response"}
                   </p>
                 </>
@@ -1010,7 +1010,7 @@ export default function PortalLoadDetailPage() {
                 ))}
               </dl>
             ) : (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-base-content">
                 Not yet assigned — the driver and unit appear here once dispatch books the truck.
               </p>
             )}

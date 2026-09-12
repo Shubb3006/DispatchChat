@@ -208,23 +208,23 @@ export default function PcMilerPage() {
 
   const ACCENTS = {
     sky: {
-      selected: "bg-white border-sky-400 ring-2 ring-sky-300 shadow-md",
+      selected: "bg-base-100 border-sky-400 ring-2 ring-sky-300 shadow-md",
       badge: "bg-sky-50 text-sky-700 border-sky-200",
     },
     indigo: {
-      selected: "bg-white border-indigo-400 ring-2 ring-indigo-300 shadow-md",
+      selected: "bg-base-100 border-indigo-400 ring-2 ring-indigo-300 shadow-md",
       badge: "bg-indigo-50 text-indigo-700 border-indigo-200",
     },
     purple: {
-      selected: "bg-white border-purple-400 ring-2 ring-purple-300 shadow-md",
+      selected: "bg-base-100 border-purple-400 ring-2 ring-purple-300 shadow-md",
       badge: "bg-purple-50 text-purple-700 border-purple-200",
     },
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-12 print:p-0 print:bg-white">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12 print:p-0 print:bg-base-100">
       {/* Top Command Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
+      <div className="bg-base-100 border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
@@ -232,16 +232,15 @@ export default function PcMilerPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-xl font-black text-base-content tracking-tight">
                   Commercial Mileage, Multi-Stop &amp; Fuel / Toll Planner
                 </h1>
                 {route && (
                   <span
-                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border flex items-center gap-1 ${
-                      route.isTruckProfile
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                        : "bg-amber-50 text-amber-800 border-amber-200"
-                    }`}
+                    className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono border flex items-center gap-1 ${route.isTruckProfile
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : "bg-amber-50 text-amber-800 border-amber-200"
+                      }`}
                   >
                     <span
                       className={`w-2 h-2 rounded-full ${route.isTruckProfile ? "bg-emerald-500" : "bg-amber-500"}`}
@@ -250,7 +249,7 @@ export default function PcMilerPage() {
                   </span>
                 )}
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-base-content font-medium mt-0.5">
                 Live routed miles, sequential multi-stop legs, and fuel &amp; border toll figures. Every number on this page comes from the routing provider — nothing is estimated locally.
               </p>
             </div>
@@ -270,13 +269,13 @@ export default function PcMilerPage() {
       </div>
 
       {/* 2-Axle vs 3-Axle Power Unit Toggle Bar */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
+      <div className="bg-base-100 border border-slate-200 rounded-3xl p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4 print:hidden">
         <div className="space-y-0.5">
-          <div className="text-xs font-black uppercase tracking-wider text-slate-900 font-mono flex items-center gap-2">
+          <div className="text-xs font-black uppercase tracking-wider text-base-content font-mono flex items-center gap-2">
             <Truck className="w-4 h-4 text-sky-600" />
             <span>Fleet Power Unit &amp; Axle Class</span>
           </div>
-          <p className="text-[11px] text-slate-500">
+          <p className="text-[11px] text-base-content">
             Select 2-Axle for US Cross-Border 80k lbs compliance or 3-Axle Tridem for heavy Canada SPIF local delivery.
           </p>
         </div>
@@ -288,18 +287,17 @@ export default function PcMilerPage() {
               setAxleConfiguration("2_AXLE_CROSS_BORDER");
               executeRouteCalculation(origin, destination, stops, selectedProfile, "2_AXLE_CROSS_BORDER");
             }}
-            className={`px-4 py-2.5 rounded-2xl border text-left cursor-pointer transition flex items-center gap-2.5 ${
-              !is3Axle
-                ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200 shadow-2xs"
-                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-            }`}
+            className={`px-4 py-2.5 rounded-2xl border text-left cursor-pointer transition flex items-center gap-2.5 ${!is3Axle
+              ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200 shadow-2xs"
+              : "bg-base-200 border-slate-200 text-slate-600 hover:bg-slate-100"
+              }`}
           >
-            <div className="w-8 h-8 rounded-xl bg-white border border-sky-200 flex items-center justify-center font-mono font-black text-xs text-sky-700">
+            <div className="w-8 h-8 rounded-xl bg-base-100 border border-sky-200 flex items-center justify-center font-mono font-black text-xs text-sky-700">
               2A
             </div>
             <div>
               <div className="font-extrabold text-xs">2-Axle (Cross-Border)</div>
-              <div className="text-[10px] text-slate-500 font-mono">USA / Canada Interstate (80k lbs)</div>
+              <div className="text-[10px] text-base-content font-mono">USA / Canada Interstate (80k lbs)</div>
             </div>
           </button>
 
@@ -309,18 +307,17 @@ export default function PcMilerPage() {
               setAxleConfiguration("3_AXLE_CANADA_LOCAL");
               executeRouteCalculation(origin, destination, stops, selectedProfile, "3_AXLE_CANADA_LOCAL");
             }}
-            className={`px-4 py-2.5 rounded-2xl border text-left cursor-pointer transition flex items-center gap-2.5 ${
-              is3Axle
-                ? "bg-indigo-50 border-indigo-400 text-indigo-900 ring-2 ring-indigo-200 shadow-2xs"
-                : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-            }`}
+            className={`px-4 py-2.5 rounded-2xl border text-left cursor-pointer transition flex items-center gap-2.5 ${is3Axle
+              ? "bg-indigo-50 border-indigo-400 text-indigo-900 ring-2 ring-indigo-200 shadow-2xs"
+              : "bg-base-200 border-slate-200 text-slate-600 hover:bg-slate-100"
+              }`}
           >
-            <div className="w-8 h-8 rounded-xl bg-white border border-indigo-200 flex items-center justify-center font-mono font-black text-xs text-indigo-700">
+            <div className="w-8 h-8 rounded-xl bg-base-100 border border-indigo-200 flex items-center justify-center font-mono font-black text-xs text-indigo-700">
               3A
             </div>
             <div>
               <div className="font-extrabold text-xs">3-Axle (Canada Local)</div>
-              <div className="text-[10px] text-slate-500 font-mono">Ontario Tridem SPIF (Up to 105.5k lbs)</div>
+              <div className="text-[10px] text-base-content font-mono">Ontario Tridem SPIF (Up to 105.5k lbs)</div>
             </div>
           </button>
         </div>
@@ -328,16 +325,15 @@ export default function PcMilerPage() {
 
       {/* Preset Corridors Quick Filter */}
       <div className="flex flex-wrap items-center gap-2 print:hidden">
-        <span className="text-xs font-mono font-bold text-slate-500 uppercase mr-1">Fast Corridors:</span>
+        <span className="text-xs font-mono font-bold text-base-content uppercase mr-1">Fast Corridors:</span>
         {PRESET_LANES.map((preset) => (
           <button
             key={preset.label}
             onClick={() => handleSelectPreset(preset)}
-            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${
-              origin === preset.origin && destination === preset.dest && stops.length === preset.stops?.length
-                ? "bg-sky-600 text-white border-sky-600 shadow-xs"
-                : "bg-white text-slate-700 border-slate-200 hover:bg-slate-50"
-            }`}
+            className={`px-3 py-1.5 rounded-xl text-xs font-bold border transition cursor-pointer ${origin === preset.origin && destination === preset.dest && stops.length === preset.stops?.length
+              ? "bg-sky-600 text-white border-sky-600 shadow-xs"
+              : "bg-base-100 text-slate-700 border-slate-200 hover:bg-base-200"
+              }`}
           >
             {preset.label}
           </button>
@@ -347,12 +343,12 @@ export default function PcMilerPage() {
       {/* Multi-Stop Sequential Route & Trip Builder Card */}
       <form
         onSubmit={handleManualCalculate}
-        className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4 print:hidden"
+        className="bg-base-100 border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4 print:hidden"
       >
         <div className="flex items-center justify-between border-b border-slate-100 pb-3">
           <div className="flex items-center gap-2">
             <Package className="w-4 h-4 text-sky-600" />
-            <h3 className="text-xs font-black uppercase tracking-wider text-slate-900 font-mono">
+            <h3 className="text-xs font-black uppercase tracking-wider text-base-content font-mono">
               Multi-Stop Sequential Trip Builder (LTL / FTL)
             </h3>
           </div>
@@ -380,11 +376,11 @@ export default function PcMilerPage() {
                 value={origin}
                 onChange={(e) => setOrigin(e.target.value)}
                 placeholder="e.g. Toronto, ON or 100 King St W..."
-                className="w-full px-3 py-1.5 bg-white border border-sky-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-sky-500"
+                className="w-full px-3 py-1.5 bg-base-100 border border-sky-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-sky-500"
                 required
               />
             </div>
-            <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-white text-sky-700 border border-sky-200">
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-base-100 text-sky-700 border border-sky-200">
               ORIGIN
             </span>
           </div>
@@ -404,7 +400,7 @@ export default function PcMilerPage() {
                   value={stop.address}
                   onChange={(e) => handleUpdateStop(idx, "address", e.target.value)}
                   placeholder="e.g. London, ON or Windsor, ON..."
-                  className="w-full px-3 py-1.5 bg-white border border-amber-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-amber-500"
+                  className="w-full px-3 py-1.5 bg-base-100 border border-amber-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-amber-500"
                   required
                 />
               </div>
@@ -413,7 +409,7 @@ export default function PcMilerPage() {
               <select
                 value={stop.type}
                 onChange={(e) => handleUpdateStop(idx, "type", e.target.value)}
-                className="px-2.5 py-1.5 bg-white border border-amber-200 rounded-xl text-xs font-mono font-bold text-amber-900"
+                className="px-2.5 py-1.5 bg-base-100 border border-amber-200 rounded-xl text-xs font-mono font-bold text-amber-900"
               >
                 <option value="PICKUP">Pickup</option>
                 <option value="DELIVERY">Delivery</option>
@@ -443,11 +439,11 @@ export default function PcMilerPage() {
                 value={destination}
                 onChange={(e) => setDestination(e.target.value)}
                 placeholder="e.g. Chicago, IL or Montreal, QC..."
-                className="w-full px-3 py-1.5 bg-white border border-emerald-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-emerald-500"
+                className="w-full px-3 py-1.5 bg-base-100 border border-emerald-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-emerald-500"
                 required
               />
             </div>
-            <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-white text-emerald-700 border border-emerald-200">
+            <span className="px-2.5 py-1 rounded-lg text-[10px] font-mono font-bold bg-base-100 text-emerald-700 border border-emerald-200">
               FINAL DEST
             </span>
           </div>
@@ -476,7 +472,7 @@ export default function PcMilerPage() {
 
         {/* Advanced Settings Collapsible */}
         {showAdvanced && (
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 pb-3 border-t border-slate-100 bg-slate-50 rounded-2xl px-4 py-3 print:hidden">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-3 pb-3 border-t border-slate-100 bg-base-200 rounded-2xl px-4 py-3 print:hidden">
             <div>
               <label className="block text-[10px] font-bold text-slate-600 mb-2">Diesel Price ($/gal)</label>
               <input
@@ -484,9 +480,9 @@ export default function PcMilerPage() {
                 step="0.05"
                 value={dieselPrice}
                 onChange={(e) => setDieselPrice(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900"
+                className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-base-content"
               />
-              <p className="text-[9px] text-slate-500 mt-1">Current: ${Number(dieselPrice).toFixed(2)}/gal</p>
+              <p className="text-[9px] text-base-content mt-1">Current: ${Number(dieselPrice).toFixed(2)}/gal</p>
             </div>
 
             <div>
@@ -496,9 +492,9 @@ export default function PcMilerPage() {
                 step="0.1"
                 value={avgMpg}
                 onChange={(e) => setAvgMpg(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900"
+                className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-base-content"
               />
-              <p className="text-[9px] text-slate-500 mt-1">Current: {Number(avgMpg).toFixed(1)} MPG</p>
+              <p className="text-[9px] text-base-content mt-1">Current: {Number(avgMpg).toFixed(1)} MPG</p>
             </div>
 
             <div>
@@ -508,9 +504,9 @@ export default function PcMilerPage() {
                 step="500"
                 value={grossWeightLbs}
                 onChange={(e) => setGrossWeightLbs(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900"
+                className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-base-content"
               />
-              <p className="text-[9px] text-slate-500 mt-1">Current: {Number(grossWeightLbs).toLocaleString()} lbs</p>
+              <p className="text-[9px] text-base-content mt-1">Current: {Number(grossWeightLbs).toLocaleString()} lbs</p>
             </div>
           </div>
         )}
@@ -535,9 +531,9 @@ export default function PcMilerPage() {
               <p className="text-xs text-rose-900 font-medium">{error.message}</p>
 
               {error.code === "GEOCODE_FAILED" && error.address && (
-                <div className="bg-white border border-rose-200 rounded-2xl p-3 mt-2 text-xs font-mono">
+                <div className="bg-base-100 border border-rose-200 rounded-2xl p-3 mt-2 text-xs font-mono">
                   <div className="text-[10px] font-black uppercase text-rose-700">Unresolvable stop</div>
-                  <div className="text-sm font-black text-slate-900 mt-0.5">&ldquo;{error.address}&rdquo;</div>
+                  <div className="text-sm font-black text-base-content mt-0.5">&ldquo;{error.address}&rdquo;</div>
                   <div className="text-[11px] text-slate-600 mt-1 font-sans">
                     Correct this address in the trip builder above, then optimize again. Only US and Canadian locations can be resolved.
                   </div>
@@ -550,12 +546,12 @@ export default function PcMilerPage() {
 
       {/* No Route Yet — Empty State */}
       {!route && !error && (
-        <div className="bg-white border border-dashed border-slate-300 rounded-3xl p-6 sm:p-12 shadow-xs flex flex-col items-center text-center gap-3 print:hidden">
+        <div className="bg-base-100 border border-dashed border-slate-300 rounded-3xl p-6 sm:p-12 shadow-xs flex flex-col items-center text-center gap-3 print:hidden">
           <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
             <Route className="w-7 h-7" />
           </div>
-          <h3 className="text-sm font-black text-slate-900 uppercase tracking-tight">No route calculated yet</h3>
-          <p className="text-xs text-slate-500 font-medium max-w-md">
+          <h3 className="text-sm font-black text-base-content uppercase tracking-tight">No route calculated yet</h3>
+          <p className="text-xs text-base-content font-medium max-w-md">
             Enter an origin, any intermediate stops, and a final consignee above — or pick a fast corridor — then hit
             <strong className="text-slate-700"> Optimize Route</strong>. Mileage, fuel, tolls and the turn-by-turn plan
             are pulled live from the routing provider and are only shown once a route actually comes back.
@@ -580,7 +576,7 @@ export default function PcMilerPage() {
                     <h3 className="text-xs font-black uppercase tracking-wider text-amber-950 font-mono">
                       {route.isTruckProfile ? "Routing Advisories" : "Car Profile — Truck Restrictions Not Applied"}
                     </h3>
-                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black font-mono bg-white text-amber-800 border border-amber-300">
+                    <span className="px-2 py-0.5 rounded-full text-[9px] font-black font-mono bg-base-100 text-amber-800 border border-amber-300">
                       {route.provider}
                     </span>
                   </div>
@@ -599,7 +595,7 @@ export default function PcMilerPage() {
                   {route.warnings.map((warning, idx) => (
                     <li
                       key={idx}
-                      className="bg-white/70 border border-amber-200 rounded-xl px-3 py-2 text-[11px] font-mono text-amber-900 flex items-start gap-2"
+                      className="bg-base-100/70 border border-amber-200 rounded-xl px-3 py-2 text-[11px] font-mono text-amber-900 flex items-start gap-2"
                     >
                       <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                       <span>{warning}</span>
@@ -636,7 +632,7 @@ export default function PcMilerPage() {
 
             {/* Fuel & Tolls — the only two figures the provider lets us stand behind */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs font-mono">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-1">
+              <div className="bg-base-100/5 border border-white/10 rounded-2xl p-4 space-y-1">
                 <div className="text-slate-400 text-[11px] flex items-center gap-1.5">
                   <Fuel className="w-3.5 h-3.5 text-sky-400" />
                   <span>Diesel Fuel Cost</span>
@@ -648,7 +644,7 @@ export default function PcMilerPage() {
                 </div>
               </div>
 
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4 space-y-1.5">
+              <div className="bg-base-100/5 border border-white/10 rounded-2xl p-4 space-y-1.5">
                 <div className="flex items-center justify-between gap-2">
                   <div className="text-slate-400 text-[11px] flex items-center gap-1.5">
                     <BadgeDollarSign className="w-3.5 h-3.5 text-amber-300" />
@@ -673,7 +669,7 @@ export default function PcMilerPage() {
 
             {/* Priced Toll Facilities */}
             {route.tollPlazas && route.tollPlazas.length > 0 && (
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-3 space-y-2">
+              <div className="bg-base-100/5 border border-white/10 rounded-2xl p-3 space-y-2">
                 <div className="text-[10px] font-black uppercase tracking-wider text-slate-400 font-mono">
                   Priced toll facilities
                 </div>
@@ -710,20 +706,18 @@ export default function PcMilerPage() {
                     setSelectedProfile(card.profile);
                     executeRouteCalculation(origin, destination, stops, card.profile, axleConfiguration);
                   }}
-                  className={`p-5 rounded-3xl border transition flex flex-col justify-between ${
-                    !variant.available
-                      ? "bg-slate-50 border-slate-200 opacity-80 cursor-not-allowed"
-                      : isSelected
+                  className={`p-5 rounded-3xl border transition flex flex-col justify-between ${!variant.available
+                    ? "bg-base-200 border-slate-200 opacity-80 cursor-not-allowed"
+                    : isSelected
                       ? `${accent.selected} cursor-pointer`
-                      : "bg-white border-slate-200 hover:border-slate-300 shadow-xs cursor-pointer"
-                  }`}
+                      : "bg-base-100 border-slate-200 hover:border-slate-300 shadow-xs cursor-pointer"
+                    }`}
                 >
                   <div className="space-y-2">
                     <div className="flex items-center justify-between gap-2">
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono border ${
-                          variant.available ? accent.badge : "bg-slate-100 text-slate-500 border-slate-200"
-                        }`}
+                        className={`px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono border ${variant.available ? accent.badge : "bg-slate-100 text-base-content border-slate-200"
+                          }`}
                       >
                         {card.badge}
                       </span>
@@ -733,7 +727,7 @@ export default function PcMilerPage() {
                     </div>
 
                     {variant.available ? (
-                      <div className="text-2xl font-black text-slate-900 font-mono">{num(variant.miles)} mi</div>
+                      <div className="text-2xl font-black text-base-content font-mono">{num(variant.miles)} mi</div>
                     ) : (
                       <div className="text-sm font-black text-slate-400 font-mono flex items-center gap-1.5 py-1">
                         <Ban className="w-4 h-4" />
@@ -741,7 +735,7 @@ export default function PcMilerPage() {
                       </div>
                     )}
 
-                    <p className="text-xs text-slate-500 font-medium">
+                    <p className="text-xs text-base-content font-medium">
                       {variant.available
                         ? card.blurb
                         : card.unavailableReason || "The routing provider did not return this variant for this lane."}
@@ -751,13 +745,13 @@ export default function PcMilerPage() {
                   <div className="pt-4 border-t border-slate-100 mt-4 space-y-1.5 text-xs font-mono">
                     <div className="flex justify-between text-slate-600">
                       <span>Drive Time:</span>
-                      <strong className="text-slate-900">
+                      <strong className="text-base-content">
                         {variant.available ? `${num(variant.driveHours, 2)} h` : "—"}
                       </strong>
                     </div>
                     <div className="flex justify-between text-slate-600">
                       <span>Routed Miles:</span>
-                      <strong className="text-slate-900">
+                      <strong className="text-base-content">
                         {variant.available ? `${num(variant.miles)} mi` : "—"}
                       </strong>
                     </div>
@@ -797,11 +791,11 @@ export default function PcMilerPage() {
           </div>
 
           {/* Vehicle Profile Submitted To The Router */}
-          <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
+          <div className="bg-base-100 border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <Ruler className="w-5 h-5 text-sky-600" />
-                <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
+                <h3 className="text-sm font-extrabold text-base-content uppercase tracking-tight">
                   Vehicle Profile Submitted To The Router
                 </h3>
               </div>
@@ -819,7 +813,7 @@ export default function PcMilerPage() {
               )}
             </div>
 
-            <p className="text-[11px] text-slate-500 font-medium">
+            <p className="text-[11px] text-base-content font-medium">
               {restrictions.enforcedByProvider
                 ? "These dimensions were sent to the routing provider and the returned geometry respects them."
                 : "These dimensions were prepared for the truck router but the fallback car profile ignored them. No clearance, weight or length compliance is claimed for this route."}
@@ -833,29 +827,29 @@ export default function PcMilerPage() {
                 { label: "Weight", value: routedAgainst.weight, unit: "t" },
                 { label: "Axle Load", value: routedAgainst.axleload, unit: "t" },
               ].map((item) => (
-                <div key={item.label} className="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
-                  <div className="text-[10px] font-bold uppercase text-slate-500">{item.label}</div>
-                  <div className="text-base font-black text-slate-900 mt-0.5">
+                <div key={item.label} className="bg-base-200 border border-slate-200 rounded-xl p-2.5">
+                  <div className="text-[10px] font-bold uppercase text-base-content">{item.label}</div>
+                  <div className="text-base font-black text-base-content mt-0.5">
                     {item.value === undefined || item.value === null ? "—" : `${item.value} ${item.unit}`}
                   </div>
                 </div>
               ))}
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
-                <div className="text-[10px] font-bold uppercase text-slate-500">Hazmat</div>
-                <div className="text-base font-black text-slate-900 mt-0.5">
+              <div className="bg-base-200 border border-slate-200 rounded-xl p-2.5">
+                <div className="text-[10px] font-bold uppercase text-base-content">Hazmat</div>
+                <div className="text-base font-black text-base-content mt-0.5">
                   {routedAgainst.hazmat === undefined ? "—" : routedAgainst.hazmat ? "Yes" : "No"}
                 </div>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 text-xs font-mono">
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
-                <div className="text-[10px] font-bold uppercase text-slate-500">Axle Configuration</div>
-                <div className="text-xs font-black text-slate-900 mt-1">{restrictions.axleType || "—"}</div>
+              <div className="bg-base-200 border border-slate-200 rounded-xl p-2.5">
+                <div className="text-[10px] font-bold uppercase text-base-content">Axle Configuration</div>
+                <div className="text-xs font-black text-base-content mt-1">{restrictions.axleType || "—"}</div>
               </div>
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-2.5">
-                <div className="text-[10px] font-bold uppercase text-slate-500">Gross Weight</div>
-                <div className="text-xs font-black text-slate-900 mt-1">
+              <div className="bg-base-200 border border-slate-200 rounded-xl p-2.5">
+                <div className="text-[10px] font-bold uppercase text-base-content">Gross Weight</div>
+                <div className="text-xs font-black text-base-content mt-1">
                   {restrictions.grossWeightLbs !== undefined && restrictions.grossWeightLbs !== null
                     ? `${Number(restrictions.grossWeightLbs).toLocaleString()} lbs`
                     : "—"}
@@ -865,17 +859,15 @@ export default function PcMilerPage() {
                 </div>
               </div>
               <div
-                className={`border rounded-xl p-2.5 ${
-                  restrictions.isWeightCompliant
-                    ? "bg-emerald-50 border-emerald-200"
-                    : "bg-rose-50 border-rose-200"
-                }`}
-              >
-                <div className="text-[10px] font-bold uppercase text-slate-500">Declared Weight vs Limit</div>
-                <div
-                  className={`text-xs font-black mt-1 ${
-                    restrictions.isWeightCompliant ? "text-emerald-800" : "text-rose-800"
+                className={`border rounded-xl p-2.5 ${restrictions.isWeightCompliant
+                  ? "bg-emerald-50 border-emerald-200"
+                  : "bg-rose-50 border-rose-200"
                   }`}
+              >
+                <div className="text-[10px] font-bold uppercase text-base-content">Declared Weight vs Limit</div>
+                <div
+                  className={`text-xs font-black mt-1 ${restrictions.isWeightCompliant ? "text-emerald-800" : "text-rose-800"
+                    }`}
                 >
                   {restrictions.isWeightCompliant ? "Within declared axle limit" : "Over declared axle limit"}
                 </div>
@@ -894,15 +886,15 @@ export default function PcMilerPage() {
 
           {/* Leg-by-Leg Multi-Stop LTL Breakdown Table */}
           {route.legs && route.legs.length > 0 && (
-            <div className="bg-white border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
+            <div className="bg-base-100 border border-slate-200 rounded-3xl p-3 sm:p-6 shadow-xs space-y-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <Layers className="w-5 h-5 text-sky-600" />
-                  <h3 className="text-sm font-extrabold text-slate-900 uppercase tracking-tight">
+                  <h3 className="text-sm font-extrabold text-base-content uppercase tracking-tight">
                     Sequential Leg-by-Leg Mileage Breakdown
                   </h3>
                 </div>
-                <span className="text-xs font-mono font-bold text-slate-500">
+                <span className="text-xs font-mono font-bold text-base-content">
                   {route.legs.length} Total Route Legs
                 </span>
               </div>
@@ -920,12 +912,12 @@ export default function PcMilerPage() {
                   </thead>
                   <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
                     {route.legs.map((leg) => (
-                      <tr key={leg.legNumber} className="hover:bg-slate-50">
+                      <tr key={leg.legNumber} className="hover:bg-base-200">
                         <td className="py-2.5 px-3 font-bold text-sky-700">Leg #{leg.legNumber}</td>
-                        <td className="py-2.5 px-3 font-semibold text-slate-900">
+                        <td className="py-2.5 px-3 font-semibold text-base-content">
                           {leg.from} ➔ {leg.to}
                         </td>
-                        <td className="py-2.5 px-3 text-right font-bold text-slate-900">{num(leg.distanceMiles)} mi</td>
+                        <td className="py-2.5 px-3 text-right font-bold text-base-content">{num(leg.distanceMiles)} mi</td>
                         <td className="py-2.5 px-3 text-right text-slate-600">{num(leg.driveHours, 2)} hrs</td>
                         <td className="py-2.5 px-3 text-right text-slate-700">{num(leg.fuelGallons)} gal</td>
                       </tr>

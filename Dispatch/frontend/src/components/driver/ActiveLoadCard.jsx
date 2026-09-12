@@ -34,7 +34,7 @@ export default function ActiveLoadCard({
   const [driverDocType, setDriverDocType] = useState(null);
   if (!myShipment) {
     return (
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-slate-500 text-xs">
+      <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-8 text-center text-base-content text-xs">
         No active shipments assigned. Contact Keith in dispatch to receive LTL
         manifest coordinates.
       </div>
@@ -49,9 +49,9 @@ export default function ActiveLoadCard({
   );
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
       {/* Card Header */}
-      <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+      <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex items-center justify-between">
         <div>
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-3xs font-bold font-mono bg-indigo-100 text-indigo-800 px-2.5 py-0.5 rounded-full uppercase">
@@ -59,27 +59,26 @@ export default function ActiveLoadCard({
             </span>
             {myShipment?.priority && (
               <span
-                className={`text-3xs font-bold font-mono px-2.5 py-0.5 rounded-full uppercase border ${
-                  myShipment.priority === "urgent"
-                    ? "bg-rose-50 border-rose-200 text-rose-800"
-                    : myShipment.priority === "high"
+                className={`text-3xs font-bold font-mono px-2.5 py-0.5 rounded-full uppercase border ${myShipment.priority === "urgent"
+                  ? "bg-rose-50 border-rose-200 text-rose-800"
+                  : myShipment.priority === "high"
                     ? "bg-amber-50 border-amber-200 text-amber-800"
                     : "bg-slate-100 border-slate-200 text-slate-700"
-                }`}
+                  }`}
               >
                 {myShipment.priority} Priority
               </span>
             )}
           </div>
-          <h3 className="text-sm font-bold text-slate-900 mt-1.5">
+          <h3 className="text-sm font-bold text-base-content mt-1.5">
             Waypoints & Delivery Tasks
           </h3>
         </div>
         <div className="text-right">
-          <span className="text-3xs font-mono text-slate-500 uppercase block">
+          <span className="text-3xs font-mono text-base-content uppercase block">
             Tracking ID
           </span>
-          <span className="text-xs font-bold font-mono text-slate-900">
+          <span className="text-xs font-bold font-mono text-base-content">
             {myShipment.load_number}
           </span>
         </div>
@@ -117,7 +116,7 @@ export default function ActiveLoadCard({
 
                 <div className="relative space-y-1">
                   <span className="absolute -left-6 top-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-white border-2 border-slate-900 shadow-sm">
-                    <span className="h-1 w-1 bg-white rounded-full" />
+                    <span className="h-1 w-1 bg-base-100 rounded-full" />
                   </span>
                   <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
                     Shipper (Pickup Location)
@@ -140,7 +139,7 @@ export default function ActiveLoadCard({
 
                 <div className="relative space-y-1 mt-4">
                   <span className="absolute -left-6 top-0.5 h-3.5 w-3.5 rounded-full bg-indigo-500 flex items-center justify-center text-white border-2 border-slate-900 shadow-sm">
-                    <span className="h-1 w-1 bg-white rounded-full" />
+                    <span className="h-1 w-1 bg-base-100 rounded-full" />
                   </span>
                   <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
                     Consignee (Delivery Destination)
@@ -166,7 +165,7 @@ export default function ActiveLoadCard({
             {/* Spec Payload Specs */}
             <div className="bg-slate-950/50 rounded-xl p-3.5 border border-slate-800/80 grid grid-cols-2 gap-3">
               <div className="space-y-0.5">
-                <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+                <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
                   Skid/Pallet Count
                 </span>
                 <div className="flex items-baseline space-x-1">
@@ -180,7 +179,7 @@ export default function ActiveLoadCard({
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+                <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
                   Manifest Weight
                 </span>
                 <div className="flex items-baseline space-x-1">
@@ -194,7 +193,7 @@ export default function ActiveLoadCard({
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+                <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
                   PO Number
                 </span>
                 <span className="text-2xs font-mono font-bold text-white block truncate">
@@ -203,7 +202,7 @@ export default function ActiveLoadCard({
               </div>
 
               <div className="space-y-0.5">
-                <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+                <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
                   BOL / Pickup Number
                 </span>
                 <span className="text-2xs font-mono font-bold text-amber-300 block truncate">
@@ -264,16 +263,16 @@ export default function ActiveLoadCard({
               style={{ width: `${progressPercent}%` }}
             />
           </div>
-          <div className="text-3xs text-slate-500 mt-1.5 text-right font-mono uppercase">
+          <div className="text-3xs text-base-content mt-1.5 text-right font-mono uppercase">
             {completedWaypoints} / {myShipment?.waypoints?.length} Waypoints
             Completed
           </div>
         </div>
 
         {/* Cargo & Weight Capacity */}
-        <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-4">
+        <div className="bg-base-200 border border-slate-200 p-4 rounded-xl space-y-4">
           <div className="flex items-center justify-between">
-            <span className="text-3xs font-mono font-bold text-slate-500 uppercase">
+            <span className="text-3xs font-mono font-bold text-base-content uppercase">
               Trip Cargo Details
             </span>
             {hasScannedWeight ? (
@@ -282,7 +281,7 @@ export default function ActiveLoadCard({
                 <span>OCR VERIFIED</span>
               </span>
             ) : (
-              <span className="flex items-center space-x-1 text-[9px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+              <span className="flex items-center space-x-1 text-[9px] font-mono font-bold text-base-content bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
                 <Clock className="h-3 w-3 text-slate-400" />
                 <span>MANIFEST WEIGHT</span>
               </span>
@@ -290,7 +289,7 @@ export default function ActiveLoadCard({
           </div>
 
           <div>
-            <p className="text-xs font-bold text-slate-900">
+            <p className="text-xs font-bold text-base-content">
               {myShipment.cargoDescription}
             </p>
           </div>
@@ -298,7 +297,7 @@ export default function ActiveLoadCard({
           {/* Weight Capacity Progress Indicator */}
           <div className="space-y-1.5 pt-2 border-t border-slate-200">
             <div className="flex justify-between items-center text-xs font-mono text-slate-600">
-              <span className="text-2xs uppercase font-bold text-slate-500">
+              <span className="text-2xs uppercase font-bold text-base-content">
                 Weight Load Capacity
               </span>
               <span className="font-bold text-slate-800">
@@ -309,19 +308,18 @@ export default function ActiveLoadCard({
 
             <div className="relative w-full bg-slate-200 rounded-full h-3 overflow-hidden shadow-inner">
               <div
-                className={`h-3 rounded-full transition-all duration-700 ease-out ${
-                  capacityUtilizedPercent > 95
-                    ? "bg-rose-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
-                    : capacityUtilizedPercent > 80
+                className={`h-3 rounded-full transition-all duration-700 ease-out ${capacityUtilizedPercent > 95
+                  ? "bg-rose-500 shadow-[0_0_8px_rgba(239,68,68,0.4)]"
+                  : capacityUtilizedPercent > 80
                     ? "bg-amber-500"
                     : "bg-emerald-500"
-                }`}
+                  }`}
                 style={{ width: `${capacityUtilizedPercent}%` }}
               />
             </div>
 
             <div className="flex justify-between items-center text-[10px] font-mono">
-              <span className="text-slate-500">
+              <span className="text-base-content">
                 Capacity Utilized:{" "}
                 <span className="font-bold text-slate-700">
                   {capacityUtilizedPercent}%
@@ -363,13 +361,12 @@ export default function ActiveLoadCard({
             return (
               <div key={wpt.id} className="relative">
                 <div
-                  className={`absolute -left-[31px] top-1 h-5 w-5 rounded-full border-2 bg-white flex items-center justify-center ${
-                    isCompleted
-                      ? "border-emerald-500 text-emerald-500"
-                      : isArrived
+                  className={`absolute -left-[31px] top-1 h-5 w-5 rounded-full border-2 bg-base-100 flex items-center justify-center ${isCompleted
+                    ? "border-emerald-500 text-emerald-500"
+                    : isArrived
                       ? "border-amber-500 text-amber-500 animate-pulse"
                       : "border-slate-300 text-slate-400"
-                  }`}
+                    }`}
                 >
                   {isCompleted ? (
                     <Check className="h-3 w-3" />
@@ -380,36 +377,36 @@ export default function ActiveLoadCard({
 
                 <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                   <div>
-                    <span className="text-3xs font-mono uppercase font-bold text-slate-500">
+                    <span className="text-3xs font-mono uppercase font-bold text-base-content">
                       Stop #{idx + 1} ({wpt.stopType.replace("_", " ")})
                     </span>
-                    <h4 className="text-xs font-bold text-slate-900">
+                    <h4 className="text-xs font-bold text-base-content">
                       {wpt.companyName}
                     </h4>
-                    <p className="text-2xs text-slate-500">{wpt.address}</p>
+                    <p className="text-2xs text-base-content">{wpt.address}</p>
 
                     {wpt.weight && (
-                      <span className="inline-block mt-1 text-3xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+                      <span className="inline-block mt-1 text-3xs font-mono text-base-content bg-slate-100 px-1.5 py-0.5 rounded">
                         LTL: {wpt.pieces} Pcs / {wpt.weight} lbs
                       </span>
                     )}
                   </div>
 
                   <div className="flex items-center space-x-2 shrink-0">
-                    <span className="text-2xs font-mono text-slate-500 mr-2">
+                    <span className="text-2xs font-mono text-base-content mr-2">
                       {wpt.actualTime
                         ? `Completed ${new Date(
-                            wpt.actualTime
-                          ).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}`
+                          wpt.actualTime
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}`
                         : `Sched: ${new Date(
-                            wpt.scheduledTime
-                          ).toLocaleTimeString([], {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}`}
+                          wpt.scheduledTime
+                        ).toLocaleTimeString([], {
+                          hour: "2-digit",
+                          minute: "2-digit",
+                        })}`}
                     </span>
 
                     {!isCompleted && (
@@ -438,11 +435,10 @@ export default function ActiveLoadCard({
                                   }
                                 }}
                                 disabled={isGeofencedStop && !inRange}
-                                className={`px-3 py-1.5 text-2xs font-bold rounded-lg flex items-center space-x-1 transition-all ${
-                                  inRange
-                                    ? "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-sm"
-                                    : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-80"
-                                }`}
+                                className={`px-3 py-1.5 text-2xs font-bold rounded-lg flex items-center space-x-1 transition-all ${inRange
+                                  ? "bg-emerald-600 hover:bg-emerald-700 text-white cursor-pointer shadow-sm"
+                                  : "bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed opacity-80"
+                                  }`}
                               >
                                 {isGeofencedStop && !inRange && (
                                   <Shield className="h-3.5 w-3.5 text-rose-500 mr-0.5 inline-block shrink-0" />
@@ -451,18 +447,17 @@ export default function ActiveLoadCard({
                                   {wpt.stopType === "pickup"
                                     ? "Sign Pick Up"
                                     : wpt.stopType === "border_crossing"
-                                    ? "Logged Crossing"
-                                    : "Sign Delivery / POD"}
+                                      ? "Logged Crossing"
+                                      : "Sign Delivery / POD"}
                                 </span>
                               </button>
 
                               {isGeofencedStop && (
                                 <span
-                                  className={`text-[10px] font-mono font-bold uppercase tracking-tight ${
-                                    inRange
-                                      ? "text-emerald-600"
-                                      : "text-rose-500"
-                                  }`}
+                                  className={`text-[10px] font-mono font-bold uppercase tracking-tight ${inRange
+                                    ? "text-emerald-600"
+                                    : "text-rose-500"
+                                    }`}
                                 >
                                   {inRange
                                     ? `In Range (${distanceText})`
@@ -503,7 +498,7 @@ export default function ActiveLoadCard({
               value={driverNotes}
               onChange={(e) => setDriverNotes(e.target.value)}
               placeholder="Add any loading dock delays, gate codes, route detours, or shipment condition details for dispatch review..."
-              className="flex-1 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none min-h-[70px] resize-y transition-all"
+              className="flex-1 bg-base-200 hover:bg-base-200/80 focus:bg-base-100 border border-slate-200 focus:border-indigo-500 rounded-xl p-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-none min-h-[70px] resize-y transition-all"
             />
             <button
               type="button"

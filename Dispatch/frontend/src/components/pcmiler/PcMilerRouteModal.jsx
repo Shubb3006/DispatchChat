@@ -52,33 +52,32 @@ export default function PcMilerRouteModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="bg-white border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-150"
+        className="bg-base-100 border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-base-content animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-base-200">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <Compass className="w-4 h-4" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-sm font-extrabold text-slate-900">
+                <h2 className="text-sm font-extrabold text-base-content">
                   Commercial Routing &amp; Border Toll Calculator
                 </h2>
                 {route && (
                   <span
-                    className={`px-2 py-0.5 rounded-full text-[9px] font-black font-mono border ${
-                      route.isTruckProfile
-                        ? "bg-emerald-50 text-emerald-800 border-emerald-200"
-                        : "bg-amber-50 text-amber-800 border-amber-300"
-                    }`}
+                    className={`px-2 py-0.5 rounded-full text-[9px] font-black font-mono border ${route.isTruckProfile
+                      ? "bg-emerald-50 text-emerald-800 border-emerald-200"
+                      : "bg-amber-50 text-amber-800 border-amber-300"
+                      }`}
                   >
                     {route.provider}
                   </span>
                 )}
               </div>
-              <p className="text-[10px] text-slate-500 font-mono">
+              <p className="text-[10px] text-base-content font-mono">
                 Live routed miles, drive time and fuel burn. Highway tolls are not priced by the routing provider.
               </p>
             </div>
@@ -87,16 +86,16 @@ export default function PcMilerRouteModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-200/60 transition cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-base-content hover:bg-slate-200/60 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-white text-xs">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-base-100 text-xs">
           {/* Corridor Input & Profile Selector */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-base-200 p-4 rounded-2xl border border-slate-200">
             <div>
               <label className="block text-[11px] font-bold text-slate-700 mb-1">Origin City / Postal Code</label>
               <div className="relative">
@@ -106,7 +105,7 @@ export default function PcMilerRouteModal({
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
                   placeholder="e.g. Toronto, ON"
-                  className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-xs"
+                  className="w-full pl-8 pr-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-bold text-base-content text-xs"
                 />
               </div>
             </div>
@@ -120,7 +119,7 @@ export default function PcMilerRouteModal({
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   placeholder="e.g. Chicago, IL"
-                  className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl font-bold text-slate-900 text-xs"
+                  className="w-full pl-8 pr-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-bold text-base-content text-xs"
                 />
               </div>
             </div>
@@ -140,14 +139,13 @@ export default function PcMilerRouteModal({
                   setProfile(p.id);
                   handleCalculate(p.id);
                 }}
-                className={`p-3 rounded-2xl border text-left cursor-pointer transition ${
-                  profile === p.id
-                    ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200 shadow-2xs"
-                    : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                }`}
+                className={`p-3 rounded-2xl border text-left cursor-pointer transition ${profile === p.id
+                  ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200 shadow-2xs"
+                  : "bg-base-200 border-slate-200 text-slate-600 hover:bg-slate-100"
+                  }`}
               >
                 <div className="font-extrabold text-xs">{p.label}</div>
-                <div className="text-[10px] text-slate-500 mt-0.5 font-medium">{p.desc}</div>
+                <div className="text-[10px] text-base-content mt-0.5 font-medium">{p.desc}</div>
               </button>
             ))}
           </div>
@@ -177,8 +175,8 @@ export default function PcMilerRouteModal({
               <div className="w-11 h-11 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-400">
                 <Route className="w-5 h-5" />
               </div>
-              <div className="text-xs font-black text-slate-900 uppercase">No route calculated yet</div>
-              <p className="text-[11px] text-slate-500 max-w-sm">
+              <div className="text-xs font-black text-base-content uppercase">No route calculated yet</div>
+              <p className="text-[11px] text-base-content max-w-sm">
                 Enter an origin and destination, then pick a routing profile. Mileage, fuel and tolls appear only once
                 the routing provider returns a route.
               </p>
@@ -201,7 +199,7 @@ export default function PcMilerRouteModal({
                   {route.warnings?.map((warning, idx) => (
                     <div
                       key={idx}
-                      className="bg-white/70 border border-amber-200 rounded-xl px-2.5 py-1.5 text-[11px] font-mono text-amber-900 flex items-start gap-2"
+                      className="bg-base-100/70 border border-amber-200 rounded-xl px-2.5 py-1.5 text-[11px] font-mono text-amber-900 flex items-start gap-2"
                     >
                       <Info className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
                       <span>{warning}</span>
@@ -218,24 +216,24 @@ export default function PcMilerRouteModal({
                   <div className="text-[10px] text-slate-400 mt-0.5">{num(route.driveHours, 2)}h Driving</div>
                 </div>
 
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Tolls (Partial)</div>
-                  <div className="text-2xl font-black text-slate-900 mt-0.5">{money(route.totalTolls)}</div>
+                <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-base-content font-bold uppercase">Tolls (Partial)</div>
+                  <div className="text-2xl font-black text-base-content mt-0.5">{money(route.totalTolls)}</div>
                   <div className="text-[10px] text-amber-700 font-bold mt-0.5">
                     {route.tollsAreComplete ? "Complete" : "Excludes highway tolls"}
                   </div>
                 </div>
 
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Est. Fuel Consumption</div>
-                  <div className="text-2xl font-black text-slate-900 mt-0.5">{num(fuel.gallons)} gal</div>
+                <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-base-content font-bold uppercase">Est. Fuel Consumption</div>
+                  <div className="text-2xl font-black text-base-content mt-0.5">{num(fuel.gallons)} gal</div>
                   <div className="text-[10px] text-emerald-600 font-bold mt-0.5">
                     {money(fuel.cost)} @ {money(fuel.dieselPricePerGal)}/gal
                   </div>
                 </div>
 
-                <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
-                  <div className="text-[10px] text-slate-500 font-bold uppercase">Border Port Clearance</div>
+                <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs font-mono">
+                  <div className="text-[10px] text-base-content font-bold uppercase">Border Port Clearance</div>
                   <div className="text-xs font-black text-purple-700 mt-1 truncate">
                     {route.borderCrossing || "None on this lane"}
                   </div>
@@ -248,10 +246,10 @@ export default function PcMilerRouteModal({
               {/* Priced Toll Facilities */}
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="font-mono font-bold text-slate-900 uppercase text-[11px]">
+                  <span className="font-mono font-bold text-base-content uppercase text-[11px]">
                     Priced Toll Facilities
                   </span>
-                  <span className="font-mono text-[10px] text-slate-500">{route.tollNote}</span>
+                  <span className="font-mono text-[10px] text-base-content">{route.tollNote}</span>
                 </div>
 
                 <div className="border border-slate-200 rounded-2xl overflow-hidden">
@@ -273,11 +271,11 @@ export default function PcMilerRouteModal({
                         </tr>
                       ) : (
                         route.tollPlazas.map((tp, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50 font-mono">
-                            <td className="py-2 px-3 font-semibold text-slate-900">{tp.name}</td>
-                            <td className="py-2 px-3 text-slate-500">{tp.state}</td>
-                            <td className="py-2 px-3 text-slate-500">{tp.axleCategory}</td>
-                            <td className="py-2 px-3 text-right font-bold text-slate-900">{money(tp.cost)}</td>
+                          <tr key={idx} className="hover:bg-base-200 font-mono">
+                            <td className="py-2 px-3 font-semibold text-base-content">{tp.name}</td>
+                            <td className="py-2 px-3 text-base-content">{tp.state}</td>
+                            <td className="py-2 px-3 text-base-content">{tp.axleCategory}</td>
+                            <td className="py-2 px-3 text-right font-bold text-base-content">{money(tp.cost)}</td>
                           </tr>
                         ))
                       )}
@@ -288,11 +286,10 @@ export default function PcMilerRouteModal({
 
               {/* Vehicle profile the route was computed against */}
               <div
-                className={`rounded-2xl p-3.5 flex items-center justify-between gap-3 border ${
-                  restrictions.enforcedByProvider
-                    ? "bg-emerald-50 border-emerald-200"
-                    : "bg-amber-50 border-amber-300"
-                }`}
+                className={`rounded-2xl p-3.5 flex items-center justify-between gap-3 border ${restrictions.enforcedByProvider
+                  ? "bg-emerald-50 border-emerald-200"
+                  : "bg-amber-50 border-amber-300"
+                  }`}
               >
                 <div className="flex items-center gap-2">
                   {restrictions.enforcedByProvider ? (
@@ -302,18 +299,16 @@ export default function PcMilerRouteModal({
                   )}
                   <div>
                     <div
-                      className={`font-bold text-xs ${
-                        restrictions.enforcedByProvider ? "text-emerald-950" : "text-amber-950"
-                      }`}
+                      className={`font-bold text-xs ${restrictions.enforcedByProvider ? "text-emerald-950" : "text-amber-950"
+                        }`}
                     >
                       {restrictions.enforcedByProvider
                         ? "Vehicle restrictions enforced by the router"
                         : "Vehicle restrictions were NOT applied to this route"}
                     </div>
                     <div
-                      className={`text-[10px] font-medium font-mono ${
-                        restrictions.enforcedByProvider ? "text-emerald-700" : "text-amber-800"
-                      }`}
+                      className={`text-[10px] font-medium font-mono ${restrictions.enforcedByProvider ? "text-emerald-700" : "text-amber-800"
+                        }`}
                     >
                       Routed against: {routedAgainst.height ?? "—"} m H • {routedAgainst.width ?? "—"} m W •{" "}
                       {routedAgainst.length ?? "—"} m L • {routedAgainst.weight ?? "—"} t •{" "}
@@ -323,11 +318,10 @@ export default function PcMilerRouteModal({
                 </div>
 
                 <span
-                  className={`px-2.5 py-1 rounded-full text-[10px] font-black font-mono border shrink-0 ${
-                    restrictions.isWeightCompliant
-                      ? "bg-white text-slate-700 border-slate-300"
-                      : "bg-rose-100 text-rose-800 border-rose-300"
-                  }`}
+                  className={`px-2.5 py-1 rounded-full text-[10px] font-black font-mono border shrink-0 ${restrictions.isWeightCompliant
+                    ? "bg-base-100 text-slate-700 border-slate-300"
+                    : "bg-rose-100 text-rose-800 border-rose-300"
+                    }`}
                 >
                   {restrictions.isWeightCompliant ? "WITHIN DECLARED LIMIT" : "OVER DECLARED LIMIT"}
                 </span>

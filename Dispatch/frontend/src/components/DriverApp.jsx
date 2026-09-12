@@ -1445,7 +1445,7 @@
 
 //             <button
 //               onClick={resolveSOSAlert}
-//               className="px-4 py-2 bg-white hover:bg-slate-100 text-rose-950 text-xs font-bold rounded-xl transition-all border border-rose-300 hover:border-white cursor-pointer hover:shadow-lg self-center md:self-auto uppercase tracking-wider shrink-0"
+//               className="px-4 py-2 bg-base-100 hover:bg-slate-100 text-rose-950 text-xs font-bold rounded-xl transition-all border border-rose-300 hover:border-white cursor-pointer hover:shadow-lg self-center md:self-auto uppercase tracking-wider shrink-0"
 //             >
 //               Resolve / All Clear
 //             </button>
@@ -1523,7 +1523,7 @@
 //       </div>
 
 //       {/* PROFESSIONAL DRIVER TEAM CHAT & DISPATCH COMMUNICATIONS BLOCK (MOVED TO TOP) */}
-//       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
+//       <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-6">
 //         <div className="bg-slate-900 px-5 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-slate-800 gap-3">
 //           <div className="flex items-center space-x-3">
 //             <div className="p-2 bg-indigo-500/10 text-indigo-400 rounded-xl border border-indigo-500/20">
@@ -1549,7 +1549,7 @@
 
 //         <div className="flex flex-col lg:flex-row divide-y lg:divide-y-0 lg:divide-x divide-slate-200">
 //           {/* Left: Chat Thread and Input Area */}
-//           <div className="flex-1 flex flex-col h-[350px] bg-slate-50/50">
+//           <div className="flex-1 flex flex-col h-[350px] bg-base-200/50">
 //             {/* Message scroll viewport */}
 //             <div className="flex-1 overflow-y-auto p-4 space-y-3.5 min-h-0">
 //               {myMessages.length === 0 ? (
@@ -1593,13 +1593,13 @@
 //                           className={`p-3 rounded-2xl text-xs border shadow-sm ${
 //                             isDriver
 //                               ? "bg-indigo-600 text-white border-indigo-700 rounded-tr-none"
-//                               : "bg-white text-slate-800 border-slate-200 rounded-tl-none"
+//                               : "bg-base-100 text-slate-800 border-slate-200 rounded-tl-none"
 //                           }`}
 //                         >
 //                           <div className="flex items-baseline justify-between gap-4 mb-1">
 //                             <span
 //                               className={`font-bold text-3xs uppercase tracking-wider ${
-//                                 isDriver ? "text-indigo-200" : "text-slate-500"
+//                                 isDriver ? "text-indigo-200" : "text-base-content"
 //                               }`}
 //                             >
 //                               {isDriver
@@ -1629,7 +1629,7 @@
 //                               className={`mt-2 p-1.5 border rounded-lg flex items-center space-x-2 text-3xs font-mono ${
 //                                 isDriver
 //                                   ? "bg-indigo-700/60 border-indigo-500/40 text-indigo-100"
-//                                   : "bg-slate-50 border-slate-200 text-slate-600"
+//                                   : "bg-base-200 border-slate-200 text-slate-600"
 //                               }`}
 //                             >
 //                               <Paperclip className="h-3.5 w-3.5 text-indigo-300" />
@@ -1675,7 +1675,7 @@
 //             {/* Message Composer Area */}
 //             <form
 //               onSubmit={handleSendDriverMessage}
-//               className="p-3 bg-white border-t border-slate-200 flex items-center space-x-2"
+//               className="p-3 bg-base-100 border-t border-slate-200 flex items-center space-x-2"
 //             >
 //               <input
 //                 type="file"
@@ -1687,7 +1687,7 @@
 //                 type="button"
 //                 onClick={() => chatFileRef.current?.click()}
 //                 title="Attach screenshot, log, or scale ticket"
-//                 className="p-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-500 hover:text-slate-700 rounded-xl transition-colors cursor-pointer shrink-0"
+//                 className="p-2 bg-base-200 hover:bg-slate-100 border border-slate-200 text-base-content hover:text-slate-700 rounded-xl transition-colors cursor-pointer shrink-0"
 //               >
 //                 <Paperclip className="h-4 w-4" />
 //               </button>
@@ -1697,7 +1697,7 @@
 //                 value={newMessage}
 //                 onChange={(e) => setNewMessage(e.target.value)}
 //                 placeholder="Type a secure update or message to Dispatch..."
-//                 className="flex-1 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
+//                 className="flex-1 bg-base-200 hover:bg-base-200/80 focus:bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
 //               />
 
 //               <button
@@ -1712,9 +1712,9 @@
 //           </div>
 
 //           {/* Right: Quick Touch Status Actions & Contacts Info */}
-//           <div className="w-full lg:w-[320px] p-4 bg-slate-50/30 space-y-4 shrink-0 flex flex-col justify-between">
+//           <div className="w-full lg:w-[320px] p-4 bg-base-200/30 space-y-4 shrink-0 flex flex-col justify-between">
 //             <div className="space-y-3">
-//               <span className="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+//               <span className="block text-[10px] font-mono font-bold text-base-content uppercase tracking-widest">
 //                 Quick-Touch Status updates
 //               </span>
 //               <p className="text-[10px] text-slate-400 leading-normal">
@@ -1779,7 +1779,7 @@
 //                         setIsDeliveryModalOpen(true);
 //                       }
 //                     }}
-//                     className="w-full text-left p-2 bg-white hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 text-2xs font-bold text-slate-700 hover:text-indigo-900 rounded-lg transition-all flex items-center justify-between cursor-pointer group shadow-2xs"
+//                     className="w-full text-left p-2 bg-base-100 hover:bg-indigo-50/50 border border-slate-200 hover:border-indigo-300 text-2xs font-bold text-slate-700 hover:text-indigo-900 rounded-lg transition-all flex items-center justify-between cursor-pointer group shadow-2xs"
 //                   >
 //                     <span className="truncate">{preset.label}</span>
 //                     <ChevronRight className="h-3 w-3 text-slate-400 group-hover:text-indigo-600 transition-colors" />
@@ -1789,13 +1789,13 @@
 //             </div>
 
 //             <div className="border-t border-slate-200/80 pt-3.5 space-y-2 text-[10px]">
-//               <div className="flex items-center justify-between text-slate-500 font-medium">
+//               <div className="flex items-center justify-between text-base-content font-medium">
 //                 <span>Dispatch Office Contacts:</span>
 //                 <span className="text-emerald-600 font-bold uppercase font-mono tracking-wider">
 //                   Active
 //                 </span>
 //               </div>
-//               <div className="bg-white p-2.5 rounded-lg border border-slate-200 space-y-1.5 font-sans">
+//               <div className="bg-base-100 p-2.5 rounded-lg border border-slate-200 space-y-1.5 font-sans">
 //                 <div className="flex justify-between">
 //                   <span className="font-bold text-slate-700">
 //                     Keith Donnelly (Chief)
@@ -1876,7 +1876,7 @@
 
 //                 <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-2xs">
 //                   <div>
-//                     <span className="text-slate-500 block font-mono">
+//                     <span className="text-base-content block font-mono">
 //                       DRIVER ID &amp; NAME
 //                     </span>
 //                     <span className="font-bold text-white">
@@ -1884,7 +1884,7 @@
 //                     </span>
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-500 block font-mono">
+//                     <span className="text-base-content block font-mono">
 //                       CONTACT TELEPHONE
 //                     </span>
 //                     <span className="font-bold text-white">
@@ -1892,7 +1892,7 @@
 //                     </span>
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-500 block font-mono">
+//                     <span className="text-base-content block font-mono">
 //                       VEHICLE (TRUCK/TRAILER)
 //                     </span>
 //                     <span className="font-bold text-white">
@@ -1901,7 +1901,7 @@
 //                     </span>
 //                   </div>
 //                   <div>
-//                     <span className="text-slate-500 block font-mono">
+//                     <span className="text-base-content block font-mono">
 //                       GEOLOCATION COORDINATES
 //                     </span>
 //                     <span className="font-bold text-indigo-300 font-mono">
@@ -2089,7 +2089,7 @@
 //               {/* Scrollable grid tray */}
 //               <div className="flex-1 overflow-y-auto space-y-3 pr-1 max-h-[35vh] md:max-h-none min-h-[140px] bg-slate-950/40 p-2 rounded-xl border border-slate-950">
 //                 {skidPhotos.length === 0 ? (
-//                   <div className="h-full flex flex-col items-center justify-center p-4 text-center text-slate-500 space-y-2">
+//                   <div className="h-full flex flex-col items-center justify-center p-4 text-center text-base-content space-y-2">
 //                     <Camera className="h-6 w-6 text-slate-600" />
 //                     <span className="text-3xs font-mono font-semibold uppercase tracking-wider">
 //                       Batch Tray Empty
@@ -2143,7 +2143,7 @@
 //                   setIsBatchPreviewOpen(true);
 //                 }}
 //                 disabled={skidPhotos.length === 0}
-//                 className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white disabled:text-slate-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-indigo-950/40 hover:shadow-indigo-600/30 font-mono"
+//                 className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white disabled:text-base-content rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-indigo-950/40 hover:shadow-indigo-600/30 font-mono"
 //               >
 //                 Review &amp; Save Batch ({skidPhotos.length})
 //               </button>
@@ -2193,7 +2193,7 @@
 //             {/* Modal Body */}
 //             {skidPhotos.length === 0 ? (
 //               <div className="py-16 text-center space-y-4 max-w-md mx-auto">
-//                 <div className="p-4 bg-slate-800/40 rounded-full inline-block text-slate-500 border border-slate-800">
+//                 <div className="p-4 bg-slate-800/40 rounded-full inline-block text-base-content border border-slate-800">
 //                   <Camera className="h-10 w-10 animate-bounce" />
 //                 </div>
 //                 <div className="space-y-1">
@@ -2244,7 +2244,7 @@
 
 //                   {/* Active Photo Actions */}
 //                   <div className="bg-slate-950/30 border border-slate-800/80 rounded-xl p-4 space-y-4">
-//                     <span className="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+//                     <span className="block text-[10px] font-mono font-bold text-base-content uppercase tracking-widest">
 //                       Active Photo Operations
 //                     </span>
 
@@ -2293,7 +2293,7 @@
 //                         <span>Device Scan Metadata Overlay:</span>
 //                         <span className="text-emerald-500">Verified</span>
 //                       </div>
-//                       <p className="text-[10px] text-slate-500 leading-relaxed">
+//                       <p className="text-[10px] text-base-content leading-relaxed">
 //                         This sequential camera item will be processed with
 //                         watermarked GPS coordinates{" "}
 //                         <code className="text-slate-400">
@@ -2314,7 +2314,7 @@
 //                       : "lg:col-span-5 flex flex-col space-y-4 min-h-[250px] lg:max-h-[500px]"
 //                   }
 //                 >
-//                   <span className="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+//                   <span className="block text-[10px] font-mono font-bold text-base-content uppercase tracking-widest">
 //                     Sequence Order Tray (Select to review)
 //                   </span>
 
@@ -2362,7 +2362,7 @@
 //                                 </span>
 //                               )}
 //                             </div>
-//                             <p className="text-[10px] text-slate-500 truncate mt-0.5">
+//                             <p className="text-[10px] text-base-content truncate mt-0.5">
 //                               Condition: Pallet wrapped &amp; strapped
 //                             </p>
 //                           </div>
@@ -2429,7 +2429,7 @@
 //                 type="button"
 //                 onClick={handleFinishSkidBatch}
 //                 disabled={skidPhotos.length === 0}
-//                 className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white disabled:text-slate-500 rounded-xl text-xs font-extrabold uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-emerald-950/40 hover:shadow-emerald-600/30 flex items-center justify-center space-x-2"
+//                 className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white disabled:text-base-content rounded-xl text-xs font-extrabold uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-emerald-950/40 hover:shadow-emerald-600/30 flex items-center justify-center space-x-2"
 //               >
 //                 <Check className="h-4 w-4" />
 //                 <span>
@@ -2452,13 +2452,13 @@
 //         {/* Left Column: Samsara ELD Hours & Active Shipment stops */}
 //         <div className={isMobileMode ? "space-y-6" : "lg:col-span-8 space-y-6"}>
 //           {/* HOS Resilient Driving Timers */}
-//           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5">
-//             <h3 className="text-xs font-bold font-mono text-slate-500 uppercase tracking-wider mb-4">
+//           <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-5">
+//             <h3 className="text-xs font-bold font-mono text-base-content uppercase tracking-wider mb-4">
 //               Samsara Active ELD Clock (Hours of Service)
 //             </h3>
 //             <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-//               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-//                 <span className="text-3xs font-mono text-slate-500 uppercase">
+//               <div className="bg-base-200 p-3 rounded-xl border border-slate-100 text-center">
+//                 <span className="text-3xs font-mono text-base-content uppercase">
 //                   Driving Time
 //                 </span>
 //                 <div
@@ -2483,8 +2483,8 @@
 //                 </div>
 //               </div>
 
-//               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-//                 <span className="text-3xs font-mono text-slate-500 uppercase">
+//               <div className="bg-base-200 p-3 rounded-xl border border-slate-100 text-center">
+//                 <span className="text-3xs font-mono text-base-content uppercase">
 //                   On-Duty Time
 //                 </span>
 //                 <div className="text-xl font-bold font-mono mt-1 text-slate-800">
@@ -2503,8 +2503,8 @@
 //                 </div>
 //               </div>
 
-//               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-//                 <span className="text-3xs font-mono text-slate-500 uppercase">
+//               <div className="bg-base-200 p-3 rounded-xl border border-slate-100 text-center">
+//                 <span className="text-3xs font-mono text-base-content uppercase">
 //                   70-Hr Cycle remaining
 //                 </span>
 //                 <div className="text-xl font-bold font-mono mt-1 text-slate-800">
@@ -2522,8 +2522,8 @@
 //                 </div>
 //               </div>
 
-//               <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 text-center">
-//                 <span className="text-3xs font-mono text-slate-500 uppercase">
+//               <div className="bg-base-200 p-3 rounded-xl border border-slate-100 text-center">
+//                 <span className="text-3xs font-mono text-base-content uppercase">
 //                   Next Mandatory Rest
 //                 </span>
 //                 <div className="text-xl font-bold font-mono text-rose-600 mt-1">
@@ -2568,7 +2568,7 @@
 //               >
 //                 <span
 //                   className={`h-2.5 w-2.5 rounded-full ${
-//                     isLiveGps ? "bg-white animate-pulse" : "bg-indigo-500"
+//                     isLiveGps ? "bg-base-100 animate-pulse" : "bg-indigo-500"
 //                   }`}
 //                 />
 //                 <span>
@@ -2592,19 +2592,19 @@
 //                 </span>
 //                 <div className="space-y-1.5">
 //                   <div className="flex justify-between text-2xs">
-//                     <span className="text-slate-500 font-mono">Latitude:</span>
+//                     <span className="text-base-content font-mono">Latitude:</span>
 //                     <span className="font-mono text-indigo-300 font-bold">
 //                       {driverLocation.lat.toFixed(6)}
 //                     </span>
 //                   </div>
 //                   <div className="flex justify-between text-2xs">
-//                     <span className="text-slate-500 font-mono">Longitude:</span>
+//                     <span className="text-base-content font-mono">Longitude:</span>
 //                     <span className="font-mono text-indigo-300 font-bold">
 //                       {driverLocation.lng.toFixed(6)}
 //                     </span>
 //                   </div>
 //                   <div className="flex justify-between text-2xs">
-//                     <span className="text-slate-500 font-mono">Status:</span>
+//                     <span className="text-base-content font-mono">Status:</span>
 //                     <span className="font-mono font-bold text-emerald-400 flex items-center gap-1">
 //                       <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
 //                       {isLiveGps ? "HTML5 Browser Feed" : "Simulated GPS"}
@@ -2663,8 +2663,8 @@
 
 //           {/* Shipment stops & action controls */}
 //           {myShipment ? (
-//             <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-//               <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+//             <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+//               <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex items-center justify-between">
 //                 <div>
 //                   <div className="flex flex-wrap items-center gap-2">
 //                     <span className="text-3xs font-bold font-mono bg-indigo-100 text-indigo-800 px-2 py-0.5 rounded-full uppercase">
@@ -2684,15 +2684,15 @@
 //                       </span>
 //                     )}
 //                   </div>
-//                   <h3 className="text-sm font-semibold text-slate-900 mt-1.5">
+//                   <h3 className="text-sm font-semibold text-base-content mt-1.5">
 //                     Waypoints & Delivery Tasks
 //                   </h3>
 //                 </div>
 //                 <div className="text-right">
-//                   <span className="text-3xs font-mono text-slate-500 uppercase block">
+//                   <span className="text-3xs font-mono text-base-content uppercase block">
 //                     Tracking ID
 //                   </span>
-//                   <span className="text-xs font-bold font-mono text-slate-900">
+//                   <span className="text-xs font-bold font-mono text-base-content">
 //                     {myShipment.trackingNumber}
 //                   </span>
 //                 </div>
@@ -2726,7 +2726,7 @@
 //                               ? "bg-rose-500/20 text-rose-300 border-rose-500/30 animate-pulse"
 //                               : myShipment.priority === "high"
 //                               ? "bg-amber-500/20 text-amber-300 border-amber-500/30"
-//                               : "bg-slate-500/20 text-slate-300 border-slate-500/30"
+//                               : "bg-base-2000/20 text-slate-300 border-slate-500/30"
 //                           }`}
 //                         >
 //                           {myShipment.priority} Priority
@@ -2747,7 +2747,7 @@
 
 //                         <div className="relative space-y-1">
 //                           <span className="absolute -left-6 top-0.5 h-3.5 w-3.5 rounded-full bg-emerald-500 flex items-center justify-center text-white border-2 border-slate-900 shadow-sm">
-//                             <span className="h-1 w-1 bg-white rounded-full" />
+//                             <span className="h-1 w-1 bg-base-100 rounded-full" />
 //                           </span>
 //                           <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
 //                             Shipper (Pickup Location)
@@ -2770,7 +2770,7 @@
 
 //                         <div className="relative space-y-1 mt-4">
 //                           <span className="absolute -left-6 top-0.5 h-3.5 w-3.5 rounded-full bg-indigo-500 flex items-center justify-center text-white border-2 border-slate-900 shadow-sm">
-//                             <span className="h-1 w-1 bg-white rounded-full" />
+//                             <span className="h-1 w-1 bg-base-100 rounded-full" />
 //                           </span>
 //                           <span className="text-[9px] font-mono font-bold uppercase tracking-wider text-slate-400 block">
 //                             Consignee (Delivery Destination)
@@ -2796,7 +2796,7 @@
 //                     {/* Right Panel: Spec Payload Specs, skid counts, weight, pickup numbers */}
 //                     <div className="bg-slate-950/50 rounded-xl p-3.5 border border-slate-800/80 grid grid-cols-2 gap-3">
 //                       <div className="space-y-0.5">
-//                         <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+//                         <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
 //                           Skid/Pallet Count
 //                         </span>
 //                         <div className="flex items-baseline space-x-1">
@@ -2810,7 +2810,7 @@
 //                       </div>
 
 //                       <div className="space-y-0.5">
-//                         <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+//                         <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
 //                           Manifest Weight
 //                         </span>
 //                         <div className="flex items-baseline space-x-1">
@@ -2824,7 +2824,7 @@
 //                       </div>
 
 //                       <div className="space-y-0.5">
-//                         <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+//                         <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
 //                           PO Number
 //                         </span>
 //                         <span className="text-2xs font-mono font-bold text-white block truncate">
@@ -2833,7 +2833,7 @@
 //                       </div>
 
 //                       <div className="space-y-0.5">
-//                         <span className="text-[9px] font-mono text-slate-500 block uppercase font-bold">
+//                         <span className="text-[9px] font-mono text-base-content block uppercase font-bold">
 //                           BOL / Pickup Number
 //                         </span>
 //                         <span className="text-2xs font-mono font-bold text-amber-300 block truncate">
@@ -2882,7 +2882,7 @@
 //                       }}
 //                     />
 //                   </div>
-//                   <div className="text-3xs text-slate-500 mt-1.5 text-right font-mono uppercase">
+//                   <div className="text-3xs text-base-content mt-1.5 text-right font-mono uppercase">
 //                     {
 //                       myShipment.waypoints.filter(
 //                         (w) => w.status === "completed"
@@ -2892,9 +2892,9 @@
 //                   </div>
 //                 </div>
 
-//                 <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl space-y-4">
+//                 <div className="bg-base-200 border border-slate-200 p-4 rounded-xl space-y-4">
 //                   <div className="flex items-center justify-between">
-//                     <span className="text-3xs font-mono font-bold text-slate-500 uppercase">
+//                     <span className="text-3xs font-mono font-bold text-base-content uppercase">
 //                       Trip Cargo details
 //                     </span>
 //                     {hasScannedWeight ? (
@@ -2903,7 +2903,7 @@
 //                         <span>OCR VERIFIED</span>
 //                       </span>
 //                     ) : (
-//                       <span className="flex items-center space-x-1 text-[9px] font-mono font-bold text-slate-500 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
+//                       <span className="flex items-center space-x-1 text-[9px] font-mono font-bold text-base-content bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-full">
 //                         <Clock className="h-3 w-3 text-slate-400" />
 //                         <span>MANIFEST WEIGHT</span>
 //                       </span>
@@ -2911,7 +2911,7 @@
 //                   </div>
 
 //                   <div>
-//                     <p className="text-xs font-bold text-slate-900">
+//                     <p className="text-xs font-bold text-base-content">
 //                       {myShipment.cargoDescription}
 //                     </p>
 //                   </div>
@@ -2919,7 +2919,7 @@
 //                   {/* Weight Capacity Visual Progress Indicator */}
 //                   <div className="space-y-1.5 pt-2 border-t border-slate-200">
 //                     <div className="flex justify-between items-center text-xs font-mono text-slate-600">
-//                       <span className="text-2xs uppercase font-bold text-slate-500">
+//                       <span className="text-2xs uppercase font-bold text-base-content">
 //                         Weight Load Capacity
 //                       </span>
 //                       <span className="font-bold text-slate-800">
@@ -2942,7 +2942,7 @@
 //                     </div>
 
 //                     <div className="flex justify-between items-center text-[10px] font-mono">
-//                       <span className="text-slate-500">
+//                       <span className="text-base-content">
 //                         Capacity Utilized:{" "}
 //                         <span className="font-bold text-slate-700">
 //                           {capacityUtilizedPercent}%
@@ -3006,7 +3006,7 @@
 //                       <div key={wpt.id} className="relative">
 //                         {/* Dot indicator */}
 //                         <div
-//                           className={`absolute -left-[31px] top-1 h-5 w-5 rounded-full border-2 bg-white flex items-center justify-center ${
+//                           className={`absolute -left-[31px] top-1 h-5 w-5 rounded-full border-2 bg-base-100 flex items-center justify-center ${
 //                             isCompleted
 //                               ? "border-emerald-500 text-emerald-500"
 //                               : isArrived
@@ -3023,25 +3023,25 @@
 
 //                         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2">
 //                           <div>
-//                             <span className="text-3xs font-mono uppercase font-bold text-slate-500">
+//                             <span className="text-3xs font-mono uppercase font-bold text-base-content">
 //                               Stop #{idx + 1} ({wpt.stopType.replace("_", " ")})
 //                             </span>
-//                             <h4 className="text-xs font-bold text-slate-900">
+//                             <h4 className="text-xs font-bold text-base-content">
 //                               {wpt.companyName}
 //                             </h4>
-//                             <p className="text-2xs text-slate-500">
+//                             <p className="text-2xs text-base-content">
 //                               {wpt.address}
 //                             </p>
 
 //                             {wpt.weight && (
-//                               <span className="inline-block mt-1 text-3xs font-mono text-slate-500 bg-slate-100 px-1.5 py-0.5 rounded">
+//                               <span className="inline-block mt-1 text-3xs font-mono text-base-content bg-slate-100 px-1.5 py-0.5 rounded">
 //                                 LTL: {wpt.pieces} Pcs / {wpt.weight} lbs
 //                               </span>
 //                             )}
 //                           </div>
 
 //                           <div className="flex items-center space-x-2 shrink-0">
-//                             <span className="text-2xs font-mono text-slate-500 mr-2">
+//                             <span className="text-2xs font-mono text-base-content mr-2">
 //                               {wpt.actualTime
 //                                 ? `Completed ${new Date(
 //                                     wpt.actualTime
@@ -3152,7 +3152,7 @@
 //                       value={driverNotes}
 //                       onChange={(e) => setDriverNotes(e.target.value)}
 //                       placeholder="Add any loading dock delays, gate codes, route detours, or shipment condition details for dispatch review..."
-//                       className="flex-1 bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-lg p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none min-h-[70px] resize-y transition-all"
+//                       className="flex-1 bg-base-200 hover:bg-base-200/80 focus:bg-base-100 border border-slate-200 focus:border-indigo-500 rounded-lg p-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none min-h-[70px] resize-y transition-all"
 //                     />
 //                     <button
 //                       type="button"
@@ -3167,23 +3167,23 @@
 //               </div>
 //             </div>
 //           ) : (
-//             <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 text-center text-slate-500 text-xs">
+//             <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-6 text-center text-base-content text-xs">
 //               No active shipments assigned. Contact Keith in dispatch to receive
 //               LTL manifest coordinates.
 //             </div>
 //           )}
 
 //           {/* Real-time Document Scanned / OCR Extraction */}
-//           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
+//           <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-5 space-y-4">
 //             <div className="flex items-center space-x-2">
 //               <div className="p-1.5 bg-indigo-50 text-indigo-700 rounded-lg">
 //                 <FileText className="h-5 w-5" />
 //               </div>
 //               <div>
-//                 <h3 className="text-sm font-semibold text-slate-900">
+//                 <h3 className="text-sm font-semibold text-base-content">
 //                   Real-time Document Collector & AI-OCR Parser
 //                 </h3>
-//                 <p className="text-xs text-slate-500 mt-0.5">
+//                 <p className="text-xs text-base-content mt-0.5">
 //                   Scans Bills of Lading (BOL), Proof of Delivery (POD), and fuel
 //                   receipts using Gemini server-side vision.
 //                 </p>
@@ -3208,7 +3208,7 @@
 //                   <select
 //                     value={docType}
 //                     onChange={(e) => setDocType(e.target.value)}
-//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white"
+//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-base-100"
 //                   >
 //                     <option value="bol">Bill of Lading (BOL)</option>
 //                     <option value="pod">Proof of Delivery (POD)</option>
@@ -3228,7 +3228,7 @@
 //                   <select
 //                     value={parserLoadId}
 //                     onChange={(e) => setParserLoadId(e.target.value)}
-//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //                   >
 //                     {shipments.map((s) => (
 //                       <option key={s.id} value={s.id}>
@@ -3248,7 +3248,7 @@
 //                       onChange={(e) =>
 //                         setParserCustomLoadNumber(e.target.value)
 //                       }
-//                       className="mt-1.5 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                       className="mt-1.5 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //                     />
 //                   )}
 //                 </div>
@@ -3256,7 +3256,7 @@
 //                 {docType === "skid_picture" ? (
 //                   <div
 //                     id="skid-capture-dashboard"
-//                     className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4"
+//                     className="bg-base-200 border border-slate-200 rounded-xl p-4 space-y-4"
 //                   >
 //                     <div className="flex items-center justify-between">
 //                       <span className="text-2xs font-bold text-indigo-900 uppercase font-mono tracking-wider">
@@ -3274,7 +3274,7 @@
 //                     </div>
 
 //                     {skidPhotos.length === 0 ? (
-//                       <div className="border border-dashed border-slate-300 rounded-lg p-6 text-center bg-white">
+//                       <div className="border border-dashed border-slate-300 rounded-lg p-6 text-center bg-base-100">
 //                         <Camera className="h-6 w-6 text-slate-400 mx-auto animate-pulse" />
 //                         <span className="block text-xs font-semibold text-slate-600 mt-2">
 //                           No pallet photos captured yet
@@ -3327,13 +3327,13 @@
 //                 ) : (
 //                   <div
 //                     onClick={() => fileInputRef.current?.click()}
-//                     className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-5 text-center cursor-pointer bg-slate-50 hover:bg-slate-50/50 transition-colors"
+//                     className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-xl p-5 text-center cursor-pointer bg-base-200 hover:bg-base-200/50 transition-colors"
 //                   >
 //                     <Upload className="h-6 w-6 text-slate-400 mx-auto" />
 //                     <span className="block text-xs font-semibold text-slate-800 mt-2">
 //                       {fileName ? fileName : "Upload signed receipt image"}
 //                     </span>
-//                     <span className="block text-3xs text-slate-500 mt-1">
+//                     <span className="block text-3xs text-base-content mt-1">
 //                       PNG, JPG or PDF up to 10MB
 //                     </span>
 
@@ -3356,7 +3356,7 @@
 //                     onChange={(e) => setFileText(e.target.value)}
 //                     rows={3}
 //                     placeholder="Provide description or mock text if not uploading an image file to trigger Gemini's simulation parsing..."
-//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                     className="mt-1 block w-full rounded-md border border-slate-300 px-3 py-1.5 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //                   />
 //                 </div>
 
@@ -3388,7 +3388,7 @@
 
 //               {/* Parsed Output Panel */}
 //               <div className={isMobileMode ? "" : "md:col-span-7"}>
-//                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 h-full min-h-[220px] flex flex-col justify-between">
+//                 <div className="bg-base-200 rounded-xl p-4 border border-slate-200 h-full min-h-[220px] flex flex-col justify-between">
 //                   {ocrError && (
 //                     <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg flex items-start space-x-2">
 //                       <AlertTriangle className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" />
@@ -3483,7 +3483,7 @@
 //                       <p className="text-xs font-semibold text-slate-600 mt-3">
 //                         Awaiting Scan Document
 //                       </p>
-//                       <p className="text-2xs text-slate-500 mt-1 max-w-[300px]">
+//                       <p className="text-2xs text-base-content mt-1 max-w-[300px]">
 //                         Upload or describe a shipping document, click \"Submit
 //                         Document to Billing\" to verify, match BOL, and trigger
 //                         OCR extraction.
@@ -3500,7 +3500,7 @@
 //                       <p className="text-xs font-bold text-slate-800 mt-4 animate-pulse">
 //                         Running OCR & Key-value Extraction...
 //                       </p>
-//                       <p className="text-3xs text-slate-500 mt-1">
+//                       <p className="text-3xs text-base-content mt-1">
 //                         Verifying signatures and parsing shipment manifest
 //                         weight scales.
 //                       </p>
@@ -3526,7 +3526,7 @@
 //         {/* Right Column: Messenger & document log history */}
 //         <div className={isMobileMode ? "space-y-6" : "lg:col-span-4 space-y-6"}>
 //           {/* Samsara Driver Compliance & Telemetry card */}
-//           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3.5">
+//           <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-4 space-y-3.5">
 //             <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
 //               <div className="flex items-center space-x-2">
 //                 <div className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -3540,19 +3540,19 @@
 //             </div>
 
 //             <div className="space-y-2.5 text-xs text-slate-600">
-//               <div className="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+//               <div className="flex justify-between items-center bg-base-200 p-2 rounded border border-slate-100">
 //                 <span className="font-medium">ELD Carrier Registry:</span>
 //                 <span className="font-mono font-bold text-slate-800">
 //                   USDOT 3821092-A
 //                 </span>
 //               </div>
-//               <div className="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+//               <div className="flex justify-between items-center bg-base-200 p-2 rounded border border-slate-100">
 //                 <span className="font-medium">Current Fuel Range:</span>
 //                 <span className="font-mono font-bold text-emerald-700">
 //                   78% (Estimated 410 mi)
 //                 </span>
 //               </div>
-//               <div className="flex justify-between items-center bg-slate-50 p-2 rounded border border-slate-100">
+//               <div className="flex justify-between items-center bg-base-200 p-2 rounded border border-slate-100">
 //                 <span className="font-medium">GPS Dispatch Connection:</span>
 //                 <span className="font-mono font-bold text-indigo-700">
 //                   98.4 Kbps (Secure TLS)
@@ -3572,7 +3572,7 @@
 //           </div>
 
 //           {/* My Uploaded Documents Logs */}
-//           <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
+//           <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-4 space-y-3">
 //             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 border-b border-slate-100 pb-2">
 //               <div className="flex items-center gap-2">
 //                 {filteredDocLogs.length > 0 && (
@@ -3617,7 +3617,7 @@
 //                   id="doc-status-filter"
 //                   value={docLogFilter}
 //                   onChange={(e) => setDocLogFilter(e.target.value)}
-//                   className="text-2xs bg-slate-50 border border-slate-200 rounded-md px-2 py-0.5 font-sans text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+//                   className="text-2xs bg-base-200 border border-slate-200 rounded-md px-2 py-0.5 font-sans text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
 //                 >
 //                   <option value="all">All Documents</option>
 //                   <option value="pending_review">Pending Review</option>
@@ -3641,7 +3641,7 @@
 //                   <button
 //                     type="button"
 //                     onClick={handleBulkDownload}
-//                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-md text-3xs font-bold text-slate-700 hover:text-slate-800 transition-colors shadow-2xs cursor-pointer"
+//                     className="flex-1 sm:flex-initial flex items-center justify-center gap-1 px-3 py-1.5 bg-base-100 hover:bg-base-200 border border-slate-200 rounded-md text-3xs font-bold text-slate-700 hover:text-slate-800 transition-colors shadow-2xs cursor-pointer"
 //                   >
 //                     <Download className="h-3 w-3" />
 //                     <span>Download Selected</span>
@@ -3694,7 +3694,7 @@
 //                   <div
 //                     key={doc.id}
 //                     onClick={() => setSelectedLogDoc(doc)}
-//                     className="w-full p-2 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-between hover:bg-slate-100/85 transition-all text-left cursor-pointer group"
+//                     className="w-full p-2 rounded-lg bg-base-200 border border-slate-200 flex items-center justify-between hover:bg-slate-100/85 transition-all text-left cursor-pointer group"
 //                   >
 //                     <div className="flex items-center space-x-2.5 min-w-0 flex-1">
 //                       {/* Individual Checkbox */}
@@ -3731,7 +3731,7 @@
 //                       </div>
 
 //                       <div className="min-w-0 flex-1">
-//                         <div className="text-2xs font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors flex items-center gap-1">
+//                         <div className="text-2xs font-bold text-base-content truncate group-hover:text-indigo-600 transition-colors flex items-center gap-1">
 //                           {doc.fileName}
 //                           {doc.internalNote && (
 //                             <span
@@ -3740,7 +3740,7 @@
 //                             />
 //                           )}
 //                         </div>
-//                         <div className="text-3xs text-slate-500 font-mono capitalize flex items-center gap-1 flex-wrap">
+//                         <div className="text-3xs text-base-content font-mono capitalize flex items-center gap-1 flex-wrap">
 //                           <span>
 //                             {doc.type.replace("_", " ")} • {doc.fileSize}
 //                           </span>
@@ -3792,7 +3792,7 @@
 //       {/* Document Details Modal */}
 //       {selectedLogDoc && (
 //         <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
-//           <div className="bg-white rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+//           <div className="bg-base-100 rounded-xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
 //             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
 //               <div className="flex items-center space-x-3">
 //                 <div className="p-2 bg-indigo-50 text-indigo-700 rounded-lg">
@@ -3800,7 +3800,7 @@
 //                 </div>
 //                 <div>
 //                   <div className="flex items-center gap-1.5 flex-wrap">
-//                     <h3 className="text-sm font-bold text-slate-900">
+//                     <h3 className="text-sm font-bold text-base-content">
 //                       {selectedLogDoc.fileName}
 //                     </h3>
 //                     <span
@@ -3830,7 +3830,7 @@
 //                         : selectedLogDoc.status}
 //                     </span>
 //                   </div>
-//                   <p className="text-xs text-slate-500 capitalize">
+//                   <p className="text-xs text-base-content capitalize">
 //                     {selectedLogDoc.type.replace("_", " ")} •{" "}
 //                     {selectedLogDoc.fileSize}
 //                   </p>
@@ -3839,21 +3839,21 @@
 //               <div className="flex items-center gap-1.5 shrink-0">
 //                 <button
 //                   onClick={() => handlePrintDocument(selectedLogDoc)}
-//                   className="p-1.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-500 transition-colors flex items-center justify-center gap-1 cursor-pointer"
+//                   className="p-1.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-base-content transition-colors flex items-center justify-center gap-1 cursor-pointer"
 //                   title="Print simplified document"
 //                 >
 //                   <Printer className="h-5 w-5" />
 //                 </button>
 //                 <button
 //                   onClick={() => handleDownloadDocument(selectedLogDoc)}
-//                   className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-500 transition-colors flex items-center justify-center gap-1"
+//                   className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-base-content transition-colors flex items-center justify-center gap-1"
 //                   title="Download document file"
 //                 >
 //                   <Download className="h-5 w-5" />
 //                 </button>
 //                 <button
 //                   onClick={() => setSelectedLogDoc(null)}
-//                   className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+//                   className="p-1.5 hover:bg-slate-100 rounded-lg text-base-content transition-colors"
 //                 >
 //                   <X className="h-5 w-5" />
 //                 </button>
@@ -3866,7 +3866,7 @@
 //               selectedLogDoc.skidPictures &&
 //               selectedLogDoc.skidPictures.length > 0 ? (
 //                 <div className="space-y-3">
-//                   <span className="block text-2xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+//                   <span className="block text-2xs font-bold text-base-content uppercase tracking-wider font-mono">
 //                     Captured Pallet Condition Photos (
 //                     {selectedLogDoc.skidPictures.length})
 //                   </span>
@@ -3894,7 +3894,7 @@
 //                 </div>
 //               ) : (
 //                 <div className="space-y-3">
-//                   <span className="block text-2xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+//                   <span className="block text-2xs font-bold text-base-content uppercase tracking-wider font-mono">
 //                     Scanned Document Visual Preview
 //                   </span>
 //                   <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-950 group shadow-sm">
@@ -3923,12 +3923,12 @@
 //                   </h4>
 //                   <div className="grid grid-cols-2 gap-3">
 //                     {selectedLogDoc.extractedData.shipperName && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Shipper
 //                         </span>
 //                         <span
-//                           className="block text-xs font-semibold text-slate-900 truncate"
+//                           className="block text-xs font-semibold text-base-content truncate"
 //                           title={selectedLogDoc.extractedData.shipperName}
 //                         >
 //                           {selectedLogDoc.extractedData.shipperName}
@@ -3936,12 +3936,12 @@
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.consigneeName && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Consignee
 //                         </span>
 //                         <span
-//                           className="block text-xs font-semibold text-slate-900 truncate"
+//                           className="block text-xs font-semibold text-base-content truncate"
 //                           title={selectedLogDoc.extractedData.consigneeName}
 //                         >
 //                           {selectedLogDoc.extractedData.consigneeName}
@@ -3949,38 +3949,38 @@
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.bolNumber && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           BOL Number
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.bolNumber}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.purchaseOrder && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           PO Number
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.purchaseOrder}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.weightLbs && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Weight
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.weightLbs} Lbs
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.signatureFound !== void 0 && (
-//                       <div className="bg-slate-50 p-2.5 rounded border border-slate-100 flex flex-col justify-center">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded border border-slate-100 flex flex-col justify-center">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Signature
 //                         </span>
 //                         <div className="flex items-center space-x-1">
@@ -4005,8 +4005,8 @@
 //                   </div>
 
 //                   {selectedLogDoc.extractedData.items && (
-//                     <div className="bg-slate-50 p-3 rounded border border-slate-100 mt-2">
-//                       <span className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+//                     <div className="bg-base-200 p-3 rounded border border-slate-100 mt-2">
+//                       <span className="block text-3xs font-bold text-base-content uppercase mb-1">
 //                         Cargo Details / Items
 //                       </span>
 //                       <p className="text-xs text-slate-800 leading-relaxed">
@@ -4033,7 +4033,7 @@
 //                   )}
 //                 </div>
 
-//                 <p className="text-[11px] text-slate-500 leading-normal">
+//                 <p className="text-[11px] text-base-content leading-normal">
 //                   Leave administrative context for drivers or dispatchers (e.g.
 //                   why a document was rejected, or instructions for re-upload).
 //                 </p>
@@ -4043,7 +4043,7 @@
 //                     value={internalNoteText}
 //                     onChange={(e) => setInternalNoteText(e.target.value)}
 //                     placeholder="Enter internal note or reason for rejection (e.g., 'incorrect weight', 'blurry receipt')..."
-//                     className="w-full h-20 text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white placeholder-slate-400 font-sans leading-relaxed resize-none text-slate-800"
+//                     className="w-full h-20 text-xs p-2.5 rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-base-100 placeholder-slate-400 font-sans leading-relaxed resize-none text-slate-800"
 //                   />
 //                   <div className="flex justify-end items-center gap-2">
 //                     {noteSaved && (
@@ -4073,7 +4073,7 @@
 //           id="driver-pickup-popup"
 //           className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50"
 //         >
-//           <div className="bg-white rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
+//           <div className="bg-base-100 rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
 //             {/* Header */}
 //             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
 //               <div className="flex items-center space-x-2">
@@ -4081,10 +4081,10 @@
 //                   <Upload className="h-5 w-5" />
 //                 </div>
 //                 <div>
-//                   <h3 className="text-sm font-bold text-slate-900 font-sans">
+//                   <h3 className="text-sm font-bold text-base-content font-sans">
 //                     Log Picked Up Load &amp; Documents
 //                   </h3>
-//                   <p className="text-[10px] text-slate-500 font-mono uppercase">
+//                   <p className="text-[10px] text-base-content font-mono uppercase">
 //                     Shipment ID: {myShipment?.trackingNumber || "LS-90281-CAN"}
 //                   </p>
 //                 </div>
@@ -4107,7 +4107,7 @@
 
 //             {/* Form Fields / Drop zones */}
 //             <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-//               <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
+//               <div className="bg-base-200/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
 //                 <p>
 //                   <strong>Shipper Check-In:</strong>{" "}
 //                   {myShipment?.shipperName || "AeroParts Hub"}.
@@ -4126,7 +4126,7 @@
 //                 <select
 //                   value={pickupLoadId}
 //                   onChange={(e) => setPickupLoadId(e.target.value)}
-//                   className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
+//                   className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
 //                 >
 //                   {shipments.map((s) => (
 //                     <option key={s.id} value={s.id}>
@@ -4145,14 +4145,14 @@
 //                     placeholder="Type Custom Load / Tracking Number"
 //                     value={pickupCustomLoadNumber}
 //                     onChange={(e) => setPickupCustomLoadNumber(e.target.value)}
-//                     className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
+//                     className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
 //                   />
 //                 )}
 //               </div>
 
 //               {/* 1. BOL File Upload */}
 //               <div className="space-y-1.5">
-//                 <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+//                 <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
 //                   1. Bill of Lading (BOL) Document{" "}
 //                   <span className="text-rose-500">*</span>
 //                 </label>
@@ -4174,13 +4174,13 @@
 //                     </div>
 //                     <button
 //                       onClick={() => setPickupBolFile(null)}
-//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
 //                     >
 //                       <X className="h-3.5 w-3.5" />
 //                     </button>
 //                   </div>
 //                 ) : (
-//                   <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+//                   <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
 //                     <input
 //                       type="file"
 //                       id="pickup-bol-input"
@@ -4201,7 +4201,7 @@
 
 //               {/* 2. Skid Picture Upload */}
 //               <div className="space-y-1.5">
-//                 <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+//                 <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
 //                   2. Pallet / Skid Loading Picture{" "}
 //                   <span className="text-rose-500">*</span>
 //                 </label>
@@ -4233,13 +4233,13 @@
 //                     </div>
 //                     <button
 //                       onClick={() => setPickupSkidFile(null)}
-//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
 //                     >
 //                       <X className="h-3.5 w-3.5" />
 //                     </button>
 //                   </div>
 //                 ) : (
-//                   <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+//                   <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
 //                     <input
 //                       type="file"
 //                       id="pickup-skid-input"
@@ -4297,7 +4297,7 @@
 //           id="driver-delivery-popup"
 //           className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50"
 //         >
-//           <div className="bg-white rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
+//           <div className="bg-base-100 rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
 //             {/* Header */}
 //             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
 //               <div className="flex items-center space-x-2">
@@ -4305,10 +4305,10 @@
 //                   <CheckCircle className="h-5 w-5" />
 //                 </div>
 //                 <div>
-//                   <h3 className="text-sm font-bold text-slate-900 font-sans">
+//                   <h3 className="text-sm font-bold text-base-content font-sans">
 //                     Complete Delivery &amp; Upload POD
 //                   </h3>
-//                   <p className="text-[10px] text-slate-500 font-mono uppercase">
+//                   <p className="text-[10px] text-base-content font-mono uppercase">
 //                     Shipment ID: {myShipment?.trackingNumber || "LS-90281-CAN"}
 //                   </p>
 //                 </div>
@@ -4331,7 +4331,7 @@
 
 //             {/* Form Fields / Drop zones */}
 //             <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-//               <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
+//               <div className="bg-base-200/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
 //                 <p>
 //                   <strong>Consignee Delivery:</strong>{" "}
 //                   {myShipment?.consigneeName || "Midwest Assembly"}.
@@ -4350,7 +4350,7 @@
 //                 <select
 //                   value={deliveryLoadId}
 //                   onChange={(e) => setDeliveryLoadId(e.target.value)}
-//                   className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
+//                   className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
 //                 >
 //                   {shipments.map((s) => (
 //                     <option key={s.id} value={s.id}>
@@ -4371,14 +4371,14 @@
 //                     onChange={(e) =>
 //                       setDeliveryCustomLoadNumber(e.target.value)
 //                     }
-//                     className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
+//                     className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
 //                   />
 //                 )}
 //               </div>
 
 //               {/* POD File Upload */}
 //               <div className="space-y-1.5">
-//                 <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+//                 <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
 //                   Proof of Delivery (POD) Signed Document{" "}
 //                   <span className="text-rose-500">*</span>
 //                 </label>
@@ -4400,13 +4400,13 @@
 //                     </div>
 //                     <button
 //                       onClick={() => setDeliveryPodFile(null)}
-//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+//                       className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
 //                     >
 //                       <X className="h-3.5 w-3.5" />
 //                     </button>
 //                   </div>
 //                 ) : (
-//                   <div className="border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+//                   <div className="border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
 //                     <input
 //                       type="file"
 //                       id="delivery-pod-input"
@@ -4429,7 +4429,7 @@
 //               <div className="space-y-1.5">
 //                 <label
 //                   htmlFor="consignee-signee-input"
-//                   className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block"
+//                   className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block"
 //                 >
 //                   Name of Receiver / Signee{" "}
 //                   <span className="text-rose-500">*</span>
@@ -4442,7 +4442,7 @@
 //                     value={consigneeSignee}
 //                     onChange={(e) => setConsigneeSignee(e.target.value)}
 //                     placeholder="e.g. Sgt. John Doe (Dock Supervisor)"
-//                     className="w-full bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
+//                     className="w-full bg-base-200 hover:bg-base-200/80 focus:bg-base-100 border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
 //                   />
 //                 </div>
 //               </div>
@@ -4584,7 +4584,7 @@ export default function DriverApp({
     if (!myShipment) return;
     onUpdateShipment({
       ...myShipment,
-      driver_notes:driverNotes,
+      driver_notes: driverNotes,
     });
     setNotesSaved(true);
     setTimeout(() => setNotesSaved(false), 2500);
@@ -4875,8 +4875,8 @@ export default function DriverApp({
       console.error("Pickup document upload failed:", err);
       setPickupError(
         err.response?.data?.message ||
-          err.message ||
-          "Document upload failed — nothing was saved."
+        err.message ||
+        "Document upload failed — nothing was saved."
       );
     }
   };
@@ -4951,8 +4951,8 @@ export default function DriverApp({
       console.error("POD upload failed:", err);
       setDeliveryError(
         err.response?.data?.message ||
-          err.message ||
-          "POD upload failed — nothing was saved."
+        err.message ||
+        "POD upload failed — nothing was saved."
       );
     }
   };
@@ -5057,8 +5057,7 @@ export default function DriverApp({
         ctx.fillStyle = "#34D399";
         ctx.font = "bold 12px monospace";
         ctx.fillText(
-          `VEHICLE ID: ${
-            myShipment?.truckNumber || "TRK-102"
+          `VEHICLE ID: ${myShipment?.truckNumber || "TRK-102"
           } | SAMSARA ACTIVE TRACKING`,
           20,
           canvas.height - 40
@@ -5071,8 +5070,7 @@ export default function DriverApp({
         );
         ctx.fillStyle = "#FFFFFF";
         ctx.fillText(
-          `PALLET CONDITION BATCH #${
-            skidPhotos.length + 1
+          `PALLET CONDITION BATCH #${skidPhotos.length + 1
           } | TIMESTAMP: ${new Date().toLocaleString()} | ${simulatedCondition}`,
           20,
           canvas.height - 8
@@ -5148,16 +5146,14 @@ export default function DriverApp({
         ctx.fillStyle = "#34D399";
         ctx.font = "bold 11px monospace";
         ctx.fillText(
-          `SAMSARA ADVANCED CONDITION TRACKER • VEHICLE ID: ${
-            myShipment?.truckNumber || "TRK-102"
+          `SAMSARA ADVANCED CONDITION TRACKER • VEHICLE ID: ${myShipment?.truckNumber || "TRK-102"
           }`,
           25,
           438
         );
         ctx.fillStyle = "#94A3B8";
         ctx.fillText(
-          `GPS COORDINATES: ${coordsText(6)} | MANIFEST: ${
-            myShipment?.id || "SHP101"
+          `GPS COORDINATES: ${coordsText(6)} | MANIFEST: ${myShipment?.id || "SHP101"
           }`,
           25,
           454
@@ -5185,10 +5181,8 @@ export default function DriverApp({
     }
     setFileName(`SKID_CONDITION_BATCH_${Date.now().toString().slice(-6)}.JPG`);
     setFileText(
-      `Sequential capture of ${
-        skidPhotos.length
-      } pallet condition photos. Location: ${coordsText(6)}. Vehicle ${
-        myShipment?.truckNumber || "TRK-102"
+      `Sequential capture of ${skidPhotos.length
+      } pallet condition photos. Location: ${coordsText(6)}. Vehicle ${myShipment?.truckNumber || "TRK-102"
       }. Status: Secure shrink-wrap, corner guards applied, no skid shift recorded.`
     );
     if (skidPhotos[0]) {
@@ -5224,11 +5218,9 @@ export default function DriverApp({
       timestamp: new Date().toISOString(),
       type: "emergency_sos",
       severity: "high",
-      description: `🚨 EMERGENCY SOS TRIGGERED BY DRIVER. Immediate dispatch and rescue response required. Contact: +1 (555) 492-3810. Vehicle: ${
-        myShipment?.truckNumber || "TRK-102"
-      } (Trailer: ${
-        myShipment?.trailerNumber || "TRL-504"
-      }). Coordinates: ${coordsText(6)}.`,
+      description: `🚨 EMERGENCY SOS TRIGGERED BY DRIVER. Immediate dispatch and rescue response required. Contact: +1 (555) 492-3810. Vehicle: ${myShipment?.truckNumber || "TRK-102"
+        } (Trailer: ${myShipment?.trailerNumber || "TRL-504"
+        }). Coordinates: ${coordsText(6)}.`,
       location: coordsText(4),
       status: "pending_review",
     };
@@ -5239,8 +5231,7 @@ export default function DriverApp({
       `🚨 [EMERGENCY SOS SIGNAL] 🚨
 • Driver: ${driverName}
 • Contact: +1 (555) 492-3810
-• Vehicle: Truck ${myShipment?.truckNumber || "TRK-102"} / Trailer ${
-        myShipment?.trailerNumber || "TRL-504"
+• Vehicle: Truck ${myShipment?.truckNumber || "TRK-102"} / Trailer ${myShipment?.trailerNumber || "TRL-504"
       }
 • Coordinates: ${coordsText(6)}
 • Severity: HIGH (Distress Beacon Active)`,
@@ -5339,9 +5330,9 @@ export default function DriverApp({
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos((lat1 * Math.PI) / 180) *
-        Math.cos((lat2 * Math.PI) / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return R * c;
   };
@@ -5480,7 +5471,7 @@ export default function DriverApp({
         navigator.geolocation.clearWatch(webWatchId);
       }
       if (capWatchId) {
-        Geolocation.clearWatch({ id: capWatchId }).catch(() => {});
+        Geolocation.clearWatch({ id: capWatchId }).catch(() => { });
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -5592,8 +5583,8 @@ export default function DriverApp({
       parserLoadId === "custom"
         ? parserCustomLoadNumber || "CUSTOM-MANIFEST"
         : shipments.find((s) => s.id === parserLoadId)?.trackingNumber ||
-          myShipment?.trackingNumber ||
-          "LS-90281-CAN";
+        myShipment?.trackingNumber ||
+        "LS-90281-CAN";
 
     try {
       let resultData = null;
@@ -5721,23 +5712,19 @@ export default function DriverApp({
         </head>
         <body>
           <h1>Logistics Document Record: ${doc.fileName}</h1>
-          <div class="field"><span class="label">Document Type:</span> ${
-            doc.type
-          }</div>
-          <div class="field"><span class="label">Tracking Number:</span> ${
-            doc.trackingNumber
-          }</div>
+          <div class="field"><span class="label">Document Type:</span> ${doc.type
+      }</div>
+          <div class="field"><span class="label">Tracking Number:</span> ${doc.trackingNumber
+      }</div>
           <div class="field"><span class="label">Uploaded Date:</span> ${new Date(
-            doc.uploadDate
-          ).toLocaleString()}</div>
-          <div class="field"><span class="label">Status:</span> ${
-            doc.status
-          }</div>
-          ${
-            doc.internalNote
-              ? `<div class="field"><span class="label">Internal Note:</span> ${doc.internalNote}</div>`
-              : ""
-          }
+        doc.uploadDate
+      ).toLocaleString()}</div>
+          <div class="field"><span class="label">Status:</span> ${doc.status
+      }</div>
+          ${doc.internalNote
+        ? `<div class="field"><span class="label">Internal Note:</span> ${doc.internalNote}</div>`
+        : ""
+      }
           <img src="${getDocumentImage(doc)}" />
         </body>
       </html>
@@ -5784,7 +5771,7 @@ export default function DriverApp({
   return (
     <div className="min-h-screen bg-slate-100/70 p-3 sm:p-6 space-y-5 text-slate-800">
       {/* ----------------- TOP DRIVER HEADER & STATUS BAR ----------------- */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         {/* Driver & Truck Identifiers */}
         <div className="flex items-center space-x-3.5">
           <div className="relative">
@@ -5795,14 +5782,14 @@ export default function DriverApp({
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base font-extrabold text-slate-900">
+              <h1 className="text-base font-extrabold text-base-content">
                 {driverName}
               </h1>
               <span className="text-3xs font-mono font-bold bg-indigo-50 text-indigo-700 border border-indigo-200 px-2 py-0.5 rounded-full uppercase">
                 Driver App
               </span>
             </div>
-            <p className="text-2xs text-slate-500 font-mono mt-0.5">
+            <p className="text-2xs text-base-content font-mono mt-0.5">
               Assigned Truck:{" "}
               <strong className="text-slate-800">
                 {myShipment?.truckNumber || "TRK-102"}
@@ -5833,11 +5820,10 @@ export default function DriverApp({
                 key={st.key}
                 type="button"
                 onClick={() => handleChangeHOSStatus(st.key)}
-                className={`px-3 py-1.5 rounded-xl text-3xs font-mono font-bold uppercase transition-all cursor-pointer border ${
-                  isSelected
-                    ? `${st.color} border-transparent shadow-sm scale-105`
-                    : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
-                }`}
+                className={`px-3 py-1.5 rounded-xl text-3xs font-mono font-bold uppercase transition-all cursor-pointer border ${isSelected
+                  ? `${st.color} border-transparent shadow-sm scale-105`
+                  : "bg-base-200 text-slate-600 border-slate-200 hover:bg-slate-100"
+                  }`}
               >
                 {st.label}
               </button>
@@ -5847,7 +5833,7 @@ export default function DriverApp({
       </div>
 
       {/* ----------------- DRIVER NAVIGATION TABS ----------------- */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-1.5 shadow-2xs flex items-center gap-1 overflow-x-auto scrollbar-none">
+      <div className="bg-base-100 rounded-2xl border border-slate-200 p-1.5 shadow-2xs flex items-center gap-1 overflow-x-auto scrollbar-none">
         {[
           { id: "load", label: "Active Load & Stops", icon: Truck },
           { id: "docs", label: "Document AI Scanner", icon: FileText },
@@ -5862,11 +5848,10 @@ export default function DriverApp({
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${
-                isActive
-                  ? "bg-indigo-600 text-white shadow-sm"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
-              }`}
+              className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs font-bold transition-all whitespace-nowrap cursor-pointer ${isActive
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "text-slate-600 hover:bg-base-200 hover:text-base-content"
+                }`}
             >
               <Icon className="h-4 w-4" />
               <span>{tab.label}</span>
@@ -5900,7 +5885,7 @@ export default function DriverApp({
 
       {activeTab === "docs" && (
         <DocumentScannerWidget
-         myShipment={myShipment}
+          myShipment={myShipment}
         />
       )}
 

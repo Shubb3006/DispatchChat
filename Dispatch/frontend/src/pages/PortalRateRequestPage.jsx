@@ -88,10 +88,10 @@ const FILE_ACCEPT = [
  * ------------------------------------------------------------------------ */
 
 const INPUT =
-  "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-slate-50 disabled:text-slate-400";
+  "w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-base-content placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-base-200 disabled:text-slate-400";
 const INPUT_BAD =
-  "w-full rounded-lg border border-rose-400 bg-rose-50/40 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-100 disabled:bg-slate-50 disabled:text-slate-400";
-const LABEL = "mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-slate-500";
+  "w-full rounded-lg border border-rose-400 bg-rose-50/40 px-3 py-2.5 text-sm text-base-content placeholder:text-slate-400 focus:border-rose-500 focus:outline-none focus:ring-2 focus:ring-rose-100 disabled:bg-base-200 disabled:text-slate-400";
+const LABEL = "mb-1.5 block text-[11px] font-semibold uppercase tracking-wider text-base-content";
 const CHECKBOX = "h-4 w-4 flex-none rounded border-slate-300 accent-sky-600 focus-visible:ring-2 focus-visible:ring-sky-500";
 
 /* Order matters: it decides which field gets focus when submit is blocked. */
@@ -186,15 +186,15 @@ const extensionOf = (name) => String(name || "").split(".").pop().toLowerCase();
 
 function Card({ icon: Icon, title, hint, action, children }) {
   return (
-    <section className="rounded-xl border border-slate-200 bg-white shadow-sm">
+    <section className="rounded-xl border border-slate-200 bg-base-100 shadow-sm">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-slate-100 px-4 py-4 sm:px-5">
         <div className="flex min-w-0 items-start gap-3">
           <span className="flex h-9 w-9 flex-none items-center justify-center rounded-lg bg-sky-50 text-sky-600">
             <Icon className="h-4 w-4" strokeWidth={2.2} />
           </span>
           <div className="min-w-0">
-            <h2 className="text-sm font-bold text-slate-900">{title}</h2>
-            <p className="mt-0.5 text-xs leading-snug text-slate-500">{hint}</p>
+            <h2 className="text-sm font-bold text-base-content">{title}</h2>
+            <p className="mt-0.5 text-xs leading-snug text-base-content">{hint}</p>
           </div>
         </div>
         {action}
@@ -237,8 +237,8 @@ function EmptyState({ icon: Icon, title, body, action }) {
       <span className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-slate-100">
         <Icon className="h-5 w-5 text-slate-400" />
       </span>
-      <p className="mt-3 text-sm font-semibold text-slate-900">{title}</p>
-      {body && <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">{body}</p>}
+      <p className="mt-3 text-sm font-semibold text-base-content">{title}</p>
+      {body && <p className="mx-auto mt-1 max-w-sm text-sm text-base-content">{body}</p>}
       {action}
     </div>
   );
@@ -544,11 +544,11 @@ export default function PortalRateRequestPage() {
       </header>
 
       {/* ------------------------------------------------------------ Page bar */}
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-slate-200 bg-base-100">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 py-5 sm:px-6">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">New Rate Request</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">New Rate Request</h1>
+            <p className="mt-1 text-sm text-base-content">
               The more you tell us up front, the tighter the price comes back. Only the lane and the commodity are
               required.
             </p>
@@ -557,7 +557,7 @@ export default function PortalRateRequestPage() {
             type="button"
             onClick={() => navigate("/portal/dashboard")}
             disabled={busy}
-            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60"
+            className="rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60"
           >
             Cancel
           </button>
@@ -613,7 +613,7 @@ export default function PortalRateRequestPage() {
           >
             <div className="grid grid-cols-1 gap-5 lg:grid-cols-2">
               <fieldset className="rounded-lg border border-slate-200 p-4">
-                <legend className="px-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <legend className="px-1 text-[11px] font-semibold uppercase tracking-wider text-base-content">
                   Pickup window
                 </legend>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -659,7 +659,7 @@ export default function PortalRateRequestPage() {
               </fieldset>
 
               <fieldset className="rounded-lg border border-slate-200 p-4">
-                <legend className="px-1 text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                <legend className="px-1 text-[11px] font-semibold uppercase tracking-wider text-base-content">
                   Delivery window
                 </legend>
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
@@ -804,7 +804,7 @@ export default function PortalRateRequestPage() {
                       onChange={handleChange}
                       aria-label="Declared value currency"
                       disabled={busy}
-                      className="rounded-lg border border-slate-300 bg-white px-2 py-2.5 text-sm font-semibold text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-slate-50"
+                      className="rounded-lg border border-slate-300 bg-base-100 px-2 py-2.5 text-sm font-semibold text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100 disabled:bg-base-200"
                     >
                       <option value="USD">USD</option>
                       <option value="CAD">CAD</option>
@@ -864,7 +864,7 @@ export default function PortalRateRequestPage() {
                 </Field>
               </div>
 
-              <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-slate-200 bg-slate-50/60 px-3.5 py-3">
+              <label className="flex cursor-pointer items-start gap-2.5 rounded-lg border border-slate-200 bg-base-200/60 px-3.5 py-3">
                 <input
                   type="checkbox"
                   name="stackable"
@@ -874,8 +874,8 @@ export default function PortalRateRequestPage() {
                   className={`${CHECKBOX} mt-0.5`}
                 />
                 <span>
-                  <span className="text-sm font-medium text-slate-900">Skids are stackable</span>
-                  <span className="mt-0.5 block text-xs text-slate-500">
+                  <span className="text-sm font-medium text-base-content">Skids are stackable</span>
+                  <span className="mt-0.5 block text-xs text-base-content">
                     Double-stacking frees deck space and usually lowers the rate.
                   </span>
                 </span>
@@ -900,7 +900,7 @@ export default function PortalRateRequestPage() {
                         key={opt.value}
                         className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${selected
                           ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
-                          : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                          : "border-slate-300 text-slate-700 hover:bg-base-200"
                           }`}
                       >
                         <input
@@ -922,7 +922,7 @@ export default function PortalRateRequestPage() {
                     type="button"
                     onClick={() => setField("equipment", "")}
                     disabled={busy}
-                    className="mt-2 text-xs font-semibold text-slate-500 hover:text-slate-900"
+                    className="mt-2 text-xs font-semibold text-base-content hover:text-base-content"
                   >
                     Clear equipment choice
                   </button>
@@ -963,17 +963,17 @@ export default function PortalRateRequestPage() {
                     className={`${CHECKBOX} mt-0.5`}
                   />
                   <span>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-base-content">
                       <Snowflake className="h-4 w-4 text-sky-500" />
                       Temperature controlled
                     </span>
-                    <span className="mt-0.5 block text-xs text-slate-500">
+                    <span className="mt-0.5 block text-xs text-base-content">
                       Reefer freight — give us the set point range in Fahrenheit.
                     </span>
                   </span>
                 </label>
                 {form.temp_controlled && (
-                  <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-slate-50/60 px-3.5 py-4 sm:grid-cols-2">
+                  <div className="grid grid-cols-1 gap-4 border-t border-slate-100 bg-base-200/60 px-3.5 py-4 sm:grid-cols-2">
                     <Field label="Minimum °F" htmlFor="temp_min_f" error={errors.temp_min_f}>
                       <input
                         id="temp_min_f"
@@ -1020,11 +1020,11 @@ export default function PortalRateRequestPage() {
                     className={`${CHECKBOX} mt-0.5`}
                   />
                   <span>
-                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-900">
+                    <span className="inline-flex items-center gap-1.5 text-sm font-medium text-base-content">
                       <ShieldAlert className="h-4 w-4 text-amber-500" />
                       Contains hazardous materials
                     </span>
-                    <span className="mt-0.5 block text-xs text-slate-500">
+                    <span className="mt-0.5 block text-xs text-base-content">
                       Hazmat needs a certified driver and placards — the details below are required by the carrier.
                     </span>
                   </span>
@@ -1093,7 +1093,7 @@ export default function PortalRateRequestPage() {
                 type="button"
                 onClick={addStop}
                 disabled={busy || stops.length >= MAX_STOPS}
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-50"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-50"
               >
                 <Plus className="h-4 w-4" />
                 Add stop
@@ -1109,7 +1109,7 @@ export default function PortalRateRequestPage() {
             ) : (
               <div className="space-y-3">
                 {stops.map((stop, index) => (
-                  <div key={stop.id} className="rounded-lg border border-slate-200 bg-slate-50/60 p-3.5">
+                  <div key={stop.id} className="rounded-lg border border-slate-200 bg-base-200/60 p-3.5">
                     <div className="mb-3 flex items-center justify-between gap-3">
                       <Pill className="bg-slate-100 text-slate-600 ring-1 ring-slate-500/20">Stop {index + 1}</Pill>
                       <button
@@ -1205,7 +1205,7 @@ export default function PortalRateRequestPage() {
                     key={opt.value}
                     className={`flex cursor-pointer items-center gap-2.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors ${checked
                       ? "border-sky-500 bg-sky-50 text-sky-900 ring-1 ring-sky-200"
-                      : "border-slate-300 text-slate-700 hover:bg-slate-50"
+                      : "border-slate-300 text-slate-700 hover:bg-base-200"
                       }`}
                   >
                     <input
@@ -1267,7 +1267,7 @@ export default function PortalRateRequestPage() {
             hint="Packing lists, photos, previous rate confirmations. PDF, image, spreadsheet or Word — 5 MB each."
             action={
               <label
-                className={`inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors focus-within:ring-2 focus-within:ring-sky-500 ${busy ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-slate-50"
+                className={`inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors focus-within:ring-2 focus-within:ring-sky-500 ${busy ? "cursor-not-allowed opacity-50" : "cursor-pointer hover:bg-base-200"
                   }`}
               >
                 <FileUp className="h-4 w-4" />
@@ -1298,10 +1298,10 @@ export default function PortalRateRequestPage() {
                 {files.map((f) => (
                   <li
                     key={f.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-slate-50/60 px-3.5 py-2.5"
+                    className="flex items-center justify-between gap-3 rounded-lg border border-slate-200 bg-base-200/60 px-3.5 py-2.5"
                   >
                     <div className="flex min-w-0 items-center gap-2.5">
-                      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-white text-slate-500 ring-1 ring-slate-200">
+                      <span className="flex h-8 w-8 flex-none items-center justify-center rounded-lg bg-base-100 text-base-content ring-1 ring-slate-200">
                         {f.state === "uploading" ? (
                           <Loader2 className="h-4 w-4 animate-spin text-sky-600" />
                         ) : f.state === "done" ? (
@@ -1313,8 +1313,8 @@ export default function PortalRateRequestPage() {
                         )}
                       </span>
                       <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-slate-900">{f.name}</p>
-                        <p className="text-xs text-slate-500">
+                        <p className="truncate text-sm font-medium text-base-content">{f.name}</p>
+                        <p className="text-xs text-base-content">
                           {fmtBytes(f.size)}
                           {f.state === "uploading" && " · Uploading…"}
                           {f.state === "done" && " · Attached"}
@@ -1341,7 +1341,7 @@ export default function PortalRateRequestPage() {
           </Card>
 
           {/* ------------------------------------------------------ Action bar */}
-          <div className="sticky bottom-0 z-10 -mx-4 border-t border-slate-200 bg-white px-4 py-3 shadow-[0_-4px_14px_rgba(15,23,42,0.06)] sm:static sm:mx-0 sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm">
+          <div className="sticky bottom-0 z-10 -mx-4 border-t border-slate-200 bg-base-100 px-4 py-3 shadow-[0_-4px_14px_rgba(15,23,42,0.06)] sm:static sm:mx-0 sm:rounded-xl sm:border sm:px-5 sm:py-4 sm:shadow-sm">
             {errorCount > 0 && (
               <p className="mb-3 flex items-center gap-2 rounded-lg bg-rose-50 px-3 py-2 text-xs font-semibold text-rose-700">
                 <TriangleAlert className="h-4 w-4 flex-none" />
@@ -1349,7 +1349,7 @@ export default function PortalRateRequestPage() {
               </p>
             )}
             <div className="flex items-center justify-between gap-3">
-              <p className="hidden text-xs text-slate-500 sm:block">
+              <p className="hidden text-xs text-base-content sm:block">
                 <ClipboardList className="mr-1.5 inline h-3.5 w-3.5 text-slate-400" />
                 Our dispatch team reviews every request and sends a quote within 24 hours.
               </p>
@@ -1358,7 +1358,7 @@ export default function PortalRateRequestPage() {
                   type="button"
                   onClick={() => navigate("/portal/dashboard")}
                   disabled={busy}
-                  className="flex-1 rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60 sm:flex-none"
+                  className="flex-1 rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60 sm:flex-none"
                 >
                   Cancel
                 </button>
@@ -1374,15 +1374,15 @@ export default function PortalRateRequestPage() {
             </div>
           </div>
 
-          <p className="pb-2 text-center text-xs text-slate-500 sm:hidden">
+          <p className="pb-2 text-center text-xs text-base-content sm:hidden">
             Our dispatch team reviews every request and sends a quote within 24 hours.
           </p>
         </form>
       </main>
 
       {/* -------------------------------------------------------------- Footer */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-slate-500 sm:px-6">
+      <footer className="border-t border-slate-200 bg-base-100">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-base-content sm:px-6">
           <p>© {new Date().getFullYear()} Nishan Transport. Customer Portal.</p>
           <p>Questions about a shipment? Contact your Nishan Transport dispatch coordinator.</p>
         </div>

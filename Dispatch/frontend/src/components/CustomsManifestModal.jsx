@@ -62,11 +62,11 @@ const BarcodeRenderer = ({ value }) => {
   const totalWidth = str.length * 14 + 10;
 
   return (
-    <div className="flex flex-col items-center space-y-1 bg-white p-3 rounded-xl border border-slate-300">
+    <div className="flex flex-col items-center space-y-1 bg-base-100 p-3 rounded-xl border border-slate-300">
       <svg width={Math.min(totalWidth, 340)} height="55" className="overflow-visible">
         {bars}
       </svg>
-      <div className="font-mono text-xs font-black tracking-widest text-slate-900">
+      <div className="font-mono text-xs font-black tracking-widest text-base-content">
         * {str} *
       </div>
     </div>
@@ -88,9 +88,9 @@ export default function CustomsManifestModal({
 
   const destStr = String(
     shipment.consignee_state ||
-      shipment.destinationCity ||
-      shipment.consignee_address ||
-      ""
+    shipment.destinationCity ||
+    shipment.consignee_address ||
+    ""
   ).toUpperCase();
 
   const isUsBound =
@@ -141,7 +141,7 @@ export default function CustomsManifestModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden font-sans flex flex-col max-h-[90vh]">
+      <div className="bg-base-100 rounded-3xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden font-sans flex flex-col max-h-[90vh]">
         {/* Header Bar */}
         <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
@@ -172,7 +172,7 @@ export default function CustomsManifestModal({
         {/* Manifest Document Body */}
         <div className="p-6 space-y-6 overflow-y-auto bg-slate-100/80 flex-1 font-mono text-xs text-slate-800">
           {/* Printable Official Manifest Paper Sheet */}
-          <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-300 shadow-md space-y-6 relative">
+          <div className="bg-base-100 p-6 sm:p-8 rounded-2xl border border-slate-300 shadow-md space-y-6 relative">
             {/* Approval Stamp Seal */}
             <div className="absolute top-6 right-6 border-2 border-emerald-600 text-emerald-700 rounded-xl px-3 py-1 text-3xs font-extrabold uppercase tracking-widest rotate-2 bg-emerald-50/90 shadow-xs pointer-events-none">
               ✔ {agencyName} APPROVED
@@ -181,10 +181,10 @@ export default function CustomsManifestModal({
             {/* Document Header */}
             <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
               <div className="space-y-1">
-                <div className="text-lg font-black text-slate-900 font-sans tracking-tight uppercase">
+                <div className="text-lg font-black text-base-content font-sans tracking-tight uppercase">
                   OZACK FREIGHT SYSTEMS INC.
                 </div>
-                <div className="text-3xs text-slate-500 font-bold">
+                <div className="text-3xs text-base-content font-bold">
                   OFFICIAL CROSS-BORDER CUSTOMS e-MANIFEST (CANADA ↔ USA)
                 </div>
               </div>
@@ -193,15 +193,15 @@ export default function CustomsManifestModal({
                 <div className="text-sm font-extrabold text-indigo-600 font-mono">
                   {manifestType}-MANIFEST-{loadNumber}
                 </div>
-                <div className="text-3xs text-slate-500">
+                <div className="text-3xs text-base-content">
                   Transmitted: {new Date().toLocaleDateString()}
                 </div>
               </div>
             </div>
 
             {/* Scannable PAPS / PARS Barcode Section */}
-            <div className="bg-slate-50 p-5 rounded-2xl border border-slate-300 text-center space-y-3 shadow-inner">
-              <div className="flex items-center justify-between text-3xs font-bold text-slate-500 uppercase">
+            <div className="bg-base-200 p-5 rounded-2xl border border-slate-300 text-center space-y-3 shadow-inner">
+              <div className="flex items-center justify-between text-3xs font-bold text-base-content uppercase">
                 <span>SCANNABLE BOOTH OFFICER BARCODE</span>
                 <span className="text-indigo-600">{isUsBound ? "PAPS BARCODE (US ENTRY)" : "PARS BARCODE (CANADA ENTRY)"}</span>
               </div>
@@ -209,7 +209,7 @@ export default function CustomsManifestModal({
               <BarcodeRenderer value={barcodeNumber} />
 
               <div className="text-3xs text-slate-600 font-mono flex items-center justify-center gap-3">
-                <span>SCAC / Carrier Code: <strong className="text-slate-900 font-bold">{scacCode}</strong></span>
+                <span>SCAC / Carrier Code: <strong className="text-base-content font-bold">{scacCode}</strong></span>
                 <span>•</span>
                 <span>PAPS/PARS Num: <strong className="text-indigo-600 font-bold">{barcodeNumber}</strong></span>
               </div>
@@ -217,11 +217,11 @@ export default function CustomsManifestModal({
 
             {/* Customs Port & Clearance Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                 <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                   PORT OF CROSSING & AGENCY
                 </div>
-                <div className="text-xs font-bold text-slate-900 font-sans">
+                <div className="text-xs font-bold text-base-content font-sans">
                   {borderPort}
                 </div>
                 <div className="text-3xs text-slate-600">
@@ -229,11 +229,11 @@ export default function CustomsManifestModal({
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                 <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                   CARRIER & ASSIGNED ASSETS
                 </div>
-                <div className="text-xs font-bold text-slate-900 font-sans">
+                <div className="text-xs font-bold text-base-content font-sans">
                   Tractor: {truckNum} • Trailer: {trailerNum}
                 </div>
                 <div className="text-3xs text-slate-600">
@@ -244,11 +244,11 @@ export default function CustomsManifestModal({
 
             {/* Driver & Customs Compliance Details */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                 <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                   ASSIGNED DRIVER & CREW
                 </div>
-                <div className="text-xs font-bold text-slate-900 font-sans">
+                <div className="text-xs font-bold text-base-content font-sans">
                   {driverName}
                 </div>
                 <div className="text-3xs text-slate-600">
@@ -256,11 +256,11 @@ export default function CustomsManifestModal({
                 </div>
               </div>
 
-              <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+              <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                 <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                   CARGO COMMODITY & WEIGHT
                 </div>
-                <div className="text-xs font-bold text-slate-900 font-sans">
+                <div className="text-xs font-bold text-base-content font-sans">
                   {shipment.cargo || shipment.cargoDescription || "Industrial Logistics Cargo Parts"}
                 </div>
                 <div className="text-3xs text-slate-600 font-mono">
@@ -283,7 +283,7 @@ export default function CustomsManifestModal({
         </div>
 
         {/* Modal Footer Controls */}
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+        <div className="p-4 bg-base-100 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
           <button
             type="button"
             onClick={handlePrint}

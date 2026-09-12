@@ -51,9 +51,9 @@ export default function CustomsOrderProfileTab({
 
   const cleanLoadNumber = String(
     shipment.load_number ||
-      shipment.tracking_number ||
-      shipment.trackingNumber ||
-      "10018"
+    shipment.tracking_number ||
+    shipment.trackingNumber ||
+    "10018"
   ).replace(/\D/g, "").padStart(6, "0").slice(-6);
 
   // Match existing entry or create synthetic/fallback profile
@@ -77,10 +77,10 @@ export default function CustomsOrderProfileTab({
 
   const destStr = String(
     shipment.consignee_address ||
-      shipment.destination ||
-      shipment.destinationCity ||
-      shipment.destination_address ||
-      ""
+    shipment.destination ||
+    shipment.destinationCity ||
+    shipment.destination_address ||
+    ""
   ).toUpperCase();
 
   const isUS =
@@ -262,11 +262,10 @@ export default function CustomsOrderProfileTab({
           {/* Left: Lead Barcode, Direction & Status */}
           <div className="flex items-start gap-4">
             <div
-              className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base shrink-0 ${
-                isUS
-                  ? "bg-blue-500/10 text-blue-400 border border-blue-500/30"
-                  : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-              }`}
+              className={`w-12 h-12 rounded-xl flex items-center justify-center font-bold text-base shrink-0 ${isUS
+                ? "bg-blue-500/10 text-blue-400 border border-blue-500/30"
+                : "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
+                }`}
             >
               {isUS ? "US" : "CA"}
             </div>
@@ -277,9 +276,8 @@ export default function CustomsOrderProfileTab({
                   {entry.lead_number}
                 </span>
                 <span
-                  className={`px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-wider ${
-                    isUS ? "bg-blue-600 text-white" : "bg-emerald-600 text-white"
-                  }`}
+                  className={`px-2 py-0.5 text-[10px] font-black rounded-md uppercase tracking-wider ${isUS ? "bg-blue-600 text-white" : "bg-emerald-600 text-white"
+                    }`}
                 >
                   {entry.lead_number_type} ({isUS ? "US INBOUND" : "CA INBOUND"})
                 </span>
@@ -348,7 +346,7 @@ export default function CustomsOrderProfileTab({
               type="button"
               onClick={() => onOpenDocumentModal && onOpenDocumentModal("BOL")}
               title="Open Official Bill of Lading (BOL)"
-              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-900 rounded-xl transition-colors cursor-pointer"
+              className="p-2 bg-slate-100 hover:bg-slate-200 text-base-content rounded-xl transition-colors cursor-pointer"
             >
               <FileText className="w-4 h-4" />
             </button>
@@ -433,7 +431,7 @@ export default function CustomsOrderProfileTab({
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 border border-slate-700 text-slate-200 rounded-lg text-[11px] font-mono font-bold shadow-xs"
               >
                 <span className="text-cyan-400">{item.hts_code}</span>
-                <span className="text-slate-500 font-normal">|</span>
+                <span className="text-base-content font-normal">|</span>
                 <span className="text-slate-300 font-normal truncate max-w-[200px]">
                   {item.description}
                 </span>
@@ -447,13 +445,13 @@ export default function CustomsOrderProfileTab({
       {/* 2. LIVE BORDER CLEARANCE & COMPLIANCE SUMMARY */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
         {/* Border Crossing & Asset Clearance */}
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center space-x-2.5">
               <div className="p-2 bg-sky-50 text-sky-600 rounded-xl">
                 <Globe className="h-4 w-4" />
               </div>
-              <h3 className="text-xs font-black text-slate-900 uppercase font-mono tracking-wide">
+              <h3 className="text-xs font-black text-base-content uppercase font-mono tracking-wide">
                 Border Crossing & Equipment Clearance
               </h3>
             </div>
@@ -463,24 +461,24 @@ export default function CustomsOrderProfileTab({
           </div>
 
           <div className="grid grid-cols-2 gap-3 text-xs">
-            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
+            <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Assigned Tractor</span>
-              <div className="font-mono font-bold text-slate-900">{entry.truck_number || "TRK-102"}</div>
+              <div className="font-mono font-bold text-base-content">{entry.truck_number || "TRK-102"}</div>
             </div>
-            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
+            <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Trailer & Seal</span>
-              <div className="font-mono font-bold text-slate-900">
+              <div className="font-mono font-bold text-base-content">
                 {entry.trailer_number || "TRL-504"} • {shipment.seal_number || "SEAL-904812"}
               </div>
             </div>
-            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
+            <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">FAST Card / Driver</span>
-              <div className="font-mono font-bold text-slate-900">{entry.driver_name || "Marcus Vance"}</div>
-              <div className="text-3xs text-slate-500 font-mono">{entry.driver_fast_card_number || "FAST-8829104"}</div>
+              <div className="font-mono font-bold text-base-content">{entry.driver_name || "Marcus Vance"}</div>
+              <div className="text-3xs text-base-content font-mono">{entry.driver_fast_card_number || "FAST-8829104"}</div>
             </div>
-            <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
+            <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100 space-y-0.5">
               <span className="text-3xs font-bold text-slate-400 uppercase">Target Crossing ETA</span>
-              <div className="font-mono font-bold text-slate-900">
+              <div className="font-mono font-bold text-base-content">
                 {new Date(shipment.pickup_date || Date.now()).toLocaleDateString()} 14:00 EST
               </div>
             </div>
@@ -516,7 +514,7 @@ export default function CustomsOrderProfileTab({
             <button
               type="button"
               onClick={() => onOpenDocumentModal && onOpenDocumentModal(isUS ? "PAPS" : "PARS")}
-              className="px-3.5 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-bold font-mono transition-all flex items-center space-x-1.5 cursor-pointer border border-white/20"
+              className="px-3.5 py-2 bg-base-100/10 hover:bg-base-100/20 text-white rounded-xl text-xs font-bold font-mono transition-all flex items-center space-x-1.5 cursor-pointer border border-white/20"
             >
               <Barcode className="h-3.5 w-3.5 text-sky-400" />
               <span>View Barcode Sheet</span>
@@ -528,11 +526,11 @@ export default function CustomsOrderProfileTab({
       {/* 3. EDIT CUSTOMS PROFILE MODAL */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-60 bg-slate-900/70 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-6 max-w-2xl w-full border border-slate-200 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
+          <div className="bg-base-100 rounded-2xl p-6 max-w-2xl w-full border border-slate-200 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <Edit3 className="h-5 w-5 text-indigo-600" />
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-bold text-base-content">
                   Edit Customs Profile - Load #{cleanLoadNumber}
                 </h3>
               </div>

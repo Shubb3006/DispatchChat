@@ -191,7 +191,7 @@
 //       {/* Main Workspace */}
 //       <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden">
 //         {/* Top Control Bar */}
-//         <header className="h-12 bg-white border-b border-gray-200 flex items-center justify-between px-4 shrink-0 select-none">
+//         <header className="h-12 bg-base-100 border-b border-base-300 flex items-center justify-between px-4 shrink-0 select-none">
 //           <div className="flex items-center gap-4">
 //             <h1 className="font-bold text-sm uppercase tracking-wider text-gray-700">
 //               {currentRole === "dispatcher"
@@ -211,13 +211,13 @@
 //             <div className="h-4 w-[1px] bg-gray-300" />
 //             <div className="flex items-center gap-2">
 //               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-//               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase tracking-tight">
+//               <span className="text-[10px] font-mono font-semibold text-base-content/60 uppercase tracking-tight">
 //                 SAMSARA: CONNECTED
 //               </span>
 //             </div>
 //             <div className="flex items-center gap-2">
 //               <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-//               <span className="text-[10px] font-mono font-semibold text-gray-500 uppercase tracking-tight">
+//               <span className="text-[10px] font-mono font-semibold text-base-content/60 uppercase tracking-tight">
 //                 BORDER CONNECT: ACTIVE
 //               </span>
 //             </div>
@@ -226,7 +226,7 @@
 //           {/* User selector dropdown in header */}
 //           <div className="flex items-center gap-3">
 //             <div className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200/80 px-2.5 py-1 text-slate-700 rounded-lg border border-slate-200 transition-colors">
-//               <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider font-mono">
+//               <span className="text-[10px] font-bold text-base-content uppercase tracking-wider font-mono">
 //                 Session:
 //               </span>
 //               <select
@@ -338,7 +338,7 @@ import HRPage from "./pages/HRPage";
 import ReportingPage from "./pages/REportingPage";
 import { Toaster } from "react-hot-toast";
 import ProtectedRoute from "./ProtectedRoute";
-import { Loader2, UserCircle, Activity } from "lucide-react";
+import { Loader2, UserCircle, Activity, Sun, Moon } from "lucide-react";
 import WarehouseManagerPage from "./pages/WareHouseManagerPage";
 import CustomsPage from "./pages/CustomsPage";
 import SamsaraFleetPage from "./pages/SamsaraFleetPage";
@@ -357,6 +357,7 @@ import PortalRateRequestPage from "./pages/PortalRateRequestPage";
 import PortalLoadDetailPage from "./pages/PortalLoadDetailPage";
 import { usePortalStore } from "./stores/usePortalStore";
 import FreightForceAlert from "./components/FreightForceAlert";
+import { useThemeStore } from "./stores/useThemeStore";
 
 
 
@@ -409,6 +410,9 @@ function LogiSyncApp() {
   const checkAuth = useAuthStore((state) => state.checkAuth);
   const isCheckingAuth = useAuthStore((state) => state.isCheckingAuth);
   const fetchUsers = useAuthStore((state) => state.fetchUsers);
+
+  const { theme, toggleTheme } = useThemeStore();
+
 
   const setCurrentUser = (user) => useAuthStore.setState({ currentUser: user });
 
@@ -512,7 +516,7 @@ function LogiSyncApp() {
 
   if (isCheckingAuth) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex items-center justify-center h-screen bg-base-200">
         <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
       </div>
     );
@@ -560,7 +564,7 @@ function LogiSyncApp() {
   }
 
   return (
-    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 text-slate-900 font-sans antialiased selection:bg-sky-100 selection:text-sky-900">
+    <div className="flex h-screen w-screen overflow-hidden bg-slate-100 text-base-content font-sans antialiased selection:bg-sky-100 selection:text-sky-900">
       {/* Freight Force Alert Notification */}
       <FreightForceAlert />
 
@@ -584,16 +588,16 @@ function LogiSyncApp() {
       />
 
       {/* Main Workspace */}
-      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-slate-50">
+      <div className="flex-1 flex flex-col min-w-0 h-full overflow-hidden bg-base-200">
         {/* Modern Clean Crisp Top Header */}
-        <header className="h-14 border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 shrink-0 bg-white select-none z-20 shadow-xs">
+        <header className="h-14 border-b border-slate-200 flex items-center justify-between px-3 sm:px-6 shrink-0 bg-base-100 select-none z-20 shadow-xs">
           {/* Left: Clean Breadcrumb */}
           <div className="flex items-center gap-2.5 text-xs">
             {/* Mobile hamburger — opens nav drawer */}
             <button
               type="button"
               onClick={() => setMobileNavOpen(true)}
-              className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 rounded-lg border border-slate-200 bg-slate-50 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
+              className="md:hidden flex items-center justify-center w-9 h-9 -ml-1 rounded-lg border border-slate-200 bg-base-200 text-slate-700 hover:bg-slate-100 active:scale-95 transition-all cursor-pointer"
               aria-label="Open navigation menu"
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-5 h-5">
@@ -603,8 +607,19 @@ function LogiSyncApp() {
             <span className="font-bold text-sky-700 tracking-wider">
               NISHAN TMS
             </span>
+            {/* <button
+              onClick={toggleTheme}
+              className="btn btn-ghost btn-sm btn-square rounded-lg"
+              title={theme === "dark" ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {theme === "dark" ? (
+                <Sun className="size-4 text-warning" />
+              ) : (
+                <Moon className="size-4" />
+              )}
+            </button> */}
             <span className="text-slate-300">/</span>
-            <span className="font-extrabold text-slate-900 capitalize text-sm">
+            <span className="font-extrabold text-base-content capitalize text-sm">
               {currentRole.replace("_", " ")}
             </span>
           </div>
@@ -613,18 +628,18 @@ function LogiSyncApp() {
           <div className="flex items-center gap-4">
             {/* Cloud Status Badges */}
             <div className="hidden lg:flex items-center gap-2 text-xs">
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-base-200 border border-slate-200 text-slate-700 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[11px] font-semibold">Samsara</span>
               </div>
-              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-50 border border-slate-200 text-slate-700 shadow-2xs">
+              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-base-200 border border-slate-200 text-slate-700 shadow-2xs">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
                 <span className="text-[11px] font-semibold">BorderConnect</span>
               </div>
             </div>
 
             {/* System Clock */}
-            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-slate-50 rounded-lg border border-slate-200 text-xs font-mono text-slate-600 shadow-2xs">
+            <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-base-200 rounded-lg border border-slate-200 text-xs font-mono text-slate-600 shadow-2xs">
               <SystemClock />
             </div>
 
@@ -636,7 +651,7 @@ function LogiSyncApp() {
                 <div className="text-xs font-bold text-slate-800">
                   {currentUser?.username || "Nishan Admin"}
                 </div>
-                <div className="text-[10px] text-slate-500 font-medium capitalize">
+                <div className="text-[10px] text-base-content font-medium capitalize">
                   {currentUser?.role ? currentUser.role.replace("_", " ") : "Administrator"}
                 </div>
               </div>
@@ -648,7 +663,7 @@ function LogiSyncApp() {
         </header>
 
         {/* Primary Content Grid */}
-        <div className="flex-1 overflow-auto bg-slate-50/70 p-4 sm:p-6 text-slate-900">
+        <div className="flex-1 overflow-auto bg-base-300 p-4 sm:p-6 text-base-content">
           <Routes>
             <Route path="/" element={<Navigate to="/data_entry" replace />} />
             {/* <Route path="/dispatcher" element={<Navigate to="/data_entry" replace />} /> */}
@@ -698,7 +713,7 @@ function LogiSyncApp() {
 
 
         {/* Subtle Footer */}
-        <footer className="h-8 bg-white border-t border-slate-200 text-slate-500 text-xs flex items-center justify-between px-6 shrink-0 select-none">
+        <footer className="h-8 bg-base-100 border-t border-slate-200 text-base-content text-xs flex items-center justify-between px-6 shrink-0 select-none">
           <div className="flex gap-4">
             <span className="font-mono text-[11px] font-medium text-slate-600">NISHAN TMS Enterprise v5.1</span>
           </div>
@@ -731,8 +746,8 @@ class PortalErrorBoundary extends React.Component {
   render() {
     if (this.state.error) {
       return (
-        <div className="flex flex-col items-center justify-center h-screen bg-slate-50 px-6 text-center">
-          <p className="text-lg font-bold text-slate-900">Something went wrong</p>
+        <div className="flex flex-col items-center justify-center h-screen bg-base-200 px-6 text-center">
+          <p className="text-lg font-bold text-base-content">Something went wrong</p>
           <p className="text-sm text-slate-600 mt-2 max-w-md">
             The page hit an unexpected error. Your data is safe — reload to continue.
           </p>
@@ -774,7 +789,7 @@ function PortalApp() {
 
   if (isCheckingPortalAuth && !onLoginPage) {
     return (
-      <div className="flex items-center justify-center h-screen bg-slate-50">
+      <div className="flex items-center justify-center h-screen bg-base-200">
         <Loader2 className="w-8 h-8 text-sky-600 animate-spin" />
       </div>
     );

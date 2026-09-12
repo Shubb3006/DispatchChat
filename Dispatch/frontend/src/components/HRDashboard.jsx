@@ -132,15 +132,15 @@
 //   return (
 //     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 lg:h-full lg:overflow-hidden">
 //       {/* Left and Middle Column: Directory List */}
-//       <div className="lg:col-span-2 flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
-//         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+//       <div className="lg:col-span-2 flex flex-col bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
+//         <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-base-200/50">
 //           <div className="flex items-center space-x-2">
 //             <Users className="h-5 w-5 text-slate-600" />
 //             <div>
 //               <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">
 //                 Active Team Directory
 //               </h2>
-//               <p className="text-[10px] text-slate-500">
+//               <p className="text-[10px] text-base-content">
 //                 Corporate users, credentials, and functional access permissions
 //               </p>
 //             </div>
@@ -158,7 +158,7 @@
 //             return (
 //               <div
 //                 key={user.id}
-//                 className="p-4 flex items-start justify-between hover:bg-slate-50/40 transition-colors"
+//                 className="p-4 flex items-start justify-between hover:bg-base-200/40 transition-colors"
 //               >
 //                 <div className="space-y-1.5 min-w-0">
 //                   <div className="flex items-center gap-2">
@@ -197,7 +197,7 @@
 //                           ? "bg-indigo-50 text-indigo-700 border-indigo-100"
 //                           : user.role === "invoicing"
 //                           ? "bg-green-50 text-green-700 border-green-100"
-//                           : "bg-slate-50 text-slate-700 border-slate-200"
+//                           : "bg-base-200 text-slate-700 border-slate-200"
 //                       }`}
 //                     >
 //                       {user.role.replace("_", " ")}
@@ -216,7 +216,7 @@
 //                       Access:
 //                     </span>
 //                     {user.role === "admin" || user.role === "super_admin" ? (
-//                       <span className="text-[9px] font-semibold text-slate-500 bg-slate-100 px-1.5 py-0.2 rounded font-mono">
+//                       <span className="text-[9px] font-semibold text-base-content bg-slate-100 px-1.5 py-0.2 rounded font-mono">
 //                         ✨ Unrestricted Master Access (All Modules & Reporting)
 //                       </span>
 //                     ) : (
@@ -269,14 +269,14 @@
 //       </div>
 
 //       {/* Right Column: Register Account Form */}
-//       <div className="flex flex-col bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
-//         <div className="p-4 border-b border-slate-100 flex items-center space-x-2 bg-slate-50/50">
+//       <div className="flex flex-col bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden h-full">
+//         <div className="p-4 border-b border-slate-100 flex items-center space-x-2 bg-base-200/50">
 //           <UserPlus className="h-5 w-5 text-indigo-600" />
 //           <div>
 //             <h2 className="text-sm font-bold text-slate-800 uppercase tracking-tight">
 //               Register Team Account
 //             </h2>
-//             <p className="text-[10px] text-slate-500">
+//             <p className="text-[10px] text-base-content">
 //               Create login and assign role capabilities
 //             </p>
 //           </div>
@@ -302,7 +302,7 @@
 
 //           {/* Full Name */}
 //           <div className="space-y-1">
-//             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+//             <label className="text-[10px] font-bold text-base-content uppercase tracking-wider block">
 //               Full Name
 //             </label>
 //             <input
@@ -317,7 +317,7 @@
 
 //           {/* Username */}
 //           <div className="space-y-1">
-//             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+//             <label className="text-[10px] font-bold text-base-content uppercase tracking-wider block">
 //               Username
 //             </label>
 //             <div className="relative">
@@ -337,13 +337,13 @@
 
 //           {/* Base Role Selector */}
 //           <div className="space-y-1">
-//             <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+//             <label className="text-[10px] font-bold text-base-content uppercase tracking-wider block">
 //               Main Corporate Role
 //             </label>
 //             <select
 //               value={role}
 //               onChange={(e) => handleRoleChange(e.target.value)}
-//               className="w-full text-xs border border-slate-200 rounded-lg p-2 bg-white focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer font-bold"
+//               className="w-full text-xs border border-slate-200 rounded-lg p-2 bg-base-100 focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 outline-none cursor-pointer font-bold"
 //             >
 //               <option value="driver">Driver</option>
 //               <option value="dispatcher">Dispatcher</option>
@@ -360,7 +360,7 @@
 //           {/* Module Capabilities Checklist */}
 //           <div className="space-y-2">
 //             <div className="flex items-center justify-between">
-//               <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">
+//               <label className="text-[10px] font-bold text-base-content uppercase tracking-wider block">
 //                 Functional Capabilities
 //               </label>
 //               {(role === "admin" || role === "super_admin") && (
@@ -391,7 +391,7 @@
 //                     className={`w-full flex items-start text-left p-2 rounded-lg border text-xs transition-colors ${
 //                       isSelected
 //                         ? "bg-indigo-50/40 border-indigo-200 text-slate-800"
-//                         : "bg-slate-50/50 border-slate-100 text-slate-500"
+//                         : "bg-base-200/50 border-slate-100 text-base-content"
 //                     } ${
 //                       isDisabled
 //                         ? "opacity-85"
@@ -403,7 +403,7 @@
 //                         className={`w-3.5 h-3.5 rounded border flex items-center justify-center ${
 //                           isSelected
 //                             ? "bg-indigo-600 border-indigo-600 text-white"
-//                             : "border-slate-300 bg-white"
+//                             : "border-slate-300 bg-base-100"
 //                         }`}
 //                       >
 //                         {isSelected && (

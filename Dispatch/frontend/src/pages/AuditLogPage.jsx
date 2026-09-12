@@ -126,7 +126,7 @@ export default function AuditLogPage() {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Top Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-2xs">
@@ -134,7 +134,7 @@ export default function AuditLogPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-xl font-black text-base-content tracking-tight">
                   Audit Trail & Change History Radar
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5">
@@ -142,7 +142,7 @@ export default function AuditLogPage() {
                   REAL-TIME LOGGING ACTIVE
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-base-content font-medium mt-0.5">
                 Cryptographic audit trail tracking all modifications, driver assignments, rate changes, and customs filings with login timestamps.
               </p>
             </div>
@@ -157,7 +157,7 @@ export default function AuditLogPage() {
               toast.success("Audit records refreshed from PostgreSQL");
             }}
             disabled={isLoading}
-            className="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+            className="px-3 py-2 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-sky-600" : ""}`} />
             <span>Refresh</span>
@@ -176,12 +176,12 @@ export default function AuditLogPage() {
       {/* 4 KPI Metrics Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Metric 1 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Modifications Today
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {stats?.totalToday ?? 0}
             </div>
             <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
@@ -195,15 +195,15 @@ export default function AuditLogPage() {
         </div>
 
         {/* Metric 2 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Active Editors (7d)
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {stats?.activeUsers?.length ?? 0}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium truncate max-w-[150px]">
+            <div className="text-[11px] text-base-content font-medium truncate max-w-[150px]">
               Top: {stats?.activeUsers?.[0]?.username || "Nishan Dispatch"}
             </div>
           </div>
@@ -213,15 +213,15 @@ export default function AuditLogPage() {
         </div>
 
         {/* Metric 3 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Critical Actions
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
               {stats?.recentCritical?.length ?? 0}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               Status & Assignment Edits
             </div>
           </div>
@@ -231,15 +231,15 @@ export default function AuditLogPage() {
         </div>
 
         {/* Metric 4 */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Total Logged Records
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {pagination.total ?? 0}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               Across all fleet modules
             </div>
           </div>
@@ -250,7 +250,7 @@ export default function AuditLogPage() {
       </div>
 
       {/* Filter & Search Toolbar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3">
         <form onSubmit={handleSearchSubmit} className="flex flex-col md:flex-row items-stretch md:items-center gap-3">
           {/* Search Input */}
           <div className="relative flex-1">
@@ -260,7 +260,7 @@ export default function AuditLogPage() {
               placeholder="Search by Load #, User Name, Action Type, or Summary..."
               value={searchInput}
               onChange={(e) => setSearchInput(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium shadow-2xs"
+              className="w-full pl-10 pr-4 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium shadow-2xs"
             />
           </div>
 
@@ -269,7 +269,7 @@ export default function AuditLogPage() {
             <select
               value={filters.entity_type}
               onChange={(e) => setFilters({ entity_type: e.target.value })}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
             >
               <option value="ALL">All Entities</option>
               <option value="LOAD">Loads & Freight</option>
@@ -285,7 +285,7 @@ export default function AuditLogPage() {
             <select
               value={filters.action}
               onChange={(e) => setFilters({ action: e.target.value })}
-              className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+              className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
             >
               <option value="ALL">All Actions</option>
               <option value="STATUS_CHANGED">Status Changed</option>
@@ -321,15 +321,15 @@ export default function AuditLogPage() {
       </div>
 
       {/* Master Audit Log Stream Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+        <div className="p-4 bg-base-200 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
           <div className="flex items-center gap-2">
             <History className="w-4 h-4 text-sky-600" />
-            <span className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            <span className="text-xs font-extrabold text-base-content uppercase tracking-wider">
               Chronological Modification Records
             </span>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-500">
+          <span className="text-xs font-mono font-bold text-base-content">
             Showing {auditLogs.length} of {pagination.total} entries
           </span>
         </div>
@@ -337,7 +337,7 @@ export default function AuditLogPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                 <th className="py-3.5 px-4">Timestamp (Local)</th>
                 <th className="py-3.5 px-4">Actor / User</th>
                 <th className="py-3.5 px-4">Action</th>
@@ -359,7 +359,7 @@ export default function AuditLogPage() {
                   <td colSpan={6} className="py-12 text-center text-slate-400">
                     <History className="w-8 h-8 mx-auto mb-2 opacity-50" />
                     <div className="text-sm font-bold text-slate-700">No matching audit records found</div>
-                    <div className="text-xs text-slate-500 mt-1">Try clearing filters or performing actions in the dashboard</div>
+                    <div className="text-xs text-base-content mt-1">Try clearing filters or performing actions in the dashboard</div>
                   </td>
                 </tr>
               ) : (
@@ -381,13 +381,13 @@ export default function AuditLogPage() {
                   const hasDetails = details && Object.keys(details).length > 0;
 
                   return (
-                    <tr key={log.id} className="hover:bg-slate-50/80 transition-colors">
+                    <tr key={log.id} className="hover:bg-base-200/80 transition-colors">
                       {/* Timestamp */}
                       <td className="py-3.5 px-4 whitespace-nowrap">
-                        <div className="font-mono font-bold text-slate-900 text-xs">
+                        <div className="font-mono font-bold text-base-content text-xs">
                           {formattedTime}
                         </div>
-                        <div className="text-[10px] text-slate-500 font-medium">
+                        <div className="text-[10px] text-base-content font-medium">
                           {formattedDate}
                         </div>
                       </td>
@@ -399,10 +399,10 @@ export default function AuditLogPage() {
                             {log.username?.[0]?.toUpperCase() || "U"}
                           </div>
                           <div>
-                            <div className="font-extrabold text-slate-900 text-xs">
+                            <div className="font-extrabold text-base-content text-xs">
                               {log.username || "System Automation"}
                             </div>
-                            <span className="text-[10px] text-slate-500 uppercase font-semibold">
+                            <span className="text-[10px] text-base-content uppercase font-semibold">
                               {log.user_role || "DISPATCHER"}
                             </span>
                           </div>
@@ -420,7 +420,7 @@ export default function AuditLogPage() {
                       <td className="py-3.5 px-4 whitespace-nowrap">
                         <div className="flex items-center gap-1.5">
                           {getEntityIcon(log.entity_type)}
-                          <span className="font-mono font-bold text-slate-900">
+                          <span className="font-mono font-bold text-base-content">
                             {log.entity_identifier || log.entity_id || log.entity_type}
                           </span>
                         </div>
@@ -439,7 +439,7 @@ export default function AuditLogPage() {
                           <button
                             type="button"
                             onClick={() => setSelectedLogForDiff(log)}
-                            className="px-2.5 py-1 bg-white hover:bg-slate-50 text-sky-700 border border-slate-200 rounded-lg text-[11px] font-bold cursor-pointer transition shadow-2xs"
+                            className="px-2.5 py-1 bg-base-100 hover:bg-base-200 text-sky-700 border border-slate-200 rounded-lg text-[11px] font-bold cursor-pointer transition shadow-2xs"
                           >
                             Inspect Diff
                           </button>
@@ -457,8 +457,8 @@ export default function AuditLogPage() {
 
         {/* Pagination Footer */}
         {pagination.totalPages > 1 && (
-          <div className="p-4 bg-slate-50 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-slate-500 font-medium">
+          <div className="p-4 bg-base-200 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
+            <span className="text-xs text-base-content font-medium">
               Page <strong>{pagination.page}</strong> of <strong>{pagination.totalPages}</strong> ({pagination.total} total records)
             </span>
 
@@ -466,7 +466,7 @@ export default function AuditLogPage() {
               <button
                 disabled={pagination.page <= 1}
                 onClick={() => setPage(pagination.page - 1)}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 disabled:opacity-40 cursor-pointer transition shadow-2xs flex items-center gap-1"
+                className="px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 disabled:opacity-40 cursor-pointer transition shadow-2xs flex items-center gap-1"
               >
                 <ChevronLeft className="w-3.5 h-3.5" />
                 Previous
@@ -474,7 +474,7 @@ export default function AuditLogPage() {
               <button
                 disabled={pagination.page >= pagination.totalPages}
                 onClick={() => setPage(pagination.page + 1)}
-                className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 disabled:opacity-40 cursor-pointer transition shadow-2xs flex items-center gap-1"
+                className="px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-700 disabled:opacity-40 cursor-pointer transition shadow-2xs flex items-center gap-1"
               >
                 Next
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -488,33 +488,33 @@ export default function AuditLogPage() {
       {selectedLogForDiff && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/40 backdrop-blur-xs animate-in fade-in duration-150">
           <div
-            className="bg-white border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-150"
+            className="bg-base-100 border border-slate-200 rounded-2xl w-full max-w-lg shadow-2xl flex flex-col overflow-hidden text-base-content animate-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-base-200">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
                   <SlidersHorizontal className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-extrabold text-slate-900">
+                  <h3 className="text-sm font-extrabold text-base-content">
                     Field-Level Snapshot & Diff
                   </h3>
-                  <p className="text-[10px] text-slate-500 font-mono">
+                  <p className="text-[10px] text-base-content font-mono">
                     {selectedLogForDiff.entity_identifier || selectedLogForDiff.entity_type} • Action: {selectedLogForDiff.action}
                   </p>
                 </div>
               </div>
               <button
                 onClick={() => setSelectedLogForDiff(null)}
-                className="p-1.5 text-slate-400 hover:text-slate-900 rounded-lg hover:bg-slate-100 cursor-pointer transition"
+                className="p-1.5 text-slate-400 hover:text-base-content rounded-lg hover:bg-slate-100 cursor-pointer transition"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto bg-slate-50/50">
-              <div className="bg-white p-3.5 rounded-xl border border-slate-200 space-y-2 shadow-2xs">
+            <div className="p-6 space-y-4 max-h-[60vh] overflow-y-auto bg-base-200/50">
+              <div className="bg-base-100 p-3.5 rounded-xl border border-slate-200 space-y-2 shadow-2xs">
                 <div className="text-xs font-bold text-slate-800">Change Summary:</div>
                 <div className="text-xs text-slate-600 leading-relaxed font-medium">
                   {selectedLogForDiff.change_summary}
@@ -526,13 +526,13 @@ export default function AuditLogPage() {
                   Modified Attributes Snapshot
                 </div>
 
-                <div className="bg-white rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-2xs">
+                <div className="bg-base-100 rounded-xl border border-slate-200 divide-y divide-slate-100 overflow-hidden shadow-2xs">
                   {Object.entries(selectedLogForDiff.details || {}).map(([key, val]) => (
                     <div key={key} className="p-3 flex items-start justify-between gap-4 text-xs">
                       <span className="font-bold text-slate-600 uppercase font-mono text-[10px]">
                         {key.replace("_", " ")}
                       </span>
-                      <span className="font-mono font-semibold text-slate-900 text-right truncate max-w-[240px]">
+                      <span className="font-mono font-semibold text-base-content text-right truncate max-w-[240px]">
                         {typeof val === "object" ? JSON.stringify(val) : String(val ?? "null")}
                       </span>
                     </div>
@@ -541,7 +541,7 @@ export default function AuditLogPage() {
               </div>
             </div>
 
-            <div className="px-6 py-3 border-t border-slate-200 bg-white flex justify-end">
+            <div className="px-6 py-3 border-t border-slate-200 bg-base-100 flex justify-end">
               <button
                 onClick={() => setSelectedLogForDiff(null)}
                 className="px-4 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-xl text-xs font-bold transition cursor-pointer shadow-2xs"

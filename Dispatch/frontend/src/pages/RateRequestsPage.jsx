@@ -185,15 +185,15 @@ function FreightMarkers({ fd }) {
 function Field({ label, children }) {
   return (
     <div className="min-w-0">
-      <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-      <p className="mt-0.5 break-words text-sm font-medium text-slate-900">{children || "—"}</p>
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">{label}</p>
+      <p className="mt-0.5 break-words text-sm font-medium text-base-content">{children || "—"}</p>
     </div>
   );
 }
 
 function SectionTitle({ icon: Icon, children }) {
   return (
-    <h4 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+    <h4 className="flex items-center gap-1.5 text-sm font-bold text-base-content">
       {Icon && <Icon className="h-4 w-4 flex-none text-slate-400" />}
       {children}
     </h4>
@@ -269,12 +269,12 @@ function AttachmentList({ entry, isLoading }) {
               href={apiFileUrl(file.download_url)}
               target="_blank"
               rel="noopener"
-              className="flex items-center gap-3 rounded-lg border border-slate-200 bg-white px-3 py-2 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+              className="flex items-center gap-3 rounded-lg border border-slate-200 bg-base-100 px-3 py-2 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
             >
               <Paperclip className="h-4 w-4 flex-none text-slate-400" />
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-slate-900">{file.file_name}</span>
-                <span className="block text-[11px] text-slate-500">
+                <span className="block truncate text-sm font-medium text-base-content">{file.file_name}</span>
+                <span className="block text-[11px] text-base-content">
                   {fmtDateTime(file.created_at)}
                   {size ? ` · ${size}` : ""}
                 </span>
@@ -300,7 +300,7 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
   return (
     <div className="mt-4 space-y-4 border-t border-slate-200 pt-4">
       {!hasDetails && (
-        <p className="text-sm text-slate-500">No freight details were captured with this request.</p>
+        <p className="text-sm text-base-content">No freight details were captured with this request.</p>
       )}
 
       {details.hazmat?.is_hazmat && <HazmatBlock hazmat={details.hazmat} />}
@@ -356,7 +356,7 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
                 {accessorials.map((code) => (
                   <span
                     key={code}
-                    className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200"
+                    className="inline-flex items-center gap-1.5 rounded-md bg-base-200 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200"
                   >
                     {labelFor(ACCESSORIALS, code)}
                   </span>
@@ -376,14 +376,14 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
                   return (
                     <li
                       key={`${index}-${stop.location || stop.company || "stop"}`}
-                      className="flex gap-3 rounded-lg border border-slate-200 bg-slate-50 p-3"
+                      className="flex gap-3 rounded-lg border border-slate-200 bg-base-200 p-3"
                     >
-                      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-white text-[11px] font-bold text-slate-600 ring-1 ring-slate-300">
+                      <span className="flex h-6 w-6 flex-none items-center justify-center rounded-full bg-base-100 text-[11px] font-bold text-slate-600 ring-1 ring-slate-300">
                         {index + 1}
                       </span>
                       <div className="min-w-0">
                         <div className="flex flex-wrap items-center gap-2">
-                          <p className="min-w-0 break-words text-sm font-semibold text-slate-900">
+                          <p className="min-w-0 break-words text-sm font-semibold text-base-content">
                             {stop.company || stop.location || "—"}
                           </p>
                           <Marker
@@ -399,9 +399,9 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
                         {stop.company && stop.location && (
                           <p className="mt-0.5 break-words text-xs text-slate-600">{stop.location}</p>
                         )}
-                        {stopDay && <p className="mt-0.5 text-xs text-slate-500">{stopDay}</p>}
+                        {stopDay && <p className="mt-0.5 text-xs text-base-content">{stopDay}</p>}
                         {stop.notes && (
-                          <p className="mt-1 break-words text-xs italic text-slate-500">{stop.notes}</p>
+                          <p className="mt-1 break-words text-xs italic text-base-content">{stop.notes}</p>
                         )}
                       </div>
                     </li>
@@ -414,7 +414,7 @@ function FreightDetail({ fd, attachmentEntry, isLoadingAttachments }) {
           {details.notes && (
             <section>
               <SectionTitle>Notes from the customer</SectionTitle>
-              <p className="mt-2 whitespace-pre-line break-words rounded-lg bg-slate-50 p-3 text-sm text-slate-700 ring-1 ring-slate-200">
+              <p className="mt-2 whitespace-pre-line break-words rounded-lg bg-base-200 p-3 text-sm text-slate-700 ring-1 ring-slate-200">
                 {details.notes}
               </p>
             </section>
@@ -587,7 +587,7 @@ export default function RateRequestsPage() {
   const accepted = requests.filter((r) => r.status === "ACCEPTED");
 
   return (
-    <div className="h-full overflow-y-auto bg-slate-50 p-3 sm:p-6">
+    <div className="h-full overflow-y-auto bg-base-200 p-3 sm:p-6">
       {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
         <div className="flex min-w-0 items-center gap-3">
@@ -595,8 +595,8 @@ export default function RateRequestsPage() {
             <Inbox className="w-5 h-5 text-sky-600" />
           </div>
           <div className="min-w-0">
-            <h1 className="text-xl font-black text-slate-900">Customer Rate Requests</h1>
-            <p className="text-xs text-slate-500">
+            <h1 className="text-xl font-black text-base-content">Customer Rate Requests</h1>
+            <p className="text-xs text-base-content">
               Incoming quote requests from the customer portal
               <span className={`ml-2 inline-flex items-center gap-1 ${liveConnected ? "text-emerald-600" : "text-slate-400"}`}>
                 <span className={`w-1.5 h-1.5 rounded-full ${liveConnected ? "bg-emerald-500 animate-pulse" : "bg-slate-300"}`} />
@@ -608,7 +608,7 @@ export default function RateRequestsPage() {
         <button
           type="button"
           onClick={refresh}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 bg-white border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-medium text-slate-600 bg-base-100 border border-slate-200 rounded-lg hover:bg-slate-100 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
         >
           <RefreshCw className="w-4 h-4" />
           Refresh
@@ -617,25 +617,25 @@ export default function RateRequestsPage() {
 
       {/* Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-base-100 rounded-lg border border-slate-200 p-4 flex items-center gap-3">
           <Clock3 className="w-8 h-8 text-blue-500" />
           <div>
-            <p className="text-2xl font-black text-slate-900">{pending.length}</p>
-            <p className="text-xs font-semibold text-slate-500 uppercase">Awaiting Quote</p>
+            <p className="text-2xl font-black text-base-content">{pending.length}</p>
+            <p className="text-xs font-semibold text-base-content uppercase">Awaiting Quote</p>
           </div>
         </div>
-        <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-base-100 rounded-lg border border-slate-200 p-4 flex items-center gap-3">
           <DollarSign className="w-8 h-8 text-amber-500" />
           <div>
-            <p className="text-2xl font-black text-slate-900">{quoted.length}</p>
-            <p className="text-xs font-semibold text-slate-500 uppercase">Quoted — Awaiting Customer</p>
+            <p className="text-2xl font-black text-base-content">{quoted.length}</p>
+            <p className="text-xs font-semibold text-base-content uppercase">Quoted — Awaiting Customer</p>
           </div>
         </div>
-        <div className="bg-white rounded-lg border border-slate-200 p-4 flex items-center gap-3">
+        <div className="bg-base-100 rounded-lg border border-slate-200 p-4 flex items-center gap-3">
           <CheckCircle2 className="w-8 h-8 text-green-500" />
           <div>
-            <p className="text-2xl font-black text-slate-900">{accepted.length}</p>
-            <p className="text-xs font-semibold text-slate-500 uppercase">Accepted</p>
+            <p className="text-2xl font-black text-base-content">{accepted.length}</p>
+            <p className="text-xs font-semibold text-base-content uppercase">Accepted</p>
           </div>
         </div>
       </div>
@@ -651,7 +651,7 @@ export default function RateRequestsPage() {
           <button
             type="button"
             onClick={refresh}
-            className="rounded-lg border border-amber-300 bg-white px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
+            className="rounded-lg border border-amber-300 bg-base-100 px-3 py-1.5 text-sm font-semibold text-amber-900 hover:bg-amber-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500"
           >
             Retry
           </button>
@@ -662,7 +662,7 @@ export default function RateRequestsPage() {
       {isLoading ? (
         <div className="space-y-3">
           {[0, 1, 2].map((i) => (
-            <div key={i} className="animate-pulse rounded-lg border border-slate-200 bg-white p-4">
+            <div key={i} className="animate-pulse rounded-lg border border-slate-200 bg-base-100 p-4">
               <div className="h-4 w-1/3 rounded bg-slate-200" />
               <div className="mt-3 h-3 w-2/3 rounded bg-slate-100" />
               <div className="mt-2 h-3 w-1/4 rounded bg-slate-100" />
@@ -684,7 +684,7 @@ export default function RateRequestsPage() {
           </button>
         </div>
       ) : requests.length === 0 ? (
-        <div className="bg-white rounded-lg border border-slate-200 p-6 sm:p-12 text-center">
+        <div className="bg-base-100 rounded-lg border border-slate-200 p-6 sm:p-12 text-center">
           <Inbox className="w-10 h-10 text-slate-300 mx-auto mb-3" />
           <p className="text-slate-600 font-medium">No rate requests yet.</p>
           <p className="text-sm text-slate-400 mt-1">
@@ -708,11 +708,11 @@ export default function RateRequestsPage() {
                 : "border-slate-200";
 
             return (
-              <div key={r.id} className={`bg-white rounded-lg border p-4 ${cardTone}`}>
+              <div key={r.id} className={`bg-base-100 rounded-lg border p-4 ${cardTone}`}>
                 <div className="flex flex-wrap items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <p className="min-w-0 break-words font-bold text-slate-900">
+                      <p className="min-w-0 break-words font-bold text-base-content">
                         {r.company_name || "Unknown customer"}
                       </p>
                       <Marker className={rateTone(r.status)}>{humanize(r.status) || "Unknown"}</Marker>
@@ -720,7 +720,7 @@ export default function RateRequestsPage() {
                     <p className="text-sm font-semibold text-slate-700 mt-1 break-words">
                       {r.origin}→ {r.destination}
                     </p>
-                    {summary && <p className="text-xs text-slate-500 mt-1 break-words">{summary}</p>}
+                    {summary && <p className="text-xs text-base-content mt-1 break-words">{summary}</p>}
                     <FreightMarkers fd={fd} />
                     {/* notes accepts 2000 chars server-side — clamp it in the row */}
                     {fd?.notes && (
@@ -744,15 +744,15 @@ export default function RateRequestsPage() {
 
                   <div className="text-right shrink-0">
                     {r.quoted_price != null && (
-                      <p className="text-lg font-black text-slate-900">
+                      <p className="text-lg font-black text-base-content">
                         {fmtMoney(r.quoted_price, r.quote_currency || "USD")}
                         {/* Intl renders CAD as a bare "$" in en-CA — spell the
                             currency out so a lane is never read in the wrong one. */}
-                        <span className="text-xs font-semibold text-slate-500 ml-1">{r.quote_currency || "USD"}</span>
+                        <span className="text-xs font-semibold text-base-content ml-1">{r.quote_currency || "USD"}</span>
                       </p>
                     )}
                     {r.quote_notes && (
-                      <p className="mt-0.5 max-w-[16rem] break-words text-right text-xs italic text-slate-500">
+                      <p className="mt-0.5 max-w-[16rem] break-words text-right text-xs italic text-base-content">
                         {r.quote_notes}
                       </p>
                     )}
@@ -766,7 +766,7 @@ export default function RateRequestsPage() {
                       </button>
                     )}
                     {r.status === "REJECTED" && (
-                      <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+                      <span className="inline-flex items-center gap-1 text-xs text-base-content">
                         <XCircle className="w-3.5 h-3.5" /> Customer declined
                       </span>
                     )}
@@ -832,7 +832,7 @@ export default function RateRequestsPage() {
                         type="button"
                         onClick={closeQuoteForm}
                         disabled={submitting}
-                        className="px-3 py-2 text-sm font-medium text-slate-600 border border-slate-300 rounded-lg hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
+                        className="px-3 py-2 text-sm font-medium text-slate-600 border border-slate-300 rounded-lg hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500"
                       >
                         Cancel
                       </button>

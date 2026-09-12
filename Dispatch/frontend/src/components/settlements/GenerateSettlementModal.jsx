@@ -151,20 +151,20 @@ export default function GenerateSettlementModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="bg-white border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-150"
+        className="bg-base-100 border border-slate-200 rounded-3xl w-full max-w-2xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-base-content animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-base-200">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <DollarSign className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900">
+              <h2 className="text-sm font-extrabold text-base-content">
                 Generate Driver Settlement & Paystub
               </h2>
-              <p className="text-[10px] text-slate-500 font-mono">
+              <p className="text-[10px] text-base-content font-mono">
                 Automated compensation calculator with accessorial additions and itemized deductions.
               </p>
             </div>
@@ -173,14 +173,14 @@ export default function GenerateSettlementModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-200/60 transition cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-base-content hover:bg-slate-200/60 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-5 bg-white text-xs">
+        <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-5 bg-base-100 text-xs">
           {/* Driver & Date Range */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div>
@@ -188,7 +188,7 @@ export default function GenerateSettlementModal({
               <select
                 value={selectedDriverId}
                 onChange={(e) => setSelectedDriverId(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-sky-500"
+                className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-sky-500"
               >
                 {drivers.map((d) => (
                   <option key={d.id || d.driver_code} value={d.id || d.driver_code}>
@@ -204,7 +204,7 @@ export default function GenerateSettlementModal({
                 type="date"
                 value={periodStart}
                 onChange={(e) => setPeriodStart(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-semibold text-slate-900 focus:ring-2 focus:ring-sky-500"
+                className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs font-mono font-semibold text-base-content focus:ring-2 focus:ring-sky-500"
                 required
               />
             </div>
@@ -215,14 +215,14 @@ export default function GenerateSettlementModal({
                 type="date"
                 value={periodEnd}
                 onChange={(e) => setPeriodEnd(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-mono font-semibold text-slate-900 focus:ring-2 focus:ring-sky-500"
+                className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs font-mono font-semibold text-base-content focus:ring-2 focus:ring-sky-500"
                 required
               />
             </div>
           </div>
 
           {/* Pay Model Selection */}
-          <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-3">
+          <div className="bg-base-200 p-4 rounded-2xl border border-slate-200 space-y-3">
             <label className="block font-bold text-slate-800 uppercase tracking-wider font-mono text-[10px]">
               Compensation Pay Model
             </label>
@@ -236,11 +236,10 @@ export default function GenerateSettlementModal({
                   type="button"
                   key={m.id}
                   onClick={() => setPayModel(m.id)}
-                  className={`p-3 rounded-xl border text-left cursor-pointer transition ${
-                    payModel === m.id
-                      ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200"
-                      : "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
-                  }`}
+                  className={`p-3 rounded-xl border text-left cursor-pointer transition ${payModel === m.id
+                    ? "bg-sky-50 border-sky-400 text-sky-900 ring-2 ring-sky-200"
+                    : "bg-base-100 border-slate-200 text-slate-600 hover:bg-slate-100"
+                    }`}
                 >
                   <div className="font-bold text-xs">{m.label}</div>
                   <div className="text-[10px] text-slate-400 mt-0.5">{m.desc}</div>
@@ -256,7 +255,7 @@ export default function GenerateSettlementModal({
                     type="number"
                     value={loadedMiles}
                     onChange={(e) => setLoadedMiles(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -265,7 +264,7 @@ export default function GenerateSettlementModal({
                     type="number"
                     value={emptyMiles}
                     onChange={(e) => setEmptyMiles(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -275,7 +274,7 @@ export default function GenerateSettlementModal({
                     step="0.01"
                     value={ratePerLoadedMile}
                     onChange={(e) => setRatePerLoadedMile(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -285,7 +284,7 @@ export default function GenerateSettlementModal({
                     step="0.01"
                     value={ratePerEmptyMile}
                     onChange={(e) => setRatePerEmptyMile(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
               </div>
@@ -297,7 +296,7 @@ export default function GenerateSettlementModal({
                     type="number"
                     value={grossFreightRevenue}
                     onChange={(e) => setGrossFreightRevenue(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
                 <div>
@@ -307,7 +306,7 @@ export default function GenerateSettlementModal({
                     step="0.5"
                     value={grossPercentage}
                     onChange={(e) => setGrossPercentage(e.target.value)}
-                    className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl font-mono font-bold"
+                    className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl font-mono font-bold"
                   />
                 </div>
               </div>
@@ -317,72 +316,72 @@ export default function GenerateSettlementModal({
           {/* Accessorial Additions & Deductions Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             {/* Accessorial Additions */}
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
+            <div className="bg-base-200 p-4 rounded-2xl border border-slate-200 space-y-2.5">
               <span className="block font-bold text-emerald-800 uppercase font-mono text-[10px]">
                 Accessorial Additions (+)
               </span>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Extra Stops ($50)</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Extra Stops ($50)</label>
                   <input
                     type="number"
                     value={extraStopsCount}
                     onChange={(e) => setExtraStopsCount(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Detention ($35/hr)</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Detention ($35/hr)</label>
                   <input
                     type="number"
                     value={detentionHours}
                     onChange={(e) => setDetentionHours(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Layover ($150/d)</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Layover ($150/d)</label>
                   <input
                     type="number"
                     value={layoverDays}
                     onChange={(e) => setLayoverDays(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold"
                   />
                 </div>
               </div>
             </div>
 
             {/* Deductions */}
-            <div className="bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2.5">
+            <div className="bg-base-200 p-4 rounded-2xl border border-slate-200 space-y-2.5">
               <span className="block font-bold text-rose-800 uppercase font-mono text-[10px]">
                 Itemized Deductions (-)
               </span>
               <div className="grid grid-cols-3 gap-2">
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Fuel Card Advance</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Fuel Card Advance</label>
                   <input
                     type="number"
                     value={fuelAdvance}
                     onChange={(e) => setFuelAdvance(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Insurance</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Insurance</label>
                   <input
                     type="number"
                     value={insuranceDeduction}
                     onChange={(e) => setInsuranceDeduction(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] text-slate-500 mb-0.5">Escrow Reserve</label>
+                  <label className="block text-[10px] text-base-content mb-0.5">Escrow Reserve</label>
                   <input
                     type="number"
                     value={escrowDeduction}
                     onChange={(e) => setEscrowDeduction(e.target.value)}
-                    className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
+                    className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg font-mono font-bold text-rose-700"
                   />
                 </div>
               </div>

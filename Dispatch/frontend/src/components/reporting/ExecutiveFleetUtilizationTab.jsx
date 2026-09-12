@@ -104,12 +104,12 @@ export default function ExecutiveFleetUtilizationTab({
       {/* 4 KPI Cards for Fleet Operations */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Utilization */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Active Fleet Utilization
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {fleetData.utilizationRate}
             </div>
             <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
@@ -123,15 +123,15 @@ export default function ExecutiveFleetUtilizationTab({
         </div>
 
         {/* Loaded vs Deadhead */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Loaded Mileage Ratio
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
               {fleetData.loadedMilesPct}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               Deadhead rate reduced to {fleetData.deadheadMilesPct}
             </div>
           </div>
@@ -141,9 +141,9 @@ export default function ExecutiveFleetUtilizationTab({
         </div>
 
         {/* Average Dwell Time */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Avg. Terminal Dwell
             </div>
             <div className="text-2xl font-black text-indigo-700 font-mono">
@@ -159,15 +159,15 @@ export default function ExecutiveFleetUtilizationTab({
         </div>
 
         {/* Total Monthly Dispatched Miles */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Monthly Fleet Miles
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {fleetData.totalMilesMonth.toLocaleString()}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               Samsara Telematics Verified
             </div>
           </div>
@@ -180,11 +180,11 @@ export default function ExecutiveFleetUtilizationTab({
       {/* Asset Allocation & Deadhead Reduction Bar */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Tractor Fleet Distribution Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-sky-600" />
-              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
                 Power Unit Allocation (427 Tractors)
               </h3>
             </div>
@@ -195,7 +195,7 @@ export default function ExecutiveFleetUtilizationTab({
             <div>
               <div className="flex justify-between font-semibold text-slate-700 mb-1">
                 <span>In-Transit / Dispatched with Freight</span>
-                <span className="font-bold text-slate-900">388 (90.9%)</span>
+                <span className="font-bold text-base-content">388 (90.9%)</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-sky-600 rounded-full" style={{ width: "90.9%" }} />
@@ -205,7 +205,7 @@ export default function ExecutiveFleetUtilizationTab({
             <div>
               <div className="flex justify-between font-semibold text-slate-700 mb-1">
                 <span>Cross-Dock Terminals / Pre-Loaded Staged</span>
-                <span className="font-bold text-slate-900">24 (5.6%)</span>
+                <span className="font-bold text-base-content">24 (5.6%)</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-amber-500 rounded-full" style={{ width: "5.6%" }} />
@@ -215,7 +215,7 @@ export default function ExecutiveFleetUtilizationTab({
             <div>
               <div className="flex justify-between font-semibold text-slate-700 mb-1">
                 <span>Scheduled Preventative Maintenance</span>
-                <span className="font-bold text-slate-900">15 (3.5%)</span>
+                <span className="font-bold text-base-content">15 (3.5%)</span>
               </div>
               <div className="h-2 w-full bg-slate-100 rounded-full overflow-hidden">
                 <div className="h-full bg-slate-400 rounded-full" style={{ width: "3.5%" }} />
@@ -225,11 +225,11 @@ export default function ExecutiveFleetUtilizationTab({
         </div>
 
         {/* Deadhead Optimization Card */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 lg:col-span-2">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4 lg:col-span-2">
           <div className="flex items-center justify-between border-b border-slate-100 pb-3">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-600" />
-              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
                 AI Deadhead Slicer & Empty Mile Recovery
               </h3>
             </div>
@@ -239,16 +239,16 @@ export default function ExecutiveFleetUtilizationTab({
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-              <div className="text-[10px] font-mono font-bold text-slate-500 uppercase">Loaded Revenue Miles</div>
-              <div className="text-xl font-black text-slate-900 font-mono">343,743 mi</div>
+            <div className="p-3.5 bg-base-200 border border-slate-200 rounded-xl space-y-1">
+              <div className="text-[10px] font-mono font-bold text-base-content uppercase">Loaded Revenue Miles</div>
+              <div className="text-xl font-black text-base-content font-mono">343,743 mi</div>
               <div className="text-[10px] text-emerald-600 font-semibold">89.4% revenue generating</div>
             </div>
 
-            <div className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-1">
-              <div className="text-[10px] font-mono font-bold text-slate-500 uppercase">Empty Deadhead Miles</div>
+            <div className="p-3.5 bg-base-200 border border-slate-200 rounded-xl space-y-1">
+              <div className="text-[10px] font-mono font-bold text-base-content uppercase">Empty Deadhead Miles</div>
               <div className="text-xl font-black text-amber-700 font-mono">40,757 mi</div>
-              <div className="text-[10px] text-slate-500">10.6% repositioning</div>
+              <div className="text-[10px] text-base-content">10.6% repositioning</div>
             </div>
 
             <div className="p-3.5 bg-emerald-50/70 border border-emerald-200 rounded-xl space-y-1">
@@ -261,21 +261,21 @@ export default function ExecutiveFleetUtilizationTab({
       </div>
 
       {/* Driver Productivity & Safety Leaderboard */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <User className="w-4 h-4 text-sky-600" />
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
               Commercial Driver Performance & Revenue Leaderboard
             </h3>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-500">512 Drivers Enrolled</span>
+          <span className="text-xs font-mono font-bold text-base-content">512 Drivers Enrolled</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                 <th className="py-3 px-4">Driver Name</th>
                 <th className="py-3 px-4">Power Unit & Equipment</th>
                 <th className="py-3 px-4">Dispatched Miles</th>
@@ -287,14 +287,14 @@ export default function ExecutiveFleetUtilizationTab({
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
               {drivers.map((d, idx) => (
-                <tr key={d.id} className="hover:bg-slate-50/80 transition-colors">
+                <tr key={d.id} className="hover:bg-base-200/80 transition-colors">
                   <td className="py-3.5 px-4">
                     <div className="flex items-center gap-2">
                       <div className="w-7 h-7 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center text-xs font-bold">
                         {d.name[0]}
                       </div>
                       <div>
-                        <div className="font-extrabold text-slate-900">{d.name}</div>
+                        <div className="font-extrabold text-base-content">{d.name}</div>
                         <span className="text-[10px] text-slate-400 font-mono">Rank #{idx + 1}</span>
                       </div>
                     </div>
@@ -303,7 +303,7 @@ export default function ExecutiveFleetUtilizationTab({
                     <div>{d.tractor}</div>
                     <div className="text-[10px] text-slate-400">{d.trailer}</div>
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-900">
+                  <td className="py-3.5 px-4 font-mono font-bold text-base-content">
                     {d.dispatchedMiles.toLocaleString()} mi
                   </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">

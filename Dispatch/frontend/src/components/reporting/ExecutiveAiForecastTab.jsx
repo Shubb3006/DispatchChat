@@ -100,7 +100,7 @@ export default function ExecutiveAiForecastTab({
           </p>
         </div>
 
-        <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/15 text-center shrink-0">
+        <div className="flex items-center gap-4 bg-base-100/10 backdrop-blur-md p-4 rounded-xl border border-white/15 text-center shrink-0">
           <div>
             <div className="text-[10px] uppercase font-mono font-bold text-sky-200">90-Day Projected Yield</div>
             <div className="text-2xl font-black font-mono text-emerald-400 mt-0.5">{fmtCurrency(1560000)}</div>
@@ -110,21 +110,21 @@ export default function ExecutiveAiForecastTab({
       </div>
 
       {/* 90-Day Projected Curve Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-sky-600" />
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
               30 / 60 / 90 Day Revenue & Margin Horizon
             </h3>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-500">95% Confidence Interval</span>
+          <span className="text-xs font-mono font-bold text-base-content">95% Confidence Interval</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                 <th className="py-3 px-4">Forecast Horizon</th>
                 <th className="py-3 px-4">Projected Monthly Volume</th>
                 <th className="py-3 px-4">Gross Revenue</th>
@@ -134,10 +134,10 @@ export default function ExecutiveAiForecastTab({
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
               {forecastCurve.map((fc, idx) => (
-                <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
-                  <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">{fc.period}</td>
+                <tr key={idx} className="hover:bg-base-200/80 transition-colors">
+                  <td className="py-3.5 px-4 font-bold text-base-content font-mono">{fc.period}</td>
                   <td className="py-3.5 px-4 font-mono font-semibold text-slate-700">{fc.volumeLoads} Loads</td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-900">{fmtCurrency(fc.projectedGross)}</td>
+                  <td className="py-3.5 px-4 font-mono font-bold text-base-content">{fmtCurrency(fc.projectedGross)}</td>
                   <td className="py-3.5 px-4 font-mono font-bold text-emerald-700">+{fmtCurrency(fc.projectedNet)}</td>
                   <td className="py-3.5 px-4 text-right font-mono font-bold text-sky-700">{fc.margin}</td>
                 </tr>
@@ -148,17 +148,17 @@ export default function ExecutiveAiForecastTab({
       </div>
 
       {/* Interactive What-If Scenario Simulator */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-6 shadow-xs space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <Sliders className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-extrabold text-slate-900">
+              <h3 className="text-sm font-extrabold text-base-content">
                 Executive "What-If" Sensitivity Simulator
               </h3>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Simulate fleet EBITDAR margins against variable fuel spikes, contract rate negotiations, and fleet size adjustments.
               </p>
             </div>
@@ -181,13 +181,13 @@ export default function ExecutiveAiForecastTab({
         {/* 4 Reactive Sliders */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {/* Slider 1: Fuel Price */}
-          <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="space-y-2 bg-base-200 p-4 rounded-xl border border-slate-200">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-700 flex items-center gap-1.5">
                 <Fuel className="w-3.5 h-3.5 text-amber-600" />
                 Diesel Fuel Price
               </span>
-              <span className="font-mono font-bold text-slate-900">${fuelPricePerGallon.toFixed(2)}/gal</span>
+              <span className="font-mono font-bold text-base-content">${fuelPricePerGallon.toFixed(2)}/gal</span>
             </div>
             <input
               type="range"
@@ -206,7 +206,7 @@ export default function ExecutiveAiForecastTab({
           </div>
 
           {/* Slider 2: Rate Per Mile Delta */}
-          <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="space-y-2 bg-base-200 p-4 rounded-xl border border-slate-200">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-700 flex items-center gap-1.5">
                 <DollarSign className="w-3.5 h-3.5 text-emerald-600" />
@@ -233,13 +233,13 @@ export default function ExecutiveAiForecastTab({
           </div>
 
           {/* Slider 3: Fleet Expansion */}
-          <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="space-y-2 bg-base-200 p-4 rounded-xl border border-slate-200">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-700 flex items-center gap-1.5">
                 <Truck className="w-3.5 h-3.5 text-sky-600" />
                 Fleet Size Adjustment
               </span>
-              <span className="font-mono font-bold text-slate-900">
+              <span className="font-mono font-bold text-base-content">
                 {fleetSizeDelta > 0 ? `+${fleetSizeDelta}` : fleetSizeDelta} Trucks ({427 + fleetSizeDelta})
               </span>
             </div>
@@ -260,13 +260,13 @@ export default function ExecutiveAiForecastTab({
           </div>
 
           {/* Slider 4: Detention Recovery Rate */}
-          <div className="space-y-2 bg-slate-50 p-4 rounded-xl border border-slate-200">
+          <div className="space-y-2 bg-base-200 p-4 rounded-xl border border-slate-200">
             <div className="flex justify-between items-center text-xs">
               <span className="font-bold text-slate-700 flex items-center gap-1.5">
                 <Percent className="w-3.5 h-3.5 text-indigo-600" />
                 Detention Recovery
               </span>
-              <span className="font-mono font-bold text-slate-900">{detentionRecoveryRate}%</span>
+              <span className="font-mono font-bold text-base-content">{detentionRecoveryRate}%</span>
             </div>
             <input
               type="range"

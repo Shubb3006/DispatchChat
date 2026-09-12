@@ -19,7 +19,7 @@ export default function SOSBeaconModal({
         >
           <span className="relative flex h-3 w-3">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-200 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-3 w-3 bg-white"></span>
+            <span className="relative inline-flex rounded-full h-3 w-3 bg-base-100"></span>
           </span>
           <AlertOctagon className="h-4 w-4" />
           <span>Emergency SOS</span>

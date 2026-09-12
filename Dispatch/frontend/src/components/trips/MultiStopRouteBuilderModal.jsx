@@ -189,20 +189,20 @@ export default function MultiStopRouteBuilderModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="bg-white border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-slate-900 animate-in zoom-in-95 duration-150"
+        className="bg-base-100 border border-slate-200 rounded-3xl w-full max-w-3xl max-h-[90vh] shadow-2xl flex flex-col overflow-hidden text-base-content animate-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-base-200">
           <div className="flex items-center gap-2.5">
             <div className="w-8 h-8 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
               <Truck className="w-4 h-4" />
             </div>
             <div>
-              <h2 className="text-sm font-extrabold text-slate-900">
+              <h2 className="text-sm font-extrabold text-base-content">
                 Multi-Stop Sequential Route & Trip Builder
               </h2>
-              <p className="text-[10px] text-slate-500 font-mono">
+              <p className="text-[10px] text-base-content font-mono">
                 Multi-pick, customs crossing, and multi-drop sequential routing with live HOS drive-time compliance.
               </p>
             </div>
@@ -211,35 +211,35 @@ export default function MultiStopRouteBuilderModal({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-xl text-slate-400 hover:text-slate-900 hover:bg-slate-200/60 transition cursor-pointer"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-base-content hover:bg-slate-200/60 transition cursor-pointer"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Content Body */}
-        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-white text-xs">
+        <div className="flex-1 overflow-y-auto p-6 space-y-5 bg-base-100 text-xs">
           {/* Trip Info & Driver Strip */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-2xl border border-slate-200">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 bg-base-200 p-4 rounded-2xl border border-slate-200">
             <div>
               <label className="block font-bold text-slate-700 mb-1">Trip Name / Manifest Title</label>
               <input
                 type="text"
                 value={tripName}
                 onChange={(e) => setTripName(e.target.value)}
-                className="w-full px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-sky-500"
+                className="w-full px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-sky-500"
               />
             </div>
 
             <div>
               <label className="block font-bold text-slate-700 mb-1">Assigned Driver & HOS Drive Clock</label>
-              <div className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-2">
+              <div className="flex items-center justify-between bg-base-100 border border-slate-200 rounded-xl p-2">
                 <div className="flex items-center gap-2">
                   <div className="w-6 h-6 rounded-full bg-gradient-to-tr from-sky-600 to-indigo-600 text-white flex items-center justify-center font-bold text-[10px]">
                     {selectedDriver.name[0]}
                   </div>
                   <div>
-                    <div className="font-bold text-slate-900">{selectedDriver.name}</div>
+                    <div className="font-bold text-base-content">{selectedDriver.name}</div>
                     <span className="text-[10px] text-slate-400 font-mono">{selectedDriver.truck} • {selectedDriver.trailer}</span>
                   </div>
                 </div>
@@ -254,7 +254,7 @@ export default function MultiStopRouteBuilderModal({
           {/* Sequential Waypoints Timeline */}
           <div className="space-y-3">
             <div className="flex items-center justify-between">
-              <span className="font-black text-slate-900 uppercase font-mono tracking-wider text-xs">
+              <span className="font-black text-base-content uppercase font-mono tracking-wider text-xs">
                 Sequential Waypoints & Dock Stops ({stops.length} Stops)
               </span>
 
@@ -278,7 +278,7 @@ export default function MultiStopRouteBuilderModal({
                 return (
                   <div
                     key={stop.id}
-                    className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-2xs hover:shadow-xs transition space-y-2"
+                    className="bg-base-100 border border-slate-200 rounded-2xl p-3.5 shadow-2xs hover:shadow-xs transition space-y-2"
                   >
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
@@ -289,18 +289,17 @@ export default function MultiStopRouteBuilderModal({
 
                         {/* Stop Type Pill */}
                         <span
-                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase font-mono ${
-                            isPickup
-                              ? "bg-blue-50 text-blue-700 border border-blue-200"
-                              : isBorder
+                          className={`px-2 py-0.5 rounded-md text-[10px] font-black uppercase font-mono ${isPickup
+                            ? "bg-blue-50 text-blue-700 border border-blue-200"
+                            : isBorder
                               ? "bg-purple-50 text-purple-700 border border-purple-200"
                               : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                          }`}
+                            }`}
                         >
                           {stop.stopType}
                         </span>
 
-                        <div className="font-extrabold text-slate-900 text-xs">
+                        <div className="font-extrabold text-base-content text-xs">
                           {stop.locationName}
                         </div>
                       </div>
@@ -311,7 +310,7 @@ export default function MultiStopRouteBuilderModal({
                           type="button"
                           disabled={idx === 0}
                           onClick={() => handleMoveStop(idx, "up")}
-                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-900 disabled:opacity-30 transition cursor-pointer"
+                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-base-content disabled:opacity-30 transition cursor-pointer"
                           title="Move Stop Up"
                         >
                           <ArrowUp className="w-3.5 h-3.5" />
@@ -320,7 +319,7 @@ export default function MultiStopRouteBuilderModal({
                           type="button"
                           disabled={idx === stops.length - 1}
                           onClick={() => handleMoveStop(idx, "down")}
-                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-slate-900 disabled:opacity-30 transition cursor-pointer"
+                          className="p-1 hover:bg-slate-100 rounded text-slate-400 hover:text-base-content disabled:opacity-30 transition cursor-pointer"
                           title="Move Stop Down"
                         >
                           <ArrowDown className="w-3.5 h-3.5" />
@@ -337,7 +336,7 @@ export default function MultiStopRouteBuilderModal({
                     </div>
 
                     {/* Address & Appointment */}
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 bg-slate-50 p-2 rounded-xl">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px] text-slate-600 bg-base-200 p-2 rounded-xl">
                       <div className="font-medium truncate sm:col-span-2">
                         <MapPin className="w-3 h-3 text-slate-400 inline mr-1" />
                         {stop.address}
@@ -349,7 +348,7 @@ export default function MultiStopRouteBuilderModal({
                     </div>
 
                     {/* Instructions */}
-                    <div className="text-[10px] text-slate-500 font-mono truncate">
+                    <div className="text-[10px] text-base-content font-mono truncate">
                       <strong>Notes:</strong> {stop.instructions}
                     </div>
                   </div>

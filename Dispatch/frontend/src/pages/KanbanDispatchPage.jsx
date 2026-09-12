@@ -266,7 +266,7 @@ export default function KanbanDispatchPage() {
   return (
     <div className="space-y-5 max-w-full pb-10">
       {/* Top Glassmorphic Command Header */}
-      <div className="bg-white border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+      <div className="bg-base-100 border border-slate-200 rounded-3xl p-4 sm:p-6 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-3.5">
             <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-sky-500/20">
@@ -274,7 +274,7 @@ export default function KanbanDispatchPage() {
             </div>
             <div>
               <div className="flex items-center gap-2.5">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-xl font-black text-base-content tracking-tight">
                   Interactive Freight Kanban Pipeline
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-black font-mono bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1.5 shadow-2xs">
@@ -282,7 +282,7 @@ export default function KanbanDispatchPage() {
                   SAMSARA TELEMETRY SYNCED
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-base-content font-medium mt-0.5">
                 End-to-end visual load lifecycle management with drag-and-drop state machines, live Samsara GPS speed, and automated audit logging.
               </p>
             </div>
@@ -295,7 +295,7 @@ export default function KanbanDispatchPage() {
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs font-bold">
             <button
               onClick={() => setViewMode("comfortable")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "comfortable" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "comfortable" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
                 }`}
             >
               <LayoutGrid className="w-3.5 h-3.5" />
@@ -303,7 +303,7 @@ export default function KanbanDispatchPage() {
             </button>
             <button
               onClick={() => setViewMode("compact")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "compact" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "compact" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
                 }`}
             >
               <List className="w-3.5 h-3.5" />
@@ -311,7 +311,7 @@ export default function KanbanDispatchPage() {
             </button>
             <button
               onClick={() => setViewMode("table")}
-              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "table" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              className={`px-3 py-1 rounded-lg transition-all cursor-pointer flex items-center gap-1.5 ${viewMode === "table" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
                 }`}
             >
               <TableIcon className="w-3.5 h-3.5" />
@@ -321,9 +321,9 @@ export default function KanbanDispatchPage() {
 
           <button
             onClick={handleExportCsv}
-            className="px-3.5 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+            className="px-3.5 py-2 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
           >
-            <Download className="w-3.5 h-3.5 text-slate-500" />
+            <Download className="w-3.5 h-3.5 text-base-content" />
             <span>Export CSV</span>
           </button>
 
@@ -342,12 +342,12 @@ export default function KanbanDispatchPage() {
       </div>
 
       {/* Fleet Pipeline Distribution Meter */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2.5">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-4 shadow-xs space-y-2.5">
         <div className="flex items-center justify-between text-xs">
           <div className="flex items-center gap-2 font-mono font-bold text-slate-700 uppercase text-[11px]">
             <Activity className="w-3.5 h-3.5 text-sky-600" />
             <span>Freight Pipeline Distribution:</span>
-            <strong className="text-slate-900 font-black">{stats.totalCount} Active Loads (${stats.totalValue.toLocaleString()} Total Value)</strong>
+            <strong className="text-base-content font-black">{stats.totalCount} Active Loads (${stats.totalValue.toLocaleString()} Total Value)</strong>
           </div>
           <span className="text-[10px] text-slate-400 font-mono">7 Lifecycle Stages Active</span>
         </div>
@@ -383,7 +383,7 @@ export default function KanbanDispatchPage() {
               <div key={col.id} className="flex items-center gap-1.5 text-[11px]">
                 <span className={`w-2 h-2 rounded-full ${col.barColor}`} />
                 <span className="text-slate-600 font-medium">{col.title.replace(/^\d+\.\s*/, "")}:</span>
-                <strong className="text-slate-900 font-mono">{count}</strong>
+                <strong className="text-base-content font-mono">{count}</strong>
               </div>
             );
           })}
@@ -391,7 +391,7 @@ export default function KanbanDispatchPage() {
       </div>
 
       {/* Filter & Search Bar */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-3.5 shadow-xs flex flex-col md:flex-row items-stretch md:items-center gap-3">
         {/* Search */}
         <div className="relative flex-1">
           <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
@@ -400,7 +400,7 @@ export default function KanbanDispatchPage() {
             placeholder="Search by Load #, Customer, Driver, Origin, or Destination..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
+            className="w-full pl-10 pr-4 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 font-medium"
           />
         </div>
 
@@ -409,7 +409,7 @@ export default function KanbanDispatchPage() {
           <select
             value={equipmentFilter}
             onChange={(e) => setEquipmentFilter(e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+            className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
           >
             <option value="ALL">All Modes (FTL/LTL)</option>
             <option value="FTL">Full Truckload (FTL)</option>
@@ -422,7 +422,7 @@ export default function KanbanDispatchPage() {
           <select
             value={priorityFilter}
             onChange={(e) => setPriorityFilter(e.target.value)}
-            className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+            className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
           >
             <option value="ALL">All Priorities</option>
             <option value="Normal">Normal</option>

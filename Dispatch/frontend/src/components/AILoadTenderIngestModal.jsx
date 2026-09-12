@@ -235,7 +235,7 @@ export default function AILoadTenderIngestModal({
 
   return (
     <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-5">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans">
+      <div className="bg-base-100 rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[92vh] flex flex-col overflow-hidden font-sans">
         {/* Header */}
         <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
@@ -271,7 +271,7 @@ export default function AILoadTenderIngestModal({
             onClick={() => setActiveTab("automation")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "automation"
               ? "border-sky-600 text-sky-600"
-              : "border-transparent text-slate-500 hover:text-slate-900"
+              : "border-transparent text-base-content hover:text-base-content"
               }`}
           >
             <Cpu className="h-4 w-4" />
@@ -282,7 +282,7 @@ export default function AILoadTenderIngestModal({
             onClick={() => setActiveTab("manual")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "manual"
               ? "border-sky-600 text-sky-600"
-              : "border-transparent text-slate-500 hover:text-slate-900"
+              : "border-transparent text-base-content hover:text-base-content"
               }`}
           >
             <Sparkles className="h-4 w-4" />
@@ -293,7 +293,7 @@ export default function AILoadTenderIngestModal({
             onClick={() => setActiveTab("webhook")}
             className={`py-3 text-xs font-bold font-mono uppercase border-b-2 transition-all flex items-center space-x-1.5 whitespace-nowrap ${activeTab === "webhook"
               ? "border-sky-600 text-sky-600"
-              : "border-transparent text-slate-500 hover:text-slate-900"
+              : "border-transparent text-base-content hover:text-base-content"
               }`}
           >
             <Code className="h-4 w-4" />
@@ -302,22 +302,22 @@ export default function AILoadTenderIngestModal({
         </div>
 
         {/* Body Content */}
-        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-slate-50 space-y-5">
+        <div className="flex-1 overflow-y-auto p-5 sm:p-6 bg-base-200 space-y-5">
           {/* TAB 1: AUTOMATED BACKGROUND WORKER */}
           {activeTab === "automation" && (
             <div className="space-y-6">
               {/* Telemetry Status Card */}
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
                   <div className="flex items-center space-x-3">
                     <div className="p-2 bg-sky-50 text-sky-600 rounded-xl border border-sky-200">
                       <Activity className="h-5 w-5" />
                     </div>
                     <div>
-                      <h3 className="text-xs font-black text-slate-900 uppercase font-mono">
+                      <h3 className="text-xs font-black text-base-content uppercase font-mono">
                         Autonomous Intake Engine Status
                       </h3>
-                      <p className="text-2xs text-slate-500">
+                      <p className="text-2xs text-base-content">
                         Runs continuously in the background every 2 minutes.
                       </p>
                     </div>
@@ -341,25 +341,25 @@ export default function AILoadTenderIngestModal({
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs font-mono">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                     <span className="text-3xs text-slate-400 uppercase block">Gmail Mailbox</span>
                     <span className="font-bold text-slate-800 truncate block">
                       {workerStatus?.gmailAccount || "dispatch@nishantransport.com"}
                     </span>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                     <span className="text-3xs text-slate-400 uppercase block">Search Query</span>
                     <span className="font-bold text-sky-700 truncate block">
                       subject:"Load Confirmation"
                     </span>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                     <span className="text-3xs text-slate-400 uppercase block">Total Processed</span>
                     <span className="font-black text-emerald-600 text-sm block">
                       {workerStatus?.totalProcessed || 0} Loads
                     </span>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                     <span className="text-3xs text-slate-400 uppercase block">Cron Interval</span>
                     <span className="font-bold text-slate-700 block">
                       {workerStatus?.cronSchedule || "*/2 * * * *"} (2m)
@@ -380,7 +380,7 @@ export default function AILoadTenderIngestModal({
               )}
 
               {/* Drag-and-Drop Rate Confirmation Upload */}
-              <div className="bg-white rounded-2xl border-2 border-dashed border-sky-300 hover:border-sky-500 transition-all p-6 text-center shadow-sm">
+              <div className="bg-base-100 rounded-2xl border-2 border-dashed border-sky-300 hover:border-sky-500 transition-all p-6 text-center shadow-sm">
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -393,10 +393,10 @@ export default function AILoadTenderIngestModal({
                     <UploadCloud className={`h-8 w-8 ${isUploadingPdf ? "animate-bounce" : ""}`} />
                   </div>
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">
+                    <h4 className="text-sm font-bold text-base-content">
                       Drag & Drop PDF Load Confirmation / Rate Confirmation
                     </h4>
-                    <p className="text-xs text-slate-500 mt-1">
+                    <p className="text-xs text-base-content mt-1">
                       Gemini AI will extract all 12 fields, insert into Supabase as <span className="font-bold text-emerald-600">'Entered'</span>, assign Team A-E, and dispatch customer emails.
                     </p>
                   </div>
@@ -414,7 +414,7 @@ export default function AILoadTenderIngestModal({
 
               {/* Success Booking Result Display */}
               {bookingResult && (
-                <div className="bg-white rounded-2xl border border-emerald-300 shadow-md p-6 space-y-4 animate-fade-in">
+                <div className="bg-base-100 rounded-2xl border border-emerald-300 shadow-md p-6 space-y-4 animate-fade-in">
                   <div className="flex items-center justify-between bg-emerald-50 p-4 rounded-xl border border-emerald-200">
                     <div className="flex items-center space-x-3">
                       <CheckCircle2 className="h-6 w-6 text-emerald-600 shrink-0" />
@@ -434,21 +434,21 @@ export default function AILoadTenderIngestModal({
 
                   {/* Route & Cargo Details */}
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                       <span className="text-3xs text-slate-400 font-bold uppercase block">Customer & Rate</span>
-                      <div className="font-bold text-slate-900">{bookingResult.tender?.customer_name}</div>
+                      <div className="font-bold text-base-content">{bookingResult.tender?.customer_name}</div>
                       <div className="text-xs font-bold text-emerald-600 mt-1">
                         ${Number(bookingResult.tender?.rate).toLocaleString()} {bookingResult.tender?.currency}
                       </div>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                       <span className="text-3xs text-slate-400 font-bold uppercase block">Origin ➔ Destination</span>
-                      <div className="font-bold text-slate-900 truncate">{bookingResult.tender?.origin}</div>
-                      <div className="text-3xs text-slate-500">➔ {bookingResult.tender?.destination}</div>
+                      <div className="font-bold text-base-content truncate">{bookingResult.tender?.origin}</div>
+                      <div className="text-3xs text-base-content">➔ {bookingResult.tender?.destination}</div>
                     </div>
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                       <span className="text-3xs text-slate-400 font-bold uppercase block">Customs & Lead #</span>
-                      <div className="font-bold text-slate-900">
+                      <div className="font-bold text-base-content">
                         {bookingResult.customs_entry ? `${bookingResult.customs_entry.lead_number_type}: ${bookingResult.customs_entry.lead_number}` : "Domestic CA"}
                       </div>
                       <div className="text-3xs text-indigo-600 font-bold">
@@ -475,14 +475,14 @@ export default function AILoadTenderIngestModal({
 
               {/* Live Activity Logs */}
               {workerStatus?.recentLogs && workerStatus.recentLogs.length > 0 && (
-                <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2">
+                <div className="bg-base-100 rounded-2xl border border-slate-200 p-4 shadow-sm space-y-2">
                   <span className="text-3xs font-mono font-bold text-slate-400 uppercase block">
                     Live Worker Activity Feed:
                   </span>
                   <div className="bg-slate-950 text-slate-200 p-3 rounded-xl font-mono text-2xs max-h-36 overflow-y-auto space-y-1">
                     {workerStatus.recentLogs.map((log, idx) => (
                       <div key={idx} className="flex items-start space-x-2">
-                        <span className="text-slate-500 shrink-0">
+                        <span className="text-base-content shrink-0">
                           {new Date(log.timestamp).toLocaleTimeString()}
                         </span>
                         <span
@@ -509,9 +509,9 @@ export default function AILoadTenderIngestModal({
           {/* TAB 2: INTERACTIVE AI PARSER */}
           {activeTab === "manual" && (
             <div className="space-y-4">
-              <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
+              <div className="bg-base-100 rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-2 text-slate-900 font-bold text-xs uppercase font-mono">
+                  <div className="flex items-center space-x-2 text-base-content font-bold text-xs uppercase font-mono">
                     <Mail className="h-4 w-4 text-sky-600" />
                     <span>Paste Incoming Load Confirmation Email</span>
                   </div>
@@ -526,7 +526,7 @@ export default function AILoadTenderIngestModal({
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
                   <div>
-                    <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                       Sender Email (Customer):
                     </label>
                     <input
@@ -537,7 +537,7 @@ export default function AILoadTenderIngestModal({
                     />
                   </div>
                   <div>
-                    <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                       Email Subject:
                     </label>
                     <input
@@ -550,7 +550,7 @@ export default function AILoadTenderIngestModal({
                 </div>
 
                 <div>
-                  <label className="block text-3xs font-bold text-slate-500 uppercase mb-1">
+                  <label className="block text-3xs font-bold text-base-content uppercase mb-1">
                     Email Body / Rate Confirmation Text:
                   </label>
                   <textarea
@@ -558,7 +558,7 @@ export default function AILoadTenderIngestModal({
                     value={emailText}
                     onChange={(e) => setEmailText(e.target.value)}
                     placeholder="Paste incoming rate confirmation text or load tender email here..."
-                    className="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-sky-500 focus:bg-white bg-slate-50 leading-relaxed resize-y"
+                    className="w-full p-3 border border-slate-300 rounded-xl text-xs font-mono focus:ring-2 focus:ring-sky-500 focus:bg-base-100 bg-base-200 leading-relaxed resize-y"
                   />
                 </div>
 
@@ -577,16 +577,16 @@ export default function AILoadTenderIngestModal({
 
               {/* Step 2: Extracted Structured JSON & Review */}
               {extractedData && (
-                <div className="bg-white rounded-2xl border border-sky-200 shadow-md p-5 space-y-4 animate-fade-in">
+                <div className="bg-base-100 rounded-2xl border border-sky-200 shadow-md p-5 space-y-4 animate-fade-in">
                   <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="h-5 w-5 text-emerald-600" />
-                      <h3 className="text-xs font-black uppercase text-slate-900 font-mono">
+                      <h3 className="text-xs font-black uppercase text-base-content font-mono">
                         2. Gemini AI Structured Extraction & Verification
                       </h3>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <span className="text-3xs text-slate-500 font-bold uppercase font-mono">
+                      <span className="text-3xs text-base-content font-bold uppercase font-mono">
                         Assigned Load #:
                       </span>
                       <input
@@ -600,33 +600,33 @@ export default function AILoadTenderIngestModal({
 
                   {/* 3 Cards */}
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs font-sans">
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200 space-y-1">
                       <span className="text-3xs font-bold text-slate-400 uppercase font-mono">
                         Customer & Billing
                       </span>
-                      <div className="font-bold text-slate-900">{extractedData.customer_name}</div>
-                      <div className="text-3xs text-slate-500">{extractedData.customer_email}</div>
+                      <div className="font-bold text-base-content">{extractedData.customer_name}</div>
+                      <div className="text-3xs text-base-content">{extractedData.customer_email}</div>
                       <div className="text-xs font-bold text-emerald-600 pt-1">
                         Rate: ${Number(extractedData.rate).toLocaleString()} {extractedData.currency}
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200 space-y-1">
                       <span className="text-3xs font-bold text-slate-400 uppercase font-mono">
                         Pickup (Shipper)
                       </span>
-                      <div className="font-bold text-slate-900">{extractedData.shipper_name}</div>
+                      <div className="font-bold text-base-content">{extractedData.shipper_name}</div>
                       <div className="text-3xs text-slate-600">{extractedData.shipper_street_address || extractedData.shipper_address}</div>
                       <div className="text-3xs font-mono text-sky-700 font-bold pt-1">
                         Date: {extractedData.pickup_date} ({extractedData.pickup_time})
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-1">
+                    <div className="bg-base-200 p-3 rounded-xl border border-slate-200 space-y-1">
                       <span className="text-3xs font-bold text-slate-400 uppercase font-mono">
                         Delivery (Consignee)
                       </span>
-                      <div className="font-bold text-slate-900">{extractedData.consignee_name}</div>
+                      <div className="font-bold text-base-content">{extractedData.consignee_name}</div>
                       <div className="text-3xs text-slate-600">{extractedData.consignee_street_address || extractedData.consignee_address}</div>
                       <div className="text-3xs font-mono text-sky-700 font-bold pt-1">
                         Date: {extractedData.delivery_date} ({extractedData.delivery_time})
@@ -659,12 +659,12 @@ export default function AILoadTenderIngestModal({
 
           {/* TAB 3: WEBHOOK API */}
           {activeTab === "webhook" && (
-            <div className="bg-white rounded-2xl border border-slate-200 p-6 space-y-6 text-xs">
+            <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 space-y-6 text-xs">
               <div>
-                <h3 className="text-sm font-black text-slate-900 uppercase font-mono">
+                <h3 className="text-sm font-black text-base-content uppercase font-mono">
                   Direct Ingestion Webhook / API
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-base-content mt-1">
                   You can also POST directly to this endpoint from external scripts, Make.com, or email relays:
                 </p>
               </div>

@@ -239,11 +239,11 @@ export default function WarehouseManagerPage() {
       {/* Page Title & Navigation Tabs */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
-          <h1 className="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+          <h1 className="text-2xl font-black text-base-content tracking-tight flex items-center gap-2">
             <Warehouse className="h-7 w-7 text-amber-600" />
             Warehouse Receiving & Intake Hub
           </h1>
-          <p className="text-xs text-slate-500 font-medium mt-1">
+          <p className="text-xs text-base-content font-medium mt-1">
             Origin Cross-Docking & Freight Receiving Terminal for Warehouse
             Managers
           </p>
@@ -254,7 +254,7 @@ export default function WarehouseManagerPage() {
             onClick={() => setActiveTab("intake")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 border ${activeTab === "intake"
               ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-              : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+              : "bg-base-100 text-slate-700 hover:bg-slate-100 border-slate-200"
               }`}
           >
             <Boxes className="h-4 w-4" />
@@ -265,7 +265,7 @@ export default function WarehouseManagerPage() {
             onClick={() => setActiveTab("whatsapp")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-2 border ${activeTab === "whatsapp"
               ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-              : "bg-white text-slate-700 hover:bg-slate-100 border-slate-200"
+              : "bg-base-100 text-slate-700 hover:bg-slate-100 border-slate-200"
               }`}
           >
             <MessageSquare className="h-4 w-4" />
@@ -330,7 +330,7 @@ export default function WarehouseManagerPage() {
                   onClick={() => setWarehouseIntakeFilter("awaiting")}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${warehouseIntakeFilter === "awaiting"
                     ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    : "bg-base-100/10 text-white hover:bg-base-100/20 border-white/20"
                     }`}
                 >
                   <PackageCheck className="h-4 w-4" />
@@ -340,7 +340,7 @@ export default function WarehouseManagerPage() {
                   onClick={() => setWarehouseIntakeFilter("at_warehouse")}
                   className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center space-x-1.5 border ${warehouseIntakeFilter === "at_warehouse"
                     ? "bg-amber-500 text-slate-950 border-amber-400 font-extrabold shadow-md"
-                    : "bg-white/10 text-white hover:bg-white/20 border-white/20"
+                    : "bg-base-100/10 text-white hover:bg-base-100/20 border-white/20"
                     }`}
                 >
                   <Warehouse className="h-4 w-4" />
@@ -351,7 +351,7 @@ export default function WarehouseManagerPage() {
 
             {/* Metric KPI cards */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6 pt-6 border-t border-white/10">
-              <div className="bg-white/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
+              <div className="bg-base-100/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
                 <div className="text-[10px] font-mono text-slate-300 font-bold uppercase">
                   Pending WH Intake
                 </div>
@@ -362,7 +362,7 @@ export default function WarehouseManagerPage() {
                   Awaiting dock verification
                 </div>
               </div>
-              <div className="bg-white/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
+              <div className="bg-base-100/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
                 <div className="text-[10px] font-mono text-slate-300 font-bold uppercase">
                   Stored At Warehouse
                 </div>
@@ -373,7 +373,7 @@ export default function WarehouseManagerPage() {
                   Loads with status "At Warehouse"
                 </div>
               </div>
-              <div className="bg-white/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
+              <div className="bg-base-100/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
                 <div className="text-[10px] font-mono text-slate-300 font-bold uppercase">
                   Guaranteed & Appts
                 </div>
@@ -396,7 +396,7 @@ export default function WarehouseManagerPage() {
                   High priority loads staged
                 </div>
               </div>
-              <div className="bg-white/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
+              <div className="bg-base-100/5 backdrop-blur rounded-xl p-3.5 border border-white/10">
                 <div className="text-[10px] font-mono text-slate-300 font-bold uppercase">
                   Total Staged Pallets
                 </div>
@@ -422,7 +422,7 @@ export default function WarehouseManagerPage() {
           </div>
 
           {/* Search & Filter bar */}
-          <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="bg-base-100 p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
               <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-2.5 h-4 w-4 text-slate-400" />
@@ -431,14 +431,14 @@ export default function WarehouseManagerPage() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search tracking #, customer, cargo, bay..."
-                  className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-slate-50 text-slate-800 font-medium"
+                  className="w-full pl-9 pr-3 py-2 text-xs border border-slate-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 bg-base-200 text-slate-800 font-medium"
                 />
               </div>
 
               <select
                 value={warehouseIntakeFilter}
                 onChange={(e) => setWarehouseIntakeFilter(e.target.value)}
-                className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white font-bold text-slate-700 outline-none cursor-pointer"
+                className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-base-100 font-bold text-slate-700 outline-none cursor-pointer"
               >
                 <option value="all">All Freight Loads</option>
                 <option value="active">
@@ -454,7 +454,7 @@ export default function WarehouseManagerPage() {
               <select
                 value={commitmentFilter}
                 onChange={(e) => setCommitmentFilter(e.target.value)}
-                className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-white font-bold text-amber-800 outline-none cursor-pointer"
+                className="px-3 py-2 text-xs border border-slate-200 rounded-lg bg-base-100 font-bold text-amber-800 outline-none cursor-pointer"
               >
                 <option value="all">All Delivery Commitments</option>
                 <option value="guaranteed_appointment">
@@ -466,19 +466,19 @@ export default function WarehouseManagerPage() {
               </select>
             </div>
 
-            <div className="text-xs font-mono font-bold text-slate-500">
+            <div className="text-xs font-mono font-bold text-base-content">
               Showing{" "}
-              <span className="text-slate-900">{filteredLoads.length}</span>{" "}
+              <span className="text-base-content">{filteredLoads.length}</span>{" "}
               shipments
             </div>
           </div>
 
           {/* Table of Shipments */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+          <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-[10px] font-mono uppercase text-slate-500 font-bold">
+                  <tr className="bg-base-200 border-b border-slate-200 text-[10px] font-mono uppercase text-base-content font-bold">
                     <th className="p-3">Tracking / Customer</th>
                     <th className="p-3">Commitment Level</th>
                     <th className="p-3">Route (Origin → Dest)</th>
@@ -508,13 +508,13 @@ export default function WarehouseManagerPage() {
                       return (
                         <tr
                           key={s.id}
-                          className="hover:bg-slate-50/80 transition-colors"
+                          className="hover:bg-base-200/80 transition-colors"
                         >
                           <td className="p-3">
                             <div className="font-mono font-bold text-indigo-600 text-xs">
                               {s.load_number || s.tracking_number}
                             </div>
-                            <div className="text-xs font-semibold text-slate-900 mt-0.5">
+                            <div className="text-xs font-semibold text-base-content mt-0.5">
                               {s.customerName || s.customer_name}
                             </div>
                           </td>
@@ -537,12 +537,12 @@ export default function WarehouseManagerPage() {
                             </div>
                           </td>
                           <td className="p-3 text-xs text-slate-700">
-                            <div className="font-medium text-slate-900">
+                            <div className="font-medium text-base-content">
                               {s.cargo ||
                                 s.cargo_description ||
                                 "General Freight"}
                             </div>
-                            <div className="text-3xs font-mono text-slate-500 mt-0.5">
+                            <div className="text-3xs font-mono text-base-content mt-0.5">
                               {s.pieces || s.pallets || 1} Pallets •{" "}
                               {s.weight || s.weight || 1000} Lbs
                             </div>
@@ -596,7 +596,7 @@ export default function WarehouseManagerPage() {
                                   setSelectedShipment(s);
                                   setIsDetailModalOpen(true);
                                 }}
-                                className="p-1.5 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                                className="p-1.5 rounded-lg text-base-content hover:text-base-content hover:bg-slate-100 transition-colors cursor-pointer"
                                 title="View Load Details"
                               >
                                 <Eye className="h-4 w-4" />
@@ -608,7 +608,7 @@ export default function WarehouseManagerPage() {
                                     setSelectedShipment(s);
                                     setIsDetailModalOpen(true);
                                   }}
-                                  className="px-3 py-1.5 rounded-lg text-3xs font-bold bg-slate-100 text-slate-500 border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer inline-flex items-center space-x-1"
+                                  className="px-3 py-1.5 rounded-lg text-3xs font-bold bg-slate-100 text-base-content border border-slate-200 hover:bg-slate-200 transition-all cursor-pointer inline-flex items-center space-x-1"
                                   title="This load has already departed or been delivered. Click to view load record."
                                 >
                                   <Eye className="h-3 w-3" />
@@ -646,7 +646,7 @@ export default function WarehouseManagerPage() {
       {/* Warehouse Intake & Inspection Modal */}
       {isIntakeModalOpen && intakeShipment && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-up">
+          <div className="bg-base-100 rounded-2xl shadow-2xl border border-slate-200 max-w-lg w-full max-h-[90vh] overflow-y-auto animate-scale-up">
             <div className="bg-gradient-to-r from-slate-900 to-amber-950 p-5 text-white flex items-center justify-between">
               <div className="flex items-center space-x-3">
                 <div className="p-2 bg-amber-500/20 text-amber-400 rounded-lg border border-amber-500/30">
@@ -689,7 +689,7 @@ export default function WarehouseManagerPage() {
                     intakeShipment.cargo_description ||
                     "General Freight"}
                 </p>
-                <div className="text-3xs text-slate-500 font-mono pt-1 border-t border-amber-200/50 flex flex-wrap justify-between gap-2">
+                <div className="text-3xs text-base-content font-mono pt-1 border-t border-amber-200/50 flex flex-wrap justify-between gap-2">
                   <span>
                     Origin: {intakeShipment.shipper_district},
                     {intakeShipment.shipper_state},
@@ -711,7 +711,7 @@ export default function WarehouseManagerPage() {
                   <select
                     value={intakeBay}
                     onChange={(e) => setIntakeBay(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer"
+                    className="w-full px-3 py-2 text-xs font-bold text-base-content bg-base-100 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer"
                   >
                     <option value="Bay A-1 (Origin Hub)">
                       Bay A-1 (Origin Main Hub)
@@ -743,7 +743,7 @@ export default function WarehouseManagerPage() {
                       type="number"
                       value={intakePallets}
                       onChange={(e) => setIntakePallets(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+                      className="w-full px-3 py-2 text-xs font-bold text-base-content bg-base-100 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
                     />
                   </div>
                   <div>
@@ -754,7 +754,7 @@ export default function WarehouseManagerPage() {
                       type="number"
                       value={intakeWeight}
                       onChange={(e) => setIntakeWeight(e.target.value)}
-                      className="w-full px-3 py-2 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+                      className="w-full px-3 py-2 text-xs font-bold text-base-content bg-base-100 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
                     />
                   </div>
                 </div>
@@ -766,7 +766,7 @@ export default function WarehouseManagerPage() {
                   <select
                     value={intakeCondition}
                     onChange={(e) => setIntakeCondition(e.target.value)}
-                    className="w-full px-3 py-2 text-xs font-bold text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer"
+                    className="w-full px-3 py-2 text-xs font-bold text-base-content bg-base-100 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none cursor-pointer"
                   >
                     <option value="Passed Inspection (100% Intact)">
                       Passed Inspection (100% Intact & Sealed)
@@ -792,7 +792,7 @@ export default function WarehouseManagerPage() {
                     value={intakeNotes}
                     onChange={(e) => setIntakeNotes(e.target.value)}
                     placeholder="Enter dock intake remarks, seal status, or storage instructions..."
-                    className="w-full px-3 py-2 text-xs text-slate-900 bg-white border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
+                    className="w-full px-3 py-2 text-xs text-base-content bg-base-100 border border-slate-300 rounded-lg focus:ring-2 focus:ring-amber-500 outline-none"
                   />
                 </div>
               </div>

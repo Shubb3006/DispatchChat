@@ -52,7 +52,7 @@ export default function PickupDeliveryModals({
           id="driver-pickup-popup"
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50"
         >
-          <div className="bg-white rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
+          <div className="bg-base-100 rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
@@ -60,10 +60,10 @@ export default function PickupDeliveryModals({
                   <Upload className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 font-sans">
+                  <h3 className="text-sm font-bold text-base-content font-sans">
                     Log Picked Up Load &amp; Documents
                   </h3>
-                  <p className="text-[10px] text-slate-500 font-mono uppercase">
+                  <p className="text-[10px] text-base-content font-mono uppercase">
                     Shipment ID: {myShipment?.trackingNumber || "LS-90281-CAN"}
                   </p>
                 </div>
@@ -87,7 +87,7 @@ export default function PickupDeliveryModals({
 
             {/* Form Fields / Drop zones */}
             <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-              <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
+              <div className="bg-base-200/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
                 <p>
                   <strong>Shipper Check-In:</strong>{" "}
                   {myShipment?.shipperName || "AeroParts Hub"}.
@@ -106,7 +106,7 @@ export default function PickupDeliveryModals({
                 <select
                   value={pickupLoadId}
                   onChange={(e) => setPickupLoadId(e.target.value)}
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
+                  className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
                 >
                   {shipments.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -125,14 +125,14 @@ export default function PickupDeliveryModals({
                     placeholder="Type Custom Load / Tracking Number"
                     value={pickupCustomLoadNumber}
                     onChange={(e) => setPickupCustomLoadNumber(e.target.value)}
-                    className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
+                    className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
                   />
                 )}
               </div>
 
               {/* 1. BOL File Upload */}
               <div className="space-y-1.5">
-                <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+                <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
                   1. Bill of Lading (BOL) Document{" "}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -155,13 +155,13 @@ export default function PickupDeliveryModals({
                     <button
                       type="button"
                       onClick={() => setPickupBolFile(null)}
-                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+                  <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
                     <input
                       type="file"
                       id="pickup-bol-input"
@@ -182,7 +182,7 @@ export default function PickupDeliveryModals({
 
               {/* 2. Skid Picture Upload */}
               <div className="space-y-1.5">
-                <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+                <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
                   2. Pallet / Skid Loading Picture{" "}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -215,13 +215,13 @@ export default function PickupDeliveryModals({
                     <button
                       type="button"
                       onClick={() => setPickupSkidFile(null)}
-                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+                  <div className="border-2 border-dashed border-slate-200 hover:border-indigo-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
                     <input
                       type="file"
                       id="pickup-skid-input"
@@ -279,7 +279,7 @@ export default function PickupDeliveryModals({
           id="driver-delivery-popup"
           className="fixed inset-0 bg-slate-950/80 backdrop-blur-xs flex items-center justify-center p-4 z-50"
         >
-          <div className="bg-white rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
+          <div className="bg-base-100 rounded-2xl w-full max-w-lg p-6 border border-slate-200 shadow-2xl relative overflow-hidden text-slate-800 space-y-5 flex flex-col max-h-[90vh]">
             {/* Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
@@ -287,10 +287,10 @@ export default function PickupDeliveryModals({
                   <CheckCircle className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-slate-900 font-sans">
+                  <h3 className="text-sm font-bold text-base-content font-sans">
                     Complete Delivery &amp; Upload POD
                   </h3>
-                  <p className="text-[10px] text-slate-500 font-mono uppercase">
+                  <p className="text-[10px] text-base-content font-mono uppercase">
                     Shipment ID: {myShipment?.trackingNumber || "LS-90281-CAN"}
                   </p>
                 </div>
@@ -314,7 +314,7 @@ export default function PickupDeliveryModals({
 
             {/* Form Fields / Drop zones */}
             <div className="space-y-4 overflow-y-auto flex-1 pr-1">
-              <div className="bg-slate-50/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
+              <div className="bg-base-200/50 p-3 rounded-xl border border-slate-200/60 text-2xs text-slate-600 leading-normal space-y-1">
                 <p>
                   <strong>Consignee Delivery:</strong>{" "}
                   {myShipment?.consigneeName || "Midwest Assembly"}.
@@ -333,7 +333,7 @@ export default function PickupDeliveryModals({
                 <select
                   value={deliveryLoadId}
                   onChange={(e) => setDeliveryLoadId(e.target.value)}
-                  className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
+                  className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 cursor-pointer shadow-xs"
                 >
                   {shipments.map((s) => (
                     <option key={s.id} value={s.id}>
@@ -354,14 +354,14 @@ export default function PickupDeliveryModals({
                     onChange={(e) =>
                       setDeliveryCustomLoadNumber(e.target.value)
                     }
-                    className="w-full bg-white border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
+                    className="w-full bg-base-100 border border-slate-200 focus:border-indigo-500 focus:outline-none rounded-xl px-3 py-2 text-xs font-semibold text-slate-800 h-9 mt-2 shadow-xs"
                   />
                 )}
               </div>
 
               {/* POD File Upload */}
               <div className="space-y-1.5">
-                <label className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block">
+                <label className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block">
                   Proof of Delivery (POD) Signed Document{" "}
                   <span className="text-rose-500">*</span>
                 </label>
@@ -384,13 +384,13 @@ export default function PickupDeliveryModals({
                     <button
                       type="button"
                       onClick={() => setDeliveryPodFile(null)}
-                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-white rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
+                      className="p-1 text-slate-400 hover:text-rose-600 hover:bg-base-100 rounded border border-transparent hover:border-slate-200 transition-all cursor-pointer"
                     >
                       <X className="h-3.5 w-3.5" />
                     </button>
                   </div>
                 ) : (
-                  <div className="border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl p-5 text-center transition-colors relative bg-slate-50/30">
+                  <div className="border-2 border-dashed border-slate-200 hover:border-emerald-400 rounded-xl p-5 text-center transition-colors relative bg-base-200/30">
                     <input
                       type="file"
                       id="delivery-pod-input"
@@ -413,7 +413,7 @@ export default function PickupDeliveryModals({
               <div className="space-y-1.5">
                 <label
                   htmlFor="consignee-signee-input"
-                  className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider block"
+                  className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider block"
                 >
                   Name of Receiver / Signee{" "}
                   <span className="text-rose-500">*</span>
@@ -426,7 +426,7 @@ export default function PickupDeliveryModals({
                     value={consigneeSignee}
                     onChange={(e) => setConsigneeSignee(e.target.value)}
                     placeholder="e.g. Sgt. John Doe (Dock Supervisor)"
-                    className="w-full bg-slate-50 hover:bg-slate-50/80 focus:bg-white border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
+                    className="w-full bg-base-200 hover:bg-base-200/80 focus:bg-base-100 border border-slate-200 focus:border-emerald-500 focus:outline-none rounded-xl pl-9 pr-4 py-2 text-xs text-slate-800 placeholder-slate-400 transition-all h-9"
                   />
                 </div>
               </div>

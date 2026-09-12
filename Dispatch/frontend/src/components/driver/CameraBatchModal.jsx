@@ -172,7 +172,7 @@ export default function CameraBatchModal({
                     setIsBatchPreviewOpen(true);
                   }}
                   disabled={skidPhotos.length === 0}
-                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white disabled:text-slate-500 rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-indigo-950/40 hover:shadow-indigo-600/30 font-mono mt-auto"
+                  className="w-full py-3 bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white disabled:text-base-content rounded-xl text-xs font-black uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-indigo-950/40 hover:shadow-indigo-600/30 font-mono mt-auto"
                 >
                   Review &amp; Save Batch ({skidPhotos.length})
                 </button>
@@ -223,7 +223,7 @@ export default function CameraBatchModal({
             {/* Modal Body */}
             {skidPhotos.length === 0 ? (
               <div className="py-16 text-center space-y-4 max-w-md mx-auto">
-                <div className="p-4 bg-slate-800/40 rounded-full inline-block text-slate-500 border border-slate-800">
+                <div className="p-4 bg-slate-800/40 rounded-full inline-block text-base-content border border-slate-800">
                   <Camera className="h-10 w-10 animate-bounce" />
                 </div>
                 <div className="space-y-1">
@@ -245,9 +245,8 @@ export default function CameraBatchModal({
               </div>
             ) : (
               <div
-                className={`grid grid-cols-1 ${
-                  isMobileMode ? "" : "lg:grid-cols-12"
-                } gap-6 min-h-0 overflow-hidden`}
+                className={`grid grid-cols-1 ${isMobileMode ? "" : "lg:grid-cols-12"
+                  } gap-6 min-h-0 overflow-hidden`}
               >
                 {/* Left Column: Large Preview & Individual Picture Controls */}
                 <div
@@ -274,7 +273,7 @@ export default function CameraBatchModal({
 
                   {/* Active Photo Actions */}
                   <div className="bg-slate-950/30 border border-slate-800/80 rounded-xl p-4 space-y-4">
-                    <span className="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                    <span className="block text-[10px] font-mono font-bold text-base-content uppercase tracking-widest">
                       Active Photo Operations
                     </span>
 
@@ -326,7 +325,7 @@ export default function CameraBatchModal({
                       : "lg:col-span-5 flex flex-col space-y-4 min-h-[250px] lg:max-h-[500px]"
                   }
                 >
-                  <span className="block text-[10px] font-mono font-bold text-slate-500 uppercase tracking-widest">
+                  <span className="block text-[10px] font-mono font-bold text-base-content uppercase tracking-widest">
                     Sequence Order Tray (Select to review)
                   </span>
 
@@ -337,11 +336,10 @@ export default function CameraBatchModal({
                         <div
                           key={idx}
                           onClick={() => setPreviewSelectedIndex(idx)}
-                          className={`group p-2 rounded-xl border transition-all cursor-pointer flex items-center space-x-3 ${
-                            isSelected
+                          className={`group p-2 rounded-xl border transition-all cursor-pointer flex items-center space-x-3 ${isSelected
                               ? "bg-indigo-950/40 border-indigo-500/50 shadow-md shadow-indigo-950/20"
                               : "bg-slate-900/60 border-slate-800 hover:border-slate-700 hover:bg-slate-900"
-                          }`}
+                            }`}
                         >
                           <div className="w-16 h-10 rounded overflow-hidden shrink-0 border border-slate-800 bg-slate-950 relative">
                             <img
@@ -358,11 +356,10 @@ export default function CameraBatchModal({
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <span
-                                className={`text-[11px] font-mono font-bold uppercase tracking-wide ${
-                                  isSelected
+                                className={`text-[11px] font-mono font-bold uppercase tracking-wide ${isSelected
                                     ? "text-indigo-400"
                                     : "text-slate-300"
-                                }`}
+                                  }`}
                               >
                                 Photo #{idx + 1}
                               </span>
@@ -435,7 +432,7 @@ export default function CameraBatchModal({
                 type="button"
                 onClick={handleFinishSkidBatch}
                 disabled={skidPhotos.length === 0}
-                className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white disabled:text-slate-500 rounded-xl text-xs font-extrabold uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-emerald-950/40 flex items-center justify-center space-x-2 font-mono"
+                className="w-full sm:w-auto px-6 py-3 bg-emerald-600 hover:bg-emerald-500 disabled:bg-slate-800 text-white disabled:text-base-content rounded-xl text-xs font-extrabold uppercase tracking-widest transition-all cursor-pointer shadow-lg shadow-emerald-950/40 flex items-center justify-center space-x-2 font-mono"
               >
                 <Check className="h-4 w-4" />
                 <span>

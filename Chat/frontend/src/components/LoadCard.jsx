@@ -200,9 +200,8 @@ const LoadCard = ({ text, rawMessage }) => {
       {/* Header Banner */}
       <div className="bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-4 border-b border-slate-800/80 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
-          <div className={`size-9 rounded-2xl border flex items-center justify-center shadow-md ${
-            isDelivery ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : "bg-amber-500/20 border-amber-500/30 text-amber-400"
-          }`}>
+          <div className={`size-9 rounded-2xl border flex items-center justify-center shadow-md ${isDelivery ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-400" : "bg-amber-500/20 border-amber-500/30 text-amber-400"
+            }`}>
             <Truck className="size-5" />
           </div>
           <div>
@@ -249,7 +248,7 @@ const LoadCard = ({ text, rawMessage }) => {
             </div>
             <div className="font-bold text-sm text-slate-100 mt-0.5">{shipper}</div>
             <div className="text-xs text-slate-400 flex items-start gap-1 mt-0.5">
-              <MapPin className="size-3.5 text-slate-500 shrink-0 mt-0.5" />
+              <MapPin className="size-3.5 text-base-content shrink-0 mt-0.5" />
               <span>{shipperAddr}</span>
             </div>
           </div>
@@ -264,7 +263,7 @@ const LoadCard = ({ text, rawMessage }) => {
             </div>
             <div className="font-bold text-sm text-slate-100 mt-0.5">{consignee}</div>
             <div className="text-xs text-slate-400 flex items-start gap-1 mt-0.5">
-              <MapPin className="size-3.5 text-slate-500 shrink-0 mt-0.5" />
+              <MapPin className="size-3.5 text-base-content shrink-0 mt-0.5" />
               <span>{consigneeAddr}</span>
             </div>
           </div>
@@ -274,28 +273,28 @@ const LoadCard = ({ text, rawMessage }) => {
         {/* Cargo Grid (2x2) */}
         <div className="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
           <div className="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800/60">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-base-content flex items-center gap-1">
               <Package className="size-3 text-amber-400" /> Skids / Pieces
             </span>
             <div className="font-black text-sm text-slate-200 mt-0.5">{pieces}</div>
           </div>
 
           <div className="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800/60">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-base-content flex items-center gap-1">
               <Weight className="size-3 text-sky-400" /> Weight
             </span>
             <div className="font-black text-sm text-slate-200 mt-0.5">{weight}</div>
           </div>
 
           <div className="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800/60">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-base-content flex items-center gap-1">
               <ShieldCheck className="size-3 text-purple-400" /> Commitment
             </span>
             <div className="font-black text-xs text-slate-200 mt-0.5 truncate">{commitment}</div>
           </div>
 
           <div className="bg-slate-950/60 p-2.5 rounded-2xl border border-slate-800/60">
-            <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-base-content flex items-center gap-1">
               <Calendar className="size-3 text-emerald-400" /> {isDelivery ? "Delivery Date" : "Pickup Date"}
             </span>
             <div className="font-bold text-[11px] text-slate-200 mt-0.5 truncate">{date}</div>
@@ -340,11 +339,10 @@ const LoadCard = ({ text, rawMessage }) => {
               <button
                 onClick={() => handleStatusUpdate("at_consignee_site")}
                 disabled={isUpdatingStatus}
-                className={`w-full py-2.5 px-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                  activeStatus.includes("CONSIGNEE") || activeStatus.includes("DELIVERED")
+                className={`w-full py-2.5 px-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeStatus.includes("CONSIGNEE") || activeStatus.includes("DELIVERED")
                     ? "bg-indigo-500/20 text-indigo-300 border border-indigo-500/30"
                     : "bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20 active:scale-95"
-                }`}
+                  }`}
               >
                 {isUpdatingStatus ? (
                   <Loader2 className="size-4 animate-spin" />
@@ -359,11 +357,10 @@ const LoadCard = ({ text, rawMessage }) => {
                 <button
                   onClick={() => triggerFileUpload("pod")}
                   disabled={isUploading}
-                  className={`py-2.5 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${
-                    podDocUrl
+                  className={`py-2.5 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${podDocUrl
                       ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                       : "bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 active:scale-95"
-                  }`}
+                    }`}
                 >
                   {isUploading && uploadDocType === "pod" ? (
                     <Loader2 className="size-3.5 animate-spin" />
@@ -380,11 +377,10 @@ const LoadCard = ({ text, rawMessage }) => {
               <button
                 onClick={() => handleStatusUpdate("at_site")}
                 disabled={isUpdatingStatus}
-                className={`w-full py-2.5 px-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${
-                  activeStatus.includes("SITE") || activeStatus.includes("TRANSIT")
+                className={`w-full py-2.5 px-4 rounded-2xl font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${activeStatus.includes("SITE") || activeStatus.includes("TRANSIT")
                     ? "bg-purple-500/20 text-purple-300 border border-purple-500/30"
                     : "bg-purple-600 hover:bg-purple-500 text-white shadow-lg shadow-purple-600/20 active:scale-95"
-                }`}
+                  }`}
               >
                 {isUpdatingStatus ? (
                   <Loader2 className="size-4 animate-spin" />
@@ -399,11 +395,10 @@ const LoadCard = ({ text, rawMessage }) => {
                 <button
                   onClick={() => triggerFileUpload("skid_picture")}
                   disabled={isUploading}
-                  className={`py-2 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${
-                    skidPhotoUrl
+                  className={`py-2 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${skidPhotoUrl
                       ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/30"
                       : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700 active:scale-95"
-                  }`}
+                    }`}
                 >
                   {isUploading && uploadDocType === "skid_picture" ? (
                     <Loader2 className="size-3.5 animate-spin" />
@@ -416,11 +411,10 @@ const LoadCard = ({ text, rawMessage }) => {
                 <button
                   onClick={() => triggerFileUpload("bol")}
                   disabled={isUploading}
-                  className={`py-2 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${
-                    bolDocUrl
+                  className={`py-2 px-3 rounded-2xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-1.5 border transition-all ${bolDocUrl
                       ? "bg-sky-500/20 text-sky-400 border-sky-500/30"
                       : "bg-slate-800 hover:bg-slate-700 text-slate-200 border-slate-700 active:scale-95"
-                  }`}
+                    }`}
                 >
                   {isUploading && uploadDocType === "bol" ? (
                     <Loader2 className="size-3.5 animate-spin" />

@@ -96,7 +96,7 @@ export default function DriverManagerPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-5">
       {/* Tab Bar */}
-      <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-1.5 w-fit max-w-full overflow-x-auto shadow-sm">
+      <div className="flex items-center gap-1 bg-base-100 border border-slate-200 rounded-2xl p-1.5 w-fit max-w-full overflow-x-auto shadow-sm">
         {TABS.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -104,9 +104,8 @@ export default function DriverManagerPage() {
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all ${
-                isActive ? "bg-slate-900 text-white shadow-sm" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
-              }`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap shrink-0 cursor-pointer transition-all ${isActive ? "bg-slate-900 text-white shadow-sm" : "text-base-content hover:text-base-content hover:bg-base-200"
+                }`}
             >
               <Icon className="h-4 w-4" />
               <span>{tab.label}</span>
@@ -130,24 +129,24 @@ export default function DriverManagerPage() {
                 placeholder="Search drivers or loads..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-full sm:w-60"
+                className="pl-9 pr-4 py-2 bg-base-100 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/30 w-full sm:w-60"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {filteredDrivers.map((drv) => (
-              <div key={drv.id} className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
+              <div key={drv.id} className="bg-base-100 rounded-2xl border border-slate-200 p-4 shadow-sm hover:shadow-md transition-shadow space-y-3">
                 {/* Driver Header */}
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
                       <span className={`w-2 h-2 rounded-full ${drv.activeShipment ? "bg-green-500" : "bg-slate-300"}`} />
-                      <span className="font-semibold text-slate-900 text-sm">{drv.username}</span>
+                      <span className="font-semibold text-base-content text-sm">{drv.username}</span>
                     </div>
                     <span className="text-xs text-slate-400 mt-0.5 block">{drv.driver_code}</span>
                   </div>
-                  <div className="text-right text-xs text-slate-500">
+                  <div className="text-right text-xs text-base-content">
                     <div className="font-medium">TRK: {drv.assigned_truck_number || "—"}</div>
                     <div className="text-slate-400">TRL: {drv.assigned_trailer_number || "—"}</div>
                   </div>
@@ -155,7 +154,7 @@ export default function DriverManagerPage() {
 
                 {/* Active Load */}
                 {drv.activeShipment ? (
-                  <div className="bg-slate-50 rounded-xl p-3 space-y-1.5 border border-slate-100">
+                  <div className="bg-base-200 rounded-xl p-3 space-y-1.5 border border-slate-100">
                     <div className="flex items-center justify-between text-xs">
                       <span className="font-semibold text-blue-700 bg-blue-50 px-2 py-0.5 rounded-lg">{drv.activeShipment.load_number}</span>
                       <span className="font-medium text-slate-600 capitalize">{drv.activeShipment.status?.replace(/_/g, " ")}</span>
@@ -182,15 +181,15 @@ export default function DriverManagerPage() {
 
       {/* HOS Tab */}
       {activeTab === "hos" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="font-semibold text-slate-900">ELD Hours of Service Audit</h2>
+            <h2 className="font-semibold text-base-content">ELD Hours of Service Audit</h2>
             <span className="text-xs text-slate-400">70-hour / 8-day cycle</span>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                <tr className="border-b border-slate-100 bg-base-200 text-left text-xs font-semibold text-base-content uppercase tracking-wide">
                   <th className="px-5 py-3">Driver</th>
                   <th className="px-5 py-3">Status</th>
                   <th className="px-5 py-3">Drive Left</th>
@@ -200,9 +199,9 @@ export default function DriverManagerPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {driversStatusList.map((d) => (
-                  <tr key={d.id} className="hover:bg-slate-50">
+                  <tr key={d.id} className="hover:bg-base-200">
                     <td className="px-5 py-3.5">
-                      <div className="font-medium text-slate-900">{d.username}</div>
+                      <div className="font-medium text-base-content">{d.username}</div>
                       <div className="text-xs text-slate-400">{d.driver_code}</div>
                     </td>
                     <td className="px-5 py-3.5">
@@ -235,15 +234,15 @@ export default function DriverManagerPage() {
 
       {/* Safety Tab */}
       {activeTab === "safety" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
           <div className="px-5 py-4 border-b border-slate-100">
-            <h2 className="font-semibold text-slate-900">Driver Safety Scorecards</h2>
+            <h2 className="font-semibold text-base-content">Driver Safety Scorecards</h2>
             <p className="text-xs text-slate-400 mt-0.5">Based on last 30 days of Samsara telemetry</p>
           </div>
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-100 bg-slate-50 text-left text-xs font-semibold text-slate-500 uppercase tracking-wide">
+                <tr className="border-b border-slate-100 bg-base-200 text-left text-xs font-semibold text-base-content uppercase tracking-wide">
                   <th className="px-5 py-3">Driver</th>
                   <th className="px-5 py-3">Safety Score</th>
                   <th className="px-5 py-3">Miles (30d)</th>
@@ -256,9 +255,9 @@ export default function DriverManagerPage() {
                   const sc = d.safetyScore.score;
                   const color = sc >= 90 ? "text-green-600" : sc >= 80 ? "text-amber-600" : "text-red-600";
                   return (
-                    <tr key={d.id} className="hover:bg-slate-50">
+                    <tr key={d.id} className="hover:bg-base-200">
                       <td className="px-5 py-3.5">
-                        <div className="font-medium text-slate-900">{d.name || d.username}</div>
+                        <div className="font-medium text-base-content">{d.name || d.username}</div>
                         <div className="text-xs text-slate-400">{d.driver_code}</div>
                       </td>
                       <td className="px-5 py-3.5">

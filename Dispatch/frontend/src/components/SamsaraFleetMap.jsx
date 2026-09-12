@@ -541,9 +541,9 @@ export default function SamsaraFleetMap({
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
       {/* Samsara Top Bar */}
-      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-white/95 backdrop-blur-md border border-slate-200 px-3.5 py-2 rounded-xl shadow-md">
+      <div className="absolute top-3 left-3 z-10 flex items-center gap-2 bg-base-100/95 backdrop-blur-md border border-slate-200 px-3.5 py-2 rounded-xl shadow-md">
         <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-ping" />
-        <span className="text-xs font-black text-slate-900 tracking-wide">
+        <span className="text-xs font-black text-base-content tracking-wide">
           Samsara Fleet Radar
         </span>
         <span className="hidden sm:inline text-[11px] text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 font-mono font-bold">
@@ -553,23 +553,22 @@ export default function SamsaraFleetMap({
 
       {/* Interactive Dual-Route View Switcher (when Route Optimization is active) */}
       {routeOptimization?.routes && (
-        <div className="absolute top-14 left-3 z-10 bg-white/95 backdrop-blur-md border border-indigo-200 p-2.5 rounded-2xl shadow-lg space-y-1.5 max-w-xs sm:max-w-sm">
+        <div className="absolute top-14 left-3 z-10 bg-base-100/95 backdrop-blur-md border border-indigo-200 p-2.5 rounded-2xl shadow-lg space-y-1.5 max-w-xs sm:max-w-sm">
           <div className="text-[10px] font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5 px-1">
             <Eye className="w-3.5 h-3.5 text-indigo-600" />
             <span>Interactive Route Comparison</span>
           </div>
 
-          <div className="grid grid-cols-3 gap-1.5 bg-slate-50 p-1 rounded-xl border border-slate-200 text-[11px] font-bold">
+          <div className="grid grid-cols-3 gap-1.5 bg-base-200 p-1 rounded-xl border border-slate-200 text-[11px] font-bold">
             <button
               onClick={() => {
                 setRouteViewMode("both");
                 if (onSelectRouteKey) onSelectRouteKey("both");
               }}
-              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center ${
-                routeViewMode === "both"
-                  ? "bg-indigo-600 text-white shadow-xs font-extrabold"
-                  : "text-slate-600 hover:text-slate-900"
-              }`}
+              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center ${routeViewMode === "both"
+                ? "bg-indigo-600 text-white shadow-xs font-extrabold"
+                : "text-slate-600 hover:text-base-content"
+                }`}
             >
               Show Both
             </button>
@@ -579,11 +578,10 @@ export default function SamsaraFleetMap({
                 setRouteViewMode("eco_route");
                 if (onSelectRouteKey) onSelectRouteKey("eco_route");
               }}
-              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center flex items-center justify-center gap-1 ${
-                routeViewMode === "eco_route"
-                  ? "bg-emerald-600 text-white shadow-xs font-extrabold"
-                  : "text-emerald-700 hover:bg-slate-100"
-              }`}
+              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center flex items-center justify-center gap-1 ${routeViewMode === "eco_route"
+                ? "bg-emerald-600 text-white shadow-xs font-extrabold"
+                : "text-emerald-700 hover:bg-slate-100"
+                }`}
             >
               <span className="w-2 h-2 rounded-full bg-emerald-400" />
               <span>AI Eco (${routeOptimization.routes?.eco_route?.total_trip_cost_usd})</span>
@@ -594,11 +592,10 @@ export default function SamsaraFleetMap({
                 setRouteViewMode("toll_route");
                 if (onSelectRouteKey) onSelectRouteKey("toll_route");
               }}
-              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center flex items-center justify-center gap-1 ${
-                routeViewMode === "toll_route"
-                  ? "bg-amber-600 text-white shadow-xs font-extrabold"
-                  : "text-amber-700 hover:bg-slate-100"
-              }`}
+              className={`py-1.5 px-2 rounded-lg cursor-pointer transition text-center flex items-center justify-center gap-1 ${routeViewMode === "toll_route"
+                ? "bg-amber-600 text-white shadow-xs font-extrabold"
+                : "text-amber-700 hover:bg-slate-100"
+                }`}
             >
               <span className="w-2 h-2 rounded-full bg-amber-400" />
               <span>Tolls (${routeOptimization.routes?.toll_route?.total_trip_cost_usd})</span>
@@ -608,10 +605,10 @@ export default function SamsaraFleetMap({
       )}
 
       {/* Map Floating Controls */}
-      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-white/95 backdrop-blur-md border border-slate-200 p-1.5 rounded-xl shadow-md">
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-1.5 bg-base-100/95 backdrop-blur-md border border-slate-200 p-1.5 rounded-xl shadow-md">
         <button
           onClick={() => setActiveTileLayer((prev) => (prev === "samsara_light" ? "samsara_dark" : prev === "samsara_dark" ? "satellite" : "samsara_light"))}
-          className="px-2 py-1 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition text-xs font-bold flex items-center gap-1.5"
+          className="px-2 py-1 text-slate-700 hover:text-base-content hover:bg-slate-100 rounded-lg cursor-pointer transition text-xs font-bold flex items-center gap-1.5"
         >
           <Layers className="w-3.5 h-3.5 text-sky-600" />
           <span className="hidden sm:inline text-[11px]">
@@ -624,34 +621,34 @@ export default function SamsaraFleetMap({
         <button
           onClick={() => mapInstanceRef.current?.flyTo([45.0, -84.0], 5)}
           title="Reset to View"
-          className="p-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+          className="p-1.5 text-slate-700 hover:text-base-content hover:bg-slate-100 rounded-lg cursor-pointer transition"
         >
           <Navigation className="w-4 h-4 text-emerald-600" />
         </button>
 
         <button
           onClick={() => mapInstanceRef.current?.zoomIn()}
-          className="p-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+          className="p-1.5 text-slate-700 hover:text-base-content hover:bg-slate-100 rounded-lg cursor-pointer transition"
         >
           <ZoomIn className="w-4 h-4" />
         </button>
         <button
           onClick={() => mapInstanceRef.current?.zoomOut()}
-          className="p-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+          className="p-1.5 text-slate-700 hover:text-base-content hover:bg-slate-100 rounded-lg cursor-pointer transition"
         >
           <ZoomOut className="w-4 h-4" />
         </button>
 
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="p-1.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 rounded-lg cursor-pointer transition"
+          className="p-1.5 text-slate-700 hover:text-base-content hover:bg-slate-100 rounded-lg cursor-pointer transition"
         >
           {isFullscreen ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
         </button>
       </div>
 
       {/* Bottom Floating Legend */}
-      <div className="absolute bottom-3 left-3 z-10 bg-white/95 backdrop-blur-md border border-slate-200 px-3.5 py-2 rounded-xl shadow-md flex items-center gap-3.5 text-xs text-slate-800 flex-wrap">
+      <div className="absolute bottom-3 left-3 z-10 bg-base-100/95 backdrop-blur-md border border-slate-200 px-3.5 py-2 rounded-xl shadow-md flex items-center gap-3.5 text-xs text-slate-800 flex-wrap">
         <div className="flex items-center gap-1.5 font-bold">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-xs" />
           <span>Moving ({vehicles.filter((v) => v.status === "DRIVING").length})</span>

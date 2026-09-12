@@ -68,25 +68,24 @@ export default function TripDetailsModal({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center items-center p-6">
-      <div className="bg-white rounded-2xl shadow-2xl w-full max-w-7xl max-h-[92vh] overflow-hidden flex flex-col">
+      <div className="bg-base-100 rounded-2xl shadow-2xl w-full max-w-7xl max-h-[92vh] overflow-hidden flex flex-col">
         {/* HEADER */}
 
-        <div className="border-b bg-white px-8 py-6 flex justify-between items-center">
+        <div className="border-b bg-base-100 px-8 py-6 flex justify-between items-center">
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-bold text-slate-900">
+              <h1 className="text-2xl font-bold text-base-content">
                 Trip #{trip.trip_number}
               </h1>
               {trip.shipments?.[0]?.status && (
-                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                  statusStyles[trip.shipments[0].status]
-                }`}>
+                <span className={`px-3 py-1 rounded-full text-xs font-semibold ${statusStyles[trip.shipments[0].status]
+                  }`}>
                   {statusLabels[trip.shipments[0].status]}
                 </span>
               )}
             </div>
 
-            <p className="text-slate-500 mt-1">Consolidated Load Manifest</p>
+            <p className="text-base-content mt-1">Consolidated Load Manifest</p>
 
             {/* Routed mileage captured when this trip was consolidated */}
             {trip.total_miles ? (
@@ -137,7 +136,7 @@ export default function TripDetailsModal({
           {/* SUMMARY */}
 
           <div className="grid grid-cols-5 gap-5 mb-8">
-            <div className="border rounded-xl p-4 bg-slate-50">
+            <div className="border rounded-xl p-4 bg-base-200">
               <User className="text-indigo-600 mb-2" />
 
               <p className="text-xs uppercase text-slate-400">Driver</p>
@@ -145,7 +144,7 @@ export default function TripDetailsModal({
               <p className="font-semibold mt-1">{trip.driver_name || "-"}</p>
             </div>
 
-            <div className="border rounded-xl p-4 bg-slate-50">
+            <div className="border rounded-xl p-4 bg-base-200">
               <Truck className="text-indigo-600 mb-2" />
 
               <p className="text-xs uppercase text-slate-400">Truck</p>
@@ -153,7 +152,7 @@ export default function TripDetailsModal({
               <p className="font-semibold mt-1">{trip.truck_number || "-"}</p>
             </div>
 
-            <div className="border rounded-xl p-4 bg-slate-50">
+            <div className="border rounded-xl p-4 bg-base-200">
               <Package className="text-indigo-600 mb-2" />
 
               <p className="text-xs uppercase text-slate-400">Loads</p>
@@ -161,7 +160,7 @@ export default function TripDetailsModal({
               <p className="font-semibold mt-1">{trip.shipments.length}</p>
             </div>
 
-            <div className="border rounded-xl p-4 bg-slate-50">
+            <div className="border rounded-xl p-4 bg-base-200">
               <Weight className="text-indigo-600 mb-2" />
 
               <p className="text-xs uppercase text-slate-400">Weight</p>
@@ -171,7 +170,7 @@ export default function TripDetailsModal({
               </p>
             </div>
 
-            <div className="border rounded-xl p-4 bg-slate-50">
+            <div className="border rounded-xl p-4 bg-base-200">
               <Boxes className="text-indigo-600 mb-2" />
 
               <p className="text-xs uppercase text-slate-400">Pallets</p>
@@ -183,7 +182,7 @@ export default function TripDetailsModal({
           {/* LOADS */}
 
           <div className="border rounded-xl overflow-hidden">
-            <div className="bg-slate-50 border-b px-5 py-3">
+            <div className="bg-base-200 border-b px-5 py-3">
               <h3 className="font-semibold text-slate-700">
                 Loads in this Trip
               </h3>
@@ -191,8 +190,8 @@ export default function TripDetailsModal({
 
             <div className="overflow-auto max-h-[500px]">
               <table className="w-full">
-                <thead className="sticky top-0 bg-white border-b">
-                  <tr className="text-xs uppercase text-slate-500">
+                <thead className="sticky top-0 bg-base-100 border-b">
+                  <tr className="text-xs uppercase text-base-content">
                     <th className="text-left p-4">Load</th>
 
                     <th className="text-left">Customer</th>
@@ -211,7 +210,7 @@ export default function TripDetailsModal({
 
                 <tbody>
                   {trip.shipments.map((load) => (
-                    <tr key={load.id} className="border-b hover:bg-slate-50">
+                    <tr key={load.id} className="border-b hover:bg-base-200">
                       <td className="p-4">
                         <div className="font-semibold">{load.load_number}</div>
 
@@ -270,9 +269,8 @@ export default function TripDetailsModal({
                               ),
                             }));
                           }}
-                          className={`rounded-lg px-3 py-2 text-sm font-semibold border-none outline-none cursor-pointer ${
-                            statusStyles[load.status]
-                          }`}
+                          className={`rounded-lg px-3 py-2 text-sm font-semibold border-none outline-none cursor-pointer ${statusStyles[load.status]
+                            }`}
                         >
                           <option value="trip_assigned">Trip Assigned</option>
 
@@ -305,13 +303,13 @@ export default function TripDetailsModal({
                 </h3>
                 {(trip.shipments || []).length > 1 && (
                   <div className="flex items-center gap-2">
-                    <label className="text-xs font-semibold text-slate-500 uppercase">
+                    <label className="text-xs font-semibold text-base-content uppercase">
                       Load
                     </label>
                     <select
                       value={legsLoadId || ""}
                       onChange={(e) => setLegsLoadId(e.target.value)}
-                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-white"
+                      className="px-3 py-2 border border-slate-300 rounded-lg text-sm bg-base-100"
                     >
                       {(trip.shipments || []).map((l) => (
                         <option key={l.id} value={l.id}>
@@ -326,7 +324,7 @@ export default function TripDetailsModal({
               {legsLoad ? (
                 <TripLegsSection key={legsLoad.id} loadId={legsLoad.id} />
               ) : (
-                <p className="text-sm text-slate-500">
+                <p className="text-sm text-base-content">
                   Select a load to manage its relay legs.
                 </p>
               )}
@@ -343,7 +341,7 @@ export default function TripDetailsModal({
 
         {/* FOOTER */}
 
-        <div className="border-t bg-slate-50 px-8 py-5 flex justify-between">
+        <div className="border-t bg-base-200 px-8 py-5 flex justify-between">
           <button
             onClick={async () => {
               if (window.confirm(`Disassemble Trip #${trip.trip_number}?`)) {
@@ -358,7 +356,7 @@ export default function TripDetailsModal({
 
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-lg border hover:bg-white"
+            className="px-5 py-2 rounded-lg border hover:bg-base-100"
           >
             Close
           </button>
@@ -380,11 +378,11 @@ export default function TripDetailsModal({
           a sheet with blank mileage. */}
       {tripSheet && !tripSheet.route && (
         <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-center items-center p-6">
-          <div className="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
+          <div className="bg-base-100 rounded-2xl shadow-2xl max-w-lg w-full p-6 space-y-4">
             <div className="flex items-start gap-3">
               <ShieldAlert className="text-amber-600 shrink-0 mt-0.5" size={22} />
               <div>
-                <h3 className="font-bold text-slate-900">Trip has no route</h3>
+                <h3 className="font-bold text-base-content">Trip has no route</h3>
                 <p className="text-sm text-slate-600 mt-1">
                   {tripSheet.routeError ||
                     "This trip was never routed, so there is no mileage to print."}
@@ -394,7 +392,7 @@ export default function TripDetailsModal({
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setTripSheet(null)}
-                className="px-4 py-2 rounded-lg border text-sm hover:bg-slate-50"
+                className="px-4 py-2 rounded-lg border text-sm hover:bg-base-200"
               >
                 Close
               </button>

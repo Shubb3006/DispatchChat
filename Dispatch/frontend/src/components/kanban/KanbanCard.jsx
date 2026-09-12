@@ -69,31 +69,30 @@ export default function KanbanCard({
         draggable
         onDragStart={handleDragStart}
         onClick={() => onOpenDetails && onOpenDetails(shipment)}
-        className={`bg-white border border-slate-200 rounded-xl p-2.5 shadow-2xs hover:shadow-md hover:border-sky-400 transition-all cursor-pointer group space-y-1.5 select-none ${
-          isDragging ? "opacity-30 scale-95 border-sky-500 border-dashed" : ""
-        }`}
+        className={`bg-base-100 border border-slate-200 rounded-xl p-2.5 shadow-2xs hover:shadow-md hover:border-sky-400 transition-all cursor-pointer group space-y-1.5 select-none ${isDragging ? "opacity-30 scale-95 border-sky-500 border-dashed" : ""
+          }`}
       >
         <div className="flex items-center justify-between gap-1.5">
           <div className="flex items-center gap-1.5 min-w-0">
-            <GripVertical className="w-3 h-3 text-slate-300 group-hover:text-slate-500 shrink-0" />
+            <GripVertical className="w-3 h-3 text-slate-300 group-hover:text-base-content shrink-0" />
             <span className="font-mono font-black text-sky-700 text-xs truncate">
               #{loadNum}
             </span>
-            <span className="text-[10px] text-slate-500 font-bold truncate">
+            <span className="text-[10px] text-base-content font-bold truncate">
               {originState} ➔ {destState}
             </span>
           </div>
-          <span className="font-mono font-black text-slate-900 text-xs shrink-0">
+          <span className="font-mono font-black text-base-content text-xs shrink-0">
             ${rate.toLocaleString()}
           </span>
         </div>
 
-        <div className="flex items-center justify-between text-[10px] text-slate-500 pt-1 border-t border-slate-100">
+        <div className="flex items-center justify-between text-[10px] text-base-content pt-1 border-t border-slate-100">
           <span className="truncate font-semibold">{driver}</span>
           <div className="flex items-center gap-1 shrink-0">
             <button
               onClick={handleCopyLoadNum}
-              className="p-1 hover:text-slate-900 hover:bg-slate-100 rounded transition"
+              className="p-1 hover:text-base-content hover:bg-slate-100 rounded transition"
               title="Copy Load #"
             >
               {copied ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
@@ -119,15 +118,14 @@ export default function KanbanCard({
       draggable
       onDragStart={handleDragStart}
       onClick={() => onOpenDetails && onOpenDetails(shipment)}
-      className={`bg-white border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:shadow-lg hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group space-y-3 select-none relative overflow-hidden ${
-        isDragging ? "opacity-30 scale-95 border-sky-500 border-dashed" : ""
-      }`}
+      className={`bg-base-100 border border-slate-200/90 rounded-2xl p-4 shadow-2xs hover:shadow-lg hover:border-sky-400 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer group space-y-3 select-none relative overflow-hidden ${isDragging ? "opacity-30 scale-95 border-sky-500 border-dashed" : ""
+        }`}
     >
       {/* Top Header Row: Load Number + Mode + Priority + Financial Rate */}
       <div className="flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 flex-wrap">
           <GripVertical className="w-3.5 h-3.5 text-slate-300 group-hover:text-sky-500 transition-colors shrink-0" />
-          
+
           <button
             onClick={handleCopyLoadNum}
             className="flex items-center gap-1 font-mono font-black text-sky-800 hover:text-sky-950 text-xs px-2 py-0.5 rounded-lg bg-sky-50 hover:bg-sky-100/80 border border-sky-200/70 transition cursor-pointer"
@@ -138,11 +136,10 @@ export default function KanbanCard({
           </button>
 
           <span
-            className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase font-mono tracking-wider ${
-              loadType === "FTL"
-                ? "bg-blue-50 text-blue-700 border border-blue-200"
-                : "bg-amber-50 text-amber-700 border border-amber-200"
-            }`}
+            className={`px-2 py-0.5 rounded-md text-[9px] font-black uppercase font-mono tracking-wider ${loadType === "FTL"
+              ? "bg-blue-50 text-blue-700 border border-blue-200"
+              : "bg-amber-50 text-amber-700 border border-amber-200"
+              }`}
           >
             {loadType}
           </span>
@@ -167,7 +164,7 @@ export default function KanbanCard({
 
       {/* Modern Visual Corridor Track (Origin ➔ Transit Line ➔ Destination) */}
       <div className="bg-gradient-to-r from-slate-50 via-sky-50/40 to-slate-50 rounded-xl p-3 border border-slate-100 space-y-2">
-        <div className="flex items-center justify-between text-xs font-black text-slate-900">
+        <div className="flex items-center justify-between text-xs font-black text-base-content">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-sky-500 ring-4 ring-sky-100" />
             <span>{originCity}, {originState}</span>
@@ -181,15 +178,15 @@ export default function KanbanCard({
         {/* Visual Track Line */}
         <div className="relative flex items-center justify-center">
           <div className="w-full h-0.5 bg-slate-200 rounded-full" />
-          <div className="absolute px-2 bg-white rounded-full border border-slate-200 text-[10px] font-mono text-slate-500 font-bold flex items-center gap-1 shadow-2xs">
+          <div className="absolute px-2 bg-base-100 rounded-full border border-slate-200 text-[10px] font-mono text-base-content font-bold flex items-center gap-1 shadow-2xs">
             <Truck className="w-2.5 h-2.5 text-sky-600" />
             <span>{shipment.distance || 515} mi</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between text-[11px] text-slate-500 font-medium pt-0.5">
+        <div className="flex items-center justify-between text-[11px] text-base-content font-medium pt-0.5">
           <span className="truncate max-w-[140px] font-semibold text-slate-700">{customer}</span>
-          <span className="font-mono text-slate-500 font-semibold">{shipment.weightLbs || shipment.weight || 12000} lbs</span>
+          <span className="font-mono text-base-content font-semibold">{shipment.weightLbs || shipment.weight || 12000} lbs</span>
         </div>
       </div>
 
@@ -203,7 +200,7 @@ export default function KanbanCard({
             <span className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 ring-2 ring-white" />
           </div>
           <div className="min-w-0">
-            <div className="font-extrabold text-slate-900 text-xs truncate leading-tight">{driver}</div>
+            <div className="font-extrabold text-base-content text-xs truncate leading-tight">{driver}</div>
             <div className="text-[10px] text-slate-400 font-mono font-medium truncate">{truck} • {trailer}</div>
           </div>
         </div>
@@ -220,17 +217,17 @@ export default function KanbanCard({
       <div className="flex items-center justify-between gap-2 pt-2 border-t border-slate-100 text-[11px]">
         {shipment.status === "in_transit" ? (
           <div className="flex items-center gap-2 font-mono font-bold text-slate-700">
-            <span className="flex items-center gap-1 text-slate-900 bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
+            <span className="flex items-center gap-1 text-base-content bg-sky-50 px-2 py-0.5 rounded-md border border-sky-200">
               <Gauge className="w-3.5 h-3.5 text-sky-600" />
               {shipment.speedMph || 62} MPH
             </span>
-            <span className="flex items-center gap-1 text-slate-500 font-medium">
+            <span className="flex items-center gap-1 text-base-content font-medium">
               <Fuel className="w-3 h-3 text-slate-400" />
               {shipment.fuelLevelPercent || 84}%
             </span>
           </div>
         ) : (
-          <div className="flex items-center gap-1.5 text-slate-500 font-medium text-[11px]">
+          <div className="flex items-center gap-1.5 text-base-content font-medium text-[11px]">
             <Clock className="w-3.5 h-3.5 text-slate-400" />
             <span className="capitalize font-semibold text-slate-700">{shipment.status?.replace("_", " ") || "Pending"}</span>
           </div>
@@ -285,7 +282,7 @@ export default function KanbanCard({
                 e.stopPropagation();
                 onOpenDetails(shipment);
               }}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-sky-700 hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300 transition cursor-pointer shadow-2xs"
+              className="p-1.5 rounded-lg text-base-content hover:text-sky-700 hover:bg-sky-50 border border-slate-200/80 hover:border-sky-300 transition cursor-pointer shadow-2xs"
             >
               <Eye className="w-3.5 h-3.5" />
             </button>

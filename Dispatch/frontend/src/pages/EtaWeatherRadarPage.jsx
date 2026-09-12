@@ -86,23 +86,23 @@ export default function EtaWeatherRadarPage() {
   }
 
   return (
-    <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-slate-900">
+    <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-base-content">
       {/* Top Banner / Hero */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
+      <div className="bg-base-100 rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shrink-0">
             <Radio className="w-6 h-6 animate-pulse" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-xl font-extrabold tracking-tight text-base-content">
                 Predictive Live ETA & Highway Weather Radar
               </h1>
               <span className="px-2.5 py-0.5 text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200 rounded-full">
                 Samsara Telematics & NOAA Storm Feed
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-base-content mt-1">
               Real-time dynamic ETAs combining live vehicle speeds, US/CA border bridge wait times, corridor weather penalties, and DOT HOS clocks
             </p>
           </div>
@@ -124,20 +124,20 @@ export default function EtaWeatherRadarPage() {
       {/* Top KPI Metrics Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Tracked Loads */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Tracked Shipments</span>
             <Truck className="w-4 h-4 text-sky-600" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-1">
+          <div className="text-2xl font-extrabold text-base-content mt-1">
             {summary.totalTrackedShipments || trackedShipments.length}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">Samsara GPS Online</div>
+          <div className="text-[11px] text-base-content mt-0.5">Samsara GPS Online</div>
         </div>
 
         {/* On-Time Fleet Rate */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>On-Time Delivery Rate</span>
             <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           </div>
@@ -150,22 +150,22 @@ export default function EtaWeatherRadarPage() {
         </div>
 
         {/* Border Bridge Delay Avg */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Avg Border Wait</span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
           <div className="text-2xl font-extrabold text-amber-700 mt-1">
             {summary.averageBorderWaitMinutes} min
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-base-content mt-0.5">
             {summary.borderCrossingsMonitored} Ports of Entry
           </div>
         </div>
 
         {/* Severe Corridor Storm Alerts */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Corridor Weather Alerts</span>
             <Wind className="w-4 h-4 text-rose-500" />
           </div>
@@ -175,14 +175,14 @@ export default function EtaWeatherRadarPage() {
           >
             {summary.severeWeatherAlertsCount}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">
+          <div className="text-[11px] text-base-content mt-0.5">
             High Wind & Storm Advisories
           </div>
         </div>
 
         {/* Active Power Units */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Monitored Tractors</span>
             <Activity className="w-4 h-4 text-sky-600" />
           </div>
@@ -198,8 +198,8 @@ export default function EtaWeatherRadarPage() {
         <button
           onClick={() => setActiveTab("shipments")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "shipments"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <Radio className="w-4 h-4 text-sky-600" />
@@ -209,8 +209,8 @@ export default function EtaWeatherRadarPage() {
         <button
           onClick={() => setActiveTab("border")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "border"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <Clock className="w-4 h-4 text-amber-500" />
@@ -220,8 +220,8 @@ export default function EtaWeatherRadarPage() {
         <button
           onClick={() => setActiveTab("weather")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "weather"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <CloudRain className="w-4 h-4 text-sky-600" />
@@ -235,7 +235,7 @@ export default function EtaWeatherRadarPage() {
       {activeTab === "shipments" && (
         <div className="space-y-4">
           {/* Filter Bar */}
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white p-4 rounded-2xl border border-slate-200 shadow-xs">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-base-100 p-4 rounded-2xl border border-slate-200 shadow-xs">
             <div className="relative w-full sm:w-80">
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -243,7 +243,7 @@ export default function EtaWeatherRadarPage() {
                 placeholder="Search Load #, customer, driver, truck..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                className="w-full pl-9 pr-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
               />
             </div>
 
@@ -252,7 +252,7 @@ export default function EtaWeatherRadarPage() {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer w-full sm:w-auto"
+                className="bg-base-200 border border-slate-200 rounded-xl text-xs font-semibold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer w-full sm:w-auto"
               >
                 <option value="ALL">All Delivery Statuses</option>
                 <option value="ON_TIME">On Schedule</option>
@@ -271,7 +271,7 @@ export default function EtaWeatherRadarPage() {
               return (
                 <div
                   key={s.shipmentId}
-                  className="bg-white rounded-2xl border border-slate-200 shadow-xs hover:border-sky-300 transition-all p-5 space-y-4"
+                  className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs hover:border-sky-300 transition-all p-5 space-y-4"
                 >
                   {/* Card Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
@@ -310,7 +310,7 @@ export default function EtaWeatherRadarPage() {
                       )}
                       <button
                         onClick={() => handleOpenDetail(s)}
-                        className="px-3 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold shadow-2xs flex items-center gap-1 cursor-pointer transition-all"
+                        className="px-3 py-1.5 rounded-xl bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-bold shadow-2xs flex items-center gap-1 cursor-pointer transition-all"
                       >
                         <span>Deep-Dive Radar</span>
                         <ChevronRight className="w-3.5 h-3.5" />
@@ -345,29 +345,29 @@ export default function EtaWeatherRadarPage() {
 
                   {/* Live Radar Telemetry Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-1 text-xs">
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Live Tractor Telematics</span>
-                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      <div className="text-sm font-extrabold text-base-content mt-0.5">
                         TRK-{s.truckNumber} • {s.liveSpeedMph} MPH
                       </div>
-                      <div className="text-[11px] text-slate-500 truncate mt-0.5">
+                      <div className="text-[11px] text-base-content truncate mt-0.5">
                         Driver: {s.driverName}
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Corridor Weather</span>
-                      <div className="text-xs font-extrabold text-slate-900 mt-0.5 truncate">
+                      <div className="text-xs font-extrabold text-base-content mt-0.5 truncate">
                         {s.corridor.weatherCondition}
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5">
+                      <div className="text-[11px] text-base-content mt-0.5">
                         {s.corridor.surfaceTempF}°F • Wind: {s.corridor.windSpeedMph} mph
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Border Port Clearance</span>
-                      <div className="text-xs font-extrabold text-slate-900 mt-0.5 truncate">
+                      <div className="text-xs font-extrabold text-base-content mt-0.5 truncate">
                         {s.borderPort.portName}
                       </div>
                       <div className="text-[11px] text-amber-700 font-semibold mt-0.5">
@@ -375,12 +375,12 @@ export default function EtaWeatherRadarPage() {
                       </div>
                     </div>
 
-                    <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+                    <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Predictive Dynamic ETA</span>
                       <div className="text-sm font-extrabold text-sky-700 font-mono mt-0.5">
                         {new Date(s.dynamicEta).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                       </div>
-                      <div className="text-[11px] text-slate-500 mt-0.5 font-medium">
+                      <div className="text-[11px] text-base-content mt-0.5 font-medium">
                         {new Date(s.dynamicEta).toLocaleDateString([], { month: "short", day: "numeric" })}
                       </div>
                     </div>
@@ -396,13 +396,13 @@ export default function EtaWeatherRadarPage() {
       {/* TAB 2: CROSS-BORDER BRIDGE WAIT TIMES */}
       {/* ========================================================================= */}
       {activeTab === "border" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-base font-extrabold text-slate-900">
+              <h2 className="text-base font-extrabold text-base-content">
                 US CBP & CBSA Commercial Border Crossing Radar
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-base-content mt-0.5">
                 Real-time commercial lane wait times, FAST lane availability, and peak delay windows for Nishan Transport
               </p>
             </div>
@@ -419,12 +419,12 @@ export default function EtaWeatherRadarPage() {
               return (
                 <div
                   key={port.portCode}
-                  className="bg-slate-50 rounded-2xl border border-slate-200 p-4 space-y-3 hover:border-sky-300 transition-all shadow-2xs"
+                  className="bg-base-200 rounded-2xl border border-slate-200 p-4 space-y-3 hover:border-sky-300 transition-all shadow-2xs"
                 >
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <div className="font-extrabold text-slate-900 text-sm">{port.portName}</div>
-                      <div className="text-[11px] text-slate-500">{port.jurisdiction}</div>
+                      <div className="font-extrabold text-base-content text-sm">{port.portName}</div>
+                      <div className="text-[11px] text-base-content">{port.jurisdiction}</div>
                     </div>
                     <span
                       className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${isNormal
@@ -438,11 +438,11 @@ export default function EtaWeatherRadarPage() {
                     </span>
                   </div>
 
-                  <div className="flex items-center justify-between bg-white p-3 rounded-xl border border-slate-200">
+                  <div className="flex items-center justify-between bg-base-100 p-3 rounded-xl border border-slate-200">
                     <div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Current Wait Time</span>
-                      <div className="text-2xl font-black text-slate-900 font-mono mt-0.5">
-                        {port.currentWaitMinutes} <span className="text-xs font-normal text-slate-500">mins</span>
+                      <div className="text-2xl font-black text-base-content font-mono mt-0.5">
+                        {port.currentWaitMinutes} <span className="text-xs font-normal text-base-content">mins</span>
                       </div>
                     </div>
                     <div className="text-right">
@@ -478,13 +478,13 @@ export default function EtaWeatherRadarPage() {
       {/* TAB 3: CORRIDOR WEATHER & SEVERE STORM RADAR */}
       {/* ========================================================================= */}
       {activeTab === "weather" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 p-3 sm:p-6 shadow-xs space-y-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-4">
             <div>
-              <h2 className="text-base font-extrabold text-slate-900">
+              <h2 className="text-base font-extrabold text-base-content">
                 Highway Freight Corridor Severe Weather Radar
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-base-content mt-0.5">
                 NOAA / Environment Canada live weather advisories, wind gust rollover meters, and road traction status
               </p>
             </div>
@@ -501,17 +501,17 @@ export default function EtaWeatherRadarPage() {
               return (
                 <div
                   key={c.id}
-                  className={`bg-slate-50 rounded-2xl border p-5 space-y-4 shadow-2xs transition-all ${hasAlerts ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
+                  className={`bg-base-200 rounded-2xl border p-5 space-y-4 shadow-2xs transition-all ${hasAlerts ? "border-amber-300 bg-amber-50/20" : "border-slate-200"
                     }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-200 pb-3">
                     <div>
-                      <div className="text-sm font-extrabold text-slate-900">{c.corridorName}</div>
-                      <div className="text-[11px] text-slate-500 font-medium">{c.routeSpan}</div>
+                      <div className="text-sm font-extrabold text-base-content">{c.corridorName}</div>
+                      <div className="text-[11px] text-base-content font-medium">{c.routeSpan}</div>
                     </div>
 
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-white text-slate-700 border border-slate-200 shadow-2xs">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-base-100 text-slate-700 border border-slate-200 shadow-2xs">
                         {c.weatherCondition}
                       </span>
                       {isHighWind && (
@@ -524,30 +524,30 @@ export default function EtaWeatherRadarPage() {
 
                   {/* Telemetry Metrics Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-100 p-3 rounded-xl border border-slate-200">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Surface Temperature</span>
-                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      <div className="text-sm font-extrabold text-base-content mt-0.5">
                         {c.surfaceTempF}°F <span className="text-slate-400 text-xs font-normal">({c.ambientTempF}°F ambient)</span>
                       </div>
                     </div>
 
-                    <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-100 p-3 rounded-xl border border-slate-200">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Wind Velocity & Gusts</span>
-                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
-                        {c.windSpeedMph} mph <span className="text-slate-500 font-semibold">({c.windGustMph} mph gusts)</span>
+                      <div className="text-sm font-extrabold text-base-content mt-0.5">
+                        {c.windSpeedMph} mph <span className="text-base-content font-semibold">({c.windGustMph} mph gusts)</span>
                       </div>
                     </div>
 
-                    <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-100 p-3 rounded-xl border border-slate-200">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Road Surface Traction</span>
                       <div className="text-xs font-extrabold text-slate-800 mt-0.5 truncate">
                         {c.roadCondition}
                       </div>
                     </div>
 
-                    <div className="bg-white p-3 rounded-xl border border-slate-200">
+                    <div className="bg-base-100 p-3 rounded-xl border border-slate-200">
                       <span className="text-[10px] font-bold text-slate-400 uppercase">Visibility & Precip</span>
-                      <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                      <div className="text-sm font-extrabold text-base-content mt-0.5">
                         {c.visibilityMiles} mi • {c.precipitationPct}% rain
                       </div>
                     </div>
@@ -568,7 +568,7 @@ export default function EtaWeatherRadarPage() {
                     </div>
                   )}
 
-                  <div className="text-[11px] text-slate-500 font-medium italic">
+                  <div className="text-[11px] text-base-content font-medium italic">
                     🧭 Dispatch Advisory: {c.advisory}
                   </div>
                 </div>
@@ -583,7 +583,7 @@ export default function EtaWeatherRadarPage() {
       {/* ========================================================================= */}
       {isDetailModalOpen && selectedShipment && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 text-slate-900">
+          <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto p-6 space-y-6 text-base-content">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3">
@@ -591,10 +591,10 @@ export default function EtaWeatherRadarPage() {
                   <Compass className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-extrabold text-slate-900">
+                  <h3 className="text-base font-extrabold text-base-content">
                     Shipment Radar Breakdown • Load #{selectedShipment.loadNumber}
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-base-content">
                     {selectedShipment.customerName} • {selectedShipment.origin} ➔ {selectedShipment.destination}
                   </p>
                 </div>
@@ -609,31 +609,31 @@ export default function EtaWeatherRadarPage() {
 
             {/* Live Telemetry Summary */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Assigned Tractor</span>
-                <div className="text-sm font-extrabold text-slate-900 mt-0.5">
+                <div className="text-sm font-extrabold text-base-content mt-0.5">
                   TRK-{selectedShipment.truckNumber}
                 </div>
-                <div className="text-[11px] text-slate-500">{selectedShipment.driverName}</div>
+                <div className="text-[11px] text-base-content">{selectedShipment.driverName}</div>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Live Speed</span>
                 <div className="text-sm font-extrabold text-sky-700 mt-0.5">
                   {selectedShipment.liveSpeedMph} MPH
                 </div>
-                <div className="text-[11px] text-slate-500">Eff: {selectedShipment.effectiveSpeedMph} MPH</div>
+                <div className="text-[11px] text-base-content">Eff: {selectedShipment.effectiveSpeedMph} MPH</div>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Border Wait Delay</span>
                 <div className="text-sm font-extrabold text-amber-700 mt-0.5">
                   +{selectedShipment.borderWaitMinutes} min
                 </div>
-                <div className="text-[11px] text-slate-500 truncate">{selectedShipment.borderPort.portName}</div>
+                <div className="text-[11px] text-base-content truncate">{selectedShipment.borderPort.portName}</div>
               </div>
 
-              <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+              <div className="bg-base-200 p-3 rounded-xl border border-slate-200">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Dynamic ETA</span>
                 <div className="text-sm font-extrabold text-emerald-700 font-mono mt-0.5">
                   {new Date(selectedShipment.dynamicEta).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
@@ -659,7 +659,7 @@ export default function EtaWeatherRadarPage() {
                           : "bg-slate-300"
                         }`}
                     />
-                    <div className="text-xs font-extrabold text-slate-900 flex items-center justify-between">
+                    <div className="text-xs font-extrabold text-base-content flex items-center justify-between">
                       <span>{m.name}</span>
                       <span
                         className={`text-[10px] font-bold px-2 py-0.5 rounded ${m.status === "COMPLETED"
@@ -672,7 +672,7 @@ export default function EtaWeatherRadarPage() {
                         {m.status}
                       </span>
                     </div>
-                    <div className="text-[11px] text-slate-500">
+                    <div className="text-[11px] text-base-content">
                       Location: {m.location}
                       {m.weather && <span> • Weather: {m.weather}</span>}
                       {m.speed && <span> • Cruising: {m.speed}</span>}

@@ -73,7 +73,7 @@ export default function ReportingPage() {
   return (
     <div className="max-w-7xl mx-auto space-y-6 pb-12 print:p-0">
       {/* Executive Command Header */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600 shadow-2xs">
@@ -81,14 +81,14 @@ export default function ReportingPage() {
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-black text-slate-900 tracking-tight">
+                <h1 className="text-xl font-black text-base-content tracking-tight">
                   Executive Financial & Fleet Intelligence
                 </h1>
                 <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold font-mono bg-purple-50 text-purple-800 border border-purple-200">
                   C-SUITE & CONTROLLER VIEW
                 </span>
               </div>
-              <p className="text-xs text-slate-500 font-medium mt-0.5">
+              <p className="text-xs text-base-content font-medium mt-0.5">
                 Real-time freight unit economics (RPM/CPM), Samsara telematics, cross-border compliance, and A/R aging ledger.
               </p>
             </div>
@@ -98,17 +98,17 @@ export default function ReportingPage() {
         {/* Global Controls: Currency, Timeframe & Print */}
         <div className="flex flex-wrap items-center gap-2.5">
           {/* Currency Toggle */}
-          <div className="flex items-center bg-slate-50 p-1 rounded-xl border border-slate-200 text-xs font-mono font-bold">
+          <div className="flex items-center bg-base-200 p-1 rounded-xl border border-slate-200 text-xs font-mono font-bold">
             <button
               onClick={() => setCurrency("USD")}
-              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "USD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "USD" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
                 }`}
             >
               USD ($)
             </button>
             <button
               onClick={() => setCurrency("CAD")}
-              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "CAD" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
+              className={`px-3 py-1 rounded-lg transition-colors cursor-pointer ${currency === "CAD" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
                 }`}
             >
               CAD ($)
@@ -119,7 +119,7 @@ export default function ReportingPage() {
           <select
             value={timeframe}
             onChange={(e) => setTimeframe(e.target.value)}
-            className="px-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+            className="px-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
           >
             <option value="7d">Last 7 Days</option>
             <option value="30d">Last 30 Days (Trailing)</option>
@@ -130,16 +130,16 @@ export default function ReportingPage() {
           {/* Print/Export Button */}
           <button
             onClick={handlePrint}
-            className="px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+            className="px-3 py-1.5 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
           >
-            <Printer className="w-3.5 h-3.5 text-slate-500" />
+            <Printer className="w-3.5 h-3.5 text-base-content" />
             <span>Print Report</span>
           </button>
         </div>
       </div>
 
       {/* Live System Integration Telemetry Bar */}
-      <div className="bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
+      <div className="bg-base-100 border border-slate-200 rounded-xl px-4 py-2.5 shadow-2xs flex flex-wrap items-center justify-between gap-3 text-xs">
         <div className="flex items-center gap-4 text-slate-600 font-semibold font-mono text-[11px]">
           <div className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -167,7 +167,7 @@ export default function ReportingPage() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 py-3 px-4 text-xs font-bold border-b-2 whitespace-nowrap shrink-0 transition-all cursor-pointer ${isActive
                 ? "border-sky-600 text-sky-700 bg-sky-50/50 rounded-t-xl"
-                : "border-transparent text-slate-500 hover:text-slate-900 hover:border-slate-300"
+                : "border-transparent text-base-content hover:text-base-content hover:border-slate-300"
                 }`}
             >
               <Icon className={`w-4 h-4 ${isActive ? "text-sky-600" : "text-slate-400"}`} />

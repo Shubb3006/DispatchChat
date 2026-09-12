@@ -246,7 +246,7 @@ const TrailerFloorPlan = ({ plan }) => {
   return (
     <div className="bg-slate-950 p-5 rounded-2xl border border-slate-800 overflow-x-auto">
       <div className="min-w-[760px] space-y-2">
-        <div className="text-3xs font-mono font-bold text-slate-500 uppercase tracking-widest flex items-center justify-between">
+        <div className="text-3xs font-mono font-bold text-base-content uppercase tracking-widest flex items-center justify-between">
           <span>🚛 FRONT (CAB / NOSE)</span>
           <span className="text-slate-600 normal-case tracking-normal">
             {trailer.label} · {asFeet(trailer.lengthIn)} ×{" "}
@@ -266,7 +266,7 @@ const TrailerFloorPlan = ({ plan }) => {
               }}
             >
               {remainingPct > 9 && (
-                <span className="text-3xs font-mono font-bold text-slate-500 uppercase tracking-widest whitespace-nowrap px-1">
+                <span className="text-3xs font-mono font-bold text-base-content uppercase tracking-widest whitespace-nowrap px-1">
                   {asFeet(plan.lengthRemainingIn)} empty
                 </span>
               )}
@@ -358,7 +358,7 @@ const TrailerLoadManifest = ({ plan }) => (
   <div className="bg-slate-950 p-4 rounded-2xl border border-slate-800 overflow-x-auto">
     <table className="w-full text-left border-collapse text-3xs font-mono min-w-[640px]">
       <thead>
-        <tr className="text-slate-500 uppercase tracking-wider border-b border-slate-800">
+        <tr className="text-base-content uppercase tracking-wider border-b border-slate-800">
           <th className="px-2 py-2">Load</th>
           <th className="px-2 py-2">Skid (L×W×H)</th>
           <th className="px-2 py-2">Source</th>
@@ -412,7 +412,7 @@ const TrailerLoadManifest = ({ plan }) => (
                       </span>
                     )}
                     {pl.skid.noRotate && (
-                      <span className="inline-flex items-center gap-0.5 text-slate-500">
+                      <span className="inline-flex items-center gap-0.5 text-base-content">
                         <Lock className="h-2.5 w-2.5" />
                         fixed
                       </span>
@@ -483,7 +483,7 @@ const TrailerHeightProfile = ({ plan }) => {
           );
         })}
       </div>
-      <p className="text-3xs font-mono text-slate-500">
+      <p className="text-3xs font-mono text-base-content">
         Bars are drawn against the trailer interior height. A load with no
         measured height is planned at {asInches(48)} — confirm it before you
         promise the space.
@@ -558,7 +558,7 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
         <div className="flex flex-wrap items-center gap-2">
           {/* Equipment selector — a 26' straight truck is not a 53' van */}
           <label className="flex items-center gap-1.5 bg-slate-950 border border-slate-800 rounded-xl px-2.5 py-1.5">
-            <Ruler className="h-3.5 w-3.5 text-slate-500 shrink-0" />
+            <Ruler className="h-3.5 w-3.5 text-base-content shrink-0" />
             <select
               value={trailerTypeId}
               onChange={(e) => onTrailerTypeChange(e.target.value)}
@@ -629,7 +629,7 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
           { label: "Gross", value: grossVehicleWeight, max: 80000, tone: "text-white" },
         ].map((axle) => (
           <div key={axle.label} className="px-3 py-2.5">
-            <div className="text-3xs text-slate-500 font-bold uppercase tracking-wide">
+            <div className="text-3xs text-base-content font-bold uppercase tracking-wide">
               {axle.label}
             </div>
             <div
@@ -659,7 +659,7 @@ const Pallet3DTrailerVisualizer = ({ plan, trailerTypeId, onTrailerTypeChange })
               key={`${pl.loadNumber}-${idx}`}
               className={`px-2.5 py-1 rounded-lg border ${color.bg} ${color.border} text-white font-bold flex items-center gap-1.5`}
             >
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-base-100 animate-pulse" />
               <span>
                 Load #{pl.loadNumber} ({pl.skid.count} ×{" "}
                 {asInches(pl.skid.lengthIn)}×{asInches(pl.skid.widthIn)})
@@ -713,7 +713,7 @@ const CapacityMeter = ({ label, primary, secondary, capacity, pct, over }) => {
         >
           {primary}
         </span>
-        <span className="text-3xs text-slate-500">{capacity}</span>
+        <span className="text-3xs text-base-content">{capacity}</span>
       </div>
 
       <div className="h-1.5 w-full rounded-full bg-slate-800 overflow-hidden">
@@ -723,7 +723,7 @@ const CapacityMeter = ({ label, primary, secondary, capacity, pct, over }) => {
         />
       </div>
 
-      <div className={`text-3xs ${over ? "text-rose-400" : "text-slate-500"}`}>
+      <div className={`text-3xs ${over ? "text-rose-400" : "text-base-content"}`}>
         {secondary}
       </div>
     </div>
@@ -787,7 +787,7 @@ const SkidDimensionEditor = ({
                     <div className="text-xs font-extrabold font-mono text-white truncate">
                       #{loadNumberOf(load)}
                     </div>
-                    <div className="text-3xs font-mono text-slate-500 truncate">
+                    <div className="text-3xs font-mono text-base-content truncate">
                       {load.customer_name || "—"} · {spec.count}{" "}
                       {spec.count === 1 ? "skid" : "skids"}
                     </div>
@@ -808,7 +808,7 @@ const SkidDimensionEditor = ({
                   labels of very different lengths, wrapping leaves ragged rows
                   and orphaned buttons. */}
               <div>
-                <span className="block text-3xs font-mono font-bold uppercase text-slate-500 mb-1.5">
+                <span className="block text-3xs font-mono font-bold uppercase text-base-content mb-1.5">
                   Common footprints
                 </span>
                 <div className="grid grid-cols-2 gap-1.5">
@@ -851,7 +851,7 @@ const SkidDimensionEditor = ({
                     Number.isFinite(raw) && raw > 0 && raw < MIN_PLAUSIBLE_IN;
                   return (
                     <label key={field} className="space-y-1">
-                      <span className="block text-3xs font-mono font-bold uppercase text-slate-500">
+                      <span className="block text-3xs font-mono font-bold uppercase text-base-content">
                         {label} <span className="text-slate-600">(in)</span>
                       </span>
                       <input
@@ -886,13 +886,13 @@ const SkidDimensionEditor = ({
                     className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                   />
                   <span className="text-3xs font-mono font-bold text-slate-300 flex items-center gap-1">
-                    <Boxes className="h-3 w-3 text-slate-500" />
+                    <Boxes className="h-3 w-3 text-base-content" />
                     Stackable
                   </span>
                 </label>
 
                 <label className="flex items-center gap-1.5">
-                  <span className="text-3xs font-mono font-bold text-slate-500 uppercase">
+                  <span className="text-3xs font-mono font-bold text-base-content uppercase">
                     Max stack
                   </span>
                   <input
@@ -919,7 +919,7 @@ const SkidDimensionEditor = ({
                     className="h-3.5 w-3.5 rounded border-slate-600 bg-slate-900 text-indigo-500 focus:ring-indigo-500 cursor-pointer"
                   />
                   <span className="text-3xs font-mono font-bold text-slate-300 flex items-center gap-1">
-                    <Lock className="h-3 w-3 text-slate-500" />
+                    <Lock className="h-3 w-3 text-base-content" />
                     Do not rotate
                   </span>
                 </label>
@@ -927,7 +927,7 @@ const SkidDimensionEditor = ({
 
               {/* Save */}
               <div className="flex items-center justify-between gap-2 pt-1 border-t border-slate-800/80">
-                <span className="text-3xs font-mono text-slate-500">
+                <span className="text-3xs font-mono text-base-content">
                   Planning as {asInches(spec.lengthIn)} ×{" "}
                   {asInches(spec.widthIn)} × {asInches(spec.heightIn)}
                   {spec.stackable ? ` · ${spec.maxStack} high` : ""}
@@ -2176,24 +2176,24 @@ export default function DispatcherDashboard({
   return (
     <div
       id="dispatcher-suite"
-      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-slate-900 select-none"
+      className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 text-base-content select-none"
     >
       {/* Samsara Live Telemetry Integration Banner */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-base-100 rounded-2xl p-5 border border-slate-200 shadow-xs mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center space-x-3.5">
           <div className="w-11 h-11 bg-gradient-to-tr from-sky-600 to-indigo-600 text-white rounded-2xl flex items-center justify-center shadow-sm">
             <Compass className="h-5 w-5" />
           </div>
           <div>
             <div className="flex items-center space-x-2">
-              <h3 className="text-sm font-extrabold tracking-wide text-slate-900">
+              <h3 className="text-sm font-extrabold tracking-wide text-base-content">
                 SAMSARA FLEET CLOUD INTEGRATION
               </h3>
               <span className="text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 px-2.5 py-0.5 rounded-full">
                 ● Live Telematics Synced
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
+            <p className="text-xs text-base-content mt-0.5">
               Live GPS Telemetry, Driver HOS Logs & Vehicle Diagnostics synced with Samsara API v2.
             </p>
           </div>
@@ -2201,8 +2201,8 @@ export default function DispatcherDashboard({
 
         <div className="flex items-center space-x-3 shrink-0">
           <div className="text-right text-xs">
-            <div className="font-extrabold text-slate-900 font-mono">427 Live Tractors</div>
-            <div className="text-[11px] text-slate-500">Continuous Radar Stream</div>
+            <div className="font-extrabold text-base-content font-mono">427 Live Tractors</div>
+            <div className="text-[11px] text-base-content">Continuous Radar Stream</div>
           </div>
         </div>
       </div>
@@ -2219,15 +2219,15 @@ export default function DispatcherDashboard({
           <div className="relative">
             <button
               onClick={() => setIsKpiConfigOpen(!isKpiConfigOpen)}
-              className="px-3 py-1.5 text-xs font-semibold bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-200 shadow-2xs flex items-center space-x-1.5 cursor-pointer transition-colors"
+              className="px-3 py-1.5 text-xs font-semibold bg-base-100 hover:bg-base-200 text-slate-700 rounded-xl border border-slate-200 shadow-2xs flex items-center space-x-1.5 cursor-pointer transition-colors"
             >
-              <Settings className="h-3.5 w-3.5 text-slate-500" />
+              <Settings className="h-3.5 w-3.5 text-base-content" />
               <span>Customize Cards</span>
             </button>
 
             {isKpiConfigOpen && (
-              <div className="absolute right-0 mt-1.5 w-56 bg-white rounded-2xl shadow-xl border border-slate-200 p-3.5 z-50 animate-fade-in text-xs space-y-2 text-slate-800">
-                <div className="font-bold text-[11px] text-slate-500 uppercase pb-1.5 border-b border-slate-100">
+              <div className="absolute right-0 mt-1.5 w-56 bg-base-100 rounded-2xl shadow-xl border border-slate-200 p-3.5 z-50 animate-fade-in text-xs space-y-2 text-slate-800">
+                <div className="font-bold text-[11px] text-base-content uppercase pb-1.5 border-b border-slate-100">
                   Toggle Visible KPI Cards
                 </div>
                 {[
@@ -2239,7 +2239,7 @@ export default function DispatcherDashboard({
                 ].map((item) => (
                   <label
                     key={item.key}
-                    className="flex items-center space-x-2 text-slate-700 hover:text-slate-900 cursor-pointer font-medium select-none py-0.5"
+                    className="flex items-center space-x-2 text-slate-700 hover:text-base-content cursor-pointer font-medium select-none py-0.5"
                   >
                     <input
                       type="checkbox"
@@ -2257,12 +2257,12 @@ export default function DispatcherDashboard({
 
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5">
           {kpiCards.includes("active_fleet") && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500">
+                <p className="text-[11px] font-bold uppercase text-base-content">
                   Active Fleet
                 </p>
-                <h4 className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
+                <h4 className="text-xl font-extrabold text-base-content font-mono mt-0.5">
                   {fleetSummary.total > 0 ? fleetSummary.total : "—"}
                 </h4>
                 <p className="text-[10px] font-semibold text-slate-400 mt-0.5">
@@ -2276,16 +2276,16 @@ export default function DispatcherDashboard({
           )}
 
           {kpiCards.includes("total_weight") && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500">
+                <p className="text-[11px] font-bold uppercase text-base-content">
                   Total Freight Vol
                 </p>
-                <h4 className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
+                <h4 className="text-xl font-extrabold text-base-content font-mono mt-0.5">
                   {shipments
                     .reduce((acc, s) => acc + Number(s.weightLbs || 12000), 0)
                     .toLocaleString()}{" "}
-                  <span className="text-xs font-normal text-slate-500">lbs</span>
+                  <span className="text-xs font-normal text-base-content">lbs</span>
                 </h4>
               </div>
               <div className="p-2.5 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-xl shadow-2xs">
@@ -2295,9 +2295,9 @@ export default function DispatcherDashboard({
           )}
 
           {kpiCards.includes("pending_bol") && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500">
+                <p className="text-[11px] font-bold uppercase text-base-content">
                   Pending BOL Review
                 </p>
                 <h4 className="text-xl font-extrabold text-amber-700 font-mono mt-0.5">
@@ -2311,12 +2311,12 @@ export default function DispatcherDashboard({
           )}
 
           {kpiCards.includes("unbilled_rev") && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500">
+                <p className="text-[11px] font-bold uppercase text-base-content">
                   Est. Freight Revenue
                 </p>
-                <h4 className="text-xl font-extrabold text-slate-900 font-mono mt-0.5">
+                <h4 className="text-xl font-extrabold text-base-content font-mono mt-0.5">
                   ${(shipments.length * 1850).toLocaleString()}
                 </h4>
               </div>
@@ -2327,9 +2327,9 @@ export default function DispatcherDashboard({
           )}
 
           {kpiCards.includes("delivered_today") && (
-            <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+            <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
               <div>
-                <p className="text-[11px] font-bold uppercase text-slate-500">
+                <p className="text-[11px] font-bold uppercase text-base-content">
                   Delivered Loads
                 </p>
                 <h4 className="text-xl font-extrabold text-emerald-700 font-mono mt-0.5">
@@ -2351,7 +2351,7 @@ export default function DispatcherDashboard({
             onClick={() => setActiveView("grid")}
             className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 whitespace-nowrap shrink-0 ${activeView === "grid"
               ? "border-sky-600 text-sky-700 font-extrabold"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              : "border-transparent text-base-content hover:text-slate-800"
               }`}
           >
             <Layers className="h-4 w-4 text-sky-600" />
@@ -2363,7 +2363,7 @@ export default function DispatcherDashboard({
             onClick={() => setActiveView("consolidation")}
             className={`pb-3 text-xs font-bold uppercase tracking-wider transition-all border-b-2 cursor-pointer flex items-center space-x-2 whitespace-nowrap shrink-0 ${activeView === "consolidation"
               ? "border-sky-600 text-sky-700 font-extrabold"
-              : "border-transparent text-slate-500 hover:text-slate-800"
+              : "border-transparent text-base-content hover:text-slate-800"
               }`}
           >
             <Compass className="h-4 w-4 text-slate-400" />
@@ -2402,9 +2402,9 @@ export default function DispatcherDashboard({
         </div>
       </div>
 
-      <div className="bg-white p-5 rounded-2xl shadow-xs border border-slate-200 border-l-4 border-l-amber-500 mb-8 space-y-4 text-slate-900">
+      <div className="bg-base-100 p-5 rounded-2xl shadow-xs border border-slate-200 border-l-4 border-l-amber-500 mb-8 space-y-4 text-base-content">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+          <h2 className="text-base font-extrabold text-base-content flex items-center gap-2">
             <FileText className="h-5 w-5 text-amber-500" />
             <span>Pending BOL Approvals Awaiting Review ({pendingBOLs.length})</span>
           </h2>
@@ -2414,14 +2414,14 @@ export default function DispatcherDashboard({
         </div>
 
         {pendingBOLs.length === 0 ? (
-          <p className="text-slate-500 text-xs font-medium italic">
+          <p className="text-base-content text-xs font-medium italic">
             No unapproved BOL documents found at the moment. When a driver uploads a BOL or load picture, it will appear here for verification.
           </p>
         ) : (
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
+                <tr className="border-b border-slate-200 bg-base-200 text-[11px] font-bold text-slate-600 uppercase tracking-wider">
                   <th className="p-3">Load Number</th>
                   <th className="p-3">Assigned Driver</th>
                   <th className="p-3">Uploaded BOL / Photo</th>
@@ -2460,7 +2460,7 @@ export default function DispatcherDashboard({
                       <td className="p-3 font-bold font-mono text-indigo-600">
                         #{loadNum}
                       </td>
-                      <td className="p-3 font-semibold text-slate-900">
+                      <td className="p-3 font-semibold text-base-content">
                         {s.driverName || s.driver_name || "Marcus Vance"}
                       </td>
                       <td className="p-3 font-mono">
@@ -2527,7 +2527,7 @@ export default function DispatcherDashboard({
       {/* PENDING BOL DOCUMENT VERIFICATION PREVIEW MODAL */}
       {pendingDocPreview && (
         <div className="fixed inset-0 bg-slate-900/80 backdrop-blur-md flex items-center justify-center p-4 z-50 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden font-sans flex flex-col max-h-[90vh]">
+          <div className="bg-base-100 rounded-3xl max-w-3xl w-full border border-slate-200 shadow-2xl overflow-hidden font-sans flex flex-col max-h-[90vh]">
             {/* Modal Header */}
             <div className="bg-slate-900 text-white p-4 sm:p-5 flex items-center justify-between shrink-0">
               <div className="flex items-center space-x-3">
@@ -2584,7 +2584,7 @@ export default function DispatcherDashboard({
                   pendingDocPreview.url.toLowerCase().endsWith(".pdf") ? (
                     <iframe
                       src={pendingDocPreview.url}
-                      className="w-full h-80 rounded-xl border border-slate-800 bg-white"
+                      className="w-full h-80 rounded-xl border border-slate-800 bg-base-100"
                       title="Uploaded PDF Preview"
                     />
                   ) : (
@@ -2610,7 +2610,7 @@ export default function DispatcherDashboard({
               </div>
 
               {/* Complete PDF Freight Bill of Lading Document Sheet */}
-              <div className="bg-white p-6 sm:p-8 rounded-2xl border border-slate-300 shadow-md space-y-6 font-mono text-xs text-slate-800 relative">
+              <div className="bg-base-100 p-6 sm:p-8 rounded-2xl border border-slate-300 shadow-md space-y-6 font-mono text-xs text-slate-800 relative">
                 {/* Stamp Seal */}
                 <div className="absolute top-6 right-6 border-2 border-emerald-600 text-emerald-700 rounded-xl px-3 py-1 text-3xs font-extrabold uppercase tracking-widest rotate-3 bg-emerald-50/80 shadow-xs pointer-events-none">
                   ✔ DRIVER SIGNED & VERIFIED
@@ -2619,10 +2619,10 @@ export default function DispatcherDashboard({
                 {/* PDF Header */}
                 <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4">
                   <div className="space-y-1">
-                    <div className="text-lg font-black text-slate-900 font-sans tracking-tight uppercase">
+                    <div className="text-lg font-black text-base-content font-sans tracking-tight uppercase">
                       OZACK FREIGHT SYSTEMS
                     </div>
-                    <div className="text-3xs text-slate-500 font-bold">
+                    <div className="text-3xs text-base-content font-bold">
                       STANDARD BILL OF LADING FOR FREIGHT SHIPMENTS
                     </div>
                   </div>
@@ -2631,7 +2631,7 @@ export default function DispatcherDashboard({
                     <div className="text-sm font-extrabold text-indigo-600 font-mono">
                       #{pendingDocPreview.loadNumber}
                     </div>
-                    <div className="text-3xs text-slate-500">
+                    <div className="text-3xs text-base-content">
                       Date: {new Date().toLocaleDateString()}
                     </div>
                   </div>
@@ -2639,11 +2639,11 @@ export default function DispatcherDashboard({
 
                 {/* Shipper & Consignee Info Grid */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                       SHIPPER (FROM / ORIGIN)
                     </div>
-                    <div className="text-xs font-bold text-slate-900 font-sans">
+                    <div className="text-xs font-bold text-base-content font-sans">
                       {pendingDocPreview.loadItem?.shipper_name || pendingDocPreview.loadItem?.customer_name || pendingDocPreview.loadItem?.customerName || "AeroParts Manufacturing Yard"}
                     </div>
                     <div className="text-3xs text-slate-600 leading-relaxed">
@@ -2651,11 +2651,11 @@ export default function DispatcherDashboard({
                     </div>
                   </div>
 
-                  <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                  <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                     <div className="text-3xs font-bold text-slate-400 uppercase tracking-wider">
                       CONSIGNEE (TO / DESTINATION)
                     </div>
-                    <div className="text-xs font-bold text-slate-900 font-sans">
+                    <div className="text-xs font-bold text-base-content font-sans">
                       {pendingDocPreview.loadItem?.consignee_name || "Midwest Cargo Distribution Center"}
                     </div>
                     <div className="text-3xs text-slate-600 leading-relaxed">
@@ -2681,7 +2681,7 @@ export default function DispatcherDashboard({
                           <td className="p-2.5 font-bold font-mono">
                             {pendingDocPreview.loadItem?.pieces || pendingDocPreview.loadItem?.pallets || 4} Pallets / Skids
                           </td>
-                          <td className="p-2.5 font-bold text-slate-900 font-sans">
+                          <td className="p-2.5 font-bold text-base-content font-sans">
                             {pendingDocPreview.loadItem?.cargo || pendingDocPreview.loadItem?.cargoDescription || "Industrial Logistics Cargo Parts"}
                           </td>
                           <td className="p-2.5 font-mono">
@@ -2704,7 +2704,7 @@ export default function DispatcherDashboard({
                       <span>DRIVER DIGITAL SIGN-OFF ATTACHED</span>
                     </div>
                     <div className="text-slate-700 font-sans">
-                      Driver: <strong className="text-slate-900">{pendingDocPreview.driverName}</strong> • Verified via Ozack Mobile App
+                      Driver: <strong className="text-base-content">{pendingDocPreview.driverName}</strong> • Verified via Ozack Mobile App
                     </div>
                   </div>
                   <div className="px-3 py-1.5 bg-emerald-600 text-white font-mono font-bold rounded-lg text-center uppercase tracking-wide shrink-0">
@@ -2715,7 +2715,7 @@ export default function DispatcherDashboard({
             </div>
 
             {/* Modal Footer Controls */}
-            <div className="p-4 bg-white border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
+            <div className="p-4 bg-base-100 border-t border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shrink-0">
               <button
                 type="button"
                 onClick={() => {
@@ -2762,7 +2762,7 @@ export default function DispatcherDashboard({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Left 8 Columns: Load Consolidation Planner */}
           <div className="lg:col-span-8 space-y-6">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
+            <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden p-6 space-y-6">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <div className="flex items-center space-x-3">
@@ -2770,10 +2770,10 @@ export default function DispatcherDashboard({
                     <Compass className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-bold text-slate-900">
+                    <h3 className="text-lg font-bold text-base-content">
                       LTL Load Bundling & Trailer Space Optimizer
                     </h3>
-                    <p className="text-xs text-slate-500 mt-0.5 font-medium">
+                    <p className="text-xs text-base-content mt-0.5 font-medium">
                       Bundle multiple LTL (or FTL) shipments into a single,
                       high-efficiency consolidated dispatch trip.
                     </p>
@@ -2787,9 +2787,9 @@ export default function DispatcherDashboard({
                   <Sparkles className="h-4 w-4 text-indigo-500" />
                   1. Configure Active Driver, Truck & Trailer Assets
                 </h4>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-base-200 p-4 rounded-xl border border-slate-200">
                   <div>
-                    <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                       Select Driver Profile
                     </label>
                     <select
@@ -2806,7 +2806,7 @@ export default function DispatcherDashboard({
                           setConsolidationTrailer(matched?.trailer);
                         }
                       }}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 font-semibold"
                     >
                       <option value="">Select a driver</option>
                       {mockDrivers.map((drv) => (
@@ -2817,25 +2817,25 @@ export default function DispatcherDashboard({
                     </select>
                   </div>
                   <div>
-                    <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                       Truck Number (Assigned)
                     </label>
                     <input
                       type="text"
                       value={consolidationTruck}
                       onChange={(e) => setConsolidationTruck(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-mono"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 font-mono"
                     />
                   </div>
                   <div>
-                    <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                    <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                       Trailer Number (Assigned)
                     </label>
                     <input
                       type="text"
                       value={consolidationTrailer}
                       onChange={(e) => setConsolidationTrailer(e.target.value)}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-mono"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 font-mono"
                     />
                   </div>
                 </div>
@@ -2848,7 +2848,7 @@ export default function DispatcherDashboard({
                     <Layers className="h-4 w-4 text-indigo-500" />
                     1. Select Shipments to Bundle
                   </h4>
-                  <span className="text-3xs font-mono font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                  <span className="text-3xs font-mono font-bold text-base-content bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
                     Showing {filteredWarehouseLoads.length} warehouse loads
                   </span>
                 </div>
@@ -2883,7 +2883,7 @@ export default function DispatcherDashboard({
                         onChange={(e) =>
                           setPlannerSelectedState(e.target.value)
                         }
-                        className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+                        className="w-full bg-base-100 border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
                       >
                         <option value="all">
                           📍 All US Destination States (51 States)
@@ -2905,7 +2905,7 @@ export default function DispatcherDashboard({
                           value={plannerPickSearch}
                           onChange={(e) => setPlannerPickSearch(e.target.value)}
                           placeholder="Search Pickup city, state, zip (e.g. TX, Chicago, 48201)..."
-                          className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-full pl-8 pr-2.5 py-1.5 bg-base-100 border border-slate-300 rounded-lg text-xs font-semibold text-base-content focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       {/* <button
@@ -2924,7 +2924,7 @@ export default function DispatcherDashboard({
                           value={plannerDestSearch}
                           onChange={(e) => setPlannerDestSearch(e.target.value)}
                           placeholder="Search destination city, state, zip (e.g. TX, Chicago, 48201)..."
-                          className="w-full pl-8 pr-2.5 py-1.5 bg-white border border-slate-300 rounded-lg text-xs font-semibold text-slate-900 focus:outline-none focus:ring-1 focus:ring-indigo-500"
+                          className="w-full pl-8 pr-2.5 py-1.5 bg-base-100 border border-slate-300 rounded-lg text-xs font-semibold text-base-content focus:outline-none focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       {/* <button
@@ -2939,11 +2939,11 @@ export default function DispatcherDashboard({
                 </div>
 
                 {/* Table of eligible shipments */}
-                <div className="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                <div className="border border-slate-200 rounded-xl overflow-hidden bg-base-100">
                   <div className="overflow-x-auto">
                     <table className="w-full text-left border-collapse text-xs">
                       <thead>
-                        <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-3xs font-bold uppercase tracking-wider">
+                        <tr className="bg-base-200 border-b border-slate-200 text-base-content font-mono text-3xs font-bold uppercase tracking-wider">
                           <th className="px-4 py-2.5 w-12 text-center">
                             Select
                           </th>
@@ -2960,7 +2960,7 @@ export default function DispatcherDashboard({
                           <tr>
                             <td
                               colSpan={7}
-                              className="px-4 py-8 text-center text-slate-500 font-medium"
+                              className="px-4 py-8 text-center text-base-content font-medium"
                             >
                               {plannerDestSearch ||
                                 plannerSelectedState !== "all"
@@ -3000,9 +3000,9 @@ export default function DispatcherDashboard({
                                     className="h-4 w-4 text-indigo-600 rounded border-slate-300 focus:ring-indigo-500 cursor-pointer"
                                   />
                                 </td>
-                                <td className="px-4 py-3 font-semibold text-slate-900">
+                                <td className="px-4 py-3 font-semibold text-base-content">
                                   <div>{s.load_number}</div>
-                                  <div className="text-3xs text-slate-500 font-normal truncate max-w-[120px]">
+                                  <div className="text-3xs text-base-content font-normal truncate max-w-[120px]">
                                     {s.customer_name}
                                   </div>
                                 </td>
@@ -3072,7 +3072,7 @@ export default function DispatcherDashboard({
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Weight Utilization */}
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                    <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                       <div className="flex justify-between text-xs font-bold">
                         <span className="text-slate-600">
                           Trailer Weight Utilization
@@ -3113,7 +3113,7 @@ export default function DispatcherDashboard({
                     </div>
 
                     {/* Floor length utilization — capacity is linear feet, not a slot count */}
-                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-1.5">
+                    <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-1.5">
                       <div className="flex justify-between text-xs font-bold">
                         <span className="text-slate-600">
                           Trailer Floor Utilization
@@ -3149,7 +3149,7 @@ export default function DispatcherDashboard({
                           {asFeet(trailerPlan.overflowIn)}.
                         </p>
                       ) : (
-                        <p className="text-slate-500 text-3xs font-semibold">
+                        <p className="text-base-content text-3xs font-semibold">
                           {trailerPlan.totalSkids} skids in{" "}
                           {trailerPlan.rows.length}{" "}
                           {trailerPlan.rows.length === 1 ? "row" : "rows"} ·{" "}
@@ -3201,7 +3201,7 @@ export default function DispatcherDashboard({
 
           {/* Right 4 Columns: Trips Manifest */}
           <div className="lg:col-span-4 space-y-6">
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+            <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
               <div className="border-b border-slate-100 pb-2.5 flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <div className="p-1.5 bg-indigo-50 text-indigo-700 rounded-lg">
@@ -3226,7 +3226,7 @@ export default function DispatcherDashboard({
                   placeholder="Find Trip # or Load #..."
                   value={globalSearchQuery}
                   onChange={(e) => setGlobalSearchQuery(e.target.value)}
-                  className="block w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
+                  className="block w-full pl-8 pr-3 py-1.5 text-xs bg-base-200 border border-slate-200 rounded-lg text-base-content placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 font-semibold"
                 />
               </div>
 
@@ -3286,8 +3286,8 @@ export default function DispatcherDashboard({
                         <div
                           key={trip.id}
                           className={`rounded-xl border transition-all p-3.5 space-y-3 cursor-pointer ${isExpanded
-                            ? "bg-slate-50 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
-                            : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
+                            ? "bg-base-200 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
+                            : "bg-base-100 border-slate-200 hover:border-slate-300 hover:bg-base-200/50"
                             }`}
                           // onClick={() =>
                           //   setShowSelectedTripDetailsId(
@@ -3316,7 +3316,7 @@ export default function DispatcherDashboard({
                         >
                           <div className="flex items-center justify-between">
                             <div className="flex items-center space-x-1.5">
-                              <span className="text-xs font-bold text-slate-900">
+                              <span className="text-xs font-bold text-base-content">
                                 Trip #{trip.trip_number}
                               </span>
                               <span className="text-3xs font-mono bg-indigo-50 text-indigo-700 px-1 py-0.2 rounded border border-indigo-100 uppercase font-bold">
@@ -3381,7 +3381,7 @@ export default function DispatcherDashboard({
                           </div>
 
                           {/* Driver & truck brief */}
-                          <div className="grid grid-cols-2 gap-2 text-3xs text-slate-500 font-mono">
+                          <div className="grid grid-cols-2 gap-2 text-3xs text-base-content font-mono">
                             <div>
                               <span className="text-slate-400 uppercase font-bold text-[9px]">
                                 Driver:
@@ -3401,7 +3401,7 @@ export default function DispatcherDashboard({
                           </div>
 
                           {/* Brief weight metrics */}
-                          <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-2 text-3xs font-mono text-slate-500">
+                          <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-2 text-3xs font-mono text-base-content">
                             <div>
                               <span className="text-slate-400 uppercase font-bold text-[9px]">
                                 Weight:
@@ -3434,7 +3434,7 @@ export default function DispatcherDashboard({
                                 {tripLoads.map((load) => (
                                   <div
                                     key={load.id}
-                                    className="bg-white border border-slate-100 rounded-lg p-2 flex items-center justify-between text-xs hover:border-slate-300 cursor-pointer"
+                                    className="bg-base-100 border border-slate-100 rounded-lg p-2 flex items-center justify-between text-xs hover:border-slate-300 cursor-pointer"
                                     onClick={() => {
                                       setSelectedShipment(load);
                                       setIsDetailModalOpen(true);
@@ -3514,13 +3514,13 @@ export default function DispatcherDashboard({
         <div className="w-full space-y-6">
           <div className="w-full space-y-6">
             {/* Active Shipments Section */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden text-slate-900">
-              <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-slate-50">
+            <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs overflow-hidden text-base-content">
+              <div className="px-5 py-3.5 border-b border-slate-200 flex items-center justify-between bg-base-200">
                 <div className="flex items-center space-x-2.5">
                   <div className="p-1.5 bg-sky-50 text-sky-700 rounded-lg border border-sky-200">
                     <FileSpreadsheet className="h-4 w-4" />
                   </div>
-                  <h3 className="text-sm font-extrabold font-sans tracking-wide text-slate-900">
+                  <h3 className="text-sm font-extrabold font-sans tracking-wide text-base-content">
                     Active Fleet Operations Manifest
                   </h3>
                 </div>
@@ -3528,11 +3528,11 @@ export default function DispatcherDashboard({
                   currentUser.role === "admin" ||
                   currentUser.role === "data_entry") && (
                     <div className="flex items-center space-x-2">
-                      <label className="flex items-center space-x-1.5 px-3 py-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 shadow-2xs">
+                      <label className="flex items-center space-x-1.5 px-3 py-1.5 bg-base-100 hover:bg-base-200 text-slate-700 rounded-xl text-xs font-bold cursor-pointer transition-colors border border-slate-200 shadow-2xs">
                         {isUploadingRateCon ? (
                           <Compass className="h-3.5 w-3.5 animate-spin text-sky-600" />
                         ) : (
-                          <Paperclip className="h-3.5 w-3.5 text-slate-500" />
+                          <Paperclip className="h-3.5 w-3.5 text-base-content" />
                         )}
                         <span>
                           {isUploadingRateCon ? "Parsing..." : "Upload Rate Con"}
@@ -3567,19 +3567,19 @@ export default function DispatcherDashboard({
                       <Plus className="h-4 w-4 text-indigo-600" />
                       Create & Dispatch New Shipment
                     </h4>
-                    <span className="text-3xs font-mono text-slate-500 uppercase">
+                    <span className="text-3xs font-mono text-base-content uppercase">
                       Interactive Load File Builder
                     </span>
                   </div>
 
                   {/* Section 1: Customer Details */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                  <div className="bg-base-100 border border-slate-200 rounded-xl p-4 space-y-3">
                     <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                       1. Customer Details
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Customer / Broker
                         </label>
                         <select
@@ -3600,7 +3600,7 @@ export default function DispatcherDashboard({
                               setCustomerAddress("");
                             }
                           }}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800 focus:ring-1 focus:ring-indigo-500"
                         >
                           <option>Select a Customer</option>
                           {customers.map((cust) => (
@@ -3612,7 +3612,7 @@ export default function DispatcherDashboard({
                         </select>
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Customer Account Name
                         </label>
                         <input
@@ -3620,12 +3620,12 @@ export default function DispatcherDashboard({
                           value={customerName}
                           onChange={(e) => setCustomerName(e.target.value)}
                           placeholder="e.g. Caterpillar Heavy"
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800 focus:ring-1 focus:ring-indigo-500"
                           required
                         />
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Customer Email
                         </label>
                         <input
@@ -3633,11 +3633,11 @@ export default function DispatcherDashboard({
                           value={customerEmail}
                           onChange={(e) => setCustomerEmail(e.target.value)}
                           placeholder="customer@example.com"
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800 focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Customer Phone
                         </label>
                         <input
@@ -3645,11 +3645,11 @@ export default function DispatcherDashboard({
                           value={customerPhone}
                           onChange={(e) => setCustomerPhone(e.target.value)}
                           placeholder="+1 (555) 019-2831"
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800 focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Customer Billing Address
                         </label>
                         <input
@@ -3657,7 +3657,7 @@ export default function DispatcherDashboard({
                           value={customerAddress}
                           onChange={(e) => setCustomerAddress(e.target.value)}
                           placeholder="100 Industrial Way, Suite A"
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800 focus:ring-1 focus:ring-indigo-500"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800 focus:ring-1 focus:ring-indigo-500"
                         />
                       </div>
                     </div>
@@ -3666,14 +3666,14 @@ export default function DispatcherDashboard({
                   {/* Section 2: Shipper & Consignee Columns */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {/* Shipper details */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="bg-base-100 border border-slate-200 rounded-xl p-4 space-y-3">
                       <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                         2. Shipper (Pickup) Details
                       </div>
                       <div className="space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Shipper Name{" "}
                               <span className="text-red-800">*</span>
                             </label>
@@ -3683,11 +3683,11 @@ export default function DispatcherDashboard({
                               value={shipperName}
                               onChange={(e) => setShipperName(e.target.value)}
                               placeholder="e.g. AeroParts Toronto HQ"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                           {/* <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Shipper Phone
                             </label>
                             <input
@@ -3695,12 +3695,12 @@ export default function DispatcherDashboard({
                               value={shipperPhone}
                               onChange={(e) => setShipperPhone(e.target.value)}
                               placeholder="+1 (416) 555-0199"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div> */}
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Shipper Street Address{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3710,12 +3710,12 @@ export default function DispatcherDashboard({
                             value={shipperAddress}
                             onChange={(e) => setShipperAddress(e.target.value)}
                             placeholder="e.g. 400 Britannia Rd E, Mississauga, ON"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                           />
                         </div>
                         <div></div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Shipper District{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3724,12 +3724,12 @@ export default function DispatcherDashboard({
                             value={shipperDistrict}
                             onChange={(e) => setShipperDistrict(e.target.value)}
                             placeholder="e.g. Montreal"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Shipper State{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3738,12 +3738,12 @@ export default function DispatcherDashboard({
                             value={shipperState}
                             onChange={(e) => setShipperState(e.target.value)}
                             placeholder="e.g. Montreal"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Shipper Zipcode{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3752,12 +3752,12 @@ export default function DispatcherDashboard({
                             value={shipperZipcode}
                             onChange={(e) => setShipperZipcode(e.target.value)}
                             placeholder="e.g. 12503"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Shipper Country{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3766,7 +3766,7 @@ export default function DispatcherDashboard({
                             value={shipperCountry}
                             onChange={(e) => setShipperCountry(e.target.value)}
                             placeholder="e.g. Canada"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
@@ -3774,14 +3774,14 @@ export default function DispatcherDashboard({
                     </div>
 
                     {/* Consignee details */}
-                    <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                    <div className="bg-base-100 border border-slate-200 rounded-xl p-4 space-y-3">
                       <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                         3. Consignee (Delivery) Details
                       </div>
                       {/* <div className="space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Consignee Name
                             </label>
                             <input
@@ -3789,11 +3789,11 @@ export default function DispatcherDashboard({
                               value={consigneeName}
                               onChange={(e) => setConsigneeName(e.target.value)}
                               placeholder="e.g. Midwest Aero Chicago Assembly"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Consignee Phone
                             </label>
                             <input
@@ -3803,12 +3803,12 @@ export default function DispatcherDashboard({
                                 setConsigneePhone(e.target.value)
                               }
                               placeholder="+1 (312) 555-0210"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee Street Address
                           </label>
                           <input
@@ -3818,11 +3818,11 @@ export default function DispatcherDashboard({
                               setConsigneeAddress(e.target.value)
                             }
                             placeholder="e.g. 1000 Assembly Dr, Chicago, IL"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Destination City & State / Province
                           </label>
                           <input
@@ -3830,7 +3830,7 @@ export default function DispatcherDashboard({
                             value={destination}
                             onChange={(e) => setDestination(e.target.value)}
                             placeholder="e.g. Chicago, IL"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
@@ -3838,7 +3838,7 @@ export default function DispatcherDashboard({
                       <div className="space-y-3">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Consignee Name{" "}
                               <span className="text-red-800">*</span>
                             </label>
@@ -3848,11 +3848,11 @@ export default function DispatcherDashboard({
                               value={consigneeName}
                               onChange={(e) => setConsigneeName(e.target.value)}
                               placeholder="e.g. AeroParts Toronto HQ"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                           {/* <div>
-                            <label className="block text-3xs font-bold text-slate-500 uppercase">
+                            <label className="block text-3xs font-bold text-base-content uppercase">
                               Shipper Phone
                             </label>
                             <input
@@ -3860,12 +3860,12 @@ export default function DispatcherDashboard({
                               value={shipperPhone}
                               onChange={(e) => setShipperPhone(e.target.value)}
                               placeholder="+1 (416) 555-0199"
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             />
                           </div> */}
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee Street Address{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3877,12 +3877,12 @@ export default function DispatcherDashboard({
                               setConsigneeAddress(e.target.value)
                             }
                             placeholder="e.g. 400 Britannia Rd E, Mississauga, ON"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee District{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3893,12 +3893,12 @@ export default function DispatcherDashboard({
                               setConsigneeDistrict(e.target.value)
                             }
                             placeholder="e.g. Montreal"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee State{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3907,12 +3907,12 @@ export default function DispatcherDashboard({
                             value={consigneeState}
                             onChange={(e) => setConsigneeState(e.target.value)}
                             placeholder="e.g. Montreal"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee Zipcode{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3923,12 +3923,12 @@ export default function DispatcherDashboard({
                               setConsigneeZipcode(e.target.value)
                             }
                             placeholder="e.g. 12503"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
                         <div>
-                          <label className="block text-3xs font-bold text-slate-500 uppercase">
+                          <label className="block text-3xs font-bold text-base-content uppercase">
                             Consignee Country{" "}
                             <span className="text-red-800">*</span>
                           </label>
@@ -3939,7 +3939,7 @@ export default function DispatcherDashboard({
                               setConsigneeCountry(e.target.value)
                             }
                             placeholder="e.g. Canada"
-                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                            className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                             required
                           />
                         </div>
@@ -3948,13 +3948,13 @@ export default function DispatcherDashboard({
                   </div>
 
                   {/* Section 3: Cargo, Weight, and Driver details */}
-                  <div className="bg-white border border-slate-200 rounded-xl p-4 space-y-3">
+                  <div className="bg-base-100 border border-slate-200 rounded-xl p-4 space-y-3">
                     <div className="text-[10px] font-mono uppercase tracking-wider font-extrabold text-indigo-950">
                       4. Cargo, Routing & Dispatch Assets
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
                       {/* <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Assigned Driver
                         </label>
                         <select
@@ -3980,7 +3980,7 @@ export default function DispatcherDashboard({
                               );
                             }
                           }}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 font-semibold text-slate-800"
                         >
                           <option value="" defaultChecked>
                             Select a driver
@@ -3994,26 +3994,26 @@ export default function DispatcherDashboard({
                         </select>
                       </div> */}
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase font-semibold text-indigo-950">
+                        <label className="block text-3xs font-bold text-base-content uppercase font-semibold text-indigo-950">
                           Freight Load Mode
                         </label>
                         <select
                           value={loadType}
                           onChange={(e) => setLoadType(e.target.value)}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-bold text-indigo-700"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 font-bold text-indigo-700"
                         >
                           <option value="LTL">LTL (Less-Than-Truckload)</option>
                           <option value="FTL">FTL (Full Truckload)</option>
                         </select>
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase font-semibold text-indigo-950">
+                        <label className="block text-3xs font-bold text-base-content uppercase font-semibold text-indigo-950">
                           Commitment
                         </label>
                         <select
                           value={priority}
                           onChange={(e) => setPriority(e.target.value)}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-bold text-indigo-700"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 font-bold text-indigo-700"
                         >
                           <option value="Normal">Normal Delivery</option>
                           <option value="Appointment">Appointment</option>
@@ -4026,7 +4026,7 @@ export default function DispatcherDashboard({
                         </select>
                       </div>
                       <div className="col-span-1 md:col-span-2">
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Cargo Description
                         </label>
                         <input
@@ -4034,49 +4034,49 @@ export default function DispatcherDashboard({
                           value={cargo}
                           onChange={(e) => setCargo(e.target.value)}
                           placeholder="e.g. Precision aircraft gears (6 pallets)"
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                         />
                       </div>
                     </div>
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Total Weight (Lbs)
                         </label>
                         <input
                           type="number"
                           value={weight}
                           onChange={(e) => setWeight(Number(e.target.value))}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                         />
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Pallet Count
                         </label>
                         <input
                           type="number"
                           value={pallets}
                           onChange={(e) => setPallets(Number(e.target.value))}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                         />
                       </div>
                       <div>
-                        <label className="block text-3xs font-bold text-slate-500 uppercase">
+                        <label className="block text-3xs font-bold text-base-content uppercase">
                           Total Est. Distance (Miles)
                         </label>
                         <input
                           type="number"
                           value={distance}
                           onChange={(e) => setDistance(Number(e.target.value))}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                         />
                       </div>
                     </div>
 
                     {/* Samsara Intelligent Recommendations Widget */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 mt-2">
+                    <div className="bg-base-200 border border-slate-200 rounded-xl p-4 mt-2">
                       <div className="flex items-center justify-between mb-3">
                         <div className="flex items-center space-x-1.5">
                           <Sparkles className="h-4 w-4 text-indigo-600 animate-pulse" />
@@ -4084,7 +4084,7 @@ export default function DispatcherDashboard({
                             <span className="text-2xs font-extrabold font-mono text-indigo-950 uppercase block">
                               Samsara Fleet Matching Recommender
                             </span>
-                            <span className="text-[9px] text-slate-500 font-medium">
+                            <span className="text-[9px] text-base-content font-medium">
                               Real-time GPS proximity, hours of service &
                               trailer capacities
                             </span>
@@ -4122,7 +4122,7 @@ export default function DispatcherDashboard({
                                 }}
                                 className={`p-3 rounded-xl border text-left transition-all relative overflow-hidden flex flex-col justify-between h-full cursor-pointer ${isSelected
                                   ? "bg-indigo-600 text-white border-indigo-500 shadow-md ring-2 ring-indigo-500/20"
-                                  : "bg-white text-slate-700 hover:bg-indigo-55/30 border-slate-200 hover:border-indigo-300"
+                                  : "bg-base-100 text-slate-700 hover:bg-indigo-55/30 border-slate-200 hover:border-indigo-300"
                                   }`}
                               >
                                 <div className="space-y-1">
@@ -4131,7 +4131,7 @@ export default function DispatcherDashboard({
                                       {driver.username}
                                     </span>
                                     {isSelected && (
-                                      <span className="h-2 w-2 rounded-full bg-white block animate-ping shrink-0" />
+                                      <span className="h-2 w-2 rounded-full bg-base-100 block animate-ping shrink-0" />
                                     )}
                                   </div>
                                   <span
@@ -4193,7 +4193,7 @@ export default function DispatcherDashboard({
                                           : "text-emerald-600"
                                         : isSelected
                                           ? "text-indigo-200"
-                                          : "text-slate-500"
+                                          : "text-base-content"
                                         }`}
                                     >
                                       {isNearby
@@ -4247,7 +4247,7 @@ export default function DispatcherDashboard({
                         <select
                           value={formCommitment}
                           onChange={(e) => setFormCommitment(e.target.value)}
-                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white font-semibold text-slate-800"
+                          className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 font-semibold text-slate-800"
                         >
                           <option value="normal">Normal Delivery</option>
                           <option value="guaranteed">
@@ -4273,7 +4273,7 @@ export default function DispatcherDashboard({
                               onChange={(e) =>
                                 setFormCommitmentDate(e.target.value)
                               }
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                               required={formCommitment !== "normal"}
                             />
                           </div>
@@ -4287,7 +4287,7 @@ export default function DispatcherDashboard({
                               onChange={(e) =>
                                 setFormCommitmentTime(e.target.value)
                               }
-                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-white text-slate-800"
+                              className="mt-1 block w-full rounded-md border border-slate-300 px-2.5 py-1.5 text-xs bg-base-100 text-slate-800"
                               required={formCommitment !== "normal"}
                             />
                           </div>
@@ -4300,7 +4300,7 @@ export default function DispatcherDashboard({
                     <button
                       type="button"
                       onClick={() => setShowAddForm(false)}
-                      className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
+                      className="px-4 py-2 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer transition-colors shadow-2xs"
                     >
                       Cancel
                     </button>
@@ -4316,7 +4316,7 @@ export default function DispatcherDashboard({
               )}
 
               {/* Search, Filter & Sort Toolbar */}
-              <div className="p-4 bg-white border-b border-slate-200 flex flex-col xl:flex-row gap-3 items-stretch xl:items-center justify-between text-slate-800">
+              <div className="p-4 bg-base-100 border-b border-slate-200 flex flex-col xl:flex-row gap-3 items-stretch xl:items-center justify-between text-slate-800">
                 {/* Left Side: Search Bar & Target Selector */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 w-full xl:max-w-2xl">
                   {/* Search Target Dropdown */}
@@ -4326,19 +4326,19 @@ export default function DispatcherDashboard({
                       onChange={(e) => {
                         setSearchField(e.target.value);
                       }}
-                      className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer w-full sm:w-44"
+                      className="bg-base-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer w-full sm:w-44"
                     >
-                      <option value="all" className="text-slate-800 bg-white">🔍 All Fields (Global)</option>
-                      <option value="trackingNumber" className="text-slate-800 bg-white">Load / Tracking #</option>
-                      <option value="customerName" className="text-slate-800 bg-white">Customer Name</option>
-                      <option value="shipperName" className="text-slate-800 bg-white">Shipper Name</option>
-                      <option value="shipperAddress" className="text-slate-800 bg-white">Shipper Address</option>
-                      <option value="consigneeName" className="text-slate-800 bg-white">Consignee Name</option>
-                      <option value="consigneeAddress" className="text-slate-800 bg-white">
+                      <option value="all" className="text-slate-800 bg-base-100">🔍 All Fields (Global)</option>
+                      <option value="trackingNumber" className="text-slate-800 bg-base-100">Load / Tracking #</option>
+                      <option value="customerName" className="text-slate-800 bg-base-100">Customer Name</option>
+                      <option value="shipperName" className="text-slate-800 bg-base-100">Shipper Name</option>
+                      <option value="shipperAddress" className="text-slate-800 bg-base-100">Shipper Address</option>
+                      <option value="consigneeName" className="text-slate-800 bg-base-100">Consignee Name</option>
+                      <option value="consigneeAddress" className="text-slate-800 bg-base-100">
                         Consignee Address
                       </option>
-                      <option value="pickupLocation" className="text-slate-800 bg-white">Pickup Location</option>
-                      <option value="deliveryLocation" className="text-slate-800 bg-white">
+                      <option value="pickupLocation" className="text-slate-800 bg-base-100">Pickup Location</option>
+                      <option value="deliveryLocation" className="text-slate-800 bg-base-100">
                         Delivery Location
                       </option>
                     </select>
@@ -4372,7 +4372,7 @@ export default function DispatcherDashboard({
                                         ? "Enter origin city or state..."
                                         : "Enter destination city or state..."
                       }
-                      className="block w-full pl-9 pr-8 py-1.5 text-xs bg-white border border-slate-200 rounded-xl text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
+                      className="block w-full pl-9 pr-8 py-1.5 text-xs bg-base-100 border border-slate-200 rounded-xl text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
                     />
                     {globalSearchQuery && (
                       <button
@@ -4392,21 +4392,21 @@ export default function DispatcherDashboard({
                     <select
                       value={statusFilter}
                       onChange={(e) => setStatusFilter(e.target.value)}
-                      className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+                      className="bg-base-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
                     >
-                      <option value="all" className="text-slate-800 bg-white">All Statuses</option>
-                      <option value="Driver Assigned For Pickup" className="text-slate-800 bg-white">
+                      <option value="all" className="text-slate-800 bg-base-100">All Statuses</option>
+                      <option value="Driver Assigned For Pickup" className="text-slate-800 bg-base-100">
                         Driver Assigned For Pickup
                       </option>
-                      <option value="picked_up" className="text-slate-800 bg-white">Picked Up</option>
-                      <option value="At Warehouse" className="text-slate-800 bg-white">At Warehouse</option>
-                      <option value="trip_assigned" className="text-slate-800 bg-white">Trip Assigned</option>
-                      <option value="in_transit" className="text-slate-800 bg-white">In Transit</option>
-                      <option value="at_destination_hub" className="text-slate-800 bg-white">
+                      <option value="picked_up" className="text-slate-800 bg-base-100">Picked Up</option>
+                      <option value="At Warehouse" className="text-slate-800 bg-base-100">At Warehouse</option>
+                      <option value="trip_assigned" className="text-slate-800 bg-base-100">Trip Assigned</option>
+                      <option value="in_transit" className="text-slate-800 bg-base-100">In Transit</option>
+                      <option value="at_destination_hub" className="text-slate-800 bg-base-100">
                         At Destination Hub
                       </option>
-                      <option value="out_for_delivery" className="text-slate-800 bg-white">Out For Delivery</option>
-                      <option value="delivered" className="text-slate-800 bg-white">Delivered</option>
+                      <option value="out_for_delivery" className="text-slate-800 bg-base-100">Out For Delivery</option>
+                      <option value="delivered" className="text-slate-800 bg-base-100">Delivered</option>
                     </select>
                   </div>
 
@@ -4415,11 +4415,11 @@ export default function DispatcherDashboard({
                     <select
                       value={loadTypeFilter}
                       onChange={(e) => setLoadTypeFilter(e.target.value)}
-                      className="bg-white border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
+                      className="bg-base-100 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs cursor-pointer"
                     >
-                      <option value="all" className="text-slate-800 bg-white">All Modes (LTL/FTL)</option>
-                      <option value="LTL" className="text-slate-800 bg-white">LTL Shipments Only</option>
-                      <option value="FTL" className="text-slate-800 bg-white">FTL Shipments Only</option>
+                      <option value="all" className="text-slate-800 bg-base-100">All Modes (LTL/FTL)</option>
+                      <option value="LTL" className="text-slate-800 bg-base-100">LTL Shipments Only</option>
+                      <option value="FTL" className="text-slate-800 bg-base-100">FTL Shipments Only</option>
                     </select>
                   </div>
 
@@ -4455,30 +4455,30 @@ export default function DispatcherDashboard({
                   </Link>
 
                   {/* Sorter Selector */}
-                  <div className="flex items-center space-x-1.5 bg-white border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
-                    <span className="text-[11px] font-bold text-slate-500 uppercase">
+                  <div className="flex items-center space-x-1.5 bg-base-100 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                    <span className="text-[11px] font-bold text-base-content uppercase">
                       SORT:
                     </span>
                     <select
                       value={sortBy}
                       onChange={(e) => setSortBy(e.target.value)}
-                      className="bg-transparent text-xs text-slate-900 font-bold focus:outline-none cursor-pointer"
+                      className="bg-transparent text-xs text-base-content font-bold focus:outline-none cursor-pointer"
                     >
-                      <option value="trackingNumber" className="text-slate-800 bg-white">Load #</option>
-                      <option value="customerName" className="text-slate-800 bg-white">Customer</option>
-                      <option value="shipperName" className="text-slate-800 bg-white">Shipper</option>
-                      <option value="consigneeName" className="text-slate-800 bg-white">Consignee</option>
-                      <option value="shipperAddress" className="text-slate-800 bg-white">Shipper Address</option>
-                      <option value="consigneeAddress" className="text-slate-800 bg-white">
+                      <option value="trackingNumber" className="text-slate-800 bg-base-100">Load #</option>
+                      <option value="customerName" className="text-slate-800 bg-base-100">Customer</option>
+                      <option value="shipperName" className="text-slate-800 bg-base-100">Shipper</option>
+                      <option value="consigneeName" className="text-slate-800 bg-base-100">Consignee</option>
+                      <option value="shipperAddress" className="text-slate-800 bg-base-100">Shipper Address</option>
+                      <option value="consigneeAddress" className="text-slate-800 bg-base-100">
                         Consignee Address
                       </option>
-                      <option value="pickupLocation" className="text-slate-800 bg-white">Pickup Location</option>
-                      <option value="deliveryLocation" className="text-slate-800 bg-white">
+                      <option value="pickupLocation" className="text-slate-800 bg-base-100">Pickup Location</option>
+                      <option value="deliveryLocation" className="text-slate-800 bg-base-100">
                         Delivery Location
                       </option>
-                      <option value="weight" className="text-slate-800 bg-white">Weight (Lbs)</option>
-                      <option value="distance" className="text-slate-800 bg-white">Distance</option>
-                      <option value="eta" className="text-slate-800 bg-white">Projected ETA</option>
+                      <option value="weight" className="text-slate-800 bg-base-100">Weight (Lbs)</option>
+                      <option value="distance" className="text-slate-800 bg-base-100">Distance</option>
+                      <option value="eta" className="text-slate-800 bg-base-100">Projected ETA</option>
                     </select>
                     <button
                       type="button"
@@ -4487,7 +4487,7 @@ export default function DispatcherDashboard({
                           prev === "asc" ? "desc" : "asc"
                         )
                       }
-                      className="p-1 hover:bg-slate-100 rounded text-slate-500 hover:text-sky-600 transition-colors cursor-pointer"
+                      className="p-1 hover:bg-slate-100 rounded text-base-content hover:text-sky-600 transition-colors cursor-pointer"
                       title={
                         sortOrder === "asc"
                           ? "Sort Ascending"
@@ -4508,7 +4508,7 @@ export default function DispatcherDashboard({
               <div className="overflow-x-auto">
                 <table className="w-full text-left border-collapse">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
+                    <tr className="bg-base-200 border-b border-slate-200 text-slate-600 text-[11px] font-bold uppercase tracking-wider">
                       <th className="px-5 py-3.5">Tracking / Load Info</th>
                       <th className="px-5 py-3.5">Origin / Destination</th>
                       <th className="px-5 py-3.5">Dispatcher / Broker</th>
@@ -4524,7 +4524,7 @@ export default function DispatcherDashboard({
                       <tr>
                         <td
                           colSpan={7}
-                          className="px-5 py-12 text-center text-slate-500 font-medium"
+                          className="px-5 py-12 text-center text-base-content font-medium"
                         >
                           <AlertCircle className="h-6 w-6 text-slate-400 mx-auto mb-2" />
                           No loads match the selected search or filter criteria.
@@ -4540,7 +4540,7 @@ export default function DispatcherDashboard({
                               setSelectedShipment(s);
                               setIsDetailModalOpen(true);
                             }}
-                            className="hover:bg-slate-50/90 cursor-pointer transition-colors"
+                            className="hover:bg-base-200/90 cursor-pointer transition-colors"
                           >
                             <td className="px-5 py-4">
                               <div className="flex flex-wrap items-center gap-1.5">
@@ -4579,7 +4579,7 @@ export default function DispatcherDashboard({
                                 )}
                               </div>
                               <div
-                                className="text-slate-500 text-xs mt-0.5 truncate max-w-[200px]"
+                                className="text-base-content text-xs mt-0.5 truncate max-w-[200px]"
                                 title={s.cargoDescription}
                               >
                                 {s.cargoDescription || "Commercial Goods"}
@@ -4600,18 +4600,18 @@ export default function DispatcherDashboard({
                               </div>
                             </td>
                             <td className="px-5 py-4">
-                              <div className="text-slate-900 font-semibold">
+                              <div className="text-base-content font-semibold">
                                 {s.dispatcherName || "Unassigned"}
                               </div>
-                              <div className="text-slate-500 text-xs mt-0.5">
+                              <div className="text-base-content text-xs mt-0.5">
                                 {s.broker || "Direct Customer"}
                               </div>
                             </td>
                             <td className="px-5 py-4">
-                              <div className="text-slate-900 font-bold">
+                              <div className="text-base-content font-bold">
                                 {s.driver_id ? s.driver_name : "Marcus Vance"}
                               </div>
-                              <div className="text-slate-500 text-xs mt-0.5 font-mono">
+                              <div className="text-base-content text-xs mt-0.5 font-mono">
                                 {s.truck_number || s.truck || "TRK-104"} • {s.trailer_number || s.trailer || "53ft Dry Van"}
                               </div>
                             </td>
@@ -4642,7 +4642,7 @@ export default function DispatcherDashboard({
                                     <Gauge className="h-3.5 w-3.5 text-sky-600 mr-1" />
                                     <span>{s.speedMph || 62} MPH</span>
                                   </div>
-                                  <div className="flex items-center text-slate-500 text-[11px] font-mono">
+                                  <div className="flex items-center text-base-content text-[11px] font-mono">
                                     <Fuel className="h-3 w-3 text-slate-400 mr-1" />
                                     <span>Fuel {s.fuelLevelPercent || 84}%</span>
                                   </div>
@@ -4711,14 +4711,14 @@ export default function DispatcherDashboard({
       {/* Edit Details Modal */}
       {isEditingDetails && editedShipment && (
         <div className="fixed inset-0 z-50 bg-slate-900/50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl overflow-hidden">
+          <div className="bg-base-100 rounded-xl shadow-xl w-full max-w-2xl overflow-hidden">
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-lg font-bold text-base-content">
                 Edit Load Details: {editedShipment.load_number}
               </h3>
               <button
                 onClick={() => setIsEditingDetails(false)}
-                className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors"
+                className="p-1.5 hover:bg-slate-100 rounded-lg text-base-content transition-colors"
               >
                 ✕
               </button>
@@ -4827,9 +4827,9 @@ export default function DispatcherDashboard({
                     <Clock className="h-4 w-4 text-indigo-500" />
                     Delivery Commitment & Appointment Status
                   </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-base-200 p-3.5 rounded-xl border border-slate-200">
                     <div>
-                      <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                      <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                         Commitment Type
                       </label>
                       <select
@@ -4840,7 +4840,7 @@ export default function DispatcherDashboard({
                             deliveryCommitment: e.target.value,
                           })
                         }
-                        className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800 font-semibold"
+                        className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800 font-semibold"
                       >
                         <option value="normal">Normal Delivery</option>
                         <option value="guaranteed">Guaranteed Delivery</option>
@@ -4856,7 +4856,7 @@ export default function DispatcherDashboard({
                       editedShipment.deliveryCommitment !== "normal" && (
                         <>
                           <div>
-                            <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                               Commitment Date
                             </label>
                             <input
@@ -4868,11 +4868,11 @@ export default function DispatcherDashboard({
                                   commitmentDate: e.target.value,
                                 })
                               }
-                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800"
+                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                           <div>
-                            <label className="block text-2xs font-bold text-slate-500 uppercase mb-1">
+                            <label className="block text-2xs font-bold text-base-content uppercase mb-1">
                               Commitment Time
                             </label>
                             <input
@@ -4884,7 +4884,7 @@ export default function DispatcherDashboard({
                                   commitmentTime: e.target.value,
                                 })
                               }
-                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-white text-slate-800"
+                              className="w-full rounded-md border border-slate-300 px-3 py-2 text-xs bg-base-100 text-slate-800"
                             />
                           </div>
                         </>
@@ -4913,7 +4913,7 @@ export default function DispatcherDashboard({
                           });
                         }
                       }}
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white font-semibold text-slate-800"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100 font-semibold text-slate-800"
                     >
                       <option value="">
                         -- Choose/Reassign an Active Driver --
@@ -4939,7 +4939,7 @@ export default function DispatcherDashboard({
                           driverName: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100"
                     />
                   </div>
                   <div>
@@ -4961,7 +4961,7 @@ export default function DispatcherDashboard({
                           loadType: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white font-semibold"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100 font-semibold"
                     >
                       <option value="LTL">LTL (Less-Than-Truckload)</option>
                       <option value="FTL">FTL (Full Truckload)</option>
@@ -4979,7 +4979,7 @@ export default function DispatcherDashboard({
                           priority: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white font-semibold"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100 font-semibold"
                     >
                       <option value="standard">Standard</option>
                       <option value="high">High</option>
@@ -4999,7 +4999,7 @@ export default function DispatcherDashboard({
                           truckNumber: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white font-mono"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100 font-mono"
                     />
                   </div>
                   <div>
@@ -5015,16 +5015,16 @@ export default function DispatcherDashboard({
                           trailerNumber: e.target.value,
                         })
                       }
-                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-white font-mono"
+                      className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm bg-base-100 font-mono"
                     />
                   </div>
                 </div>
               </div>
             </div>
-            <div className="px-5 py-4 border-t border-slate-100 flex justify-end space-x-2 bg-slate-50">
+            <div className="px-5 py-4 border-t border-slate-100 flex justify-end space-x-2 bg-base-200">
               <button
                 onClick={() => setIsEditingDetails(false)}
-                className="px-4 py-2 bg-white border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-slate-50"
+                className="px-4 py-2 bg-base-100 border border-slate-300 text-slate-700 rounded-lg text-sm font-semibold hover:bg-base-200"
               >
                 Cancel
               </button>

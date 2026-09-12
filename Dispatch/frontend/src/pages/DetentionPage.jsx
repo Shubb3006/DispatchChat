@@ -221,19 +221,19 @@ export default function DetentionPage() {
     .reduce((acc, c) => acc + (c.totalClaimAmount || 0), 0);
 
   return (
-    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto select-none bg-slate-50 min-h-screen text-slate-900">
+    <div className="p-3 sm:p-6 space-y-6 max-w-7xl mx-auto select-none bg-base-200 min-h-screen text-base-content">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 p-5 rounded-2xl shadow-xs">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-base-100 border border-slate-200 p-5 rounded-2xl shadow-xs">
         <div>
           <div className="flex items-center gap-2">
-            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-extrabold text-base-content tracking-tight">
               Facility Detention & Accessorial Revenue Hub
             </h1>
             <span className="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-emerald-50 text-emerald-700 border border-emerald-200">
               GEOFENCE TIMER ACTIVE
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-base-content mt-1">
             Automated free-time clock (2h limit), live dock dwell monitoring, and 1-click accessorial invoicing (CAD).
           </p>
         </div>
@@ -244,7 +244,7 @@ export default function DetentionPage() {
               fetchData();
               toast.success("Detention Geofence Timers Synced!");
             }}
-            className="px-3 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
+            className="px-3 py-2 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs"
           >
             <RefreshCw className="w-3.5 h-3.5 text-sky-600" />
             <span>Sync Clocks</span>
@@ -263,70 +263,70 @@ export default function DetentionPage() {
       {/* KPI Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Active Dwell Units */}
-        <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+        <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-bold uppercase">
             <span>Active Dock Dwells</span>
             <div className="p-2 bg-sky-50 text-sky-600 rounded-xl">
               <Clock className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-1.5 font-mono">
-            {activeEvents.length} <span className="text-xs text-slate-500 font-normal">Tractors</span>
+          <div className="text-2xl font-black text-base-content mt-1.5 font-mono">
+            {activeEvents.length} <span className="text-xs text-base-content font-normal">Tractors</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Inside facility geofences</div>
+          <div className="text-[11px] text-base-content mt-0.5 font-medium">Inside facility geofences</div>
         </div>
 
         {/* Billable Detention Active */}
-        <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+        <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-bold uppercase">
             <span>Billable Dwell Uninvoiced</span>
             <div className="p-2 bg-rose-50 text-rose-600 rounded-xl">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black text-rose-600 mt-1.5 font-mono">
-            ${totalUncollectedDetention.toFixed(2)} <span className="text-xs text-slate-500 font-normal">CAD</span>
+            ${totalUncollectedDetention.toFixed(2)} <span className="text-xs text-base-content font-normal">CAD</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Accruing past 2h free time</div>
+          <div className="text-[11px] text-base-content mt-0.5 font-medium">Accruing past 2h free time</div>
         </div>
 
         {/* Total Recovered Accessorials */}
-        <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+        <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-bold uppercase">
             <span>Recovered Accessorials (YTD)</span>
             <div className="p-2 bg-emerald-50 text-emerald-600 rounded-xl">
               <DollarSign className="w-4 h-4" />
             </div>
           </div>
           <div className="text-2xl font-black text-emerald-700 mt-1.5 font-mono">
-            ${totalRecoveredYTD.toFixed(2)} <span className="text-xs text-slate-500 font-normal">CAD</span>
+            ${totalRecoveredYTD.toFixed(2)} <span className="text-xs text-base-content font-normal">CAD</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">Paid by brokers & shippers</div>
+          <div className="text-[11px] text-base-content mt-0.5 font-medium">Paid by brokers & shippers</div>
         </div>
 
         {/* Standard Detention Rate */}
-        <div className="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-bold uppercase">
+        <div className="bg-base-100 border border-slate-200 p-4 rounded-2xl shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-bold uppercase">
             <span>Tariff Detention Rate</span>
             <div className="p-2 bg-purple-50 text-purple-600 rounded-xl">
               <ShieldCheck className="w-4 h-4" />
             </div>
           </div>
-          <div className="text-2xl font-black text-slate-900 mt-1.5 font-mono">
-            $75.00 <span className="text-xs text-slate-500 font-normal">CAD / Hour</span>
+          <div className="text-2xl font-black text-base-content mt-1.5 font-mono">
+            $75.00 <span className="text-xs text-base-content font-normal">CAD / Hour</span>
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5 font-medium">2.0 Hours Free Time Rule</div>
+          <div className="text-[11px] text-base-content mt-0.5 font-medium">2.0 Hours Free Time Rule</div>
         </div>
       </div>
 
       {/* Live Facility Dock Dwell Radar (Active Trucks at Facilities) */}
       <div className="space-y-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <h2 className="text-sm font-extrabold text-slate-900 flex items-center gap-2">
+          <h2 className="text-sm font-extrabold text-base-content flex items-center gap-2">
             <Clock className="w-4 h-4 text-sky-600" />
             <span>Live Facility Geofence Dwell Radar</span>
           </h2>
-          <span className="text-xs text-slate-500 font-mono font-semibold">
+          <span className="text-xs text-base-content font-mono font-semibold">
             Standard: 2 Hours Free Time • $75.00 CAD / Hour Thereafter
           </span>
         </div>
@@ -339,22 +339,21 @@ export default function DetentionPage() {
             return (
               <div
                 key={event.id}
-                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between space-y-3 bg-white ${
-                  isOverdue
-                    ? "border-rose-300 shadow-xs ring-1 ring-rose-200"
-                    : isWarning
+                className={`p-4 rounded-2xl border transition-all flex flex-col justify-between space-y-3 bg-base-100 ${isOverdue
+                  ? "border-rose-300 shadow-xs ring-1 ring-rose-200"
+                  : isWarning
                     ? "border-amber-300 shadow-xs ring-1 ring-amber-200"
                     : "border-slate-200 shadow-xs"
-                }`}
+                  }`}
               >
                 <div>
                   <div className="flex items-start justify-between gap-2">
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-900 font-mono text-sm">
+                        <span className="font-extrabold text-base-content font-mono text-sm">
                           Load #{event.loadNumber}
                         </span>
-                        <span className="text-xs text-slate-500 font-mono">
+                        <span className="text-xs text-base-content font-mono">
                           ({event.truckNumber})
                         </span>
                       </div>
@@ -364,38 +363,36 @@ export default function DetentionPage() {
                     </div>
 
                     <span
-                      className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${
-                        isOverdue
-                          ? "bg-rose-50 text-rose-700 border border-rose-200"
-                          : isWarning
+                      className={`px-2 py-0.5 rounded text-[10px] font-bold font-mono ${isOverdue
+                        ? "bg-rose-50 text-rose-700 border border-rose-200"
+                        : isWarning
                           ? "bg-amber-50 text-amber-700 border border-amber-200"
                           : "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                      }`}
+                        }`}
                     >
                       {isOverdue
                         ? "🔴 BILLABLE ACTIVE"
                         : isWarning
-                        ? "🟡 15M FREE TIME LEFT"
-                        : "🟢 IN FREE TIME"}
+                          ? "🟡 15M FREE TIME LEFT"
+                          : "🟢 IN FREE TIME"}
                     </span>
                   </div>
 
                   {/* Dwell Progress Bar */}
                   <div className="mt-3 space-y-1.5">
                     <div className="flex justify-between text-[11px] font-mono">
-                      <span className="text-slate-500">Dwell Duration:</span>
-                      <span className="font-bold text-slate-900">{event.dwellHours} Hours</span>
+                      <span className="text-base-content">Dwell Duration:</span>
+                      <span className="font-bold text-base-content">{event.dwellHours} Hours</span>
                     </div>
 
                     <div className="w-full bg-slate-100 h-2 rounded-full overflow-hidden border border-slate-200">
                       <div
-                        className={`h-full rounded-full transition-all ${
-                          isOverdue
-                            ? "bg-rose-500"
-                            : isWarning
+                        className={`h-full rounded-full transition-all ${isOverdue
+                          ? "bg-rose-500"
+                          : isWarning
                             ? "bg-amber-500"
                             : "bg-emerald-500"
-                        }`}
+                          }`}
                         style={{
                           width: `${Math.min(100, (event.dwellHours / 3.0) * 100)}%`,
                         }}
@@ -405,8 +402,8 @@ export default function DetentionPage() {
 
                   {/* Driver Delay Note */}
                   {event.driverNote && (
-                    <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-700 mt-3 font-sans">
-                      💬 <strong className="text-slate-900">Driver Note:</strong> {event.driverNote}
+                    <div className="p-2.5 bg-base-200 border border-slate-200 rounded-xl text-xs text-slate-700 mt-3 font-sans">
+                      💬 <strong className="text-base-content">Driver Note:</strong> {event.driverNote}
                     </div>
                   )}
                 </div>
@@ -414,10 +411,10 @@ export default function DetentionPage() {
                 {/* Bottom Action / Invoice Trigger */}
                 <div className="pt-2 border-t border-slate-200 flex items-center justify-between">
                   <div>
-                    <div className="text-[10px] text-slate-500 font-mono uppercase font-bold">
+                    <div className="text-[10px] text-base-content font-mono uppercase font-bold">
                       Accrued Billable
                     </div>
-                    <div className="font-black text-sm text-slate-900 font-mono">
+                    <div className="font-black text-sm text-base-content font-mono">
                       {event.detentionAmountDue > 0 ? (
                         <span className="text-rose-600">${event.detentionAmountDue.toFixed(2)} CAD</span>
                       ) : (
@@ -437,7 +434,7 @@ export default function DetentionPage() {
                   ) : (
                     <button
                       onClick={() => toast.success("Driver is within free time limit.")}
-                      className="px-3 py-1.5 bg-slate-100 text-slate-500 rounded-xl text-xs font-bold cursor-not-allowed border border-slate-200"
+                      className="px-3 py-1.5 bg-slate-100 text-base-content rounded-xl text-xs font-bold cursor-not-allowed border border-slate-200"
                     >
                       Within 2h Free Time
                     </button>
@@ -450,14 +447,14 @@ export default function DetentionPage() {
       </div>
 
       {/* Completed Accessorial & Detention Claims Table */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs space-y-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
           <div>
-            <h3 className="font-extrabold text-sm text-slate-900 flex items-center gap-2">
+            <h3 className="font-extrabold text-sm text-base-content flex items-center gap-2">
               <FileText className="w-4 h-4 text-purple-600" />
               <span>Accessorial & Detention Invoicing Ledger</span>
             </h3>
-            <p className="text-xs text-slate-500 mt-0.5 font-medium">
+            <p className="text-xs text-base-content mt-0.5 font-medium">
               Verified claims submitted with GPS entry/exit timestamps for detention, layovers, and TONU (All in CAD)
             </p>
           </div>
@@ -469,7 +466,7 @@ export default function DetentionPage() {
               placeholder="Search load or broker..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-8 pr-3 py-1.5 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
+              className="w-full pl-8 pr-3 py-1.5 bg-base-100 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
             />
           </div>
         </div>
@@ -477,7 +474,7 @@ export default function DetentionPage() {
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs font-mono">
             <thead>
-              <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider">
+              <tr className="border-b border-slate-200 bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider">
                 <th className="p-3">Invoice #</th>
                 <th className="p-3">Load #</th>
                 <th className="p-3">Customer / Broker</th>
@@ -501,10 +498,10 @@ export default function DetentionPage() {
                   );
                 })
                 .map((claim, cIdx) => (
-                  <tr key={cIdx} className="hover:bg-slate-50/80 transition">
+                  <tr key={cIdx} className="hover:bg-base-200/80 transition">
                     <td className="p-3 font-bold text-sky-700">{claim.invoiceNumber}</td>
-                    <td className="p-3 font-bold text-slate-900">{claim.loadNumber}</td>
-                    <td className="p-3 font-sans font-bold text-slate-900">{claim.customerName}</td>
+                    <td className="p-3 font-bold text-base-content">{claim.loadNumber}</td>
+                    <td className="p-3 font-sans font-bold text-base-content">{claim.customerName}</td>
                     <td className="p-3 font-sans text-slate-600 truncate max-w-[200px]">{claim.facilityName}</td>
                     <td className="p-3">
                       <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 border border-slate-200 text-slate-700">
@@ -515,11 +512,10 @@ export default function DetentionPage() {
                     <td className="p-3 font-black text-emerald-700">${claim.totalClaimAmount.toFixed(2)} CAD</td>
                     <td className="p-3">
                       <span
-                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          claim.status === "APPROVED_PAID"
-                            ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                            : "bg-amber-50 text-amber-700 border border-amber-200"
-                        }`}
+                        className={`px-2 py-0.5 rounded text-[10px] font-bold ${claim.status === "APPROVED_PAID"
+                          ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
+                          : "bg-amber-50 text-amber-700 border border-amber-200"
+                          }`}
                       >
                         {claim.status === "APPROVED_PAID" ? "✅ APPROVED & PAID" : "⏳ BROKER REVIEW"}
                       </span>
@@ -527,7 +523,7 @@ export default function DetentionPage() {
                     <td className="p-3 text-right">
                       <button
                         onClick={() => toast.success(`Downloaded official detention proof packet for ${claim.invoiceNumber}`)}
-                        className="p-1.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-200 transition cursor-pointer shadow-2xs"
+                        className="p-1.5 bg-base-100 hover:bg-base-200 text-slate-700 rounded-lg border border-slate-200 transition cursor-pointer shadow-2xs"
                         title="Download PDF Packet with GPS Proof"
                       >
                         <Download className="w-3.5 h-3.5" />
@@ -543,9 +539,9 @@ export default function DetentionPage() {
       {/* Modal: File Accessorial Claim */}
       {isInvoiceModalOpen && (
         <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl p-4 sm:p-6 space-y-4 text-slate-900">
+          <div className="bg-base-100 border border-slate-200 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl p-4 sm:p-6 space-y-4 text-base-content">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
-              <h3 className="text-base font-extrabold text-slate-900 flex items-center gap-2">
+              <h3 className="text-base font-extrabold text-base-content flex items-center gap-2">
                 <Plus className="w-4 h-4 text-sky-600" />
                 <span>File Accessorial / Detention Claim</span>
               </h3>
@@ -565,7 +561,7 @@ export default function DetentionPage() {
                     type="text"
                     value={newClaimForm.loadNumber}
                     onChange={(e) => setNewClaimForm({ ...newClaimForm, loadNumber: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
                     required
                   />
                 </div>
@@ -574,7 +570,7 @@ export default function DetentionPage() {
                   <select
                     value={newClaimForm.type}
                     onChange={(e) => setNewClaimForm({ ...newClaimForm, type: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-bold cursor-pointer focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-bold cursor-pointer focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   >
                     <option value="Detention Dwell">Dock Detention ($75/hr)</option>
                     <option value="TONU (Truck Ordered Not Used)">TONU ($150 Flat Fee)</option>
@@ -591,7 +587,7 @@ export default function DetentionPage() {
                   type="text"
                   value={newClaimForm.customerName}
                   onChange={(e) => setNewClaimForm({ ...newClaimForm, customerName: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-semibold focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                  className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-semibold focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   required
                 />
               </div>
@@ -602,7 +598,7 @@ export default function DetentionPage() {
                   type="text"
                   value={newClaimForm.facilityName}
                   onChange={(e) => setNewClaimForm({ ...newClaimForm, facilityName: e.target.value })}
-                  className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                  className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   required
                 />
               </div>
@@ -615,7 +611,7 @@ export default function DetentionPage() {
                     step="0.1"
                     value={newClaimForm.dwellHours}
                     onChange={(e) => setNewClaimForm({ ...newClaimForm, dwellHours: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   />
                 </div>
                 <div>
@@ -625,7 +621,7 @@ export default function DetentionPage() {
                     step="0.1"
                     value={newClaimForm.freeTimeHours}
                     onChange={(e) => setNewClaimForm({ ...newClaimForm, freeTimeHours: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-mono font-bold focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   />
                 </div>
                 <div>
@@ -634,7 +630,7 @@ export default function DetentionPage() {
                     type="number"
                     value={newClaimForm.hourlyRate}
                     onChange={(e) => setNewClaimForm({ ...newClaimForm, hourlyRate: parseFloat(e.target.value) || 0 })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-slate-900 font-mono font-black text-sky-700 focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-base-content font-mono font-black text-sky-700 focus:ring-2 focus:ring-sky-500 shadow-2xs"
                   />
                 </div>
               </div>
@@ -643,7 +639,7 @@ export default function DetentionPage() {
                 <button
                   type="button"
                   onClick={() => setIsInvoiceModalOpen(false)}
-                  className="px-4 py-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer transition shadow-2xs"
+                  className="px-4 py-2 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-xl text-xs font-bold cursor-pointer transition shadow-2xs"
                 >
                   Cancel
                 </button>

@@ -103,7 +103,7 @@ export default function AIDriverMatcherModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden text-slate-900">
+      <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden text-base-content">
         {/* Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-sky-50/80 via-indigo-50/40 to-white">
           <div className="flex items-center gap-3">
@@ -112,14 +112,14 @@ export default function AIDriverMatcherModal({
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-lg font-extrabold text-slate-900">
+                <h2 className="text-lg font-extrabold text-base-content">
                   AI Smart Dispatch & Driver Matcher
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-sky-100 text-sky-800 border border-sky-200">
                   Load #{loadNum}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-base-content mt-0.5">
                 Evaluates live Samsara telematics, deadhead proximity, remaining HOS, and cross-border FAST credentials
               </p>
             </div>
@@ -134,9 +134,9 @@ export default function AIDriverMatcherModal({
         </div>
 
         {/* Load Context Bar with Manual Pickup Location Control */}
-        <div className="px-6 py-3.5 bg-slate-50 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div className="px-6 py-3.5 bg-base-200 border-b border-slate-200/80 flex flex-wrap items-center justify-between gap-3 text-xs">
           <div className="flex flex-wrap items-center gap-2 flex-1 min-w-[280px]">
-            <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
+            <div className="flex items-center gap-1.5 bg-base-100 border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
               <MapPin className="w-4 h-4 text-sky-600 shrink-0" />
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Pickup:</label>
               <input
@@ -153,7 +153,7 @@ export default function AIDriverMatcherModal({
 
             <span className="text-slate-400 font-bold">➔</span>
 
-            <div className="flex items-center gap-1.5 bg-white border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
+            <div className="flex items-center gap-1.5 bg-base-100 border border-slate-300 rounded-xl px-3 py-1.5 shadow-xs focus-within:ring-2 focus-within:ring-sky-500 focus-within:border-sky-500 transition-all">
               <label className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mr-1">Delivery:</label>
               <input
                 type="text"
@@ -184,7 +184,7 @@ export default function AIDriverMatcherModal({
                 ~{rankingData.loadInfo.estimatedTripMiles} Total Miles
               </span>
             )}
-            <span className="px-2 py-0.5 rounded-md bg-white border border-slate-200 font-semibold text-[11px] text-slate-700">
+            <span className="px-2 py-0.5 rounded-md bg-base-100 border border-slate-200 font-semibold text-[11px] text-slate-700">
               {load.equipmentType || "Dry Van 53ft"}
             </span>
             {rankingData?.loadInfo?.isCrossBorder && (
@@ -212,11 +212,10 @@ export default function AIDriverMatcherModal({
               return (
                 <div
                   key={candidate.id}
-                  className={`rounded-2xl border p-5 transition-all relative ${
-                    isBest
-                      ? "bg-gradient-to-br from-sky-50/40 via-white to-white border-sky-300 shadow-sm ring-1 ring-sky-300/50"
-                      : "bg-white border-slate-200 hover:border-slate-300 shadow-xs"
-                  }`}
+                  className={`rounded-2xl border p-5 transition-all relative ${isBest
+                    ? "bg-gradient-to-br from-sky-50/40 via-white to-white border-sky-300 shadow-sm ring-1 ring-sky-300/50"
+                    : "bg-base-100 border-slate-200 hover:border-slate-300 shadow-xs"
+                    }`}
                 >
                   {isBest && (
                     <div className="absolute -top-3 left-6 px-3 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-gradient-to-r from-sky-600 to-indigo-600 text-white shadow-xs flex items-center gap-1">
@@ -230,13 +229,12 @@ export default function AIDriverMatcherModal({
                     <div className="flex items-start gap-4">
                       {/* Match Score Circle */}
                       <div
-                        className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${
-                          candidate.matchScore >= 90
-                            ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                            : candidate.matchScore >= 75
+                        className={`w-14 h-14 rounded-2xl flex flex-col items-center justify-center shrink-0 border ${candidate.matchScore >= 90
+                          ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                          : candidate.matchScore >= 75
                             ? "bg-sky-50 text-sky-700 border-sky-200"
                             : "bg-amber-50 text-amber-700 border-amber-200"
-                        }`}
+                          }`}
                       >
                         <span className="font-extrabold text-base font-mono leading-none">
                           {candidate.matchScore}%
@@ -248,7 +246,7 @@ export default function AIDriverMatcherModal({
 
                       <div className="space-y-1">
                         <div className="flex items-center gap-2">
-                          <h3 className="font-extrabold text-slate-900 text-sm">
+                          <h3 className="font-extrabold text-base-content text-sm">
                             {candidate.name}
                           </h3>
                           <span className="px-2 py-0.5 rounded-md bg-slate-100 border border-slate-200 text-[11px] font-mono font-bold text-slate-700">
@@ -256,7 +254,7 @@ export default function AIDriverMatcherModal({
                           </span>
                         </div>
 
-                        <p className="text-xs text-slate-500 flex items-center gap-2">
+                        <p className="text-xs text-base-content flex items-center gap-2">
                           <span>{candidate.truckModel}</span>
                           <span>•</span>
                           <span className="flex items-center gap-1 text-slate-700 font-medium">
@@ -270,15 +268,14 @@ export default function AIDriverMatcherModal({
                           {candidate.reasoningTags.map((tag, i) => (
                             <span
                               key={i}
-                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${
-                                tag.type === "success"
-                                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                                  : tag.type === "warning"
+                              className={`px-2 py-0.5 rounded-md text-[11px] font-semibold border ${tag.type === "success"
+                                ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                                : tag.type === "warning"
                                   ? "bg-amber-50 text-amber-700 border-amber-200"
                                   : tag.type === "danger"
-                                  ? "bg-rose-50 text-rose-700 border-rose-200"
-                                  : "bg-slate-100 text-slate-700 border-slate-200"
-                              }`}
+                                    ? "bg-rose-50 text-rose-700 border-rose-200"
+                                    : "bg-slate-100 text-slate-700 border-slate-200"
+                                }`}
                             >
                               {tag.label}
                             </span>
@@ -292,11 +289,10 @@ export default function AIDriverMatcherModal({
                       <button
                         onClick={() => handleAutoAssign(candidate)}
                         disabled={isAssigning}
-                        className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${
-                          isBest
-                            ? "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20"
-                            : "bg-slate-900 hover:bg-slate-800 text-white"
-                        }`}
+                        className={`px-4 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 transition-all cursor-pointer shadow-xs ${isBest
+                          ? "bg-sky-600 hover:bg-sky-700 text-white shadow-sky-600/20"
+                          : "bg-slate-900 hover:bg-slate-800 text-white"
+                          }`}
                       >
                         {isAssigning ? (
                           <>
@@ -327,11 +323,11 @@ export default function AIDriverMatcherModal({
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50 flex items-center justify-between text-xs text-slate-500">
+        <div className="p-4 border-t border-slate-200 bg-base-200 flex items-center justify-between text-xs text-base-content">
           <span>Nishan AI Dispatch Intelligence Engine</span>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl cursor-pointer"
+            className="px-4 py-2 bg-base-100 border border-slate-200 hover:bg-slate-100 text-slate-700 font-semibold rounded-xl cursor-pointer"
           >
             Close
           </button>

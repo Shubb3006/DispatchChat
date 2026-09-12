@@ -7,7 +7,7 @@ const STATUS_META = {
   denied: { label: "Permission Denied", dot: "bg-rose-500", text: "text-rose-400" },
   unavailable: { label: "GPS Unavailable", dot: "bg-rose-500", text: "text-rose-400" },
   error: { label: "GPS Error", dot: "bg-rose-500", text: "text-rose-400" },
-  off: { label: "GPS Off", dot: "bg-slate-500", text: "text-slate-400" },
+  off: { label: "GPS Off", dot: "bg-base-2000", text: "text-slate-400" },
   simulated: { label: "DEV Simulated Position", dot: "bg-amber-400", text: "text-amber-300" },
 };
 
@@ -52,16 +52,14 @@ export default function GPSMonitorWidget({
         <button
           type="button"
           onClick={() => setGpsEnabled((prev) => !prev)}
-          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center space-x-2 cursor-pointer ${
-            gpsEnabled
-              ? "bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 shadow-md"
-              : "bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800/40"
-          }`}
+          className={`px-3 py-1.5 rounded-xl text-xs font-bold font-mono transition-all flex items-center space-x-2 cursor-pointer ${gpsEnabled
+            ? "bg-emerald-600 hover:bg-emerald-700 text-white border border-emerald-500 shadow-md"
+            : "bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800/40"
+            }`}
         >
           <span
-            className={`h-2.5 w-2.5 rounded-full ${
-              gpsEnabled ? "bg-white animate-pulse" : "bg-indigo-500"
-            }`}
+            className={`h-2.5 w-2.5 rounded-full ${gpsEnabled ? "bg-base-100 animate-pulse" : "bg-indigo-500"
+              }`}
           />
           <span>{gpsEnabled ? "Device GPS: On" : "Enable Device GPS"}</span>
         </button>
@@ -89,27 +87,27 @@ export default function GPSMonitorWidget({
           </span>
           <div className="space-y-1.5">
             <div className="flex justify-between text-2xs">
-              <span className="text-slate-500 font-mono">Latitude:</span>
+              <span className="text-base-content font-mono">Latitude:</span>
               <span className="font-mono text-indigo-300 font-bold">
                 {driverLocation ? driverLocation.lat.toFixed(6) : "— awaiting fix —"}
               </span>
             </div>
             <div className="flex justify-between text-2xs">
-              <span className="text-slate-500 font-mono">Longitude:</span>
+              <span className="text-base-content font-mono">Longitude:</span>
               <span className="font-mono text-indigo-300 font-bold">
                 {driverLocation ? driverLocation.lng.toFixed(6) : "— awaiting fix —"}
               </span>
             </div>
             {driverLocation?.accuracy != null && (
               <div className="flex justify-between text-2xs">
-                <span className="text-slate-500 font-mono">Accuracy:</span>
+                <span className="text-base-content font-mono">Accuracy:</span>
                 <span className="font-mono text-indigo-300 font-bold">
                   ±{Math.round(driverLocation.accuracy)} m
                 </span>
               </div>
             )}
             <div className="flex justify-between text-2xs">
-              <span className="text-slate-500 font-mono">Status:</span>
+              <span className="text-base-content font-mono">Status:</span>
               <span className={`font-mono font-bold flex items-center gap-1 ${meta.text}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${meta.dot}`} />
                 {meta.label}
@@ -130,7 +128,7 @@ export default function GPSMonitorWidget({
             can be verified.
           </p>
           <div className="flex justify-between text-2xs">
-            <span className="text-slate-500 font-mono">Last synced:</span>
+            <span className="text-base-content font-mono">Last synced:</span>
             <span className="font-mono text-indigo-300 font-bold">
               {lastSyncAt ? new Date(lastSyncAt).toLocaleTimeString() : "Not synced yet"}
             </span>
@@ -148,11 +146,10 @@ export default function GPSMonitorWidget({
             <button
               type="button"
               onClick={() => setSimulateMode((prev) => !prev)}
-              className={`px-2.5 py-1 rounded-lg text-3xs font-bold font-mono border transition-all cursor-pointer ${
-                simulateMode
-                  ? "bg-amber-500/20 border-amber-500/50 text-amber-200"
-                  : "bg-slate-800 border-slate-700 text-slate-300 hover:text-white"
-              }`}
+              className={`px-2.5 py-1 rounded-lg text-3xs font-bold font-mono border transition-all cursor-pointer ${simulateMode
+                ? "bg-amber-500/20 border-amber-500/50 text-amber-200"
+                : "bg-slate-800 border-slate-700 text-slate-300 hover:text-white"
+                }`}
             >
               {simulateMode ? "Simulation: ON" : "Simulation: OFF"}
             </button>

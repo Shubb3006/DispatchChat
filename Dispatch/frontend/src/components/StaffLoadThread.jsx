@@ -25,7 +25,7 @@ export default function StaffLoadThread({ loadId, loadNumber }) {
       if (res.data?.success) {
         setMessages(res.data.messages);
         if (res.data.unread_count > 0) {
-          await axiosInstance.post(`/portal/loads/${loadId}/messages/read`).catch(() => {});
+          await axiosInstance.post(`/portal/loads/${loadId}/messages/read`).catch(() => { });
         }
       }
     } catch (error) {
@@ -66,22 +66,22 @@ export default function StaffLoadThread({ loadId, loadNumber }) {
     <div className="p-6">
       <div className="mb-4 flex items-center justify-between">
         <div>
-          <h3 className="text-sm font-bold text-slate-900">Customer conversation</h3>
-          <p className="text-xs text-slate-500">
+          <h3 className="text-sm font-bold text-base-content">Customer conversation</h3>
+          <p className="text-xs text-base-content">
             Goes straight to the broker's portal for Load #{loadNumber || loadId}. They are notified immediately.
           </p>
         </div>
       </div>
 
-      <div className="max-h-[26rem] space-y-3 overflow-y-auto rounded-xl border border-slate-200 bg-slate-50 p-4">
+      <div className="max-h-[26rem] space-y-3 overflow-y-auto rounded-xl border border-slate-200 bg-base-200 p-4">
         {isLoading ? (
-          <div className="flex items-center justify-center py-10 text-slate-500">
+          <div className="flex items-center justify-center py-10 text-base-content">
             <Loader2 className="h-5 w-5 animate-spin" />
           </div>
         ) : messages.length === 0 ? (
           <div className="py-10 text-center">
             <MessageSquare className="mx-auto h-6 w-6 text-slate-300" />
-            <p className="mt-2 text-sm text-slate-500">
+            <p className="mt-2 text-sm text-base-content">
               No messages yet. Anything you send here is visible to the customer in their portal.
             </p>
           </div>
@@ -91,14 +91,13 @@ export default function StaffLoadThread({ loadId, loadNumber }) {
             return (
               <div key={m.id} className={`flex ${mine ? "justify-end" : "justify-start"}`}>
                 <div
-                  className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm ${
-                    mine
-                      ? "bg-indigo-600 text-white"
-                      : "border border-slate-200 bg-white text-slate-800"
-                  }`}
+                  className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm ${mine
+                    ? "bg-indigo-600 text-white"
+                    : "border border-slate-200 bg-base-100 text-slate-800"
+                    }`}
                 >
                   {!mine && (
-                    <p className="mb-0.5 text-[11px] font-semibold text-slate-500">{m.sender_name}</p>
+                    <p className="mb-0.5 text-[11px] font-semibold text-base-content">{m.sender_name}</p>
                   )}
                   <p className="whitespace-pre-wrap break-words">{m.body}</p>
                   <p className={`mt-1 text-[10px] ${mine ? "text-indigo-100" : "text-slate-400"}`}>

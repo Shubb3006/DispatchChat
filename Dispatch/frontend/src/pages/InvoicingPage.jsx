@@ -302,20 +302,20 @@ export default function InvoicingPage() {
     );
   }
   return (
-    <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
+    <div className="max-w-7xl mx-auto space-y-6 text-base-content">
       {/* Top Metrics Banner */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
           <div>
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider">Total Fleet Loads</p>
-            <h3 className="text-2xl font-bold text-slate-900 mt-1">{filteredLoads.length}</h3>
+            <p className="text-xs font-semibold text-base-content uppercase tracking-wider">Total Fleet Loads</p>
+            <h3 className="text-2xl font-bold text-base-content mt-1">{filteredLoads.length}</h3>
           </div>
           <div className="p-3 bg-sky-50 text-sky-600 border border-sky-100 rounded-xl">
             <Package className="h-5 w-5" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-emerald-600 uppercase tracking-wider">Invoiced Revenue</p>
             <h3 className="text-2xl font-bold text-emerald-700 mt-1">${totalInvoiced.toLocaleString()}</h3>
@@ -325,7 +325,7 @@ export default function InvoicingPage() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 shadow-xs p-5 flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold text-amber-600 uppercase tracking-wider">Uninvoiced / Pending</p>
             <h3 className="text-2xl font-bold text-amber-700 mt-1">${totalUninvoiced.toLocaleString()}</h3>
@@ -340,19 +340,19 @@ export default function InvoicingPage() {
       <div className="space-y-6">
         {/* All Loads Invoicing Ledger Table */}
         <div className="space-y-4">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
             {/* Header & Filter Controls */}
-            <div className="p-5 border-b border-slate-200 space-y-4 bg-white">
+            <div className="p-5 border-b border-slate-200 space-y-4 bg-base-100">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div className="flex items-center space-x-2.5">
                   <div className="w-8 h-8 rounded-lg bg-sky-50 border border-sky-200 flex items-center justify-center text-sky-600">
                     <FileSpreadsheet className="h-4 w-4" />
                   </div>
                   <div>
-                    <h2 className="text-base font-bold text-slate-900">
+                    <h2 className="text-base font-bold text-base-content">
                       Fleet Invoicing & Merged Package Ledger
                     </h2>
-                    <p className="text-xs text-slate-500">Manage billing status, generate rate confirmations, and print 3-in-1 packages</p>
+                    <p className="text-xs text-base-content">Manage billing status, generate rate confirmations, and print 3-in-1 packages</p>
                   </div>
                 </div>
 
@@ -363,15 +363,15 @@ export default function InvoicingPage() {
                     value={loadSearch}
                     onChange={(e) => setLoadSearch(e.target.value)}
                     placeholder="Search load #, customer, city..."
-                    className="pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-white w-full sm:w-64 font-medium transition-all"
+                    className="pl-9 pr-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:bg-base-100 w-full sm:w-64 font-medium transition-all"
                   />
                 </div>
               </div>
 
               {/* Filters Bar: Status + Date Range */}
               <div className="flex flex-wrap items-center gap-3 pt-2 border-t border-slate-100 text-xs">
-                <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
-                  <Filter className="h-3.5 w-3.5 text-slate-500" />
+                <div className="flex items-center space-x-1.5 bg-base-200 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Filter className="h-3.5 w-3.5 text-base-content" />
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
@@ -384,16 +384,16 @@ export default function InvoicingPage() {
                   </select>
                 </div>
 
-                <div className="flex flex-wrap items-center gap-y-1.5 space-x-2 max-w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
-                  <Calendar className="h-3.5 w-3.5 text-slate-500" />
-                  <span className="text-xs font-semibold text-slate-500">From:</span>
+                <div className="flex flex-wrap items-center gap-y-1.5 space-x-2 max-w-full bg-base-200 border border-slate-200 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Calendar className="h-3.5 w-3.5 text-base-content" />
+                  <span className="text-xs font-semibold text-base-content">From:</span>
                   <input
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
                     className="bg-transparent text-slate-700 font-medium focus:outline-none text-xs"
                   />
-                  <span className="text-xs font-semibold text-slate-500">To:</span>
+                  <span className="text-xs font-semibold text-base-content">To:</span>
                   <input
                     type="date"
                     value={endDate}
@@ -416,7 +416,7 @@ export default function InvoicingPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
+                  <tr className="border-b border-slate-200 bg-base-200 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
                     <th className="px-5 py-3.5">Load #</th>
                     <th className="px-5 py-3.5">Customer & Route</th>
                     <th className="px-5 py-3.5">Dates</th>
@@ -443,17 +443,17 @@ export default function InvoicingPage() {
                         <tr
                           key={load.id}
                           onClick={() => setSelectedLoad(load)}
-                          className={`hover:bg-slate-50 transition-colors cursor-pointer ${selectedLoad?.id === load.id ? "bg-sky-50/50" : ""
+                          className={`hover:bg-base-200 transition-colors cursor-pointer ${selectedLoad?.id === load.id ? "bg-sky-50/50" : ""
                             }`}
                         >
                           <td className="px-5 py-4 font-mono font-bold text-sky-700 text-sm">
                             #{load.load_number || load.tracking_number || "10015"}
                           </td>
                           <td className="px-5 py-4">
-                            <div className="font-semibold text-slate-900 text-sm">
+                            <div className="font-semibold text-base-content text-sm">
                               {load.customer_name || load.customerName || "AeroParts Manufacturing"}
                             </div>
-                            <div className="text-xs text-slate-500 font-medium flex items-center gap-1 mt-0.5">
+                            <div className="text-xs text-base-content font-medium flex items-center gap-1 mt-0.5">
                               <span>{load.originCity || "Toronto"}</span>
                               <span className="text-slate-400">→</span>
                               <span>{load.destinationCity || "Chicago"}</span>
@@ -464,7 +464,7 @@ export default function InvoicingPage() {
                               ? new Date(load.pickup_date).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })
                               : "Aug 9, 2026"}
                           </td>
-                          <td className="px-5 py-4 font-bold font-mono text-slate-900 text-sm">
+                          <td className="px-5 py-4 font-bold font-mono text-base-content text-sm">
                             {load.priceInvoice ? `$${load.priceInvoice.toLocaleString()}` : "—"}
                           </td>
                           <td className="px-5 py-4">

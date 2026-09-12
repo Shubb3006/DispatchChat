@@ -220,7 +220,7 @@ export default function MaintenanceRadarPage() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6 text-slate-900">
+    <div className="max-w-7xl mx-auto space-y-6 text-base-content">
       {/* Top Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-center gap-3">
@@ -228,10 +228,10 @@ export default function MaintenanceRadarPage() {
             <Wrench className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+            <h1 className="text-xl font-extrabold text-base-content tracking-tight">
               Predictive Fleet Maintenance & Engine Fault (DTC) Radar
             </h1>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-base-content">
               Live J1939 diagnostic trouble codes, predictive PM milestones, and terminal shop work orders
             </p>
           </div>
@@ -240,7 +240,7 @@ export default function MaintenanceRadarPage() {
         <div className="flex flex-wrap items-center gap-3">
           <button
             onClick={() => fetchMaintenanceData()}
-            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 shadow-2xs flex items-center gap-2 cursor-pointer transition-all"
+            className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-base-100 border border-slate-200 hover:bg-base-200 text-slate-700 shadow-2xs flex items-center gap-2 cursor-pointer transition-all"
           >
             <RefreshCw className={`w-3.5 h-3.5 ${isLoading ? "animate-spin text-sky-600" : ""}`} />
             <span>Scan Engine Telematics</span>
@@ -259,20 +259,20 @@ export default function MaintenanceRadarPage() {
       {/* Top KPI Metrics Banner */}
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
         {/* Total Monitored */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Power Units Monitored</span>
             <Truck className="w-4 h-4 text-slate-400" />
           </div>
-          <div className="text-2xl font-extrabold text-slate-900 mt-1">
+          <div className="text-2xl font-extrabold text-base-content mt-1">
             {summary.totalTractorsMonitored || 330}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">Samsara J1939 Online</div>
+          <div className="text-[11px] text-base-content mt-0.5">Samsara J1939 Online</div>
         </div>
 
         {/* Fleet Health Index */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Fleet Health Index</span>
             <Activity className="w-4 h-4 text-emerald-500" />
           </div>
@@ -283,8 +283,8 @@ export default function MaintenanceRadarPage() {
         </div>
 
         {/* Active Engine Faults */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Active Faults (DTC)</span>
             <AlertTriangle className="w-4 h-4 text-rose-500" />
           </div>
@@ -297,8 +297,8 @@ export default function MaintenanceRadarPage() {
         </div>
 
         {/* Overdue PM Services */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>PM Services Due</span>
             <Clock className="w-4 h-4 text-amber-500" />
           </div>
@@ -309,15 +309,15 @@ export default function MaintenanceRadarPage() {
         </div>
 
         {/* Active Shop Work Orders */}
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs">
-          <div className="flex items-center justify-between text-slate-500 text-xs font-medium">
+        <div className="bg-base-100 rounded-2xl border border-slate-200/80 p-4 shadow-xs">
+          <div className="flex items-center justify-between text-base-content text-xs font-medium">
             <span>Shop Work Orders</span>
             <Wrench className="w-4 h-4 text-sky-600" />
           </div>
           <div className="text-2xl font-extrabold text-sky-700 mt-1">
             {summary.activeWorkOrdersCount || 1}
           </div>
-          <div className="text-[11px] text-slate-500 mt-0.5">In Shop Bays</div>
+          <div className="text-[11px] text-base-content mt-0.5">In Shop Bays</div>
         </div>
       </div>
 
@@ -326,8 +326,8 @@ export default function MaintenanceRadarPage() {
         <button
           onClick={() => setActiveTab("faults")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "faults"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <AlertTriangle className="w-4 h-4 text-rose-500" />
@@ -337,8 +337,8 @@ export default function MaintenanceRadarPage() {
         <button
           onClick={() => setActiveTab("pm")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "pm"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <Clock className="w-4 h-4 text-amber-500" />
@@ -348,8 +348,8 @@ export default function MaintenanceRadarPage() {
         <button
           onClick={() => setActiveTab("work_orders")}
           className={`px-4 py-2 rounded-xl text-xs font-bold flex items-center gap-2 cursor-pointer transition-all ${activeTab === "work_orders"
-            ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-            : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+            : "text-slate-600 hover:text-base-content hover:bg-slate-100"
             }`}
         >
           <FileText className="w-4 h-4 text-sky-600" />
@@ -371,7 +371,7 @@ export default function MaintenanceRadarPage() {
               return (
                 <div
                   key={fault.id}
-                  className={`bg-white rounded-2xl border p-5 shadow-xs transition-all ${!isOpen
+                  className={`bg-base-100 rounded-2xl border p-5 shadow-xs transition-all ${!isOpen
                     ? "opacity-60 border-slate-200"
                     : isCritical
                       ? "border-rose-300 ring-1 ring-rose-200"
@@ -396,7 +396,7 @@ export default function MaintenanceRadarPage() {
 
                       <div className="space-y-1">
                         <div className="flex flex-wrap items-center gap-2">
-                          <span className="font-mono font-extrabold text-base text-slate-900">
+                          <span className="font-mono font-extrabold text-base text-base-content">
                             Tractor #{fault.truckNumber}
                           </span>
                           <span
@@ -409,7 +409,7 @@ export default function MaintenanceRadarPage() {
                           >
                             {fault.severity} — {fault.lampStatus}
                           </span>
-                          <span className="font-mono text-xs text-slate-500 font-bold">
+                          <span className="font-mono text-xs text-base-content font-bold">
                             SPN {fault.spn} · FMI {fault.fmi}
                           </span>
                           {fault.workOrderId && (
@@ -419,11 +419,11 @@ export default function MaintenanceRadarPage() {
                           )}
                         </div>
 
-                        <h3 className="font-bold text-slate-900 text-sm">
+                        <h3 className="font-bold text-base-content text-sm">
                           {fault.spnDescription}
                         </h3>
 
-                        <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                        <div className="flex flex-wrap items-center gap-3 text-xs text-base-content">
                           <span className="font-semibold text-slate-700">{fault.model}</span>
                           <span>•</span>
                           <span>Driver: {fault.driverName}</span>
@@ -450,7 +450,7 @@ export default function MaintenanceRadarPage() {
 
                           <button
                             onClick={() => clearFaultCode(fault.id, "Manually cleared after sensor inspection.")}
-                            className="px-3 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer"
+                            className="px-3 py-2 rounded-xl text-xs font-semibold bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer"
                           >
                             Dismiss Fault
                           </button>
@@ -465,7 +465,7 @@ export default function MaintenanceRadarPage() {
                   </div>
 
                   {/* Sensor Diagnostics Grid & Action Recommendation */}
-                  <div className="mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
+                  <div className="mt-4 pt-4 border-t border-slate-100 bg-base-200 rounded-xl p-3.5 flex flex-col md:flex-row md:items-center justify-between gap-4 text-xs">
                     <div className="space-y-1 max-w-2xl">
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
                         Recommended Preventive Action:
@@ -475,7 +475,7 @@ export default function MaintenanceRadarPage() {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-4 bg-white border border-slate-200 rounded-lg px-3 py-2 shadow-2xs font-mono text-xs shrink-0">
+                    <div className="flex items-center gap-4 bg-base-100 border border-slate-200 rounded-lg px-3 py-2 shadow-2xs font-mono text-xs shrink-0">
                       <div>
                         <div className="text-[10px] text-slate-400">Odometer</div>
                         <div className="font-bold text-slate-800">{fault.odometerMiles.toLocaleString()} mi</div>
@@ -498,12 +498,12 @@ export default function MaintenanceRadarPage() {
       {/* TAB 2: PREDICTIVE PM SERVICE CALENDAR */}
       {/* ========================================================================= */}
       {activeTab === "pm" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-5 border-b border-slate-200">
-            <h2 className="text-base font-bold text-slate-900">
+            <h2 className="text-base font-bold text-base-content">
               Predictive Fleet PM (Preventive Maintenance) Milestone Schedule
             </h2>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-base-content">
               Automated service intervals calculated against Samsara live odometer and engine run telemetry
             </p>
           </div>
@@ -511,7 +511,7 @@ export default function MaintenanceRadarPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
+                <tr className="border-b border-slate-200 bg-base-200 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
                   <th className="px-5 py-3.5">Tractor #</th>
                   <th className="px-5 py-3.5">Assigned Driver</th>
                   <th className="px-5 py-3.5">Required Service Type</th>
@@ -527,15 +527,15 @@ export default function MaintenanceRadarPage() {
                   const isUpcoming = pm.status === "UPCOMING";
 
                   return (
-                    <tr key={idx} className="hover:bg-slate-50 transition-colors">
+                    <tr key={idx} className="hover:bg-base-200 transition-colors">
                       <td className="px-5 py-4 font-mono font-bold text-sky-700 text-sm">
                         #{pm.truckNumber}
-                        <div className="text-[11px] font-sans font-normal text-slate-500">{pm.model}</div>
+                        <div className="text-[11px] font-sans font-normal text-base-content">{pm.model}</div>
                       </td>
                       <td className="px-5 py-4 font-semibold text-slate-800">
                         {pm.driver}
                       </td>
-                      <td className="px-5 py-4 font-bold text-slate-900">
+                      <td className="px-5 py-4 font-bold text-base-content">
                         {pm.serviceType}
                       </td>
                       <td className="px-5 py-4 font-mono text-slate-600">
@@ -596,13 +596,13 @@ export default function MaintenanceRadarPage() {
       {/* TAB 3: WORK ORDERS & TERMINAL SHOP LEDGER */}
       {/* ========================================================================= */}
       {activeTab === "work_orders" && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
           <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <h2 className="text-base font-bold text-slate-900">
+              <h2 className="text-base font-bold text-base-content">
                 Terminal Shop Work Orders Ledger
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Track parts costs, labor hours, technician assignments, and maintenance history
               </p>
             </div>
@@ -619,7 +619,7 @@ export default function MaintenanceRadarPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
+                <tr className="border-b border-slate-200 bg-base-200 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
                   <th className="px-5 py-3.5">Order ID</th>
                   <th className="px-5 py-3.5">Tractor #</th>
                   <th className="px-5 py-3.5">Service Title</th>
@@ -631,23 +631,23 @@ export default function MaintenanceRadarPage() {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {workOrders.map((wo) => (
-                  <tr key={wo.id} className="hover:bg-slate-50 transition-colors">
+                  <tr key={wo.id} className="hover:bg-base-200 transition-colors">
                     <td className="px-5 py-4 font-mono font-bold text-sky-700">
                       {wo.id}
                     </td>
-                    <td className="px-5 py-4 font-mono font-bold text-slate-900 text-sm">
+                    <td className="px-5 py-4 font-mono font-bold text-base-content text-sm">
                       #{wo.truckNumber}
                     </td>
                     <td className="px-5 py-4">
-                      <div className="font-semibold text-slate-900">{wo.title}</div>
-                      <div className="text-[11px] text-slate-500 font-medium">
+                      <div className="font-semibold text-base-content">{wo.title}</div>
+                      <div className="text-[11px] text-base-content font-medium">
                         Scheduled: {wo.scheduledDate} · Priority: {wo.priority}
                       </div>
                     </td>
                     <td className="px-5 py-4 text-slate-700 font-medium">
                       {wo.assignedMechanic}
                     </td>
-                    <td className="px-5 py-4 font-mono font-bold text-slate-900 text-sm">
+                    <td className="px-5 py-4 font-mono font-bold text-base-content text-sm">
                       ${(wo.totalEstimatedCost || 0).toLocaleString()} CAD
                     </td>
                     <td className="px-5 py-4">
@@ -670,7 +670,7 @@ export default function MaintenanceRadarPage() {
                       <button
                         onClick={() => handlePrintWorkOrder(wo)}
                         title="Print Work Order PDF"
-                        className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-all cursor-pointer shadow-2xs"
+                        className="p-2 bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-all cursor-pointer shadow-2xs"
                       >
                         <Printer className="w-3.5 h-3.5" />
                       </button>
@@ -688,17 +688,17 @@ export default function MaintenanceRadarPage() {
       {/* ========================================================================= */}
       {isWorkOrderModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-white rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden overflow-y-auto text-slate-900">
-            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+          <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-2xl w-full max-w-xl max-h-[90vh] overflow-hidden overflow-y-auto text-base-content">
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between bg-base-200">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-sky-600 flex items-center justify-center text-white shadow-sm">
                   <Wrench className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-extrabold text-slate-900">
+                  <h2 className="text-base font-extrabold text-base-content">
                     Create Terminal Shop Work Order
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-base-content">
                     Assign technician, schedule bay downtime, and log repair costs
                   </p>
                 </div>
@@ -722,7 +722,7 @@ export default function MaintenanceRadarPage() {
                     required
                     value={orderForm.truckNumber}
                     onChange={(e) => setOrderForm({ ...orderForm, truckNumber: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
@@ -733,7 +733,7 @@ export default function MaintenanceRadarPage() {
                   <select
                     value={orderForm.priority}
                     onChange={(e) => setOrderForm({ ...orderForm, priority: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   >
                     <option value="CRITICAL">CRITICAL (Stop Engine)</option>
                     <option value="NORMAL">NORMAL (Scheduled)</option>
@@ -751,7 +751,7 @@ export default function MaintenanceRadarPage() {
                   required
                   value={orderForm.title}
                   onChange={(e) => setOrderForm({ ...orderForm, title: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
@@ -765,7 +765,7 @@ export default function MaintenanceRadarPage() {
                     required
                     value={orderForm.assignedMechanic}
                     onChange={(e) => setOrderForm({ ...orderForm, assignedMechanic: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
@@ -778,7 +778,7 @@ export default function MaintenanceRadarPage() {
                     required
                     value={orderForm.scheduledDate}
                     onChange={(e) => setOrderForm({ ...orderForm, scheduledDate: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
@@ -793,7 +793,7 @@ export default function MaintenanceRadarPage() {
                     step="0.5"
                     value={orderForm.laborHours}
                     onChange={(e) => setOrderForm({ ...orderForm, laborHours: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-mono font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
 
@@ -806,7 +806,7 @@ export default function MaintenanceRadarPage() {
                     step="10"
                     value={orderForm.partsCost}
                     onChange={(e) => setOrderForm({ ...orderForm, partsCost: e.target.value })}
-                    className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-mono font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
+                    className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-mono font-bold focus:outline-none focus:ring-2 focus:ring-sky-500"
                   />
                 </div>
               </div>
@@ -819,7 +819,7 @@ export default function MaintenanceRadarPage() {
                   rows={3}
                   value={orderForm.notes}
                   onChange={(e) => setOrderForm({ ...orderForm, notes: e.target.value })}
-                  className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-slate-900 font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
+                  className="w-full px-3 py-2 bg-base-200 border border-slate-200 rounded-xl text-base-content font-medium focus:outline-none focus:ring-2 focus:ring-sky-500"
                 />
               </div>
 
@@ -827,7 +827,7 @@ export default function MaintenanceRadarPage() {
                 <button
                   type="button"
                   onClick={() => setIsWorkOrderModalOpen(false)}
-                  className="px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 font-semibold rounded-xl cursor-pointer"
+                  className="px-4 py-2 bg-base-100 border border-slate-200 hover:bg-base-200 text-slate-700 font-semibold rounded-xl cursor-pointer"
                 >
                   Cancel
                 </button>

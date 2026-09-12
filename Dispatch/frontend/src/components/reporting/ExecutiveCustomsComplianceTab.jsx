@@ -105,9 +105,9 @@ export default function ExecutiveCustomsComplianceTab({
       {/* 4 KPI Cards for Trade Compliance */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* First-Pass Clearance Rate */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               First-Pass Clearance Rate
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
@@ -124,15 +124,15 @@ export default function ExecutiveCustomsComplianceTab({
         </div>
 
         {/* Total Crossings */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Cross-Border Freight Volume
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               420 Loads
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               64% Inbound US • 36% Inbound CA
             </div>
           </div>
@@ -142,9 +142,9 @@ export default function ExecutiveCustomsComplianceTab({
         </div>
 
         {/* Average Border Wait Time */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Avg. Bridge Crossing Wait
             </div>
             <div className="text-2xl font-black text-indigo-700 font-mono">
@@ -160,9 +160,9 @@ export default function ExecutiveCustomsComplianceTab({
         </div>
 
         {/* USMCA Duty Avoidance Savings */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               USMCA Duty Savings
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
@@ -179,21 +179,21 @@ export default function ExecutiveCustomsComplianceTab({
       </div>
 
       {/* Port of Entry Crossing Radar */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <MapPin className="w-4 h-4 text-sky-600" />
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
               US-Canada Port of Entry (POE) Performance & Wait Times
             </h3>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-500">4 Active Major Corridors</span>
+          <span className="text-xs font-mono font-bold text-base-content">4 Active Major Corridors</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                 <th className="py-3 px-4">Port of Entry & Crossing</th>
                 <th className="py-3 px-4">Monthly Loads</th>
                 <th className="py-3 px-4">Avg. Border Wait</th>
@@ -203,12 +203,12 @@ export default function ExecutiveCustomsComplianceTab({
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
               {borderPorts.map((p) => (
-                <tr key={p.code} className="hover:bg-slate-50/80 transition-colors">
+                <tr key={p.code} className="hover:bg-base-200/80 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-extrabold text-slate-900">{p.name} ({p.code})</div>
-                    <span className="text-[10px] text-slate-500 font-mono">{p.corridor}</span>
+                    <div className="font-extrabold text-base-content">{p.name} ({p.code})</div>
+                    <span className="text-[10px] text-base-content font-mono">{p.corridor}</span>
                   </td>
-                  <td className="py-3.5 px-4 font-mono font-bold text-slate-900">{p.crossingsMonth} Loads</td>
+                  <td className="py-3.5 px-4 font-mono font-bold text-base-content">{p.crossingsMonth} Loads</td>
                   <td className="py-3.5 px-4 font-mono">
                     <span className="font-bold text-sky-700">{p.avgWaitMins} mins</span>
                     <span className="text-[10px] text-slate-400 ml-1.5">({p.congestionLevel})</span>
@@ -227,21 +227,21 @@ export default function ExecutiveCustomsComplianceTab({
       </div>
 
       {/* Customs Broker EDI Performance */}
-      <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0">
+        <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Building2 className="w-4 h-4 text-indigo-600" />
-            <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+            <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
               Authorized Customs Broker Performance & Response SLA
             </h3>
           </div>
-          <span className="text-xs font-mono font-bold text-slate-500">4 Brokers Integrated</span>
+          <span className="text-xs font-mono font-bold text-base-content">4 Brokers Integrated</span>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs border-collapse">
             <thead>
-              <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+              <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                 <th className="py-3 px-4">Customs Broker</th>
                 <th className="py-3 px-4">Filer Code</th>
                 <th className="py-3 px-4">Entries Filed</th>
@@ -251,9 +251,9 @@ export default function ExecutiveCustomsComplianceTab({
             </thead>
             <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
               {brokers.map((b) => (
-                <tr key={b.filerCode} className="hover:bg-slate-50/80 transition-colors">
+                <tr key={b.filerCode} className="hover:bg-base-200/80 transition-colors">
                   <td className="py-3.5 px-4">
-                    <div className="font-extrabold text-slate-900">{b.name}</div>
+                    <div className="font-extrabold text-base-content">{b.name}</div>
                     <span className="text-[10px] text-slate-400 font-mono">{b.contact}</span>
                   </td>
                   <td className="py-3.5 px-4 font-mono font-bold text-sky-700">{b.filerCode}</td>

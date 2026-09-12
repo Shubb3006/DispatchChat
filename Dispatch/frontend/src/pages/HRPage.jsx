@@ -202,11 +202,11 @@ export default function HRPage() {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:h-full lg:overflow-hidden">
       {/* User Directory */}
-      <div className="lg:col-span-2 flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="lg:col-span-2 flex flex-col bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <Users className="h-5 w-5 text-slate-500" />
-            <h2 className="font-semibold text-slate-900">Team Directory</h2>
+            <Users className="h-5 w-5 text-base-content" />
+            <h2 className="font-semibold text-base-content">Team Directory</h2>
           </div>
           <span className="text-xs text-slate-400 bg-slate-100 px-2.5 py-1 rounded-full font-medium">
             {users.length} accounts
@@ -225,11 +225,11 @@ export default function HRPage() {
             return (
               <div
                 key={user.id}
-                className="px-5 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors"
+                className="px-5 py-4 flex items-center justify-between hover:bg-base-200 transition-colors"
               >
                 <div className="space-y-1.5 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="font-semibold text-sm text-slate-900">
+                    <span className="font-semibold text-sm text-base-content">
                       {user.name}
                     </span>
                     <span className="text-xs text-slate-400">
@@ -254,7 +254,7 @@ export default function HRPage() {
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-xs text-slate-400">Access:</span>
                     {user.role === "admin" || user.role === "super_admin" ? (
-                      <span className="text-xs text-slate-500 italic">
+                      <span className="text-xs text-base-content italic">
                         All modules
                       </span>
                     ) : (
@@ -294,10 +294,10 @@ export default function HRPage() {
       </div>
 
       {/* Register Form */}
-      <div className="flex flex-col bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+      <div className="flex flex-col bg-base-100 rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
         <div className="px-5 py-4 border-b border-slate-100 flex items-center gap-2">
           <UserPlus className="h-5 w-5 text-blue-600" />
-          <h2 className="font-semibold text-slate-900">Add Team Member</h2>
+          <h2 className="font-semibold text-base-content">Add Team Member</h2>
         </div>
 
         <form
@@ -387,7 +387,7 @@ export default function HRPage() {
             <select
               value={role}
               onChange={(e) => handleRoleChange(e.target.value)}
-              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
+              className="w-full px-3 py-2.5 border border-slate-200 rounded-xl text-sm bg-base-100 focus:outline-none focus:ring-2 focus:ring-blue-500/30 focus:border-blue-500 cursor-pointer"
             >
               <option value="driver">Driver</option>
               <option value="customer">Customer</option>
@@ -408,7 +408,7 @@ export default function HRPage() {
               Module Access
             </label>
             {role === "admin" || role === "super_admin" ? (
-              <p className="text-xs text-slate-500 italic">
+              <p className="text-xs text-base-content italic">
                 Full access to all modules
               </p>
             ) : (
@@ -422,13 +422,13 @@ export default function HRPage() {
                       onClick={() => handleToggleModule(mod.id)}
                       className={`w-full flex items-start gap-3 p-3 rounded-xl border text-left cursor-pointer transition-all ${isSelected
                         ? "bg-blue-50 border-blue-200 text-slate-800"
-                        : "bg-slate-50 border-slate-100 text-slate-500 hover:border-slate-200"
+                        : "bg-base-200 border-slate-100 text-base-content hover:border-slate-200"
                         }`}
                     >
                       <div
                         className={`w-4 h-4 rounded flex items-center justify-center shrink-0 mt-0.5 ${isSelected
                           ? "bg-blue-600 border-blue-600"
-                          : "border border-slate-300 bg-white"
+                          : "border border-slate-300 bg-base-100"
                           }`}
                       >
                         {isSelected && (

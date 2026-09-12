@@ -130,7 +130,7 @@ export const BarcodeSvg = ({ value, width = 280, height = 50 }) => {
   const totalWidth = xPos + quietZone;
 
   return (
-    <div className="flex flex-col items-center bg-white p-3 rounded-lg border border-slate-200 shadow-sm">
+    <div className="flex flex-col items-center bg-base-100 p-3 rounded-lg border border-slate-200 shadow-sm">
       <svg
         width={Math.min(totalWidth, width)}
         height={height}
@@ -528,23 +528,23 @@ export default function CustomsPage() {
   }
 
   return (
-    <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-slate-900">
+    <div className="w-full space-y-6 max-w-7xl mx-auto select-none pb-12 text-base-content">
       {/* Top Banner / Hero */}
-      <div className="bg-white rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
+      <div className="bg-base-100 rounded-2xl p-5 border border-slate-200 shadow-xs flex flex-col lg:flex-row lg:items-center justify-between gap-4 shrink-0">
         <div className="flex items-center gap-3.5 min-w-0">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-sm shrink-0">
             <Globe className="w-6 h-6" />
           </div>
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
-              <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+              <h1 className="text-xl font-extrabold tracking-tight text-base-content">
                 Cross-Border Customs & Trade Engine
               </h1>
               <span className="px-2.5 py-0.5 text-[11px] font-bold bg-sky-50 text-sky-800 border border-sky-200 rounded-full">
                 US CBP & CBSA EDI
               </span>
             </div>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-base-content mt-1">
               PAPS & PARS Barcodes • IRS EIN & INS/CRA BN • HTS Classification • Port of Entry Clearance
             </p>
           </div>
@@ -563,7 +563,7 @@ export default function CustomsPage() {
 
           <button
             onClick={() => handleOpenCreateModal("INBOUND_US")}
-            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-base-100 border border-slate-200 hover:bg-base-200 text-slate-700 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-sky-600" />
             <span>+ Inbound US (PAPS)</span>
@@ -571,7 +571,7 @@ export default function CustomsPage() {
 
           <button
             onClick={() => handleOpenCreateModal("INBOUND_CA")}
-            className="px-3.5 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
+            className="px-3.5 py-2 bg-base-100 border border-slate-200 hover:bg-base-200 text-slate-700 text-xs font-bold rounded-xl shadow-2xs transition-all flex items-center gap-1.5 cursor-pointer"
           >
             <Plus className="w-4 h-4 text-emerald-600" />
             <span>+ Inbound CA (PARS)</span>
@@ -582,32 +582,32 @@ export default function CustomsPage() {
 
       {/* KPI Stats Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-base-content uppercase tracking-wider">
               Cross-Border Active
             </div>
-            <div className="text-2xl font-extrabold text-slate-900 mt-1 font-mono">
+            <div className="text-2xl font-extrabold text-base-content mt-1 font-mono">
               {stats.total}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-base-content mt-0.5">
               {stats.inboundUs} South • {stats.inboundCa} North
             </div>
           </div>
-          <div className="w-10 h-10 rounded-2xl bg-slate-50 border border-slate-200 text-slate-600 flex items-center justify-center font-bold shadow-2xs">
-            <Truck className="w-5 h-5 text-slate-500" />
+          <div className="w-10 h-10 rounded-2xl bg-base-200 border border-slate-200 text-slate-600 flex items-center justify-center font-bold shadow-2xs">
+            <Truck className="w-5 h-5 text-base-content" />
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-base-content uppercase tracking-wider">
               Inbound US (PAPS)
             </div>
             <div className="text-2xl font-extrabold text-sky-700 mt-1 font-mono">
               {stats.inboundUs}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-base-content mt-0.5">
               CBP ACE eManifests
             </div>
           </div>
@@ -616,15 +616,15 @@ export default function CustomsPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-base-content uppercase tracking-wider">
               Inbound Canada (PARS)
             </div>
             <div className="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">
               {stats.inboundCa}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-base-content mt-0.5">
               CBSA ACI eManifests
             </div>
           </div>
@@ -633,9 +633,9 @@ export default function CustomsPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-base-content uppercase tracking-wider">
               Green-Light Rate
             </div>
             <div className="text-2xl font-extrabold text-emerald-700 mt-1 font-mono">
@@ -650,9 +650,9 @@ export default function CustomsPage() {
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-2xl border border-slate-200/80 shadow-xs flex items-center justify-between">
           <div>
-            <div className="text-[11px] font-bold text-slate-500 uppercase tracking-wider">
+            <div className="text-[11px] font-bold text-base-content uppercase tracking-wider">
               Inspections / Holds
             </div>
             <div
@@ -661,14 +661,14 @@ export default function CustomsPage() {
             >
               {stats.holds}
             </div>
-            <div className="text-[11px] text-slate-500 mt-0.5">
+            <div className="text-[11px] text-base-content mt-0.5">
               Secondary Exam
             </div>
           </div>
           <div
             className={`w-10 h-10 rounded-2xl flex items-center justify-center font-bold shadow-2xs ${stats.holds > 0
               ? "bg-rose-50 text-rose-600 border border-rose-200"
-              : "bg-slate-50 text-slate-500 border border-slate-200"
+              : "bg-base-200 text-base-content border border-slate-200"
               }`}
           >
             <AlertTriangle className="w-5 h-5" />
@@ -682,8 +682,8 @@ export default function CustomsPage() {
           <button
             onClick={() => setActiveTab("all")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "all"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
             <Layers className="w-3.5 h-3.5 text-sky-600" />
@@ -696,8 +696,8 @@ export default function CustomsPage() {
           <button
             onClick={() => setActiveTab("inbound_us")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "inbound_us"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
             <span>🇺🇸 Inbound US (PAPS)</span>
@@ -709,8 +709,8 @@ export default function CustomsPage() {
           <button
             onClick={() => setActiveTab("inbound_ca")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "inbound_ca"
-              ? "bg-white text-emerald-700 border border-emerald-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-emerald-700 border border-emerald-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
             <span>🇨🇦 Inbound Canada (PARS)</span>
@@ -722,8 +722,8 @@ export default function CustomsPage() {
           <button
             onClick={() => setActiveTab("borderconnect")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "borderconnect"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
             <ShieldCheck className="w-3.5 h-3.5 text-sky-600" />
@@ -736,33 +736,33 @@ export default function CustomsPage() {
           <button
             onClick={() => setActiveTab("barcodes")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "barcodes"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
-            <Barcode className="w-3.5 h-3.5 text-slate-500" />
+            <Barcode className="w-3.5 h-3.5 text-base-content" />
             <span>PAPS / PARS Barcode Studio</span>
           </button>
 
           <button
             onClick={() => setActiveTab("hts")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "hts"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
-            <Search className="w-3.5 h-3.5 text-slate-500" />
+            <Search className="w-3.5 h-3.5 text-base-content" />
             <span>HTS Codes & Tariffs</span>
           </button>
 
           <button
             onClick={() => setActiveTab("ports")}
             className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${activeTab === "ports"
-              ? "bg-white text-sky-700 border border-sky-200 shadow-2xs"
-              : "text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent"
+              ? "bg-base-100 text-sky-700 border border-sky-200 shadow-2xs"
+              : "text-slate-600 hover:text-base-content hover:bg-slate-100 border border-transparent"
               }`}
           >
-            <MapPin className="w-3.5 h-3.5 text-slate-500" />
+            <MapPin className="w-3.5 h-3.5 text-base-content" />
             <span>Ports of Entry & Brokers</span>
           </button>
         </div>
@@ -779,14 +779,14 @@ export default function CustomsPage() {
                   placeholder="Search PAPS, PARS, IRS, Load #..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
+                  className="w-full pl-9 pr-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
                 />
               </div>
 
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
+                className="bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-slate-800 px-3 py-2 shadow-2xs focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer"
               >
                 <option value="all">All Statuses</option>
                 <option value="CLEARED">Cleared / Green Light</option>
@@ -808,7 +808,7 @@ export default function CustomsPage() {
           <div className="space-y-4">
             {filteredEntries.length === 0 ? (
               <div className="bg-slate-900 rounded-2xl border border-slate-800 p-12 text-center shadow-xl">
-                <FileSignature className="w-12 h-12 text-slate-500 mx-auto mb-3" />
+                <FileSignature className="w-12 h-12 text-base-content mx-auto mb-3" />
                 <h3 className="text-base font-bold text-white">
                   No Cross-Border Customs Entries Found
                 </h3>
@@ -832,7 +832,7 @@ export default function CustomsPage() {
                   return (
                     <div
                       key={entry.id}
-                      className={`bg-white rounded-2xl border transition-all shadow-xs hover:border-slate-300 p-5 ${isSelected
+                      className={`bg-base-100 rounded-2xl border transition-all shadow-xs hover:border-slate-300 p-5 ${isSelected
                         ? "border-sky-500 ring-2 ring-sky-500/20"
                         : "border-slate-200"
                         }`}
@@ -851,7 +851,7 @@ export default function CustomsPage() {
 
                           <div className="space-y-1">
                             <div className="flex flex-wrap items-center gap-2">
-                              <span className="font-mono text-base font-extrabold text-slate-900 tracking-tight">
+                              <span className="font-mono text-base font-extrabold text-base-content tracking-tight">
                                 {entry.lead_number}
                               </span>
                               <span
@@ -872,7 +872,7 @@ export default function CustomsPage() {
                               </span>
                             </div>
 
-                            <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                            <div className="flex flex-wrap items-center gap-3 text-xs text-base-content">
                               <span className="font-bold text-sky-700 font-mono">
                                 Load #{entry.load_number || "10016"}
                               </span>
@@ -895,7 +895,7 @@ export default function CustomsPage() {
                             onChange={(e) =>
                               updateCustomsStatus(entry.id, e.target.value)
                             }
-                            className="bg-slate-50 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer shadow-2xs"
+                            className="bg-base-200 border border-slate-200 text-slate-800 text-xs font-semibold rounded-xl px-3 py-2 focus:outline-none focus:ring-2 focus:ring-sky-500 cursor-pointer shadow-2xs"
                           >
                             <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
                             <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
@@ -925,7 +925,7 @@ export default function CustomsPage() {
                               setIsBarcodeModalOpen(true);
                             }}
                             title="Print Barcode & Lead Sheet"
-                            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                            className="p-2 bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
                           >
                             <Barcode className="w-4 h-4 text-slate-700" />
                           </button>
@@ -936,7 +936,7 @@ export default function CustomsPage() {
                               setIsInvoiceModalOpen(true);
                             }}
                             title="View Customs Commercial Invoice"
-                            className="p-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
+                            className="p-2 bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 rounded-xl transition-colors cursor-pointer shadow-2xs"
                           >
                             <FileText className="w-4 h-4 text-slate-700" />
                           </button>
@@ -951,7 +951,7 @@ export default function CustomsPage() {
                       </div>
 
                       {/* Middle Section: Route & Tax / Broker Data Grid */}
-                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-slate-50 rounded-xl p-3.5">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-4 pt-4 border-t border-slate-100 bg-base-200 rounded-xl p-3.5">
                         {/* Origin to Destination */}
                         <div>
                           <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
@@ -986,7 +986,7 @@ export default function CustomsPage() {
                           <div className="text-xs font-bold text-slate-800 mt-0.5 truncate">
                             {entry.customs_broker_name}
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-base-content">
                             Filer: {entry.customs_broker_filer_code} • {entry.broker_entry_number || "Pending"}
                           </div>
                         </div>
@@ -999,7 +999,7 @@ export default function CustomsPage() {
                           <div className="text-xs font-bold text-emerald-700 mt-0.5 font-mono">
                             ${(entry.declared_value || 0).toLocaleString()} {entry.currency || "USD"}
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-base-content">
                             {entry.hts_items?.length || 0} HTS classification(s)
                           </div>
                         </div>
@@ -1014,7 +1014,7 @@ export default function CustomsPage() {
                           {entry.hts_items.map((item, idx) => (
                             <div
                               key={idx}
-                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white border border-slate-200 text-slate-700 text-xs shadow-2xs font-mono"
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-base-100 border border-slate-200 text-slate-700 text-xs shadow-2xs font-mono"
                             >
                               <span className="font-bold text-sky-700">{item.hts_code}</span>
                               <span className="text-slate-300">|</span>
@@ -1041,7 +1041,7 @@ export default function CustomsPage() {
       {activeTab === "borderconnect" && (
         <div className="space-y-6">
           {/* Top BorderConnect Connection Specs Card */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 shadow-xs">
             <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-slate-100 pb-4">
               <div className="flex items-center gap-3.5">
                 <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-600 to-indigo-600 flex items-center justify-center text-white shadow-sm">
@@ -1049,7 +1049,7 @@ export default function CustomsPage() {
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <h2 className="text-base font-extrabold text-slate-900">
+                    <h2 className="text-base font-extrabold text-base-content">
                       BorderConnect Cloud EDI Gateway
                     </h2>
                     <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
@@ -1057,7 +1057,7 @@ export default function CustomsPage() {
                       LIVE EDI CONNECTED
                     </span>
                   </div>
-                  <p className="text-xs text-slate-500 mt-0.5">
+                  <p className="text-xs text-base-content mt-0.5">
                     Direct automated ACE eManifest (US CBP) & ACI eManifest (CBSA Canada) transmission for Nishan Transport
                   </p>
                 </div>
@@ -1066,7 +1066,7 @@ export default function CustomsPage() {
               <div className="flex flex-wrap items-center gap-3">
                 <button
                   onClick={() => setIsBcModalOpen(true)}
-                  className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer shadow-2xs transition-all"
+                  className="px-3.5 py-2 rounded-xl text-xs font-semibold bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 cursor-pointer shadow-2xs transition-all"
                 >
                   Configure API Keys
                 </button>
@@ -1084,25 +1084,25 @@ export default function CustomsPage() {
 
             {/* Connection Spec Badges Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs font-mono">
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+              <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">US CBP SCAC Code</span>
                 <div className="text-sm font-extrabold text-sky-700 mt-0.5">{borderConnectConfig.companyCode || "NISD"}</div>
-                <div className="text-[10px] text-slate-500 font-sans mt-0.5">Authorized Highway Carrier</div>
+                <div className="text-[10px] text-base-content font-sans mt-0.5">Authorized Highway Carrier</div>
               </div>
 
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+              <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">CBSA Carrier Code</span>
                 <div className="text-sm font-extrabold text-emerald-700 mt-0.5">{borderConnectConfig.carrierCode || "22GY"}</div>
-                <div className="text-[10px] text-slate-500 font-sans mt-0.5">Canadian Customs Registered</div>
+                <div className="text-[10px] text-base-content font-sans mt-0.5">Canadian Customs Registered</div>
               </div>
 
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+              <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">Company Handle</span>
                 <div className="text-sm font-bold text-slate-800 mt-0.5 truncate">{borderConnectConfig.companyHandle || "NishanTransport"}</div>
-                <div className="text-[10px] text-slate-500 font-sans mt-0.5">Account Key: {borderConnectConfig.maskedCompanyKey || "c-223••••••••ba13"}</div>
+                <div className="text-[10px] text-base-content font-sans mt-0.5">Account Key: {borderConnectConfig.maskedCompanyKey || "c-223••••••••ba13"}</div>
               </div>
 
-              <div className="bg-slate-50 rounded-xl p-3 border border-slate-200/80">
+              <div className="bg-base-200 rounded-xl p-3 border border-slate-200/80">
                 <span className="text-[10px] font-bold text-slate-400 uppercase">WebSocket Stream</span>
                 <div className="text-xs font-bold text-emerald-600 mt-0.5 flex items-center gap-1">
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
@@ -1114,13 +1114,13 @@ export default function CustomsPage() {
           </div>
 
           {/* Cross-Border Shipments Live Sync Ledger */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
             <div className="p-5 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-bold text-base-content">
                   Cross-Border Shipments & Customs Manifest Ledger
                 </h3>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-base-content">
                   Live synchronized PAPS/PARS barcodes, customs broker filings, and CBP/CBSA release statuses
                 </p>
               </div>
@@ -1133,7 +1133,7 @@ export default function CustomsPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="border-b border-slate-200 bg-slate-50 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
+                  <tr className="border-b border-slate-200 bg-base-200 text-slate-600 font-semibold uppercase text-[11px] tracking-wider">
                     <th className="px-5 py-3.5">Load #</th>
                     <th className="px-5 py-3.5">Lead Barcode (PAPS/PARS)</th>
                     <th className="px-5 py-3.5">Route & Direction</th>
@@ -1150,14 +1150,14 @@ export default function CustomsPage() {
                     const isHold = entry.customs_status === "HOLD_INSPECTION";
 
                     return (
-                      <tr key={entry.id} className="hover:bg-slate-50 transition-colors">
+                      <tr key={entry.id} className="hover:bg-base-200 transition-colors">
                         <td className="px-5 py-4 font-mono font-bold text-sky-700 text-sm">
                           #{entry.load_number}
-                          <div className="text-[11px] font-sans font-normal text-slate-500">{entry.customer_name}</div>
+                          <div className="text-[11px] font-sans font-normal text-base-content">{entry.customer_name}</div>
                         </td>
 
                         <td className="px-5 py-4 font-mono">
-                          <div className="font-extrabold text-slate-900 text-sm">{entry.lead_number}</div>
+                          <div className="font-extrabold text-base-content text-sm">{entry.lead_number}</div>
                           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
                             {entry.lead_number_type} ({entry.scac_or_carrier_code})
                           </div>
@@ -1167,14 +1167,14 @@ export default function CustomsPage() {
                           <div className="flex items-center gap-1.5 font-bold text-slate-800">
                             <span>{isUs ? "🇺🇸 Southbound (US Inbound)" : "🇨🇦 Northbound (CA Inbound)"}</span>
                           </div>
-                          <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                          <div className="text-[11px] text-base-content truncate max-w-[200px]">
                             {entry.origin} ➔ {entry.destination}
                           </div>
                         </td>
 
                         <td className="px-5 py-4">
-                          <div className="font-semibold text-slate-900">{entry.port_of_entry_name}</div>
-                          <div className="text-[11px] text-slate-500 font-medium">Broker: {entry.customs_broker_name}</div>
+                          <div className="font-semibold text-base-content">{entry.port_of_entry_name}</div>
+                          <div className="text-[11px] text-base-content font-medium">Broker: {entry.customs_broker_name}</div>
                         </td>
 
                         <td className="px-5 py-4 font-mono">
@@ -1210,7 +1210,7 @@ export default function CustomsPage() {
                             <button
                               onClick={() => syncBorderConnectStatus(entry.lead_number, entry.lead_number_type)}
                               title="Verify Live EDI Status"
-                              className="px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs"
+                              className="px-2.5 py-1.5 rounded-xl bg-base-200 hover:bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold cursor-pointer shadow-2xs"
                             >
                               Verify EDI
                             </button>
@@ -1247,13 +1247,13 @@ export default function CustomsPage() {
 
       {/* TAB CONTENT 2: Barcode & Thermal Label Studio */}
       {activeTab === "barcodes" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 shadow-sm space-y-6">
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 pb-4">
             <div>
               <h2 className="text-base font-bold text-slate-800">
                 PAPS & PARS Barcode Print Studio
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Generate high-resolution Code 128 scannable barcodes for US CBP (PAPS) and CBSA (PARS) manifests.
               </p>
             </div>
@@ -1270,7 +1270,7 @@ export default function CustomsPage() {
             {customsEntries.map((entry) => (
               <div
                 key={entry.id}
-                className="bg-slate-50 rounded-2xl border border-slate-200 p-5 space-y-4 hover:border-blue-400 transition-colors shadow-2xs"
+                className="bg-base-200 rounded-2xl border border-slate-200 p-5 space-y-4 hover:border-blue-400 transition-colors shadow-2xs"
               >
                 <div className="flex items-center justify-between">
                   <span
@@ -1291,7 +1291,7 @@ export default function CustomsPage() {
                   <BarcodeSvg value={entry.lead_number} width={300} height={55} />
                 </div>
 
-                <div className="space-y-1 text-xs text-slate-600 bg-white p-3 rounded-xl border border-slate-200">
+                <div className="space-y-1 text-xs text-slate-600 bg-base-100 p-3 rounded-xl border border-slate-200">
                   <div className="flex justify-between">
                     <span className="text-slate-400">Carrier SCAC / Code:</span>
                     <span className="font-mono font-bold text-slate-800">
@@ -1349,18 +1349,18 @@ export default function CustomsPage() {
 
       {/* TAB CONTENT 3: HTS Code Directory & Tariff Engine */}
       {activeTab === "hts" && (
-        <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
+        <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 shadow-xs space-y-6">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-base font-extrabold text-slate-900">
+                <h2 className="text-base font-extrabold text-base-content">
                   Harmonized Tariff Schedule (HTS / Schedule B) Catalog
                 </h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-bold font-mono bg-sky-50 text-sky-700 border border-sky-200">
                   {htsCatalog.length} CODES AVAILABLE
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-base-content mt-0.5">
                 Classify cross-border freight commodities for US CBP ACE, CBSA ACI, USMCA exemptions, and PGA requirements.
               </p>
             </div>
@@ -1373,19 +1373,19 @@ export default function CustomsPage() {
                 placeholder="Search HTS code, commodity, or chapter..."
                 value={htsSearchTerm}
                 onChange={(e) => setHtsSearchTerm(e.target.value)}
-                className="w-full pl-9 pr-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
+                className="w-full pl-9 pr-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium"
               />
             </div>
           </div>
 
           {/* Quick Duty Calculator Widget */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+          <div className="bg-base-200 border border-slate-200 rounded-xl p-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="space-y-1">
-              <div className="text-xs font-bold text-slate-900 flex items-center gap-2">
+              <div className="text-xs font-bold text-base-content flex items-center gap-2">
                 <DollarSign className="w-4 h-4 text-emerald-600" />
                 <span>Live Customs Duty & Tariff Estimator</span>
               </div>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Simulate landed customs duty based on declared commercial invoice valuation.
               </p>
             </div>
@@ -1396,7 +1396,7 @@ export default function CustomsPage() {
                 type="number"
                 value={htsDutyValue}
                 onChange={(e) => setHtsDutyValue(parseFloat(e.target.value) || 0)}
-                className="w-32 px-3 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                className="w-32 px-3 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-mono font-bold text-base-content focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
               />
             </div>
           </div>
@@ -1405,7 +1405,7 @@ export default function CustomsPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-y border-slate-200">
+                <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-y border-slate-200">
                   <th className="py-3 px-4">HTS Code</th>
                   <th className="py-3 px-4">Commodity Description</th>
                   <th className="py-3 px-4">Category</th>
@@ -1430,11 +1430,11 @@ export default function CustomsPage() {
                   .map((h, i) => {
                     const estDuty = (htsDutyValue * (h.duty_rate_pct || 0)) / 100;
                     return (
-                      <tr key={i} className="hover:bg-slate-50/80 transition-colors">
+                      <tr key={i} className="hover:bg-base-200/80 transition-colors">
                         <td className="py-3.5 px-4 font-mono font-bold text-sky-700">
                           {h.hts_code}
                         </td>
-                        <td className="py-3.5 px-4 font-medium text-slate-900 max-w-sm">
+                        <td className="py-3.5 px-4 font-medium text-base-content max-w-sm">
                           {h.description}
                         </td>
                         <td className="py-3.5 px-4 text-slate-600">
@@ -1442,7 +1442,7 @@ export default function CustomsPage() {
                             {h.category}
                           </span>
                         </td>
-                        <td className="py-3.5 px-4 font-bold text-slate-900 font-mono">
+                        <td className="py-3.5 px-4 font-bold text-base-content font-mono">
                           {h.duty_rate_pct}%
                         </td>
                         <td className="py-3.5 px-4">
@@ -1473,7 +1473,7 @@ export default function CustomsPage() {
                               navigator.clipboard.writeText(h.hts_code);
                               toast.success(`Copied HTS Code ${h.hts_code} to clipboard!`);
                             }}
-                            className="px-2.5 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 rounded-lg text-[11px] font-bold cursor-pointer transition shadow-2xs"
+                            className="px-2.5 py-1 bg-base-100 hover:bg-base-200 text-slate-700 border border-slate-200 rounded-lg text-[11px] font-bold cursor-pointer transition shadow-2xs"
                           >
                             Copy Code
                           </button>
@@ -1491,12 +1491,12 @@ export default function CustomsPage() {
       {activeTab === "ports" && (
         <div className="space-y-6">
           {/* Ports Grid */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 pb-3">
               <h2 className="text-base font-bold text-slate-800">
                 US & Canada Commercial Ports of Entry (POE)
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Official CBP and CBSA border crossings with port codes, commercial crossing lanes, and FAST capabilities.
               </p>
             </div>
@@ -1505,7 +1505,7 @@ export default function CustomsPage() {
               {portsOfEntry.map((p, i) => (
                 <div
                   key={i}
-                  className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3"
+                  className="bg-base-200 rounded-xl border border-slate-200 p-4 space-y-3"
                 >
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs font-black text-blue-700 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
@@ -1522,10 +1522,10 @@ export default function CustomsPage() {
                   </div>
 
                   <div>
-                    <h4 className="text-sm font-bold text-slate-900">
+                    <h4 className="text-sm font-bold text-base-content">
                       {p.name}
                     </h4>
-                    <p className="text-xs text-slate-500 mt-0.5">{p.city}</p>
+                    <p className="text-xs text-base-content mt-0.5">{p.city}</p>
                   </div>
 
                   <div className="flex items-center justify-between text-xs text-slate-600 pt-2 border-t border-slate-200">
@@ -1543,12 +1543,12 @@ export default function CustomsPage() {
           </div>
 
           {/* Brokers Directory */}
-          <div className="bg-white rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 p-6 shadow-sm space-y-4">
             <div className="border-b border-slate-100 pb-3">
               <h2 className="text-base font-bold text-slate-800">
                 Preferred Customs Brokerage Partners
               </h2>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-base-content">
                 Direct ACE/ACI electronic filer directory for cross-border documentation clearance.
               </p>
             </div>
@@ -1557,20 +1557,20 @@ export default function CustomsPage() {
               {customsBrokers.map((b, i) => (
                 <div
                   key={i}
-                  className="bg-slate-50 rounded-xl border border-slate-200 p-4 space-y-3"
+                  className="bg-base-200 rounded-xl border border-slate-200 p-4 space-y-3"
                 >
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-sm text-slate-900">
+                    <span className="font-bold text-sm text-base-content">
                       {b.name}
                     </span>
-                    <span className="font-mono text-[11px] font-bold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">
+                    <span className="font-mono text-[11px] font-bold text-slate-600 bg-base-100 px-2 py-0.5 rounded border border-slate-200">
                       FILER: {b.filer_code}
                     </span>
                   </div>
 
-                  <p className="text-xs text-slate-500">{b.specialty}</p>
+                  <p className="text-xs text-base-content">{b.specialty}</p>
 
-                  <div className="text-xs space-y-1 bg-white p-2.5 rounded-lg border border-slate-200 text-slate-700">
+                  <div className="text-xs space-y-1 bg-base-100 p-2.5 rounded-lg border border-slate-200 text-slate-700">
                     <div>📞 {b.phone}</div>
                     <div className="truncate">✉️ {b.email}</div>
                   </div>
@@ -1586,7 +1586,7 @@ export default function CustomsPage() {
       {/* ========================================================================= */}
       {isEntryModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden my-6">
+          <div className="bg-base-100 rounded-2xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden my-6">
             {/* Header */}
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between shrink-0">
               <div className="flex items-center gap-3">
@@ -1615,7 +1615,7 @@ export default function CustomsPage() {
             {/* Form Body */}
             <form onSubmit={handleSaveEntry} className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-6">
               {/* Direction & Lead Type Selection */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 bg-base-200 p-4 rounded-xl border border-slate-200">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1">
                     Border Crossing Direction
@@ -1623,7 +1623,7 @@ export default function CustomsPage() {
                   <select
                     value={formData.border_direction}
                     onChange={(e) => handleDirectionChange(e.target.value)}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900 focus:ring-2 focus:ring-blue-500"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content focus:ring-2 focus:ring-blue-500"
                   >
                     <option value="INBOUND_US">🇺🇸 Inbound US (Southbound)</option>
                     <option value="INBOUND_CA">🇨🇦 Inbound Canada (Northbound)</option>
@@ -1652,7 +1652,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, scac_or_carrier_code: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-base-content"
                   />
                 </div>
               </div>
@@ -1670,7 +1670,7 @@ export default function CustomsPage() {
                       setFormData({ ...formData, load_number: e.target.value })
                     }
                     required
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   />
                 </div>
 
@@ -1685,7 +1685,7 @@ export default function CustomsPage() {
                       setFormData({ ...formData, lead_number: e.target.value })
                     }
                     required
-                    className="w-full px-3 py-2 bg-white border border-blue-400 rounded-xl text-xs font-mono font-black text-blue-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-blue-400 rounded-xl text-xs font-mono font-black text-blue-900"
                   />
                 </div>
 
@@ -1698,7 +1698,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, customs_status: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   >
                     <option value="PAPS_PARS_ACTIVE">PAPS/PARS Active</option>
                     <option value="SUBMITTED_TO_BROKER">Submitted to Broker</option>
@@ -1710,7 +1710,7 @@ export default function CustomsPage() {
               </div>
 
               {/* Tax IDs: IRS EIN & INS / CRA BN */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 bg-base-200 p-4 rounded-xl border border-slate-200">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
                     <span>IRS / EIN Number (US Importer)</span>
@@ -1723,7 +1723,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, irs_number: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-base-content"
                   />
                 </div>
 
@@ -1739,7 +1739,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, ins_number: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-base-content"
                   />
                 </div>
               </div>
@@ -1763,7 +1763,7 @@ export default function CustomsPage() {
                         });
                       }
                     }}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   >
                     {portsOfEntry.map((p) => (
                       <option key={p.code} value={p.code}>
@@ -1791,7 +1791,7 @@ export default function CustomsPage() {
                         });
                       }
                     }}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   >
                     {customsBrokers.map((b, i) => (
                       <option key={i} value={b.name}>
@@ -1814,7 +1814,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, commercial_invoice_number: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   />
                 </div>
 
@@ -1832,7 +1832,7 @@ export default function CustomsPage() {
                         invoice_total_value: parseFloat(e.target.value) || 0,
                       })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   />
                 </div>
 
@@ -1843,7 +1843,7 @@ export default function CustomsPage() {
                   <select
                     value={formData.currency}
                     onChange={(e) => setFormData({ ...formData, currency: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-bold text-base-content"
                   >
                     <option value="USD">USD ($)</option>
                     <option value="CAD">CAD (C$)</option>
@@ -1857,7 +1857,7 @@ export default function CustomsPage() {
                   <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">
                     Harmonized Tariff Schedule (HTS) Line Items
                   </h4>
-                  <span className="text-xs text-slate-500 font-medium">
+                  <span className="text-xs text-base-content font-medium">
                     {formData.hts_items?.length || 0} item(s) configured
                   </span>
                 </div>
@@ -1868,7 +1868,7 @@ export default function CustomsPage() {
                     {formData.hts_items.map((item, idx) => (
                       <div
                         key={idx}
-                        className="flex items-center justify-between bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs"
+                        className="flex items-center justify-between bg-base-200 p-3 rounded-xl border border-slate-200 text-xs"
                       >
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-2">
@@ -1879,7 +1879,7 @@ export default function CustomsPage() {
                               {item.description}
                             </span>
                           </div>
-                          <div className="text-[11px] text-slate-500">
+                          <div className="text-[11px] text-base-content">
                             Qty: {item.quantity} {item.unit} • @${item.unit_price} = ${item.total_value?.toLocaleString()} • Duty: {item.duty_rate_pct}%
                           </div>
                         </div>
@@ -1897,13 +1897,13 @@ export default function CustomsPage() {
                 )}
 
                 {/* Add HTS Item Mini Form */}
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-200 space-y-3">
+                <div className="bg-base-200 p-4 rounded-xl border border-slate-200 space-y-3">
                   <div className="flex items-center justify-between">
-                    <div className="text-[11px] font-bold text-slate-900 flex items-center gap-1.5">
+                    <div className="text-[11px] font-bold text-base-content flex items-center gap-1.5">
                       <Plus className="w-3.5 h-3.5 text-sky-600" />
                       <span>Add HTS Tariff Item (Type description for instant popover matching)</span>
                     </div>
-                    <span className="text-[10px] text-slate-500 font-mono font-bold">
+                    <span className="text-[10px] text-base-content font-mono font-bold">
                       1000+ Codes Indexed
                     </span>
                   </div>
@@ -1942,7 +1942,7 @@ export default function CustomsPage() {
                         onChange={(e) =>
                           setNewHtsItem({ ...newHtsItem, hts_code: e.target.value })
                         }
-                        className="w-full px-2.5 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono font-bold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                        className="w-full px-2.5 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono font-bold text-sky-700 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
                       />
                     </div>
                   </div>
@@ -1962,7 +1962,7 @@ export default function CustomsPage() {
                             total_value: q * (newHtsItem.unit_price || 0),
                           });
                         }}
-                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                        className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-bold text-base-content focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
                       />
                     </div>
                     <div>
@@ -1970,7 +1970,7 @@ export default function CustomsPage() {
                       <select
                         value={newHtsItem.unit}
                         onChange={(e) => setNewHtsItem({ ...newHtsItem, unit: e.target.value })}
-                        className="w-full px-2 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                        className="w-full px-2 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 cursor-pointer focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
                       >
                         <option value="PCS">PCS</option>
                         <option value="UNITS">UNITS</option>
@@ -1998,7 +1998,7 @@ export default function CustomsPage() {
                             total_value: (newHtsItem.quantity || 0) * p,
                           });
                         }}
-                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                        className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-bold text-base-content focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
                       />
                     </div>
                     <div>
@@ -2014,7 +2014,7 @@ export default function CustomsPage() {
                             duty_rate_pct: parseFloat(e.target.value) || 0,
                           })
                         }
-                        className="w-full px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-bold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
+                        className="w-full px-2.5 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs font-bold text-base-content focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs"
                       />
                     </div>
                     <div>
@@ -2051,7 +2051,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, driver_name: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs text-base-content"
                   />
                 </div>
 
@@ -2069,7 +2069,7 @@ export default function CustomsPage() {
                         driver_fast_card_number: e.target.value,
                       })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono text-base-content"
                   />
                 </div>
 
@@ -2083,7 +2083,7 @@ export default function CustomsPage() {
                     onChange={(e) =>
                       setFormData({ ...formData, ace_trip_number: e.target.value })
                     }
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs font-mono text-slate-900"
+                    className="w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs font-mono text-base-content"
                   />
                 </div>
               </div>
@@ -2114,7 +2114,7 @@ export default function CustomsPage() {
       {/* ========================================================================= */}
       {isBarcodeModalOpen && selectedEntry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
+          <div className="bg-base-100 rounded-2xl max-w-2xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <Barcode className="w-5 h-5 text-blue-400" />
@@ -2132,14 +2132,14 @@ export default function CustomsPage() {
 
             <div className="p-3 sm:p-6 space-y-6 text-slate-800">
               {/* Thermal Label Format Preview Box */}
-              <div className="border-2 border-slate-900 p-6 rounded-2xl bg-white shadow-inner flex flex-col items-center space-y-4">
+              <div className="border-2 border-slate-900 p-6 rounded-2xl bg-base-100 shadow-inner flex flex-col items-center space-y-4">
                 <div className="text-center">
-                  <div className="text-xs font-mono font-bold tracking-widest text-slate-500 uppercase">
+                  <div className="text-xs font-mono font-bold tracking-widest text-base-content uppercase">
                     {selectedEntry.border_direction === "INBOUND_US"
                       ? "UNITED STATES CUSTOMS & BORDER PROTECTION (CBP)"
                       : "CANADA BORDER SERVICES AGENCY (CBSA)"}
                   </div>
-                  <div className="text-lg font-black text-slate-900 mt-1">
+                  <div className="text-lg font-black text-base-content mt-1">
                     {selectedEntry.lead_number_type} BARCODE LABEL
                   </div>
                 </div>
@@ -2198,7 +2198,7 @@ export default function CustomsPage() {
       {/* ========================================================================= */}
       {isInvoiceModalOpen && selectedEntry && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/70 backdrop-blur-xs overflow-y-auto">
-          <div className="bg-white rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
+          <div className="bg-base-100 rounded-2xl max-w-3xl w-full shadow-2xl border border-slate-200 overflow-hidden my-6">
             <div className="px-6 py-4 bg-slate-900 text-white flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <FileText className="w-5 h-5 text-blue-400" />
@@ -2218,30 +2218,30 @@ export default function CustomsPage() {
               {/* Header Box */}
               <div className="flex items-start justify-between border-b pb-4">
                 <div>
-                  <h2 className="text-xl font-black text-slate-900">
+                  <h2 className="text-xl font-black text-base-content">
                     OZACK LOGISTICS & TRADE CORP
                   </h2>
-                  <p className="text-slate-500">Cross-Border Carrier SCAC: {selectedEntry.scac_or_carrier_code}</p>
-                  <p className="text-slate-500">US DOT: 3918204 | MC: 981204</p>
+                  <p className="text-base-content">Cross-Border Carrier SCAC: {selectedEntry.scac_or_carrier_code}</p>
+                  <p className="text-base-content">US DOT: 3918204 | MC: 981204</p>
                 </div>
                 <div className="text-right">
-                  <div className="font-bold text-slate-900">COMMERCIAL INVOICE</div>
+                  <div className="font-bold text-base-content">COMMERCIAL INVOICE</div>
                   <div className="font-mono text-blue-600 font-bold">{selectedEntry.commercial_invoice_number || "INV-CB-88201"}</div>
-                  <div className="text-slate-500">Date: {new Date().toLocaleDateString()}</div>
+                  <div className="text-base-content">Date: {new Date().toLocaleDateString()}</div>
                 </div>
               </div>
 
               {/* Shipper & Consignee Columns */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-slate-50 p-4 rounded-xl border border-slate-200">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 bg-base-200 p-4 rounded-xl border border-slate-200">
                 <div>
-                  <span className="font-bold text-slate-500 uppercase text-[10px]">1. Shipper / Exporter:</span>
-                  <div className="font-bold text-slate-900 mt-1">{selectedEntry.shipper_name || "Excellence Precision Inc"}</div>
+                  <span className="font-bold text-base-content uppercase text-[10px]">1. Shipper / Exporter:</span>
+                  <div className="font-bold text-base-content mt-1">{selectedEntry.shipper_name || "Excellence Precision Inc"}</div>
                   <div className="text-slate-600">{selectedEntry.origin || "Toronto, ON, Canada"}</div>
                 </div>
 
                 <div>
-                  <span className="font-bold text-slate-500 uppercase text-[10px]">2. Consignee / Importer of Record:</span>
-                  <div className="font-bold text-slate-900 mt-1">{selectedEntry.consignee_name || "Midwest Auto Works"}</div>
+                  <span className="font-bold text-base-content uppercase text-[10px]">2. Consignee / Importer of Record:</span>
+                  <div className="font-bold text-base-content mt-1">{selectedEntry.consignee_name || "Midwest Auto Works"}</div>
                   <div className="text-slate-600">{selectedEntry.destination || "Chicago, IL, USA"}</div>
                   <div className="font-mono font-bold text-blue-700 mt-1">
                     IRS/EIN: {selectedEntry.irs_number || "36-4928174"} | INS/BN: {selectedEntry.ins_number || "N/A"}

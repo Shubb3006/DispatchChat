@@ -27,7 +27,7 @@ export default function HOSClockWidget({ myHOSLog }) {
   const breakMins = Math.floor((breakSec % 3600) / 60);
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+    <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
       <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center space-x-2.5">
           <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100">
@@ -49,16 +49,15 @@ export default function HOSClockWidget({ myHOSLog }) {
 
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {/* Driving Time */}
-        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
-          <span className="text-3xs font-mono font-bold text-slate-500 uppercase block">
+        <div className="bg-base-200 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
+          <span className="text-3xs font-mono font-bold text-base-content uppercase block">
             Driving Time
           </span>
           <div
-            className={`text-xl font-black font-mono ${
-              myHOSLog?.current_status === "D"
-                ? "text-indigo-600"
-                : "text-slate-800"
-            }`}
+            className={`text-xl font-black font-mono ${myHOSLog?.current_status === "D"
+              ? "text-indigo-600"
+              : "text-slate-800"
+              }`}
           >
             {drivingHours}h {drivingMins}m
           </div>
@@ -73,8 +72,8 @@ export default function HOSClockWidget({ myHOSLog }) {
         </div>
 
         {/* On-Duty Time */}
-        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
-          <span className="text-3xs font-mono font-bold text-slate-500 uppercase block">
+        <div className="bg-base-200 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
+          <span className="text-3xs font-mono font-bold text-base-content uppercase block">
             On-Duty Time
           </span>
           <div className="text-xl font-black font-mono text-slate-800">
@@ -91,8 +90,8 @@ export default function HOSClockWidget({ myHOSLog }) {
         </div>
 
         {/* 70-Hr Cycle */}
-        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
-          <span className="text-3xs font-mono font-bold text-slate-500 uppercase block">
+        <div className="bg-base-200 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
+          <span className="text-3xs font-mono font-bold text-base-content uppercase block">
             70-Hr Cycle Remaining
           </span>
           <div className="text-xl font-black font-mono text-slate-800">
@@ -109,8 +108,8 @@ export default function HOSClockWidget({ myHOSLog }) {
         </div>
 
         {/* Next Mandatory Rest */}
-        <div className="bg-slate-50 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
-          <span className="text-3xs font-mono font-bold text-slate-500 uppercase block">
+        <div className="bg-base-200 p-3.5 rounded-xl border border-slate-200/60 text-center space-y-1">
+          <span className="text-3xs font-mono font-bold text-base-content uppercase block">
             Next Mandatory Rest
           </span>
           <div className="text-xl font-black font-mono text-rose-600">

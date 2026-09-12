@@ -130,7 +130,7 @@ export default function DispatcherPage() {
       {/* SECTION: Unapproved BOL Verification Queue */}
 
       {/* SECTION: Master Active Loads Board */}
-      {/* <div className="bg-white p-5 rounded-lg shadow">
+      {/* <div className="bg-base-100 p-5 rounded-lg shadow">
         <h2 className="text-lg font-semibold text-gray-800 mb-4">
           Active Loads Pipeline
         </h2>
@@ -174,7 +174,7 @@ export default function DispatcherPage() {
                       onChange={(e) =>
                         updateLoadStatus(load.id, e.target.value)
                       }
-                      className="border border-gray-300 rounded p-1.5 text-xs bg-white"
+                      className="border border-gray-300 rounded p-1.5 text-xs bg-base-100"
                     >
                       <option value="PENDING">PENDING</option>
                       <option value="PICKED_UP">PICKED UP</option>

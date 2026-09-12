@@ -162,9 +162,8 @@ export default function InvoicingDashboard({
       total: subtotal + tax,
       status: "draft",
       paymentTerms: "Net 30",
-      notes: `Draft generated automatically from extracted Bill of Lading ${
-        doc.extractedData?.bolNumber || ""
-      }. Verified shipper signature present.`,
+      notes: `Draft generated automatically from extracted Bill of Lading ${doc.extractedData?.bolNumber || ""
+        }. Verified shipper signature present.`,
     };
     onAddInvoice(newInvoice);
     setSelectedInvoice(newInvoice);
@@ -177,9 +176,9 @@ export default function InvoicingDashboard({
     >
       {/* Upper Widgets */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-mono uppercase text-slate-500 font-bold">
+            <p className="text-xs font-mono uppercase text-base-content font-bold">
               Unpaid / Outstanding Invoices
             </p>
             <h3 className="text-2xl font-bold font-sans text-rose-600 mt-0.5">
@@ -195,9 +194,9 @@ export default function InvoicingDashboard({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-mono uppercase text-slate-500 font-bold">
+            <p className="text-xs font-mono uppercase text-base-content font-bold">
               Revenue Collected (Month)
             </p>
             <h3 className="text-2xl font-bold font-sans text-emerald-600 mt-0.5">
@@ -213,9 +212,9 @@ export default function InvoicingDashboard({
           </div>
         </div>
 
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
+        <div className="bg-base-100 p-4 rounded-xl border border-slate-200 shadow-sm flex items-center justify-between">
           <div>
-            <p className="text-xs font-mono uppercase text-slate-500 font-bold">
+            <p className="text-xs font-mono uppercase text-base-content font-bold">
               Uninvoiced Driver Documents
             </p>
             <h3 className="text-xl font-bold font-sans text-amber-600 mt-0.5">
@@ -234,11 +233,11 @@ export default function InvoicingDashboard({
         {/* Left column: Invoice list & Document Matching */}
         <div className="lg:col-span-8 space-y-6">
           {/* LTL Document Verification & Processing Queue */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
-            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden animate-fade-in">
+            <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="flex items-center space-x-2">
                 <Scale className="h-5 w-5 text-amber-600 animate-pulse" />
-                <h3 className="text-sm font-semibold text-slate-900">
+                <h3 className="text-sm font-semibold text-base-content">
                   Document Processing &amp; Verification Hub
                 </h3>
               </div>
@@ -253,7 +252,7 @@ export default function InvoicingDashboard({
             </div>
 
             {/* Premium Search and Filtering Toolbar */}
-            <div className="p-4 bg-slate-50/50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
+            <div className="p-4 bg-base-200/50 border-b border-slate-200 grid grid-cols-1 sm:grid-cols-12 gap-3 items-center">
               {/* Search Bar */}
               <div className="sm:col-span-4 relative">
                 <Search className="absolute left-3 top-2.5 h-3.5 w-3.5 text-slate-400" />
@@ -262,7 +261,7 @@ export default function InvoicingDashboard({
                   placeholder="Search name, load, shipper..."
                   value={docSearch}
                   onChange={(e) => setDocSearch(e.target.value)}
-                  className="w-full pl-9 pr-8 py-1.5 bg-white border border-slate-200 rounded-lg text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-800"
+                  className="w-full pl-9 pr-8 py-1.5 bg-base-100 border border-slate-200 rounded-lg text-xs placeholder-slate-400 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 text-slate-800"
                 />
                 {docSearch && (
                   <button
@@ -276,13 +275,13 @@ export default function InvoicingDashboard({
 
               {/* Document Type Filter */}
               <div className="sm:col-span-3 flex items-center space-x-1.5">
-                <span className="text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider shrink-0">
+                <span className="text-[10px] font-bold font-mono text-base-content uppercase tracking-wider shrink-0">
                   Type:
                 </span>
                 <select
                   value={docTypeFilter}
                   onChange={(e) => setDocTypeFilter(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full bg-base-100 border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="all">All Types</option>
                   <option value="bol">BOL (Bill of Lading)</option>
@@ -294,13 +293,13 @@ export default function InvoicingDashboard({
 
               {/* Shipment Status Filter */}
               <div className="sm:col-span-2.5 flex items-center space-x-1.5">
-                <span className="text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider shrink-0">
+                <span className="text-[10px] font-bold font-mono text-base-content uppercase tracking-wider shrink-0">
                   Load:
                 </span>
                 <select
                   value={shipmentStatusFilter}
                   onChange={(e) => setShipmentStatusFilter(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full bg-base-100 border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="all">All Statuses</option>
                   <option value="pending">Pending</option>
@@ -314,13 +313,13 @@ export default function InvoicingDashboard({
 
               {/* Sorting */}
               <div className="sm:col-span-2.5 flex items-center space-x-1.5">
-                <span className="text-[10px] font-bold font-mono text-slate-500 uppercase tracking-wider shrink-0">
+                <span className="text-[10px] font-bold font-mono text-base-content uppercase tracking-wider shrink-0">
                   Sort:
                 </span>
                 <select
                   value={docSort}
                   onChange={(e) => setDocSort(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
+                  className="w-full bg-base-100 border border-slate-200 rounded-lg py-1.5 px-2 text-2xs font-bold text-slate-700 focus:outline-none focus:border-indigo-500 cursor-pointer"
                 >
                   <option value="date_desc">Date (Newest First)</option>
                   <option value="date_asc">Date (Oldest First)</option>
@@ -335,7 +334,7 @@ export default function InvoicingDashboard({
             </div>
 
             {/* 1. Pending Verification Queue */}
-            <div className="p-4 border-b border-slate-100 bg-slate-50/30">
+            <div className="p-4 border-b border-slate-100 bg-base-200/30">
               <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider font-sans mb-3 flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" />
@@ -358,7 +357,7 @@ export default function InvoicingDashboard({
 
               {processedDocuments.filter((d) => d.status === "pending_review")
                 .length === 0 ? (
-                <div className="text-center text-slate-400 py-8 text-xs bg-white rounded-xl border border-dashed border-slate-200">
+                <div className="text-center text-slate-400 py-8 text-xs bg-base-100 rounded-xl border border-dashed border-slate-200">
                   <p className="font-semibold text-slate-600">
                     No matching pending documents found.
                   </p>
@@ -391,7 +390,7 @@ export default function InvoicingDashboard({
                               </span>
                             </div>
 
-                            <h4 className="font-bold text-slate-900 text-xs mt-2">
+                            <h4 className="font-bold text-base-content text-xs mt-2">
                               {doc.fileName}
                             </h4>
                             <div className="flex flex-wrap gap-1.5 mt-1 items-center">
@@ -400,15 +399,14 @@ export default function InvoicingDashboard({
                               </span>
                               {matchedShipment && (
                                 <span
-                                  className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${
-                                    matchedShipment.status === "delivered"
-                                      ? "bg-emerald-100 text-emerald-800"
-                                      : matchedShipment.status === "in_transit"
+                                  className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${matchedShipment.status === "delivered"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : matchedShipment.status === "in_transit"
                                       ? "bg-blue-100 text-blue-800"
                                       : matchedShipment.status === "delayed"
-                                      ? "bg-rose-100 text-rose-850 animate-pulse"
-                                      : "bg-slate-100 text-slate-800"
-                                  }`}
+                                        ? "bg-rose-100 text-rose-850 animate-pulse"
+                                        : "bg-slate-100 text-slate-800"
+                                    }`}
                                 >
                                   Load: {matchedShipment.status.toUpperCase()}
                                 </span>
@@ -416,7 +414,7 @@ export default function InvoicingDashboard({
                             </div>
 
                             {doc.extractedData && (
-                              <div className="mt-2.5 bg-white border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600 shadow-3xs">
+                              <div className="mt-2.5 bg-base-100 border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600 shadow-3xs">
                                 <div>
                                   Shipper:{" "}
                                   <span className="font-bold text-slate-800">
@@ -441,15 +439,15 @@ export default function InvoicingDashboard({
                                 ) : null}
                                 {doc.extractedData.signatureFound !==
                                   void 0 && (
-                                  <div>
-                                    Signature:{" "}
-                                    <span className="font-bold text-emerald-600">
-                                      {doc.extractedData.signatureFound
-                                        ? "Detected"
-                                        : "Not Found"}
-                                    </span>
-                                  </div>
-                                )}
+                                    <div>
+                                      Signature:{" "}
+                                      <span className="font-bold text-emerald-600">
+                                        {doc.extractedData.signatureFound
+                                          ? "Detected"
+                                          : "Not Found"}
+                                      </span>
+                                    </div>
+                                  )}
                               </div>
                             )}
 
@@ -486,7 +484,7 @@ export default function InvoicingDashboard({
                           </div>
 
                           <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 mt-2">
-                            <span className="text-3xs text-slate-500 font-mono truncate max-w-[100px]">
+                            <span className="text-3xs text-base-content font-mono truncate max-w-[100px]">
                               {doc.uploadedBy}
                             </span>
                             <div className="flex items-center gap-1.5">
@@ -519,7 +517,7 @@ export default function InvoicingDashboard({
             </div>
 
             {/* 2. Ready for Invoicing Queue */}
-            <div className="p-4 bg-white">
+            <div className="p-4 bg-base-100">
               <h4 className="text-xs font-bold text-slate-700 uppercase tracking-wider font-sans mb-3 flex flex-wrap items-center justify-between gap-2">
                 <span className="flex items-center gap-1.5">
                   <span className="w-2 h-2 rounded-full bg-emerald-500" />
@@ -537,7 +535,7 @@ export default function InvoicingDashboard({
 
               {processedDocuments.filter((d) => d.status === "approved")
                 .length === 0 ? (
-                <div className="text-center text-slate-400 py-8 text-xs bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+                <div className="text-center text-slate-400 py-8 text-xs bg-base-200/50 rounded-xl border border-dashed border-slate-200">
                   <p className="font-semibold text-slate-600">
                     No matching approved documents found.
                   </p>
@@ -558,7 +556,7 @@ export default function InvoicingDashboard({
                       return (
                         <div
                           key={doc.id}
-                          className="p-4 rounded-xl border border-slate-200 bg-white shadow-3xs hover:shadow-2xs transition-all space-y-3 flex flex-col justify-between"
+                          className="p-4 rounded-xl border border-slate-200 bg-base-100 shadow-3xs hover:shadow-2xs transition-all space-y-3 flex flex-col justify-between"
                         >
                           <div>
                             <div className="flex items-center justify-between gap-2 flex-wrap">
@@ -570,24 +568,23 @@ export default function InvoicingDashboard({
                               </span>
                             </div>
 
-                            <h4 className="font-bold text-slate-900 text-xs mt-2">
+                            <h4 className="font-bold text-base-content text-xs mt-2">
                               {doc.fileName}
                             </h4>
                             <div className="flex flex-wrap gap-1.5 mt-1 items-center">
-                              <span className="text-3xs text-slate-500 font-mono font-bold">
+                              <span className="text-3xs text-base-content font-mono font-bold">
                                 Load ID: {doc.trackingNumber}
                               </span>
                               {matchedShipment && (
                                 <span
-                                  className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${
-                                    matchedShipment.status === "delivered"
-                                      ? "bg-emerald-100 text-emerald-800"
-                                      : matchedShipment.status === "in_transit"
+                                  className={`text-[9px] font-mono font-bold uppercase px-1.5 py-0.5 rounded ${matchedShipment.status === "delivered"
+                                    ? "bg-emerald-100 text-emerald-800"
+                                    : matchedShipment.status === "in_transit"
                                       ? "bg-blue-100 text-blue-800"
                                       : matchedShipment.status === "delayed"
-                                      ? "bg-rose-100 text-rose-850 animate-pulse"
-                                      : "bg-slate-100 text-slate-800"
-                                  }`}
+                                        ? "bg-rose-100 text-rose-850 animate-pulse"
+                                        : "bg-slate-100 text-slate-800"
+                                    }`}
                                 >
                                   Load: {matchedShipment.status.toUpperCase()}
                                 </span>
@@ -595,7 +592,7 @@ export default function InvoicingDashboard({
                             </div>
 
                             {doc.extractedData && (
-                              <div className="mt-2.5 bg-slate-50 border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600">
+                              <div className="mt-2.5 bg-base-200 border border-slate-200 p-2 rounded-lg space-y-1 text-3xs text-slate-600">
                                 <div>
                                   Shipper:{" "}
                                   <span className="font-bold text-slate-800">
@@ -618,15 +615,15 @@ export default function InvoicingDashboard({
                                 ) : null}
                                 {doc.extractedData.signatureFound !==
                                   void 0 && (
-                                  <div>
-                                    Signature Detected:{" "}
-                                    <span className="font-bold text-emerald-600">
-                                      {doc.extractedData.signatureFound
-                                        ? "Yes"
-                                        : "No"}
-                                    </span>
-                                  </div>
-                                )}
+                                    <div>
+                                      Signature Detected:{" "}
+                                      <span className="font-bold text-emerald-600">
+                                        {doc.extractedData.signatureFound
+                                          ? "Yes"
+                                          : "No"}
+                                      </span>
+                                    </div>
+                                  )}
                               </div>
                             )}
 
@@ -663,7 +660,7 @@ export default function InvoicingDashboard({
                           </div>
 
                           <div className="pt-2 border-t border-slate-100 flex items-center justify-between mt-2">
-                            <span className="text-3xs text-slate-500 font-mono truncate max-w-[100px]">
+                            <span className="text-3xs text-base-content font-mono truncate max-w-[100px]">
                               {doc.uploadedBy}
                             </span>
                             <button
@@ -683,10 +680,10 @@ export default function InvoicingDashboard({
           </div>
 
           {/* Invoices List */}
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center space-x-2">
+          <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-200 bg-base-200 flex items-center space-x-2">
               <FileSpreadsheet className="h-5 w-5 text-indigo-600" />
-              <h3 className="text-sm font-semibold text-slate-900">
+              <h3 className="text-sm font-semibold text-base-content">
                 Invoices & Accounts Receivable registry
               </h3>
             </div>
@@ -694,7 +691,7 @@ export default function InvoicingDashboard({
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-mono text-2xs font-bold uppercase tracking-wider">
+                  <tr className="bg-base-200 border-b border-slate-200 text-base-content font-mono text-2xs font-bold uppercase tracking-wider">
                     <th className="px-5 py-3">Invoice Number</th>
                     <th className="px-5 py-3">Customer Name</th>
                     <th className="px-5 py-3">Billing Total</th>
@@ -709,9 +706,8 @@ export default function InvoicingDashboard({
                       <tr
                         key={inv.id}
                         onClick={() => setSelectedInvoice(inv)}
-                        className={`hover:bg-slate-50 transition-colors cursor-pointer ${
-                          isSelected ? "bg-indigo-50/40 font-medium" : ""
-                        }`}
+                        className={`hover:bg-base-200 transition-colors cursor-pointer ${isSelected ? "bg-indigo-50/40 font-medium" : ""
+                          }`}
                       >
                         <td className="px-5 py-3.5">
                           <div className="font-bold text-slate-950 font-mono">
@@ -724,23 +720,22 @@ export default function InvoicingDashboard({
                         <td className="px-5 py-3.5 text-slate-700 font-semibold">
                           {inv.customerName}
                         </td>
-                        <td className="px-5 py-3.5 font-bold text-slate-900">
+                        <td className="px-5 py-3.5 font-bold text-base-content">
                           ${inv.total.toLocaleString()}
                         </td>
-                        <td className="px-5 py-3.5 text-slate-500 font-mono">
+                        <td className="px-5 py-3.5 text-base-content font-mono">
                           {inv.dueDate}
                         </td>
                         <td className="px-5 py-3.5 text-right">
                           <span
-                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold font-mono uppercase ${
-                              inv.status === "paid"
-                                ? "bg-emerald-100 text-emerald-800"
-                                : inv.status === "overdue"
+                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold font-mono uppercase ${inv.status === "paid"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : inv.status === "overdue"
                                 ? "bg-rose-100 text-rose-800"
                                 : inv.status === "sent"
-                                ? "bg-blue-100 text-blue-800"
-                                : "bg-slate-100 text-slate-800"
-                            }`}
+                                  ? "bg-blue-100 text-blue-800"
+                                  : "bg-slate-100 text-slate-800"
+                              }`}
                           >
                             {inv.status}
                           </span>
@@ -758,12 +753,12 @@ export default function InvoicingDashboard({
         <div className="lg:col-span-4 space-y-6">
           {/* Selected Invoice Details */}
           {selectedInvoice && (
-            <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
+            <div className="bg-base-100 rounded-xl border border-slate-200 shadow-sm p-4 space-y-4">
               <div className="flex items-center justify-between border-b border-slate-100 pb-3">
                 <span className="text-xs font-bold text-slate-800 uppercase font-mono">
                   Invoice Ledger Hub
                 </span>
-                <span className="text-3xs font-mono text-slate-500 font-bold uppercase">
+                <span className="text-3xs font-mono text-base-content font-bold uppercase">
                   ID: {selectedInvoice.id}
                 </span>
               </div>
@@ -771,7 +766,7 @@ export default function InvoicingDashboard({
               <div className="space-y-3.5 text-xs">
                 <div className="flex items-center justify-between text-slate-600">
                   <span>Customer:</span>
-                  <span className="font-bold text-slate-900">
+                  <span className="font-bold text-base-content">
                     {selectedInvoice.customerName}
                   </span>
                 </div>
@@ -794,7 +789,7 @@ export default function InvoicingDashboard({
                       setSelectedInvoice(updated);
                       if (onUpdateInvoice) onUpdateInvoice(updated);
                     }}
-                    className="rounded border border-slate-200 px-2 py-0.5 text-2xs bg-slate-50 text-slate-800 font-bold focus:outline-none cursor-pointer"
+                    className="rounded border border-slate-200 px-2 py-0.5 text-2xs bg-base-200 text-slate-800 font-bold focus:outline-none cursor-pointer"
                   >
                     <option value="draft">DRAFT</option>
                     <option value="sent">SENT / MAILED</option>
@@ -828,7 +823,7 @@ export default function InvoicingDashboard({
                       setSelectedInvoice(updated);
                       if (onUpdateInvoice) onUpdateInvoice(updated);
                     }}
-                    className="rounded border border-slate-200 px-2 py-0.5 text-2xs bg-slate-50 text-slate-800 font-bold focus:outline-none cursor-pointer"
+                    className="rounded border border-slate-200 px-2 py-0.5 text-2xs bg-base-200 text-slate-800 font-bold focus:outline-none cursor-pointer"
                   >
                     <option value="Net 15">Net 15 Days</option>
                     <option value="Net 30">Net 30 Days</option>
@@ -850,18 +845,18 @@ export default function InvoicingDashboard({
                     <span>Subtotal:</span>
                     <span>${selectedInvoice.subtotal.toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between text-slate-500">
+                  <div className="flex items-center justify-between text-base-content">
                     <span>Tax (8%):</span>
                     <span>${selectedInvoice.tax.toLocaleString()}</span>
                   </div>
-                  <div className="flex items-center justify-between font-bold text-slate-900 text-sm">
+                  <div className="flex items-center justify-between font-bold text-base-content text-sm">
                     <span>Invoice Total:</span>
                     <span>${selectedInvoice.total.toLocaleString()}</span>
                   </div>
                 </div>
 
                 {selectedInvoice.notes && (
-                  <p className="text-3xs text-slate-500 bg-slate-50 p-2 rounded leading-relaxed">
+                  <p className="text-3xs text-base-content bg-base-200 p-2 rounded leading-relaxed">
                     {selectedInvoice.notes}
                   </p>
                 )}

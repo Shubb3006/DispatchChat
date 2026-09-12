@@ -160,7 +160,7 @@ export default function DriverPage() {
             </div>
             <div className="border-t border-slate-800 pt-4 space-y-3">
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                <span className="text-base-content block uppercase tracking-wider font-mono text-[10px]">
                   Driver Profile
                 </span>
                 <span className="font-bold text-slate-200 text-sm">
@@ -168,7 +168,7 @@ export default function DriverPage() {
                 </span>
               </div>
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                <span className="text-base-content block uppercase tracking-wider font-mono text-[10px]">
                   Duty Status
                 </span>
                 <span className="font-mono bg-emerald-950 text-emerald-400 border border-emerald-900 px-1.5 py-0.5 rounded text-[10px] font-bold">
@@ -176,7 +176,7 @@ export default function DriverPage() {
                 </span>
               </div>
               <div className="text-xs">
-                <span className="text-slate-500 block uppercase tracking-wider font-mono text-[10px]">
+                <span className="text-base-content block uppercase tracking-wider font-mono text-[10px]">
                   Active Vehicle
                 </span>
                 <span className="font-bold text-slate-300 font-mono">
@@ -203,12 +203,12 @@ export default function DriverPage() {
           </div>
 
           {/* Simulated Phone Screen Contents */}
-          <div className="flex-1 flex flex-col overflow-hidden bg-[#F8FAFC] text-slate-900 rounded-[38px] relative">
+          <div className="flex-1 flex flex-col overflow-hidden bg-[#F8FAFC] text-base-content rounded-[38px] relative">
             {/* Phone Status Bar */}
             <div className="h-9 bg-slate-900 flex items-end justify-between px-7 text-3xs text-slate-400 select-none shrink-0 pb-1.5 z-40">
               <span className="font-bold font-mono">09:41</span>
               <div className="flex items-center gap-1.5">
-                <span className="text-slate-500 text-[8px] font-mono">
+                <span className="text-base-content text-[8px] font-mono">
                   SAMSARA
                 </span>
                 <div className="flex items-center gap-0.5">

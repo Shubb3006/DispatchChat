@@ -58,16 +58,16 @@
 //   return (
 //     <div className="space-y-6">
 //       {/* Real-Time Document Collector & AI-OCR Parser */}
-//       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+//       <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
 //         <div className="flex items-center space-x-2.5">
 //           <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100">
 //             <FileText className="h-5 w-5" />
 //           </div>
 //           <div>
-//             <h3 className="text-sm font-bold text-slate-900">
+//             <h3 className="text-sm font-bold text-base-content">
 //               Real-time Document Collector &amp; AI-OCR Parser
 //             </h3>
-//             <p className="text-xs text-slate-500 mt-0.5">
+//             <p className="text-xs text-base-content mt-0.5">
 //               Scans Bills of Lading (BOL), Proof of Delivery (POD), and fuel
 //               receipts using Gemini vision.
 //             </p>
@@ -84,7 +84,7 @@
 //               <select
 //                 value={docType}
 //                 onChange={(e) => setDocType(e.target.value)}
-//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //               >
 //                 <option value="bol">Bill of Lading (BOL)</option>
 //                 <option value="pod">Proof of Delivery (POD)</option>
@@ -103,7 +103,7 @@
 //               <select
 //                 value={parserLoadId}
 //                 onChange={(e) => setParserLoadId(e.target.value)}
-//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //               >
 //                 {shipments.map((s) => (
 //                   <option key={s.id} value={s.id}>
@@ -120,7 +120,7 @@
 //                   placeholder="Type Custom Load / Tracking Number"
 //                   value={parserCustomLoadNumber}
 //                   onChange={(e) => setParserCustomLoadNumber(e.target.value)}
-//                   className="mt-1.5 block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                   className="mt-1.5 block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //                 />
 //               )}
 //             </div>
@@ -128,7 +128,7 @@
 //             {docType === "skid_picture" ? (
 //               <div
 //                 id="skid-capture-dashboard"
-//                 className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-4"
+//                 className="bg-base-200 border border-slate-200 rounded-xl p-4 space-y-4"
 //               >
 //                 <div className="flex items-center justify-between">
 //                   <span className="text-2xs font-bold text-indigo-900 uppercase font-mono tracking-wider">
@@ -146,7 +146,7 @@
 //                 </div>
 
 //                 {skidPhotos.length === 0 ? (
-//                   <div className="border border-dashed border-slate-300 rounded-xl p-6 text-center bg-white">
+//                   <div className="border border-dashed border-slate-300 rounded-xl p-6 text-center bg-base-100">
 //                     <Camera className="h-6 w-6 text-slate-400 mx-auto animate-pulse" />
 //                     <span className="block text-xs font-semibold text-slate-600 mt-2">
 //                       No pallet photos captured yet
@@ -199,13 +199,13 @@
 //             ) : (
 //               <div
 //                 onClick={() => fileInputRef.current?.click()}
-//                 className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-5 text-center cursor-pointer bg-slate-50 hover:bg-slate-50/50 transition-colors"
+//                 className="border-2 border-dashed border-slate-300 hover:border-indigo-500 rounded-2xl p-5 text-center cursor-pointer bg-base-200 hover:bg-base-200/50 transition-colors"
 //               >
 //                 <Upload className="h-6 w-6 text-slate-400 mx-auto" />
 //                 <span className="block text-xs font-semibold text-slate-800 mt-2">
 //                   {fileName ? fileName : "Upload signed receipt image"}
 //                 </span>
-//                 <span className="block text-3xs text-slate-500 mt-1">
+//                 <span className="block text-3xs text-base-content mt-1">
 //                   PNG, JPG or PDF up to 10MB
 //                 </span>
 
@@ -228,7 +228,7 @@
 //                 onChange={(e) => setFileText(e.target.value)}
 //                 rows={3}
 //                 placeholder="Provide description or mock text if not uploading an image file to trigger Gemini's simulation parsing..."
-//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-white focus:outline-none focus:border-indigo-500"
+//                 className="block w-full rounded-xl border border-slate-300 px-3 py-2 text-xs bg-base-100 focus:outline-none focus:border-indigo-500"
 //               />
 //             </div>
 
@@ -261,7 +261,7 @@
 
 //           {/* Parsed Output Panel */}
 //           <div className="md:col-span-7">
-//             <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 h-full min-h-[220px] flex flex-col justify-between">
+//             <div className="bg-base-200 rounded-2xl p-4 border border-slate-200 h-full min-h-[220px] flex flex-col justify-between">
 //               {ocrError && (
 //                 <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl flex items-start space-x-2">
 //                   <AlertTriangle className="h-4 w-4 text-rose-600 mt-0.5 shrink-0" />
@@ -356,7 +356,7 @@
 //                   <p className="text-xs font-semibold text-slate-600 mt-3">
 //                     Awaiting Scan Document
 //                   </p>
-//                   <p className="text-2xs text-slate-500 mt-1 max-w-[300px]">
+//                   <p className="text-2xs text-base-content mt-1 max-w-[300px]">
 //                     Upload or describe a shipping document, click "Submit
 //                     Document to Billing" to verify, match BOL, and trigger OCR
 //                     extraction.
@@ -373,7 +373,7 @@
 //                   <p className="text-xs font-bold text-slate-800 mt-4 animate-pulse">
 //                     Running OCR &amp; Key-value Extraction...
 //                   </p>
-//                   <p className="text-3xs text-slate-500 mt-1">
+//                   <p className="text-3xs text-base-content mt-1">
 //                     Verifying signatures and parsing shipment manifest weight
 //                     scales.
 //                   </p>
@@ -396,7 +396,7 @@
 //       </div>
 
 //       {/* Uploaded Documents Logs History */}
-//       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
+//       <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5 space-y-4">
 //         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-100 pb-3">
 //           <div className="flex items-center gap-2">
 //             {filteredDocLogs.length > 0 && (
@@ -426,7 +426,7 @@
 //               id="doc-status-filter"
 //               value={docLogFilter}
 //               onChange={(e) => setDocLogFilter(e.target.value)}
-//               className="text-2xs bg-slate-50 border border-slate-200 rounded-lg px-2.5 py-1 font-sans text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
+//               className="text-2xs bg-base-200 border border-slate-200 rounded-lg px-2.5 py-1 font-sans text-slate-700 focus:outline-none focus:ring-1 focus:ring-indigo-500 cursor-pointer"
 //             >
 //               <option value="all">All Documents</option>
 //               <option value="pending_review">Pending Review</option>
@@ -450,7 +450,7 @@
 //               <button
 //                 type="button"
 //                 onClick={handleBulkDownload}
-//                 className="flex items-center gap-1 px-3 py-1.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-lg text-3xs font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
+//                 className="flex items-center gap-1 px-3 py-1.5 bg-base-100 hover:bg-base-200 border border-slate-200 rounded-lg text-3xs font-bold text-slate-700 transition-colors shadow-2xs cursor-pointer"
 //               >
 //                 <Download className="h-3 w-3" />
 //                 <span>Download Selected</span>
@@ -499,7 +499,7 @@
 //               <div
 //                 key={doc.id}
 //                 onClick={() => setSelectedLogDoc(doc)}
-//                 className="w-full p-2.5 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between hover:bg-slate-100/85 transition-all text-left cursor-pointer group"
+//                 className="w-full p-2.5 rounded-xl bg-base-200 border border-slate-200 flex items-center justify-between hover:bg-slate-100/85 transition-all text-left cursor-pointer group"
 //               >
 //                 <div className="flex items-center space-x-3 min-w-0 flex-1">
 //                   <div
@@ -534,7 +534,7 @@
 //                   </div>
 
 //                   <div className="min-w-0 flex-1">
-//                     <div className="text-2xs font-bold text-slate-900 truncate group-hover:text-indigo-600 transition-colors flex items-center gap-1">
+//                     <div className="text-2xs font-bold text-base-content truncate group-hover:text-indigo-600 transition-colors flex items-center gap-1">
 //                       {doc.fileName}
 //                       {doc.internalNote && (
 //                         <span
@@ -543,7 +543,7 @@
 //                         />
 //                       )}
 //                     </div>
-//                     <div className="text-3xs text-slate-500 font-mono capitalize flex items-center gap-1 flex-wrap">
+//                     <div className="text-3xs text-base-content font-mono capitalize flex items-center gap-1 flex-wrap">
 //                       <span>
 //                         {doc.type.replace("_", " ")} • {doc.fileSize}
 //                       </span>
@@ -593,7 +593,7 @@
 //       {/* Document Details Modal */}
 //       {selectedLogDoc && (
 //         <div className="fixed inset-0 z-50 bg-slate-900/50 backdrop-blur-xs flex items-center justify-center p-4">
-//           <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
+//           <div className="bg-base-100 rounded-2xl shadow-xl w-full max-w-lg overflow-hidden flex flex-col max-h-[90vh]">
 //             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between shrink-0">
 //               <div className="flex items-center space-x-3">
 //                 <div className="p-2 bg-indigo-50 text-indigo-700 rounded-xl">
@@ -601,7 +601,7 @@
 //                 </div>
 //                 <div>
 //                   <div className="flex items-center gap-1.5 flex-wrap">
-//                     <h3 className="text-sm font-bold text-slate-900">
+//                     <h3 className="text-sm font-bold text-base-content">
 //                       {selectedLogDoc.fileName}
 //                     </h3>
 //                     <span
@@ -621,7 +621,7 @@
 //                         : selectedLogDoc.status}
 //                     </span>
 //                   </div>
-//                   <p className="text-xs text-slate-500 capitalize">
+//                   <p className="text-xs text-base-content capitalize">
 //                     {selectedLogDoc.type.replace("_", " ")} •{" "}
 //                     {selectedLogDoc.fileSize}
 //                   </p>
@@ -630,21 +630,21 @@
 //               <div className="flex items-center gap-1.5 shrink-0">
 //                 <button
 //                   onClick={() => handlePrintDocument(selectedLogDoc)}
-//                   className="p-1.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-slate-500 transition-colors flex items-center justify-center cursor-pointer"
+//                   className="p-1.5 hover:bg-slate-100 hover:text-slate-800 rounded-lg text-base-content transition-colors flex items-center justify-center cursor-pointer"
 //                   title="Print simplified document"
 //                 >
 //                   <Printer className="h-5 w-5" />
 //                 </button>
 //                 <button
 //                   onClick={() => handleDownloadDocument(selectedLogDoc)}
-//                   className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-slate-500 transition-colors flex items-center justify-center cursor-pointer"
+//                   className="p-1.5 hover:bg-indigo-50 hover:text-indigo-600 rounded-lg text-base-content transition-colors flex items-center justify-center cursor-pointer"
 //                   title="Download document file"
 //                 >
 //                   <Download className="h-5 w-5" />
 //                 </button>
 //                 <button
 //                   onClick={() => setSelectedLogDoc(null)}
-//                   className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 transition-colors cursor-pointer"
+//                   className="p-1.5 hover:bg-slate-100 rounded-lg text-base-content transition-colors cursor-pointer"
 //                 >
 //                   <X className="h-5 w-5" />
 //                 </button>
@@ -657,7 +657,7 @@
 //               selectedLogDoc.skidPictures &&
 //               selectedLogDoc.skidPictures.length > 0 ? (
 //                 <div className="space-y-3">
-//                   <span className="block text-2xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+//                   <span className="block text-2xs font-bold text-base-content uppercase tracking-wider font-mono">
 //                     Captured Pallet Condition Photos (
 //                     {selectedLogDoc.skidPictures.length})
 //                   </span>
@@ -682,7 +682,7 @@
 //                 </div>
 //               ) : (
 //                 <div className="space-y-3">
-//                   <span className="block text-2xs font-bold text-slate-500 uppercase tracking-wider font-mono">
+//                   <span className="block text-2xs font-bold text-base-content uppercase tracking-wider font-mono">
 //                     Scanned Document Visual Preview
 //                   </span>
 //                   <div className="relative rounded-xl overflow-hidden border border-slate-200 bg-slate-950 group shadow-sm">
@@ -704,51 +704,51 @@
 //                   </h4>
 //                   <div className="grid grid-cols-2 gap-3">
 //                     {selectedLogDoc.extractedData.shipperName && (
-//                       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Shipper
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900 truncate">
+//                         <span className="block text-xs font-semibold text-base-content truncate">
 //                           {selectedLogDoc.extractedData.shipperName}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.consigneeName && (
-//                       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Consignee
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900 truncate">
+//                         <span className="block text-xs font-semibold text-base-content truncate">
 //                           {selectedLogDoc.extractedData.consigneeName}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.bolNumber && (
-//                       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           BOL Number
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.bolNumber}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.purchaseOrder && (
-//                       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           PO Number
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.purchaseOrder}
 //                         </span>
 //                       </div>
 //                     )}
 //                     {selectedLogDoc.extractedData.weightLbs && (
-//                       <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-100">
-//                         <span className="block text-3xs font-bold text-slate-500 uppercase mb-0.5">
+//                       <div className="bg-base-200 p-2.5 rounded-xl border border-slate-100">
+//                         <span className="block text-3xs font-bold text-base-content uppercase mb-0.5">
 //                           Weight
 //                         </span>
-//                         <span className="block text-xs font-semibold text-slate-900">
+//                         <span className="block text-xs font-semibold text-base-content">
 //                           {selectedLogDoc.extractedData.weightLbs} Lbs
 //                         </span>
 //                       </div>
@@ -778,7 +778,7 @@
 //                     value={internalNoteText}
 //                     onChange={(e) => setInternalNoteText(e.target.value)}
 //                     placeholder="Enter internal note or reason for rejection..."
-//                     className="w-full h-20 text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-white placeholder-slate-400 font-sans leading-relaxed resize-none text-slate-800"
+//                     className="w-full h-20 text-xs p-2.5 rounded-xl border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 bg-base-100 placeholder-slate-400 font-sans leading-relaxed resize-none text-slate-800"
 //                   />
 //                   <div className="flex justify-end items-center gap-2">
 //                     {noteSaved && (
@@ -809,7 +809,7 @@ import React, { useState } from "react";
 import { useDocumentStore } from "../../stores/useDocumentStore";
 
 export default function DocumentScannerWidget({ myShipment }) {
-  const loadId=myShipment.id
+  const loadId = myShipment.id
   const [file, setFile] = useState(null);
   const { uploadBOL, uploading, error } = useDocumentStore();
 
@@ -834,11 +834,11 @@ export default function DocumentScannerWidget({ myShipment }) {
   };
 
   return (
-    <div className="bg-white p-4 rounded shadow border border-gray-200">
+    <div className="bg-base-100 p-4 rounded shadow border border-base-300">
       <h3 className="text-md font-semibold text-gray-700 mb-2">
         Upload Bill of Lading (BOL)
       </h3>
-      <p className="text-xs text-gray-500 mb-4">
+      <p className="text-xs text-base-content/60 mb-4">
         Take a clear photo of the signed BOL upon reaching the pickup location.
       </p>
 
@@ -847,7 +847,7 @@ export default function DocumentScannerWidget({ myShipment }) {
           type="file"
           accept="image/*"
           onChange={handleFileChange}
-          className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+          className="block w-full text-sm text-base-content/60 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
         />
 
         {file && (

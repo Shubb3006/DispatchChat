@@ -33,7 +33,7 @@ export default function DriverChatDrawer({
       {/* Slide-over Chat Drawer */}
       {isChatOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden bg-slate-950/40 backdrop-blur-xs flex justify-end">
-          <div className="w-full max-w-md bg-white shadow-2xl flex flex-col h-full border-l border-slate-200 animate-in slide-in-from-right duration-200">
+          <div className="w-full max-w-md bg-base-100 shadow-2xl flex flex-col h-full border-l border-slate-200 animate-in slide-in-from-right duration-200">
             {/* Header */}
             <div className="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-900 text-white">
               <div className="flex items-center space-x-3">
@@ -62,15 +62,14 @@ export default function DriverChatDrawer({
             </div>
 
             {/* Message Feed */}
-            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-slate-50">
+            <div className="flex-1 p-4 overflow-y-auto space-y-3 bg-base-200">
               {messages.map((msg, idx) => {
                 const isMe = msg.sender === "driver" || msg.sender === "me";
                 return (
                   <div
                     key={msg.id || idx}
-                    className={`flex flex-col ${
-                      isMe ? "items-end" : "items-start"
-                    }`}
+                    className={`flex flex-col ${isMe ? "items-end" : "items-start"
+                      }`}
                   >
                     <div className="flex items-center space-x-1 mb-1 px-1">
                       <span className="text-[9px] font-mono font-bold text-slate-400 uppercase">
@@ -88,11 +87,10 @@ export default function DriverChatDrawer({
                     </div>
 
                     <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs font-medium shadow-xs leading-relaxed ${
-                        isMe
-                          ? "bg-indigo-600 text-white rounded-br-none"
-                          : "bg-white text-slate-800 border border-slate-200 rounded-bl-none"
-                      }`}
+                      className={`max-w-[85%] rounded-2xl px-4 py-2.5 text-xs font-medium shadow-xs leading-relaxed ${isMe
+                        ? "bg-indigo-600 text-white rounded-br-none"
+                        : "bg-base-100 text-slate-800 border border-slate-200 rounded-bl-none"
+                        }`}
                     >
                       {msg.text}
                     </div>
@@ -103,7 +101,7 @@ export default function DriverChatDrawer({
             </div>
 
             {/* Input Bar */}
-            <div className="p-3 border-t border-slate-200 bg-white">
+            <div className="p-3 border-t border-slate-200 bg-base-100">
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
@@ -116,7 +114,7 @@ export default function DriverChatDrawer({
                   value={newMessageText}
                   onChange={(e) => setNewMessageText(e.target.value)}
                   placeholder="Type message to dispatch..."
-                  className="flex-1 bg-slate-100 hover:bg-slate-100/80 focus:bg-white border border-slate-200 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
+                  className="flex-1 bg-slate-100 hover:bg-slate-100/80 focus:bg-base-100 border border-slate-200 focus:border-indigo-500 rounded-xl px-3.5 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none transition-all"
                 />
                 <button
                   type="submit"

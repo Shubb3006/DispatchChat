@@ -31,10 +31,10 @@ const fmtDate = (d) => {
   return Number.isNaN(date.getTime())
     ? "—"
     : date.toLocaleDateString("en-US", {
-        month: "short",
-        day: "numeric",
-        year: "numeric",
-      });
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
 };
 
 export default function PayTab() {
@@ -84,7 +84,7 @@ export default function PayTab() {
   return (
     <div className="space-y-4">
       {/* Header Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-5">
+      <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-sm p-5">
         <div className="flex items-center space-x-2.5 border-b border-slate-100 pb-3">
           <div className="p-2 bg-emerald-50 text-emerald-700 rounded-xl border border-emerald-100">
             <Wallet className="h-5 w-5" />
@@ -150,7 +150,7 @@ export default function PayTab() {
                   <button
                     type="button"
                     onClick={() => setExpandedId(isOpen ? null : stl.id)}
-                    className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 bg-slate-50/60 hover:bg-slate-50 transition-colors cursor-pointer text-left"
+                    className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-3.5 bg-base-200/60 hover:bg-base-200 transition-colors cursor-pointer text-left"
                   >
                     <div className="flex items-center gap-2.5">
                       {isOpen ? (
@@ -199,10 +199,10 @@ export default function PayTab() {
 
                   {/* Expanded Detail */}
                   {isOpen && (
-                    <div className="p-3.5 space-y-4 border-t border-slate-100 bg-white">
+                    <div className="p-3.5 space-y-4 border-t border-slate-100 bg-base-100">
                       {/* Per-load / per-leg pay lines */}
                       <div className="space-y-1.5">
-                        <span className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider flex items-center gap-1.5">
                           <Route className="h-3 w-3 text-indigo-500" />
                           Load &amp; Leg Pay Lines
                         </span>
@@ -260,7 +260,7 @@ export default function PayTab() {
 
                       {/* Deductions */}
                       <div className="space-y-1.5">
-                        <span className="text-3xs font-bold font-mono text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                        <span className="text-3xs font-bold font-mono text-base-content uppercase tracking-wider flex items-center gap-1.5">
                           <MinusCircle className="h-3 w-3 text-rose-500" />
                           Deductions
                         </span>
@@ -296,7 +296,7 @@ export default function PayTab() {
 
                       {/* Totals footer */}
                       <div className="flex items-center justify-end gap-4 pt-2 border-t border-slate-100 text-2xs font-mono">
-                        <span className="text-slate-500">
+                        <span className="text-base-content">
                           Gross {fmtMoney(stl.gross_pay)}
                         </span>
                         <span className="text-rose-600">

@@ -58,7 +58,7 @@ export default function HtsAutoCompleteInput({
           }}
           placeholder={placeholder}
           autoFocus={autoFocus}
-          className={`w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-xs text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium transition-all ${className}`}
+          className={`w-full px-3 py-2 bg-base-100 border border-slate-200 rounded-xl text-xs text-base-content placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-sky-500 shadow-2xs font-medium transition-all ${className}`}
         />
         {value && (
           <button
@@ -76,8 +76,8 @@ export default function HtsAutoCompleteInput({
 
       {/* Matching HTS Popover Dropdown */}
       {isOpen && matches.length > 0 && (
-        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-white border border-slate-200 rounded-2xl shadow-xl overflow-hidden max-h-80 overflow-y-auto divide-y divide-slate-100">
-          <div className="px-3 py-2 bg-slate-50 border-b border-slate-200 flex items-center justify-between text-[10px] text-slate-500 font-mono">
+        <div className="absolute left-0 right-0 top-full mt-1 z-50 bg-base-100 border border-slate-200 rounded-2xl shadow-xl overflow-hidden max-h-80 overflow-y-auto divide-y divide-slate-100">
+          <div className="px-3 py-2 bg-base-200 border-b border-slate-200 flex items-center justify-between text-[10px] text-base-content font-mono">
             <span className="flex items-center gap-1.5 text-sky-700 font-bold">
               <Sparkles className="w-3.5 h-3.5" />
               <span>Matching Harmonized Tariff Schedule (HTS) Codes ({matches.length})</span>
@@ -115,7 +115,7 @@ export default function HtsAutoCompleteInput({
                   {item.description}
                 </div>
 
-                <div className="text-[11px] text-slate-500 flex items-center gap-3 font-mono">
+                <div className="text-[11px] text-base-content flex items-center gap-3 font-mono">
                   <span>Unit: <strong className="text-slate-700">{item.unit || "PCS"}</strong></span>
                   <span>Duty: <strong className="text-slate-700">{item.duty_rate_pct}%</strong></span>
                   <span className="text-emerald-700 font-bold">✓ USMCA 0% Tariff</span>

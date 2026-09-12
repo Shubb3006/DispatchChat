@@ -345,8 +345,8 @@ export default function WhatsAppChatHub({
               file.name && file.name !== "image.png"
                 ? file.name
                 : `Pasted_Screenshot_${/* @__PURE__ */ new Date()
-                    .toISOString()
-                    .slice(0, 10)}_${Math.floor(
+                  .toISOString()
+                  .slice(0, 10)}_${Math.floor(
                     1e3 + Math.random() * 9e3
                   )}.png`,
             size: `${(file.size / 1024).toFixed(0)} KB`,
@@ -577,11 +577,11 @@ export default function WhatsAppChatHub({
     if (!inputText.trim() && !attachedFile) return;
     const attachmentObj = attachedFile
       ? {
-          type: attachedFile.type,
-          url: attachedFile.url,
-          name: attachedFile.name,
-          size: attachedFile.size,
-        }
+        type: attachedFile.type,
+        url: attachedFile.url,
+        name: attachedFile.name,
+        size: attachedFile.size,
+      }
       : void 0;
     onSendMessage(inputText, selectedGroupId, "SHP101", attachmentObj);
     setInputText("");
@@ -768,10 +768,10 @@ export default function WhatsAppChatHub({
                   {activeCall.duration === 0
                     ? "Connecting Support Voice..."
                     : `On Call: ${Math.floor(activeCall.duration / 60)}:${(
-                        activeCall.duration % 60
-                      )
-                        .toString()
-                        .padStart(2, "0")}`}
+                      activeCall.duration % 60
+                    )
+                      .toString()
+                      .padStart(2, "0")}`}
                 </span>
               </div>
             </div>
@@ -785,9 +785,8 @@ export default function WhatsAppChatHub({
                   style={{
                     height: `${Math.floor(Math.random() * 32) + 4}px`,
                     animationDelay: `${idx * 150}ms`,
-                    animationDuration: `${
-                      Math.floor(Math.random() * 800) + 400
-                    }ms`,
+                    animationDuration: `${Math.floor(Math.random() * 800) + 400
+                      }ms`,
                   }}
                 />
               ))}
@@ -802,11 +801,10 @@ export default function WhatsAppChatHub({
                   prev ? { ...prev, muted: !prev.muted } : null
                 )
               }
-              className={`p-4 rounded-full transition-all cursor-pointer ${
-                activeCall.muted
-                  ? "bg-rose-600 text-white"
-                  : "bg-[#202c33] text-slate-300 hover:bg-[#2a3942]"
-              }`}
+              className={`p-4 rounded-full transition-all cursor-pointer ${activeCall.muted
+                ? "bg-rose-600 text-white"
+                : "bg-[#202c33] text-slate-300 hover:bg-[#2a3942]"
+                }`}
               title={activeCall.muted ? "Unmute Mic" : "Mute Mic"}
             >
               {activeCall.muted ? (
@@ -823,11 +821,10 @@ export default function WhatsAppChatHub({
                     prev ? { ...prev, cameraOff: !prev.cameraOff } : null
                   )
                 }
-                className={`p-4 rounded-full transition-all cursor-pointer ${
-                  activeCall.cameraOff
-                    ? "bg-rose-600 text-white"
-                    : "bg-[#202c33] text-slate-300 hover:bg-[#2a3942]"
-                }`}
+                className={`p-4 rounded-full transition-all cursor-pointer ${activeCall.cameraOff
+                  ? "bg-rose-600 text-white"
+                  : "bg-[#202c33] text-slate-300 hover:bg-[#2a3942]"
+                  }`}
                 title={activeCall.cameraOff ? "Enable Video" : "Disable Video"}
               >
                 {activeCall.cameraOff ? (
@@ -851,9 +848,8 @@ export default function WhatsAppChatHub({
 
       {/* SIDEBAR: GROUPS DIRECTORY */}
       <div
-        className={`w-full md:w-80 lg:w-88 border-r border-[#202c33] bg-[#111b21] flex flex-col shrink-0 ${
-          mobileView === "chat" ? "hidden md:flex" : "flex"
-        }`}
+        className={`w-full md:w-80 lg:w-88 border-r border-[#202c33] bg-[#111b21] flex flex-col shrink-0 ${mobileView === "chat" ? "hidden md:flex" : "flex"
+          }`}
       >
         {/* Sidebar Header */}
         <div className="p-4 bg-[#202c33] flex items-center justify-between border-b border-[#2a3942]">
@@ -903,21 +899,19 @@ export default function WhatsAppChatHub({
           <div className="flex items-center space-x-1.5 overflow-x-auto pb-1 select-none scrollbar-none">
             <button
               onClick={() => setStatusFilter("all")}
-              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border transition-all shrink-0 cursor-pointer ${
-                statusFilter === "all"
-                  ? "bg-emerald-600 text-white border-emerald-500"
-                  : "bg-[#202c33] text-[#8696a0] border-transparent hover:bg-[#2a3942] hover:text-[#e9edef]"
-              }`}
+              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border transition-all shrink-0 cursor-pointer ${statusFilter === "all"
+                ? "bg-emerald-600 text-white border-emerald-500"
+                : "bg-[#202c33] text-[#8696a0] border-transparent hover:bg-[#2a3942] hover:text-[#e9edef]"
+                }`}
             >
               All ({groups.length})
             </button>
             <button
               onClick={() => setStatusFilter("active_issue")}
-              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border flex items-center space-x-1 shrink-0 transition-all cursor-pointer ${
-                statusFilter === "active_issue"
-                  ? "bg-rose-600 text-white border-rose-500"
-                  : "bg-rose-950/20 text-rose-400 border-rose-900/40 hover:bg-rose-950/40"
-              }`}
+              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border flex items-center space-x-1 shrink-0 transition-all cursor-pointer ${statusFilter === "active_issue"
+                ? "bg-rose-600 text-white border-rose-500"
+                : "bg-rose-950/20 text-rose-400 border-rose-900/40 hover:bg-rose-950/40"
+                }`}
             >
               <AlertTriangle className="h-2.5 w-2.5" />
               <span>
@@ -927,22 +921,20 @@ export default function WhatsAppChatHub({
             </button>
             <button
               onClick={() => setStatusFilter("resolved")}
-              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border flex items-center space-x-1 shrink-0 transition-all cursor-pointer ${
-                statusFilter === "resolved"
-                  ? "bg-indigo-600 text-white border-indigo-500"
-                  : "bg-indigo-950/20 text-indigo-400 border-indigo-900/40 hover:bg-indigo-950/40"
-              }`}
+              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border flex items-center space-x-1 shrink-0 transition-all cursor-pointer ${statusFilter === "resolved"
+                ? "bg-indigo-600 text-white border-indigo-500"
+                : "bg-indigo-950/20 text-indigo-400 border-indigo-900/40 hover:bg-indigo-950/40"
+                }`}
             >
               <CheckCircle2 className="h-2.5 w-2.5" />
               <span>Fixed</span>
             </button>
             <button
               onClick={() => setStatusFilter("normal")}
-              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border transition-all shrink-0 cursor-pointer ${
-                statusFilter === "normal"
-                  ? "bg-slate-700 text-white border-slate-600"
-                  : "bg-[#202c33] text-[#8696a0] border-transparent hover:bg-[#2a3942]"
-              }`}
+              className={`px-2.5 py-1 text-3xs font-black uppercase tracking-wider rounded-md border transition-all shrink-0 cursor-pointer ${statusFilter === "normal"
+                ? "bg-slate-700 text-white border-slate-600"
+                : "bg-[#202c33] text-[#8696a0] border-transparent hover:bg-[#2a3942]"
+                }`}
             >
               Normal
             </button>
@@ -980,22 +972,20 @@ export default function WhatsAppChatHub({
                     setSelectedGroupId(group.id);
                     setMobileView("chat");
                   }}
-                  className={`p-3 flex gap-3 cursor-pointer select-none transition-all border-l-4 ${
-                    isActive
-                      ? "bg-[#2a3942] border-emerald-500"
-                      : "hover:bg-[#202c33] border-transparent"
-                  }`}
+                  className={`p-3 flex gap-3 cursor-pointer select-none transition-all border-l-4 ${isActive
+                    ? "bg-[#2a3942] border-emerald-500"
+                    : "hover:bg-[#202c33] border-transparent"
+                    }`}
                 >
                   {/* Group Icon with Status Glow */}
                   <div className="relative shrink-0">
                     <div
-                      className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-xs text-white border ${
-                        group.status === "active_issue"
-                          ? "bg-gradient-to-tr from-rose-600 to-amber-500 border-rose-400/40 shadow-lg shadow-rose-950/50"
-                          : group.status === "resolved"
+                      className={`h-10 w-10 rounded-full flex items-center justify-center font-bold text-xs text-white border ${group.status === "active_issue"
+                        ? "bg-gradient-to-tr from-rose-600 to-amber-500 border-rose-400/40 shadow-lg shadow-rose-950/50"
+                        : group.status === "resolved"
                           ? "bg-gradient-to-tr from-emerald-600 to-indigo-500 border-emerald-400/40"
                           : "bg-gradient-to-tr from-slate-600 to-slate-800 border-slate-700"
-                      }`}
+                        }`}
                     >
                       {group.driverName
                         .split(" ")
@@ -1005,19 +995,18 @@ export default function WhatsAppChatHub({
 
                     {/* Status dot overlay */}
                     <span
-                      className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#111b21] flex items-center justify-center text-[8px] font-black text-white ${
-                        group.status === "active_issue"
-                          ? "bg-rose-500"
-                          : group.status === "resolved"
+                      className={`absolute -bottom-0.5 -right-0.5 h-3.5 w-3.5 rounded-full border-2 border-[#111b21] flex items-center justify-center text-[8px] font-black text-white ${group.status === "active_issue"
+                        ? "bg-rose-500"
+                        : group.status === "resolved"
                           ? "bg-emerald-500"
                           : "bg-slate-400"
-                      }`}
+                        }`}
                     >
                       {group.status === "active_issue"
                         ? "!"
                         : group.status === "resolved"
-                        ? "\u2713"
-                        : "\u2022"}
+                          ? "\u2713"
+                          : "\u2022"}
                     </span>
                   </div>
 
@@ -1030,20 +1019,19 @@ export default function WhatsAppChatHub({
                       <span className="text-[9px] text-[#8696a0] font-mono shrink-0">
                         {lastMsg
                           ? new Date(lastMsg.timestamp).toLocaleTimeString([], {
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                           : ""}
                       </span>
                     </div>
 
                     <div className="flex items-center justify-between mt-0.5">
                       <p
-                        className={`text-[10px] truncate max-w-[170px] ${
-                          hasUnread
-                            ? "text-[#e9edef] font-bold"
-                            : "text-[#8696a0]"
-                        }`}
+                        className={`text-[10px] truncate max-w-[170px] ${hasUnread
+                          ? "text-[#e9edef] font-bold"
+                          : "text-[#8696a0]"
+                          }`}
                       >
                         {group.status === "active_issue" && (
                           <span className="text-rose-500 font-extrabold mr-1 font-mono uppercase text-[9px]">
@@ -1070,17 +1058,16 @@ export default function WhatsAppChatHub({
                       </span>
                       <span>•</span>
                       <span
-                        className={`${
-                          group.status === "active_issue"
-                            ? "text-rose-400 animate-pulse"
-                            : "text-slate-500"
-                        }`}
+                        className={`${group.status === "active_issue"
+                          ? "text-rose-400 animate-pulse"
+                          : "text-base-content"
+                          }`}
                       >
                         {group.status === "active_issue"
                           ? "\u{1F6A8} SUPPORT CRITICAL"
                           : group.status === "resolved"
-                          ? "\u2705 COMPLIANT"
-                          : "ONLINE"}
+                            ? "\u2705 COMPLIANT"
+                            : "ONLINE"}
                       </span>
                     </div>
                   </div>
@@ -1091,16 +1078,15 @@ export default function WhatsAppChatHub({
         </div>
 
         {/* Info Banner */}
-        <div className="p-2 bg-[#0b141a] text-slate-500 text-[8px] font-mono border-t border-[#202c33] text-center uppercase tracking-wider">
+        <div className="p-2 bg-[#0b141a] text-base-content text-[8px] font-mono border-t border-[#202c33] text-center uppercase tracking-wider">
           ACTIVE DISPATCH TERMINAL UPLINK SECURE
         </div>
       </div>
 
       {/* MAIN: CHAT HUB WINDOW */}
       <div
-        className={`flex-1 flex flex-col bg-[#0b141a] relative ${
-          mobileView === "list" ? "hidden md:flex" : "flex"
-        }`}
+        className={`flex-1 flex flex-col bg-[#0b141a] relative ${mobileView === "list" ? "hidden md:flex" : "flex"
+          }`}
       >
         {!activeGroup ? (
           <div className="flex-1 flex flex-col items-center justify-center bg-[#222e35]/30 p-8 text-center space-y-4">
@@ -1117,7 +1103,7 @@ export default function WhatsAppChatHub({
                 documents in real-time.
               </p>
             </div>
-            <div className="flex items-center space-x-1.5 text-[9px] text-slate-500 font-mono uppercase tracking-widest bg-[#111b21] px-3 py-1 rounded-full border border-slate-800">
+            <div className="flex items-center space-x-1.5 text-[9px] text-base-content font-mono uppercase tracking-widest bg-[#111b21] px-3 py-1 rounded-full border border-slate-800">
               <Lock className="h-3 w-3 text-emerald-500 shrink-0" />
               <span>Samsara Fleet-End Encrypted</span>
             </div>
@@ -1138,13 +1124,12 @@ export default function WhatsAppChatHub({
 
                   <div
                     onClick={() => setShowInfoPanel(!showInfoPanel)}
-                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 cursor-pointer transition-transform hover:scale-105 ${
-                      activeGroup.status === "active_issue"
-                        ? "bg-rose-600"
-                        : activeGroup.status === "resolved"
+                    className={`h-9 w-9 rounded-full flex items-center justify-center font-bold text-xs shrink-0 cursor-pointer transition-transform hover:scale-105 ${activeGroup.status === "active_issue"
+                      ? "bg-rose-600"
+                      : activeGroup.status === "resolved"
                         ? "bg-emerald-600"
                         : "bg-indigo-600"
-                    }`}
+                      }`}
                   >
                     {activeGroup.driverName
                       .split(" ")
@@ -1194,11 +1179,10 @@ export default function WhatsAppChatHub({
 
                   <button
                     onClick={() => setShowInfoPanel(!showInfoPanel)}
-                    className={`p-2 rounded-full hover:bg-[#2a3942] cursor-pointer transition-colors ${
-                      showInfoPanel
-                        ? "text-emerald-400"
-                        : "text-[#8696a0] hover:text-[#e9edef]"
-                    }`}
+                    className={`p-2 rounded-full hover:bg-[#2a3942] cursor-pointer transition-colors ${showInfoPanel
+                      ? "text-emerald-400"
+                      : "text-[#8696a0] hover:text-[#e9edef]"
+                      }`}
                     title="Toggle Support Channel Insights Panel"
                   >
                     <Info className="h-4 w-4" />
@@ -1276,17 +1260,15 @@ export default function WhatsAppChatHub({
                   return (
                     <div
                       key={msg.id}
-                      className={`flex flex-col ${
-                        isMyMessage ? "items-end" : "items-start"
-                      } animate-fade-in`}
+                      className={`flex flex-col ${isMyMessage ? "items-end" : "items-start"
+                        } animate-fade-in`}
                     >
                       {/* Message Bubble Container */}
                       <div
-                        className={`max-w-[75%] rounded-2xl px-3.5 py-2 shadow-md relative ${
-                          isMyMessage
-                            ? "bg-[#005c4b] text-[#e9edef] rounded-tr-none"
-                            : "bg-[#202c33] text-[#e9edef] rounded-tl-none"
-                        }`}
+                        className={`max-w-[75%] rounded-2xl px-3.5 py-2 shadow-md relative ${isMyMessage
+                          ? "bg-[#005c4b] text-[#e9edef] rounded-tr-none"
+                          : "bg-[#202c33] text-[#e9edef] rounded-tl-none"
+                          }`}
                       >
                         {/* Sender Name block above text (Group Chat visual style) */}
                         {!isMyMessage && (
@@ -1318,11 +1300,10 @@ export default function WhatsAppChatHub({
                                 setViewingDocument(msg.attachment);
                               }
                             }}
-                            className={`mt-2 p-2 rounded-xl border text-2xs overflow-hidden cursor-pointer transition-all hover:opacity-95 hover:scale-[1.01] ${
-                              isMyMessage
-                                ? "bg-[#004e3f]/90 border-[#027e66]/50 text-slate-100 shadow-sm"
-                                : "bg-[#182229] border-[#2a3942] text-slate-100 shadow-sm"
-                            }`}
+                            className={`mt-2 p-2 rounded-xl border text-2xs overflow-hidden cursor-pointer transition-all hover:opacity-95 hover:scale-[1.01] ${isMyMessage
+                              ? "bg-[#004e3f]/90 border-[#027e66]/50 text-slate-100 shadow-sm"
+                              : "bg-[#182229] border-[#2a3942] text-slate-100 shadow-sm"
+                              }`}
                             title="Click to view/open document"
                           >
                             {msg.attachment.type === "photo" ? (
@@ -1586,7 +1567,7 @@ export default function WhatsAppChatHub({
                             background: "transparent",
                           }}
                         >
-                          <Image className="h-4 w-4 text-slate-500" />
+                          <Image className="h-4 w-4 text-base-content" />
                           <span>Simulate Pallet Damage photo</span>
                         </button>
                         <button
@@ -1599,7 +1580,7 @@ export default function WhatsAppChatHub({
                             background: "transparent",
                           }}
                         >
-                          <FileText className="h-4 w-4 text-slate-500" />
+                          <FileText className="h-4 w-4 text-base-content" />
                           <span>Simulate Customs PDF</span>
                         </button>
                       </div>
@@ -1693,11 +1674,10 @@ export default function WhatsAppChatHub({
                     </div>
 
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border inline-block ${
-                        activeGroup.status === "active_issue"
-                          ? "bg-rose-950/40 text-rose-400 border-rose-900/60"
-                          : "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
-                      }`}
+                      className={`px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider border inline-block ${activeGroup.status === "active_issue"
+                        ? "bg-rose-950/40 text-rose-400 border-rose-900/60"
+                        : "bg-emerald-950/40 text-emerald-400 border-emerald-900/60"
+                        }`}
                     >
                       {activeGroup.status === "active_issue"
                         ? "\u26A0\uFE0F ISSUE ACTIVE"
@@ -1722,7 +1702,7 @@ export default function WhatsAppChatHub({
                         </div>
 
                         <div className="space-y-1">
-                          <span className="text-[8px] text-slate-500 font-mono font-bold uppercase block">
+                          <span className="text-[8px] text-base-content font-mono font-bold uppercase block">
                             Cargo Description
                           </span>
                           <p className="text-[10px] font-semibold text-slate-300 leading-tight line-clamp-2">
@@ -1732,7 +1712,7 @@ export default function WhatsAppChatHub({
 
                         <div className="grid grid-cols-2 gap-2 border-t border-[#202c33]/60 pt-2 text-[9px] font-mono text-[#8696a0]">
                           <div>
-                            <span className="block text-[7px] text-slate-500 font-bold uppercase">
+                            <span className="block text-[7px] text-base-content font-bold uppercase">
                               Transit Route
                             </span>
                             <span className="text-slate-300 font-semibold">
@@ -1741,7 +1721,7 @@ export default function WhatsAppChatHub({
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[7px] text-slate-500 font-bold uppercase">
+                            <span className="block text-[7px] text-base-content font-bold uppercase">
                               Estimated ETA
                             </span>
                             <span className="text-slate-300 font-semibold">
@@ -1752,7 +1732,7 @@ export default function WhatsAppChatHub({
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[7px] text-slate-500 font-bold uppercase">
+                            <span className="block text-[7px] text-base-content font-bold uppercase">
                               Truck/Trailer
                             </span>
                             <span className="text-slate-300 font-semibold">
@@ -1761,7 +1741,7 @@ export default function WhatsAppChatHub({
                             </span>
                           </div>
                           <div>
-                            <span className="block text-[7px] text-slate-500 font-bold uppercase">
+                            <span className="block text-[7px] text-base-content font-bold uppercase">
                               Weight / Count
                             </span>
                             <span className="text-slate-300 font-semibold">
@@ -1772,7 +1752,7 @@ export default function WhatsAppChatHub({
                         </div>
                       </div>
                     ) : (
-                      <div className="text-[10px] text-slate-500 italic bg-[#1f2c34]/20 p-2.5 rounded border border-[#2a3942]/30">
+                      <div className="text-[10px] text-base-content italic bg-[#1f2c34]/20 p-2.5 rounded border border-[#2a3942]/30">
                         No active load currently linked to this driver.
                         Available for dispatch scheduling.
                       </div>
@@ -1785,7 +1765,7 @@ export default function WhatsAppChatHub({
                       Shared support files ({sharedAttachments.length})
                     </h6>
                     {sharedAttachments.length === 0 ? (
-                      <p className="text-[10px] text-slate-500 italic p-1">
+                      <p className="text-[10px] text-base-content italic p-1">
                         No pictures or documents shared in this channel yet.
                       </p>
                     ) : (
@@ -1809,7 +1789,7 @@ export default function WhatsAppChatHub({
                                 <span className="text-[10px] text-slate-300 font-mono truncate block leading-tight font-semibold">
                                   {file.name}
                                 </span>
-                                <span className="text-[8px] text-slate-500 font-mono font-black uppercase">
+                                <span className="text-[8px] text-base-content font-mono font-black uppercase">
                                   {file.size}
                                 </span>
                               </div>
@@ -1842,7 +1822,7 @@ export default function WhatsAppChatHub({
       {/* Document Viewer Modal Overlay */}
       {viewingDocument && (
         <div className="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
+          <div className="bg-base-100 rounded-3xl shadow-2xl border border-slate-200 max-w-2xl w-full overflow-hidden animate-scale-up space-y-0">
             {/* Header */}
             <div className="bg-slate-900 text-white p-5 flex items-center justify-between">
               <div className="flex items-center space-x-3">
@@ -1867,7 +1847,7 @@ export default function WhatsAppChatHub({
             </div>
 
             {/* Document Viewer Content Body */}
-            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-slate-50">
+            <div className="p-6 space-y-6 max-h-[70vh] overflow-y-auto bg-base-200">
               {/* Document Banner */}
               <div className="bg-emerald-950 text-emerald-100 p-4 rounded-2xl border border-emerald-800 flex items-center justify-between text-xs">
                 <div className="flex items-center space-x-2">
@@ -1885,27 +1865,27 @@ export default function WhatsAppChatHub({
               </div>
 
               {/* Simulated Paper Manifest Preview */}
-              <div className="bg-white p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
+              <div className="bg-base-100 p-6 rounded-2xl border border-slate-300 shadow-inner space-y-4 font-mono text-xs text-slate-800">
                 <div className="flex justify-between items-start border-b border-slate-200 pb-3">
                   <div>
-                    <div className="text-sm font-extrabold text-slate-900 font-sans">LOGISYNC FREIGHT MANIFEST</div>
-                    <div className="text-3xs text-slate-500">Bill of Lading #BOL-2026-9812</div>
+                    <div className="text-sm font-extrabold text-base-content font-sans">LOGISYNC FREIGHT MANIFEST</div>
+                    <div className="text-3xs text-base-content">Bill of Lading #BOL-2026-9812</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-3xs text-slate-500">ISSUED DATE</div>
+                    <div className="text-3xs text-base-content">ISSUED DATE</div>
                     <div className="text-xs font-bold text-indigo-600">{new Date().toLocaleDateString()}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4 text-3xs">
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Shipper / Pickup Origin</div>
-                    <div className="font-bold text-slate-900">AeroParts Mfg Facility</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Shipper / Pickup Origin</div>
+                    <div className="font-bold text-base-content">AeroParts Mfg Facility</div>
                     <div>100 Logistics Way, Toronto, ON</div>
                   </div>
-                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 space-y-1">
-                    <div className="font-bold text-slate-500 uppercase">Consignee / Destination</div>
-                    <div className="font-bold text-slate-900">Midwest Distribution Hub</div>
+                  <div className="bg-base-200 p-3 rounded-xl border border-slate-100 space-y-1">
+                    <div className="font-bold text-base-content uppercase">Consignee / Destination</div>
+                    <div className="font-bold text-base-content">Midwest Distribution Hub</div>
                     <div>500 Freight Blvd, Chicago, IL</div>
                   </div>
                 </div>
@@ -1933,8 +1913,8 @@ export default function WhatsAppChatHub({
 
                 <div className="bg-slate-100 p-3 rounded-xl border border-slate-200 flex items-center justify-between text-3xs">
                   <div className="space-y-0.5">
-                    <div className="text-slate-500 font-bold">DRIVER SIGN-OFF STAMP</div>
-                    <div className="font-bold text-slate-900 font-sans">Marcus Vance (Driver License Verified)</div>
+                    <div className="text-base-content font-bold">DRIVER SIGN-OFF STAMP</div>
+                    <div className="font-bold text-base-content font-sans">Marcus Vance (Driver License Verified)</div>
                   </div>
                   <div className="px-3 py-1 bg-emerald-600 text-white font-mono font-bold rounded-lg text-3xs">
                     SIGNED & ATTACHED
@@ -1944,7 +1924,7 @@ export default function WhatsAppChatHub({
             </div>
 
             {/* Footer Buttons */}
-            <div className="p-4 bg-white border-t border-slate-200 flex items-center justify-end space-x-3">
+            <div className="p-4 bg-base-100 border-t border-slate-200 flex items-center justify-end space-x-3">
               <button
                 onClick={() => {
                   if (viewingDocument?.url && viewingDocument.url.startsWith("http")) {

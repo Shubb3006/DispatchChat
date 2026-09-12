@@ -208,12 +208,12 @@ export default function CustomerPage() {
 
       {/* Cargo Status Modal / Card View */}
       {activeShipment ? (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-lg p-6 sm:p-8 space-y-6 animate-fade-in">
+        <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-lg p-6 sm:p-8 space-y-6 animate-fade-in">
           {/* Header Row */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 pb-5">
             <div>
               <div className="flex items-center space-x-3">
-                <h2 className="text-2xl font-extrabold text-slate-900 font-sans tracking-tight">
+                <h2 className="text-2xl font-extrabold text-base-content font-sans tracking-tight">
                   Load #{activeShipment.load_number || activeShipment.tracking_number || activeShipment.trackingNumber}
                 </h2>
                 <span className={`text-3xs font-mono font-bold px-3 py-1 rounded-full uppercase border ${currentRank >= 9
@@ -244,7 +244,7 @@ export default function CustomerPage() {
                     "—"}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1 font-medium">
+              <p className="text-xs text-base-content mt-1 font-medium">
                 Customer: <strong className="text-slate-800">{activeShipment.customer_name || activeShipment.customerName || "—"}</strong>
               </p>
             </div>
@@ -268,7 +268,7 @@ export default function CustomerPage() {
                   <Clock className="h-3.5 w-3.5" />
                   <span>{currentRank >= 9 ? "Delivered" : "Estimated Arrival"}</span>
                 </div>
-                <div className="text-sm font-extrabold text-slate-900 font-mono">
+                <div className="text-sm font-extrabold text-base-content font-mono">
                   {etaIsValid
                     ? etaDate.toLocaleString(undefined, {
                       month: "short",
@@ -288,8 +288,8 @@ export default function CustomerPage() {
           </div>
 
           {/* 4-Step Horizontal Stepper Timeline */}
-          <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
-            <div className="flex items-center justify-between text-3xs font-mono font-bold text-slate-500 uppercase tracking-wider">
+          <div className="bg-base-200 border border-slate-200 rounded-2xl p-5 space-y-4">
+            <div className="flex items-center justify-between text-3xs font-mono font-bold text-base-content uppercase tracking-wider">
               <span>Primary Stepper Timeline</span>
               <span className="text-indigo-600">Stage {currentRank} of 9 Active</span>
             </div>
@@ -310,7 +310,7 @@ export default function CustomerPage() {
                   { label: "4. Order Arrived", active: currentRank >= 9 },
                 ].map((step, idx) => (
                   <div key={idx} className="space-y-1">
-                    <div className={`w-3 h-3 rounded-full mx-auto border-2 ${step.active ? "bg-indigo-600 border-indigo-600" : "bg-white border-slate-300"}`} />
+                    <div className={`w-3 h-3 rounded-full mx-auto border-2 ${step.active ? "bg-indigo-600 border-indigo-600" : "bg-base-100 border-slate-300"}`} />
                     <span className={`block text-3xs font-bold font-mono ${step.active ? "text-indigo-900 font-extrabold" : "text-slate-400"}`}>
                       {step.label}
                     </span>
@@ -355,7 +355,7 @@ export default function CustomerPage() {
                       ? "bg-emerald-50/50 border-emerald-300 shadow-xs"
                       : isCurrentActive
                         ? "bg-indigo-50/80 border-indigo-400 shadow-md ring-2 ring-indigo-300"
-                        : "bg-slate-50/50 border-slate-200 opacity-60"
+                        : "bg-base-200/50 border-slate-200 opacity-60"
                       }`}
                   >
                     <div className="flex items-center justify-between">
@@ -366,10 +366,10 @@ export default function CustomerPage() {
                         <CheckCircle2 className="h-4 w-4 text-emerald-600 shrink-0" />
                       ) : isCurrentActive ? (
                         <div className="w-4 h-4 rounded-full bg-indigo-600 flex items-center justify-center">
-                          <div className="w-1.5 h-1.5 rounded-full bg-white animate-ping" />
+                          <div className="w-1.5 h-1.5 rounded-full bg-base-100 animate-ping" />
                         </div>
                       ) : (
-                        <span className="w-5 h-5 rounded-full bg-slate-200 text-slate-500 text-3xs font-mono font-bold flex items-center justify-center">
+                        <span className="w-5 h-5 rounded-full bg-slate-200 text-base-content text-3xs font-mono font-bold flex items-center justify-center">
                           {stg.rank}
                         </span>
                       )}
@@ -379,7 +379,7 @@ export default function CustomerPage() {
                       <h4 className={`text-xs font-extrabold ${isVerifiedStage ? "text-emerald-950" : isCurrentActive ? "text-indigo-950" : "text-slate-800"}`}>
                         {stg.name}
                       </h4>
-                      <p className={`text-3xs font-mono mt-0.5 ${isVerifiedStage ? "text-emerald-700 font-extrabold" : isCurrentActive ? "text-indigo-700 font-bold" : "text-slate-500"}`}>
+                      <p className={`text-3xs font-mono mt-0.5 ${isVerifiedStage ? "text-emerald-700 font-extrabold" : isCurrentActive ? "text-indigo-700 font-bold" : "text-base-content"}`}>
                         {getStatusLabel()}
                       </p>
                     </div>
@@ -391,37 +391,37 @@ export default function CustomerPage() {
 
           {/* Bottom Vehicle & Driver Cards Row */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
-              <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-slate-600">
+            <div className="bg-base-200 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
+              <div className="p-2.5 bg-base-100 border border-slate-200 rounded-xl text-slate-600">
                 <User className="h-5 w-5" />
               </div>
               <div>
                 <div className="text-3xs font-mono font-bold text-slate-400 uppercase">Driver</div>
-                <div className="text-xs font-extrabold text-slate-900 font-mono">
+                <div className="text-xs font-extrabold text-base-content font-mono">
                   {displayDriverName}
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
-              <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-indigo-600">
+            <div className="bg-base-200 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
+              <div className="p-2.5 bg-base-100 border border-slate-200 rounded-xl text-indigo-600">
                 <Truck className="h-5 w-5" />
               </div>
               <div>
                 <div className="text-3xs font-mono font-bold text-slate-400 uppercase">Truck</div>
-                <div className="text-xs font-extrabold text-slate-900 font-mono">
+                <div className="text-xs font-extrabold text-base-content font-mono">
                   {displayTruckNumber}
                 </div>
               </div>
             </div>
 
-            <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
-              <div className="p-2.5 bg-white border border-slate-200 rounded-xl text-emerald-600">
+            <div className="bg-base-200 border border-slate-200 rounded-2xl p-4 flex items-center space-x-3">
+              <div className="p-2.5 bg-base-100 border border-slate-200 rounded-xl text-emerald-600">
                 <Package className="h-5 w-5" />
               </div>
               <div>
                 <div className="text-3xs font-mono font-bold text-slate-400 uppercase">Weight</div>
-                <div className="text-xs font-extrabold text-slate-900 font-mono">
+                <div className="text-xs font-extrabold text-base-content font-mono">
                   {activeShipment.weightLbs || activeShipment.weight
                     ? `${Number(activeShipment.weightLbs || activeShipment.weight).toLocaleString()} lbs`
                     : "—"}
@@ -436,7 +436,7 @@ export default function CustomerPage() {
               onClick={() => fetchShipments()}
               className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-mono font-bold transition-all cursor-pointer flex items-center space-x-2"
             >
-              <RefreshCw className="h-3.5 w-3.5 text-slate-500" />
+              <RefreshCw className="h-3.5 w-3.5 text-base-content" />
               <span>Refresh status</span>
             </button>
           </div>

@@ -113,7 +113,7 @@ export default function Login() {
       } else {
         setError(
           storeError ||
-            "Invalid credentials. Please verify your username and password."
+          "Invalid credentials. Please verify your username and password."
         );
       }
     }
@@ -152,11 +152,10 @@ export default function Login() {
               setIsSignUp(false);
               setError(null);
             }}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              !isSignUp
+            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${!isSignUp
                 ? "bg-indigo-600 text-white shadow"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
           >
             Sign In
           </button>
@@ -165,11 +164,10 @@ export default function Login() {
               setIsSignUp(true);
               setError(null);
             }}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
-              isSignUp
+            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${isSignUp
                 ? "bg-indigo-600 text-white shadow"
                 : "text-slate-400 hover:text-white"
-            }`}
+              }`}
           >
             Create Account
           </button>
@@ -209,7 +207,7 @@ export default function Login() {
                   Full Name
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                  <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-base-content">
                     <User className="h-4 w-4" />
                   </div>
                   <input
@@ -229,7 +227,7 @@ export default function Login() {
                 Corporate Username
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-base-content">
                   <User className="h-4 w-4" />
                 </div>
                 <input
@@ -248,7 +246,7 @@ export default function Login() {
                 Secure Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-500">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-base-content">
                   <Lock className="h-4 w-4" />
                 </div>
                 <input
@@ -339,13 +337,13 @@ export default function Login() {
                   <div className="text-[10px] text-slate-400 mt-0.5 font-mono">
                     {(user.role || "").replace("_", " ")}
                   </div>
-                  <div className="text-[9px] text-slate-500 font-mono mt-0.5">
+                  <div className="text-[9px] text-base-content font-mono mt-0.5">
                     User: {user.username}
                   </div>
                 </button>
               ))}
             </div> */}
-            <div className="text-[10px] text-center text-slate-500 font-mono">
+            <div className="text-[10px] text-center text-base-content font-mono">
               Default sandbox password is{" "}
               <span className="font-bold text-indigo-400">password</span>
             </div>

@@ -178,7 +178,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
       </div>
 
       {/* My shipments (server-scoped to this customer) */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
         <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
           <Truck className="h-4 w-4 text-indigo-600" />
           My Shipments
@@ -189,7 +189,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
             <Loader2 className="h-5 w-5 animate-spin text-indigo-600" /> Loading shipments...
           </div>
         ) : shipments.length === 0 ? (
-          <div className="py-8 text-center text-slate-500 text-sm">
+          <div className="py-8 text-center text-base-content text-sm">
             <AlertCircle className="h-6 w-6 mx-auto mb-2 text-slate-300" />
             No shipments found for your account.
           </div>
@@ -197,7 +197,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px]">
+                <tr className="bg-base-200 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px]">
                   <th className="px-4 py-3">Load #</th>
                   <th className="px-4 py-3">Route</th>
                   <th className="px-4 py-3">Pickup</th>
@@ -212,7 +212,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
                   return (
                     <tr
                       key={load.id}
-                      className="hover:bg-slate-50 cursor-pointer"
+                      className="hover:bg-base-200 cursor-pointer"
                       onClick={() => onSelectShipment && onSelectShipment(load)}
                     >
                       <td className="px-4 py-3 font-mono font-bold text-indigo-700">
@@ -260,7 +260,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
 
       {/* Documents panel for the selected load */}
       {docsLoad && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+        <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
           <div className="flex items-center justify-between">
             <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
               <FileText className="h-4 w-4 text-indigo-600" />
@@ -268,7 +268,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
             </h3>
             <button
               onClick={() => setDocsLoad(null)}
-              className="text-xs font-bold text-slate-500 hover:text-slate-800"
+              className="text-xs font-bold text-base-content hover:text-slate-800"
             >
               Close
             </button>
@@ -283,7 +283,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
               <AlertCircle className="h-4 w-4" /> {docsError}
             </div>
           ) : documents.length === 0 ? (
-            <p className="py-4 text-center text-slate-500 text-sm">
+            <p className="py-4 text-center text-base-content text-sm">
               No documents uploaded for this load yet.
             </p>
           ) : (
@@ -328,7 +328,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
       )}
 
       {/* My invoices (server-scoped to this customer) */}
-      <div className="bg-white rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
+      <div className="bg-base-100 rounded-3xl border border-slate-200 shadow-sm p-6 space-y-4">
         <h3 className="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
           <Receipt className="h-4 w-4 text-indigo-600" />
           My Invoices
@@ -343,7 +343,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
             <AlertCircle className="h-4 w-4" /> {invoicesError}
           </div>
         ) : invoices.length === 0 ? (
-          <div className="py-8 text-center text-slate-500 text-sm">
+          <div className="py-8 text-center text-base-content text-sm">
             <AlertCircle className="h-6 w-6 mx-auto mb-2 text-slate-300" />
             No invoices on your account.
           </div>
@@ -351,7 +351,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
           <div className="overflow-x-auto rounded-xl border border-slate-200">
             <table className="w-full text-left text-xs">
               <thead>
-                <tr className="bg-slate-50 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px]">
+                <tr className="bg-base-200 border-b border-slate-200 text-slate-600 uppercase tracking-wider text-[11px]">
                   <th className="px-4 py-3">Invoice</th>
                   <th className="px-4 py-3">Load / Tracking</th>
                   <th className="px-4 py-3">Issued</th>
@@ -362,7 +362,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
               </thead>
               <tbody className="divide-y divide-slate-100">
                 {invoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50">
+                  <tr key={inv.id} className="hover:bg-base-200">
                     <td className="px-4 py-3 font-mono font-bold text-slate-800">
                       {String(inv.id || "").slice(0, 8)}
                     </td>
@@ -371,7 +371,7 @@ export default function CustomerDashboard({ onSelectShipment }) {
                     </td>
                     <td className="px-4 py-3 text-slate-600">{fmtDate(inv.issue_date)}</td>
                     <td className="px-4 py-3 text-slate-600">{fmtDate(inv.due_date)}</td>
-                    <td className="px-4 py-3 text-right font-bold text-slate-900">
+                    <td className="px-4 py-3 text-right font-bold text-base-content">
                       {fmtMoney(inv.total)}
                     </td>
                     <td className="px-4 py-3">

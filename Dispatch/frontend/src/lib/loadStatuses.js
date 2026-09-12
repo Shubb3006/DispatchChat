@@ -141,6 +141,6 @@ export const statusTone = (status) => {
     case "col_at_border": return "bg-purple-50 text-purple-800 border-purple-300";
     case "col_at_delivery": return "bg-orange-50 text-orange-800 border-orange-300";
     case "col_delivered": return "bg-emerald-50 text-emerald-800 border-emerald-300";
-    default: return "bg-slate-50 text-slate-700 border-slate-300";
+    default: return "bg-base-200 text-slate-700 border-slate-300";
   }
 };

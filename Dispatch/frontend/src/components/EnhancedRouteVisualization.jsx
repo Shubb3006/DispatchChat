@@ -110,7 +110,7 @@ export default function EnhancedRouteVisualization({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-12 text-xs text-slate-500 font-semibold bg-white rounded-2xl border border-slate-200">
+      <div className="flex items-center justify-center p-12 text-xs text-base-content font-semibold bg-base-100 rounded-2xl border border-slate-200">
         <Loader2 className="w-4 h-4 animate-spin text-indigo-600 mr-2" />
         Calculating active corridor telemetry...
       </div>
@@ -230,11 +230,11 @@ export default function EnhancedRouteVisualization({
 
         {/* Right Column: Driver & Dispatch Corridor Notes */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
+          <div className="bg-base-100 rounded-2xl border border-slate-200 shadow-xs p-5 space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center space-x-2">
                 <MessageSquare className="h-4.5 w-4.5 text-indigo-600" />
-                <h4 className="text-xs font-bold text-slate-900 uppercase font-mono">
+                <h4 className="text-xs font-bold text-base-content uppercase font-mono">
                   Driver & Dispatch Notes
                 </h4>
               </div>
@@ -245,16 +245,16 @@ export default function EnhancedRouteVisualization({
 
             <div className="space-y-2.5 max-h-80 overflow-y-auto pr-1">
               {driverNotes.length === 0 ? (
-                <div className="text-2xs text-slate-500 italic p-4 text-center bg-slate-50 rounded-xl border border-slate-100">
+                <div className="text-2xs text-base-content italic p-4 text-center bg-base-200 rounded-xl border border-slate-100">
                   No corridor notes yet. Add gate codes, dock instructions, or traffic updates below.
                 </div>
               ) : (
                 driverNotes.map((note) => (
                   <div
                     key={note.id}
-                    className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-1"
+                    className="p-3 bg-base-200 border border-slate-200 rounded-xl space-y-1"
                   >
-                    <div className="flex items-center justify-between text-3xs text-slate-500">
+                    <div className="flex items-center justify-between text-3xs text-base-content">
                       <span className="font-bold text-indigo-700 font-mono">
                         {note.full_name ||
                           note.username ||
@@ -264,11 +264,11 @@ export default function EnhancedRouteVisualization({
                       <span>
                         {note.created_at
                           ? new Date(note.created_at).toLocaleDateString([], {
-                              month: "short",
-                              day: "numeric",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            })
+                            month: "short",
+                            day: "numeric",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
                           : "Today"}
                       </span>
                     </div>
@@ -289,7 +289,7 @@ export default function EnhancedRouteVisualization({
                 placeholder="Log note or gate instructions..."
                 value={newNote}
                 onChange={(e) => setNewNote(e.target.value)}
-                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs bg-slate-50 focus:bg-white focus:outline-hidden focus:ring-2 focus:ring-indigo-400"
+                className="flex-1 px-3 py-2 border border-slate-200 rounded-lg text-xs bg-base-200 focus:bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-indigo-400"
               />
               <button
                 type="submit"

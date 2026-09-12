@@ -202,12 +202,12 @@ export default function ExecutivePnlTab({
       {/* 4 Top Level P&L Executive Metric Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Gross Revenue */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Gross Freight Revenue
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {fmtCurrency(pnl.grossRevenue)}
             </div>
             <div className="text-[11px] text-emerald-600 font-semibold flex items-center gap-1">
@@ -221,27 +221,27 @@ export default function ExecutivePnlTab({
         </div>
 
         {/* Total Cost */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Total Operating Expenses
             </div>
-            <div className="text-2xl font-black text-slate-900 font-mono">
+            <div className="text-2xl font-black text-base-content font-mono">
               {fmtCurrency(pnl.operatingCost)}
             </div>
-            <div className="text-[11px] text-slate-500 font-medium">
+            <div className="text-[11px] text-base-content font-medium">
               Fuel, Driver Pay, Tolls, Maint
             </div>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600">
+          <div className="w-12 h-12 rounded-2xl bg-base-200 border border-slate-200 flex items-center justify-center text-slate-600">
             <Layers className="w-6 h-6" />
           </div>
         </div>
 
         {/* Net Profit */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Net Operating Profit (EBITDAR)
             </div>
             <div className="text-2xl font-black text-emerald-700 font-mono">
@@ -258,9 +258,9 @@ export default function ExecutivePnlTab({
         </div>
 
         {/* Operating Ratio */}
-        <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs flex items-center justify-between">
           <div className="space-y-1">
-            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-slate-500">
+            <div className="text-[11px] font-mono font-bold uppercase tracking-wider text-base-content">
               Fleet Operating Ratio (OR)
             </div>
             <div className="text-2xl font-black text-indigo-700 font-mono">
@@ -277,30 +277,30 @@ export default function ExecutivePnlTab({
       </div>
 
       {/* Revenue Per Mile (RPM) vs Cost Per Mile (CPM) Banner */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs">
+      <div className="bg-base-100 border border-slate-200 rounded-2xl p-5 shadow-xs">
         <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-6">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-extrabold text-slate-900">
+              <h3 className="text-sm font-extrabold text-base-content">
                 Mileage Economics & Unit Margin Slicer
               </h3>
               <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-sky-50 text-sky-700 border border-sky-200">
                 {pnl.totalMiles.toLocaleString()} TOTAL MILES BILLED
               </span>
             </div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-base-content">
               Real-time fleet rate per mile (RPM), operational cost per mile (CPM), and net margin per dispatched mile.
             </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 shrink-0">
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
-              <div className="text-[10px] font-mono font-bold uppercase text-slate-500">Revenue / Mile (RPM)</div>
-              <div className="text-lg font-black text-slate-900 font-mono mt-0.5">${pnl.rpm}</div>
+            <div className="p-3 bg-base-200 border border-slate-200 rounded-xl text-center">
+              <div className="text-[10px] font-mono font-bold uppercase text-base-content">Revenue / Mile (RPM)</div>
+              <div className="text-lg font-black text-base-content font-mono mt-0.5">${pnl.rpm}</div>
             </div>
 
-            <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-center">
-              <div className="text-[10px] font-mono font-bold uppercase text-slate-500">Cost / Mile (CPM)</div>
+            <div className="p-3 bg-base-200 border border-slate-200 rounded-xl text-center">
+              <div className="text-[10px] font-mono font-bold uppercase text-base-content">Cost / Mile (CPM)</div>
               <div className="text-lg font-black text-rose-700 font-mono mt-0.5">${pnl.cpm}</div>
             </div>
 
@@ -315,21 +315,21 @@ export default function ExecutivePnlTab({
       {/* 2-Column Grid: Corridor Matrix & Customer Profitability */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Major Cross-Border Corridors */}
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0 flex flex-col">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0 flex flex-col">
+          <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <MapPin className="w-4 h-4 text-sky-600" />
-              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
                 Corridor & Freight Lane Profitability
               </h3>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-500">{lanes.length} Corridors</span>
+            <span className="text-xs font-mono font-bold text-base-content">{lanes.length} Corridors</span>
           </div>
 
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                   <th className="py-3 px-4">Origin ➔ Destination</th>
                   <th className="py-3 px-4">Loads</th>
                   <th className="py-3 px-4">Gross Revenue</th>
@@ -339,9 +339,9 @@ export default function ExecutivePnlTab({
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
                 {lanes.map((l) => (
-                  <tr key={l.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={l.id} className="hover:bg-base-200/80 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900 flex items-center gap-1.5">
+                      <div className="font-bold text-base-content flex items-center gap-1.5">
                         <span>{l.origin}</span>
                         <ArrowRight className="w-3 h-3 text-slate-400" />
                         <span>{l.destination}</span>
@@ -349,13 +349,12 @@ export default function ExecutivePnlTab({
                       <span className="text-[10px] text-slate-400 font-mono">{l.distance}</span>
                     </td>
                     <td className="py-3 px-4 font-mono font-bold text-slate-800">{l.loadsCount}</td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">{fmtCurrency(l.grossRevenue)}</td>
+                    <td className="py-3 px-4 font-mono font-bold text-base-content">{fmtCurrency(l.grossRevenue)}</td>
                     <td className="py-3 px-4 font-mono font-bold text-sky-700">${l.rpm}</td>
                     <td className="py-3 px-4 text-right font-mono font-bold">
                       <span
-                        className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] ${
-                          l.positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
-                        }`}
+                        className={`inline-flex items-center gap-0.5 px-2 py-0.5 rounded text-[10px] ${l.positive ? "bg-emerald-50 text-emerald-700" : "bg-rose-50 text-rose-700"
+                          }`}
                       >
                         {l.positive ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
                         {l.trend}
@@ -369,21 +368,21 @@ export default function ExecutivePnlTab({
         </div>
 
         {/* Customer Accounts Breakdown */}
-        <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0 flex flex-col">
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="bg-base-100 border border-slate-200 rounded-2xl overflow-hidden shadow-xs space-y-0 flex flex-col">
+          <div className="p-4 bg-base-200 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Truck className="w-4 h-4 text-indigo-600" />
-              <h3 className="text-xs font-extrabold text-slate-900 uppercase tracking-wider">
+              <h3 className="text-xs font-extrabold text-base-content uppercase tracking-wider">
                 Top Commercial Accounts & Yield
               </h3>
             </div>
-            <span className="text-xs font-mono font-bold text-slate-500">{customers.length} Accounts</span>
+            <span className="text-xs font-mono font-bold text-base-content">{customers.length} Accounts</span>
           </div>
 
           <div className="overflow-x-auto flex-1">
             <table className="w-full text-left text-xs border-collapse">
               <thead>
-                <tr className="bg-slate-50 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
+                <tr className="bg-base-200 text-slate-600 font-sans font-bold text-[11px] uppercase tracking-wider border-b border-slate-200">
                   <th className="py-3 px-4">Account Name</th>
                   <th className="py-3 px-4">Billed Revenue</th>
                   <th className="py-3 px-4">Net Margin</th>
@@ -392,15 +391,15 @@ export default function ExecutivePnlTab({
               </thead>
               <tbody className="divide-y divide-slate-100 text-slate-800 font-medium">
                 {customers.map((c, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={idx} className="hover:bg-base-200/80 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900">{c.name}</div>
-                      <span className="text-[10px] text-slate-500 font-mono">{c.tier} • {c.terms}</span>
+                      <div className="font-bold text-base-content">{c.name}</div>
+                      <span className="text-[10px] text-base-content font-mono">{c.tier} • {c.terms}</span>
                     </td>
-                    <td className="py-3 px-4 font-mono font-bold text-slate-900">{fmtCurrency(c.billed)}</td>
+                    <td className="py-3 px-4 font-mono font-bold text-base-content">{fmtCurrency(c.billed)}</td>
                     <td className="py-3 px-4 font-mono">
                       <span className="font-bold text-emerald-700">+{fmtCurrency(c.margin)}</span>
-                      <span className="text-[10px] text-slate-500 ml-1">({c.marginPct})</span>
+                      <span className="text-[10px] text-base-content ml-1">({c.marginPct})</span>
                     </td>
                     <td className="py-3 px-4 text-right font-mono font-bold text-indigo-700">{c.ontime}</td>
                   </tr>

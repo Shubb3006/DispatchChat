@@ -1,14 +1,13 @@
 import React from "react";
 
-const TripCard = (trip,tripLoads) => {
+const TripCard = (trip, tripLoads) => {
   return (
     <div
       key={trip.id}
-      className={`rounded-xl border transition-all p-3.5 space-y-3 cursor-pointer ${
-        isExpanded
-          ? "bg-slate-50 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
-          : "bg-white border-slate-200 hover:border-slate-300 hover:bg-slate-50/50"
-      }`}
+      className={`rounded-xl border transition-all p-3.5 space-y-3 cursor-pointer ${isExpanded
+        ? "bg-base-200 border-indigo-400 ring-1 ring-indigo-400 shadow-xs"
+        : "bg-base-100 border-slate-200 hover:border-slate-300 hover:bg-base-200/50"
+        }`}
       // onClick={() =>
       //   setShowSelectedTripDetailsId(
       //     isExpanded ? null : trip.id
@@ -20,21 +19,21 @@ const TripCard = (trip,tripLoads) => {
         setSelectedTrip(response.data.trip);
         setIsTripModalOpen(true);
       }}
-      // onClick={() => {
-      //   const tripWithLoads = {
-      //     ...trip,
-      //     shipments: shipments.filter((s) =>
-      //       trip.shipment_ids.includes(s.id)
-      //     ),
-      //   };
+    // onClick={() => {
+    //   const tripWithLoads = {
+    //     ...trip,
+    //     shipments: shipments.filter((s) =>
+    //       trip.shipment_ids.includes(s.id)
+    //     ),
+    //   };
 
-      //   setSelectedTrip(tripWithLoads);
-      //   setIsTripModalOpen(true);
-      // }}
+    //   setSelectedTrip(tripWithLoads);
+    //   setIsTripModalOpen(true);
+    // }}
     >
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-1.5">
-          <span className="text-xs font-bold text-slate-900">
+          <span className="text-xs font-bold text-base-content">
             Trip #{trip.trip_number}
           </span>
           <span className="text-3xs font-mono bg-indigo-50 text-indigo-700 px-1 py-0.2 rounded border border-indigo-100 uppercase font-bold">
@@ -84,15 +83,14 @@ const TripCard = (trip,tripLoads) => {
                                   <option value="completed">Completed</option>
                                 </select> */}
           <span
-            className={`text-2xs font-bold px-2 py-1 rounded capitalize ${
-              trip.status === "completed"
-                ? "bg-emerald-100 text-emerald-800"
-                : trip.status === "in_transit"
+            className={`text-2xs font-bold px-2 py-1 rounded capitalize ${trip.status === "completed"
+              ? "bg-emerald-100 text-emerald-800"
+              : trip.status === "in_transit"
                 ? "bg-amber-100 text-amber-800"
                 : trip.status === "dispatched"
-                ? "bg-blue-100 text-blue-800"
-                : "bg-slate-100 text-slate-800"
-            }`}
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-slate-100 text-slate-800"
+              }`}
           >
             {trip.status.replace("_", " ")}
           </span>
@@ -100,7 +98,7 @@ const TripCard = (trip,tripLoads) => {
       </div>
 
       {/* Driver & truck brief */}
-      <div className="grid grid-cols-2 gap-2 text-3xs text-slate-500 font-mono">
+      <div className="grid grid-cols-2 gap-2 text-3xs text-base-content font-mono">
         <div>
           <span className="text-slate-400 uppercase font-bold text-[9px]">
             Driver:
@@ -120,7 +118,7 @@ const TripCard = (trip,tripLoads) => {
       </div>
 
       {/* Brief weight metrics */}
-      <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-2 text-3xs font-mono text-slate-500">
+      <div className="grid grid-cols-2 gap-2 border-t border-slate-100 pt-2 text-3xs font-mono text-base-content">
         <div>
           <span className="text-slate-400 uppercase font-bold text-[9px]">
             Weight:
@@ -153,7 +151,7 @@ const TripCard = (trip,tripLoads) => {
             {tripLoads.map((load) => (
               <div
                 key={load.id}
-                className="bg-white border border-slate-100 rounded-lg p-2 flex items-center justify-between text-xs hover:border-slate-300 cursor-pointer"
+                className="bg-base-100 border border-slate-100 rounded-lg p-2 flex items-center justify-between text-xs hover:border-slate-300 cursor-pointer"
                 onClick={() => {
                   setSelectedShipment(load);
                   setIsDetailModalOpen(true);
@@ -165,11 +163,10 @@ const TripCard = (trip,tripLoads) => {
                       Load #{load.trackingNumber}
                     </span>
                     <span
-                      className={`text-4xs font-mono uppercase px-1 py-0.2 rounded font-bold ${
-                        load.loadType === "FTL"
-                          ? "bg-indigo-50 text-indigo-700"
-                          : "bg-amber-50 text-amber-700"
-                      }`}
+                      className={`text-4xs font-mono uppercase px-1 py-0.2 rounded font-bold ${load.loadType === "FTL"
+                        ? "bg-indigo-50 text-indigo-700"
+                        : "bg-amber-50 text-amber-700"
+                        }`}
                     >
                       {load.loadType || "LTL"}
                     </span>

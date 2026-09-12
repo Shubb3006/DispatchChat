@@ -19,7 +19,7 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
               <h2 className="text-3xl font-bold">Load #{displayData.load_number || displayData.id}</h2>
               <p className="text-blue-100 text-sm mt-1">{displayData.loadType || "FTL"} Freight Linehaul</p>
             </div>
-            <span className="bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-semibold text-sm">
+            <span className="bg-base-100/20 backdrop-blur-sm text-white px-4 py-2 rounded-lg font-semibold text-sm">
               {displayData.houseStatus || "Dispatched"}
             </span>
           </div>
@@ -29,16 +29,16 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
       {/* TWO-COLUMN SYMMETRIC LAYOUT */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 rounded-2xl overflow-hidden border border-slate-200 shadow-sm">
         {/* SHIPPER COLUMN */}
-        <div className="bg-white p-8 border-r border-slate-200 lg:border-r">
+        <div className="bg-base-100 p-8 border-r border-slate-200 lg:border-r">
           <div className="mb-6 pb-6 border-b border-slate-200">
-            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Pickup Location</p>
-            <h3 className="text-lg font-bold text-slate-900">{displayData.shipper_name || "Shipper"}</h3>
+            <p className="text-xs uppercase font-bold text-base-content tracking-wider mb-2">Pickup Location</p>
+            <h3 className="text-lg font-bold text-base-content">{displayData.shipper_name || "Shipper"}</h3>
           </div>
 
           <div className="space-y-5">
             {/* Address */}
             <div>
-              <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Address</label>
+              <label className="text-xs uppercase font-semibold text-base-content block mb-2">Address</label>
               {isEditing ? (
                 <input
                   type="text"
@@ -47,14 +47,14 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                 />
               ) : (
-                <p className="font-medium text-slate-900">{displayData.shipper_street_address || "N/A"}</p>
+                <p className="font-medium text-base-content">{displayData.shipper_street_address || "N/A"}</p>
               )}
             </div>
 
             {/* City/State Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">City</label>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">City</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -63,11 +63,11 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                   />
                 ) : (
-                  <p className="font-medium text-slate-900">{displayData.shipper_city || "N/A"}</p>
+                  <p className="font-medium text-base-content">{displayData.shipper_city || "N/A"}</p>
                 )}
               </div>
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">State</label>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">State</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -76,7 +76,7 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                   />
                 ) : (
-                  <p className="font-medium text-slate-900">{displayData.shipper_state || "N/A"}</p>
+                  <p className="font-medium text-base-content">{displayData.shipper_state || "N/A"}</p>
                 )}
               </div>
             </div>
@@ -84,12 +84,12 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
             {/* Zipcode & Phone */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Zipcode</label>
-                <p className="font-medium text-slate-900">{displayData.shipper_zipcode || "N/A"}</p>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">Zipcode</label>
+                <p className="font-medium text-base-content">{displayData.shipper_zipcode || "N/A"}</p>
               </div>
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Phone</label>
-                <p className="font-medium text-slate-900">{displayData.shipper_phone || "N/A"}</p>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">Phone</label>
+                <p className="font-medium text-base-content">{displayData.shipper_phone || "N/A"}</p>
               </div>
             </div>
 
@@ -109,16 +109,16 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
         </div>
 
         {/* CONSIGNEE COLUMN */}
-        <div className="bg-white p-8">
+        <div className="bg-base-100 p-8">
           <div className="mb-6 pb-6 border-b border-slate-200">
-            <p className="text-xs uppercase font-bold text-slate-500 tracking-wider mb-2">Delivery Location</p>
-            <h3 className="text-lg font-bold text-slate-900">{displayData.consignee_name || "Consignee"}</h3>
+            <p className="text-xs uppercase font-bold text-base-content tracking-wider mb-2">Delivery Location</p>
+            <h3 className="text-lg font-bold text-base-content">{displayData.consignee_name || "Consignee"}</h3>
           </div>
 
           <div className="space-y-5">
             {/* Address */}
             <div>
-              <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Address</label>
+              <label className="text-xs uppercase font-semibold text-base-content block mb-2">Address</label>
               {isEditing ? (
                 <input
                   type="text"
@@ -127,14 +127,14 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                   className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                 />
               ) : (
-                <p className="font-medium text-slate-900">{displayData.consignee_street_address || "N/A"}</p>
+                <p className="font-medium text-base-content">{displayData.consignee_street_address || "N/A"}</p>
               )}
             </div>
 
             {/* City/State Grid */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">City</label>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">City</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -143,11 +143,11 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                   />
                 ) : (
-                  <p className="font-medium text-slate-900">{displayData.consignee_city || "N/A"}</p>
+                  <p className="font-medium text-base-content">{displayData.consignee_city || "N/A"}</p>
                 )}
               </div>
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">State</label>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">State</label>
                 {isEditing ? (
                   <input
                     type="text"
@@ -156,7 +156,7 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
                     className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-medium"
                   />
                 ) : (
-                  <p className="font-medium text-slate-900">{displayData.consignee_state || "N/A"}</p>
+                  <p className="font-medium text-base-content">{displayData.consignee_state || "N/A"}</p>
                 )}
               </div>
             </div>
@@ -164,12 +164,12 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
             {/* Zipcode & Phone */}
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Zipcode</label>
-                <p className="font-medium text-slate-900">{displayData.consignee_zipcode || "N/A"}</p>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">Zipcode</label>
+                <p className="font-medium text-base-content">{displayData.consignee_zipcode || "N/A"}</p>
               </div>
               <div>
-                <label className="text-xs uppercase font-semibold text-slate-500 block mb-2">Phone</label>
-                <p className="font-medium text-slate-900">{displayData.consignee_phone || "N/A"}</p>
+                <label className="text-xs uppercase font-semibold text-base-content block mb-2">Phone</label>
+                <p className="font-medium text-base-content">{displayData.consignee_phone || "N/A"}</p>
               </div>
             </div>
 
@@ -191,21 +191,21 @@ export default function ModernLoadInfoSection({ shipment, onUpdateShipment, isEd
 
       {/* CARGO SPECS FOOTER */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-          <p className="text-xs uppercase font-bold text-slate-500 mb-2"><Weight className="inline w-3 h-3 mr-1" /> Weight</p>
-          <p className="text-2xl font-bold text-slate-900">{displayData.weight || "—"} <span className="text-sm font-normal">lbs</span></p>
+        <div className="bg-base-200 rounded-lg p-4 border border-slate-200">
+          <p className="text-xs uppercase font-bold text-base-content mb-2"><Weight className="inline w-3 h-3 mr-1" /> Weight</p>
+          <p className="text-2xl font-bold text-base-content">{displayData.weight || "—"} <span className="text-sm font-normal">lbs</span></p>
         </div>
-        <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-          <p className="text-xs uppercase font-bold text-slate-500 mb-2"><Package className="inline w-3 h-3 mr-1" /> Pallets</p>
-          <p className="text-2xl font-bold text-slate-900">{displayData.pieces || "—"}</p>
+        <div className="bg-base-200 rounded-lg p-4 border border-slate-200">
+          <p className="text-xs uppercase font-bold text-base-content mb-2"><Package className="inline w-3 h-3 mr-1" /> Pallets</p>
+          <p className="text-2xl font-bold text-base-content">{displayData.pieces || "—"}</p>
         </div>
         <div className="bg-green-50 rounded-lg p-4 border border-green-200">
           <p className="text-xs uppercase font-bold text-green-700 mb-2">Rate</p>
           <p className="text-2xl font-bold text-green-900">${displayData.rate || "—"}</p>
         </div>
-        <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-          <p className="text-xs uppercase font-bold text-slate-500 mb-2"><Truck className="inline w-3 h-3 mr-1" /> Cargo</p>
-          <p className="text-lg font-bold text-slate-900">{displayData.commodity || "—"}</p>
+        <div className="bg-base-200 rounded-lg p-4 border border-slate-200">
+          <p className="text-xs uppercase font-bold text-base-content mb-2"><Truck className="inline w-3 h-3 mr-1" /> Cargo</p>
+          <p className="text-lg font-bold text-base-content">{displayData.commodity || "—"}</p>
         </div>
       </div>
     </div>

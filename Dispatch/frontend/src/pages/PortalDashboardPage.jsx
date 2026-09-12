@@ -53,14 +53,14 @@ import { LifecycleBadge } from "../components/PortalLifecycle";
 function StatCard({ label, value, hint, icon: Icon, tone, highlight }) {
   return (
     <div
-      className={`rounded-xl border bg-white p-4 shadow-sm transition-shadow hover:shadow-md ${highlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
+      className={`rounded-xl border bg-base-100 p-4 shadow-sm transition-shadow hover:shadow-md ${highlight ? "border-amber-300 ring-1 ring-amber-200" : "border-slate-200"
         }`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
-          <p className="mt-1.5 text-3xl font-bold leading-none tabular-nums text-slate-900">{value}</p>
-          {hint && <p className="mt-2 text-xs leading-snug text-slate-500">{hint}</p>}
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-base-content">{label}</p>
+          <p className="mt-1.5 text-3xl font-bold leading-none tabular-nums text-base-content">{value}</p>
+          {hint && <p className="mt-2 text-xs leading-snug text-base-content">{hint}</p>}
         </div>
         <span className={`flex h-9 w-9 flex-none items-center justify-center rounded-lg ${tone}`}>
           <Icon className="h-4 w-4" strokeWidth={2.2} />
@@ -83,7 +83,7 @@ function Pill({ className = "", children }) {
 function Chip({ icon: Icon, children }) {
   if (!children) return null;
   return (
-    <span className="inline-flex items-center gap-1.5 rounded-md bg-slate-50 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
+    <span className="inline-flex items-center gap-1.5 rounded-md bg-base-200 px-2 py-1 text-xs font-medium text-slate-600 ring-1 ring-slate-200">
       {Icon && <Icon className="h-3.5 w-3.5 text-slate-400" />}
       {children}
     </span>
@@ -93,21 +93,21 @@ function Chip({ icon: Icon, children }) {
 function Lane({ origin, destination, className = "" }) {
   return (
     <span className={`inline-flex flex-wrap items-center gap-x-2 gap-y-1 ${className}`}>
-      <span className="font-semibold text-slate-900">{origin || "—"}</span>
+      <span className="font-semibold text-base-content">{origin || "—"}</span>
       <ArrowRight className="h-3.5 w-3.5 flex-none text-slate-400" />
-      <span className="font-semibold text-slate-900">{destination || "—"}</span>
+      <span className="font-semibold text-base-content">{destination || "—"}</span>
     </span>
   );
 }
 
 function EmptyState({ icon: Icon, title, body, action }) {
   return (
-    <div className="rounded-xl border border-dashed border-slate-300 bg-white px-6 py-14 text-center">
+    <div className="rounded-xl border border-dashed border-slate-300 bg-base-100 px-6 py-14 text-center">
       <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-full bg-slate-100">
         <Icon className="h-5 w-5 text-slate-400" />
       </span>
-      <p className="mt-4 text-sm font-semibold text-slate-900">{title}</p>
-      {body && <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">{body}</p>}
+      <p className="mt-4 text-sm font-semibold text-base-content">{title}</p>
+      {body && <p className="mx-auto mt-1 max-w-sm text-sm text-base-content">{body}</p>}
       {action}
     </div>
   );
@@ -117,7 +117,7 @@ function SkeletonList() {
   return (
     <div className="space-y-3">
       {[0, 1, 2].map((i) => (
-        <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-white p-4">
+        <div key={i} className="animate-pulse rounded-xl border border-slate-200 bg-base-100 p-4">
           <div className="h-4 w-1/3 rounded bg-slate-200" />
           <div className="mt-3 h-3 w-2/3 rounded bg-slate-100" />
           <div className="mt-2 h-3 w-1/4 rounded bg-slate-100" />
@@ -137,7 +137,7 @@ function EtaBadge({ eta, compact = false }) {
         {eta.label}
       </Pill>
       {when && !compact && (
-        <span className="text-xs text-slate-500">
+        <span className="text-xs text-base-content">
           {eta.state === "delivered" ? "Delivered" : "Scheduled"} {when}
         </span>
       )}
@@ -221,15 +221,15 @@ function NotificationBell() {
       {open && (
         // Anchored to the bell, but narrow enough that the panel still fits on
         // a 360px screen without running off the left edge.
-        <div className="absolute right-0 z-30 mt-2 w-[min(22rem,calc(100vw-6rem))] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+        <div className="absolute right-0 z-30 mt-2 w-[min(22rem,calc(100vw-6rem))] overflow-hidden rounded-xl border border-slate-200 bg-base-100 shadow-xl">
           <div className="flex items-center justify-between border-b border-slate-200 px-4 py-3">
-            <p className="text-sm font-bold text-slate-900">Notifications</p>
+            <p className="text-sm font-bold text-base-content">Notifications</p>
             <button
               onClick={() => {
                 setShowSettings((s) => !s);
                 if (!notifyPrefs) fetchNotifyPrefs();
               }}
-              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+              className="inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-xs font-semibold text-base-content hover:bg-slate-100 hover:text-base-content"
             >
               <Settings className="h-3.5 w-3.5" />
               Settings
@@ -238,7 +238,7 @@ function NotificationBell() {
 
           {showSettings ? (
             <div className="px-4 py-3">
-              <p className="text-xs text-slate-500">Email me when:</p>
+              <p className="text-xs text-base-content">Email me when:</p>
               <div className="mt-2 space-y-1.5">
                 {PREF_ROWS.map(([key, label]) => (
                   <label key={key} className="flex cursor-pointer items-center justify-between gap-3 py-1">
@@ -258,7 +258,7 @@ function NotificationBell() {
               </p>
             </div>
           ) : notifications.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-slate-500">
+            <p className="px-4 py-8 text-center text-sm text-base-content">
               Nothing yet. Quotes, status changes and messages from dispatch land here.
             </p>
           ) : (
@@ -268,7 +268,7 @@ function NotificationBell() {
                   <div className="flex items-start gap-2">
                     {!n.is_read && <span className="mt-1.5 h-1.5 w-1.5 flex-none rounded-full bg-sky-500" />}
                     <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900">{n.title}</p>
+                      <p className="text-sm font-semibold text-base-content">{n.title}</p>
                       {n.message && <p className="mt-0.5 text-sm text-slate-600">{n.message}</p>}
                       <p className="mt-1 text-[11px] text-slate-400">{relativeTime(n.created_at)}</p>
                     </div>
@@ -461,11 +461,11 @@ export default function PortalDashboardPage() {
       </header>
 
       {/* ------------------------------------------------------------ Page bar */}
-      <div className="border-b border-slate-200 bg-white">
+      <div className="border-b border-slate-200 bg-base-100">
         <div className="mx-auto flex max-w-7xl flex-wrap items-end justify-between gap-4 px-4 py-5 sm:px-6">
           <div>
-            <h1 className="text-xl font-bold tracking-tight text-slate-900 sm:text-2xl">Shipment Overview</h1>
-            <p className="mt-1 text-sm text-slate-500">
+            <h1 className="text-xl font-bold tracking-tight text-base-content sm:text-2xl">Shipment Overview</h1>
+            <p className="mt-1 text-sm text-base-content">
               Quotes, tenders and live freight status for {portalUser.company_name || "your account"}.
             </p>
           </div>
@@ -477,7 +477,7 @@ export default function PortalDashboardPage() {
               onClick={refresh}
               disabled={isRefreshing}
               title="Refresh"
-              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg border border-slate-300 px-3 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-base-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-500 disabled:opacity-60"
             >
               <RefreshCw className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`} />
               <span className="hidden sm:inline">Refresh</span>
@@ -497,14 +497,14 @@ export default function PortalDashboardPage() {
         {/* ------------------------------------------------- Track a shipment */}
         <form
           onSubmit={handleTrack}
-          className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-white p-4 shadow-sm"
+          className="flex flex-wrap items-center gap-3 rounded-xl border border-slate-200 bg-base-100 p-4 shadow-sm"
         >
           <div className="min-w-0">
-            <p className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+            <p className="flex items-center gap-2 text-sm font-semibold text-base-content">
               <Truck className="h-4 w-4 flex-none text-sky-600" />
               Track a shipment
             </p>
-            <p className="mt-0.5 text-xs text-slate-500">Jump straight to any of your shipments.</p>
+            <p className="mt-0.5 text-xs text-base-content">Jump straight to any of your shipments.</p>
           </div>
           <div className="relative w-full flex-1 sm:w-auto sm:min-w-[16rem]">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -513,7 +513,7 @@ export default function PortalDashboardPage() {
               onChange={(e) => setTrackQuery(e.target.value)}
               placeholder="Load #, tracking # or your reference"
               aria-label="Load #, tracking # or your reference"
-              className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+              className="w-full rounded-lg border border-slate-300 bg-base-100 py-2 pl-9 pr-3 text-sm text-base-content placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
             />
           </div>
           <button
@@ -599,7 +599,7 @@ export default function PortalDashboardPage() {
                 onClick={() => setActiveTab(tab.key)}
                 className={`-mb-px border-b-2 px-3 py-2.5 text-sm font-semibold transition-colors sm:px-4 ${activeTab === tab.key
                   ? "border-sky-600 text-sky-700"
-                  : "border-transparent text-slate-500 hover:text-slate-900"
+                  : "border-transparent text-base-content hover:text-base-content"
                   }`}
               >
                 {tab.label}
@@ -620,7 +620,7 @@ export default function PortalDashboardPage() {
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder={activeTab === "rates" ? "Search lanes…" : "Search load # or lane…"}
-                className="w-full rounded-lg border border-slate-300 bg-white py-2 pl-9 pr-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                className="w-full rounded-lg border border-slate-300 bg-base-100 py-2 pl-9 pr-3 text-sm text-base-content placeholder:text-slate-400 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
               />
             </div>
             {activeTab === "rates" ? (
@@ -628,7 +628,7 @@ export default function PortalDashboardPage() {
                 value={rateFilter}
                 onChange={(e) => setRateFilter(e.target.value)}
                 aria-label="Filter rate requests by status"
-                className="rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                className="rounded-lg border border-slate-300 bg-base-100 py-2 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
               >
                 <option value="ALL">All statuses</option>
                 <option value="PENDING">Awaiting quote</option>
@@ -641,7 +641,7 @@ export default function PortalDashboardPage() {
                 value={loadFilter}
                 onChange={(e) => setLoadFilter(e.target.value)}
                 aria-label="Filter shipments"
-                className="rounded-lg border border-slate-300 bg-white py-2 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
+                className="rounded-lg border border-slate-300 bg-base-100 py-2 pl-3 pr-8 text-sm font-medium text-slate-700 focus:border-sky-500 focus:outline-none focus:ring-2 focus:ring-sky-100"
               >
                 <option value="active">Active</option>
                 <option value="delivered">Delivered</option>
@@ -689,7 +689,7 @@ export default function PortalDashboardPage() {
                 return (
                   <article
                     key={r.id}
-                    className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm transition-shadow hover:shadow-md"
+                    className="overflow-hidden rounded-xl border border-slate-200 bg-base-100 shadow-sm transition-shadow hover:shadow-md"
                   >
                     <div className="flex flex-wrap items-start justify-between gap-3 p-4 sm:p-5">
                       <div className="min-w-0">
@@ -731,7 +731,7 @@ export default function PortalDashboardPage() {
                             <Chip icon={FileText}>Ref {fd.reference}</Chip>
                           )}
                         </div>
-                        {fd.notes && <p className="mt-2.5 text-sm italic text-slate-500">“{fd.notes}”</p>}
+                        {fd.notes && <p className="mt-2.5 text-sm italic text-base-content">“{fd.notes}”</p>}
                         <p className="mt-2.5 flex items-center gap-1.5 text-xs text-slate-400">
                           <CalendarDays className="h-3.5 w-3.5" />
                           Requested {fmtDate(r.created_at)}
@@ -744,7 +744,7 @@ export default function PortalDashboardPage() {
                     </div>
 
                     {r.status === "PENDING" && (
-                      <div className="border-t border-slate-100 bg-slate-50/60 px-4 py-3 text-sm text-slate-500 sm:px-5">
+                      <div className="border-t border-slate-100 bg-base-200/60 px-4 py-3 text-sm text-base-content sm:px-5">
                         Our dispatch team is pricing this lane — the quote appears here as soon as it's ready.
                       </div>
                     )}
@@ -755,9 +755,9 @@ export default function PortalDashboardPage() {
                           <p className="text-[11px] font-semibold uppercase tracking-wider text-amber-800">
                             Quoted rate
                           </p>
-                          <p className="text-2xl font-bold tabular-nums text-slate-900">
+                          <p className="text-2xl font-bold tabular-nums text-base-content">
                             {fmtMoney(r.quoted_price, r.quote_currency || "USD")}
-                            <span className="ml-1.5 text-sm font-semibold text-slate-500">
+                            <span className="ml-1.5 text-sm font-semibold text-base-content">
                               {r.quote_currency || "USD"}
                             </span>
                           </p>
@@ -767,7 +767,7 @@ export default function PortalDashboardPage() {
                           <button
                             onClick={() => handleQuoteAction(r.id, "REJECT")}
                             disabled={busy}
-                            className="rounded-lg border border-slate-300 bg-white px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-50 disabled:opacity-60"
+                            className="rounded-lg border border-slate-300 bg-base-100 px-3.5 py-2 text-sm font-semibold text-slate-700 transition-colors hover:bg-base-200 disabled:opacity-60"
                           >
                             Decline
                           </button>
@@ -787,10 +787,10 @@ export default function PortalDashboardPage() {
                       <div className="border-t border-slate-100 bg-sky-50/60 px-4 py-3.5 sm:px-5">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <p className="text-sm font-semibold text-slate-900">
+                            <p className="text-sm font-semibold text-base-content">
                               Next step: upload your load tender
                             </p>
-                            <p className="text-xs text-slate-500">
+                            <p className="text-xs text-base-content">
                               PDF only — we read it automatically and open the shipment for you.
                             </p>
                           </div>
@@ -841,7 +841,7 @@ export default function PortalDashboardPage() {
                     )}
 
                     {(r.status === "REJECTED" || r.status === "DECLINED") && (
-                      <div className="border-t border-slate-100 bg-slate-50 px-4 py-3 text-sm text-slate-500 sm:px-5">
+                      <div className="border-t border-slate-100 bg-base-200 px-4 py-3 text-sm text-base-content sm:px-5">
                         Quote declined{r.responded_at ? ` on ${fmtDate(r.responded_at)}` : ""}. Need a fresh
                         price?{" "}
                         <button
@@ -876,11 +876,11 @@ export default function PortalDashboardPage() {
           ) : (
             <>
               {/* Desktop table */}
-              <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm md:block">
+              <div className="hidden overflow-hidden rounded-xl border border-slate-200 bg-base-100 shadow-sm md:block">
                 <div className="overflow-x-auto">
                   <table className="w-full min-w-[900px] divide-y divide-slate-200">
-                    <thead className="bg-slate-50">
-                      <tr className="text-left text-[11px] font-semibold uppercase tracking-wider text-slate-500">
+                    <thead className="bg-base-200">
+                      <tr className="text-left text-[11px] font-semibold uppercase tracking-wider text-base-content">
                         <th className="px-5 py-3">Load</th>
                         <th className="px-5 py-3">Lane</th>
                         <th className="px-5 py-3">Pickup</th>
@@ -899,15 +899,15 @@ export default function PortalDashboardPage() {
                           className="cursor-pointer transition-colors hover:bg-sky-50/40"
                         >
                           <td className="whitespace-nowrap px-5 py-4 align-top">
-                            <p className="font-semibold text-slate-900">#{load.load_number}</p>
+                            <p className="font-semibold text-base-content">#{load.load_number}</p>
                             {load.customer_reference && (
-                              <p className="mt-0.5 text-xs text-slate-500">Ref {load.customer_reference}</p>
+                              <p className="mt-0.5 text-xs text-base-content">Ref {load.customer_reference}</p>
                             )}
                           </td>
                           <td className="min-w-[260px] px-5 py-4 align-top">
                             {/* <Lane origin={load.origin} destination={load.destination} className="text-sm" /> */}
-                            <span className="font-semibold text-slate-900">{load.shipper_district},{load.shipper_state},{load.shipper_country}</span> &rarr; <span className="font-semibold text-slate-900">{load.consignee_district},{load.consignee_state},{load.consignee_country}</span>
-                            {load.commodity && <p className="mt-1 text-xs text-slate-500">{load.commodity}</p>}
+                            <span className="font-semibold text-base-content">{load.shipper_district},{load.shipper_state},{load.shipper_country}</span> &rarr; <span className="font-semibold text-base-content">{load.consignee_district},{load.consignee_state},{load.consignee_country}</span>
+                            {load.commodity && <p className="mt-1 text-xs text-base-content">{load.commodity}</p>}
                             <div className="mt-1.5 flex flex-wrap gap-1.5">
                               {load.is_cross_border && (
                                 <Pill className="bg-amber-50 text-amber-800 ring-1 ring-amber-600/25">
@@ -970,11 +970,11 @@ export default function PortalDashboardPage() {
                   <button
                     key={load.id}
                     onClick={() => navigate(`/portal/loads/${load.id}`)}
-                    className="w-full rounded-xl border border-slate-200 bg-white p-4 text-left shadow-sm transition-shadow hover:shadow-md"
+                    className="w-full rounded-xl border border-slate-200 bg-base-100 p-4 text-left shadow-sm transition-shadow hover:shadow-md"
                   >
                     <div className="flex items-start justify-between gap-3">
                       <div className="min-w-0">
-                        <p className="font-semibold text-slate-900">Load #{load.load_number}</p>
+                        <p className="font-semibold text-base-content">Load #{load.load_number}</p>
                         <div className="mt-1 text-sm">
                           <Lane origin={load.origin} destination={load.destination} />
                         </div>
@@ -1031,8 +1031,8 @@ export default function PortalDashboardPage() {
       </main>
 
       {/* -------------------------------------------------------------- Footer */}
-      <footer className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-slate-500 sm:px-6">
+      <footer className="border-t border-slate-200 bg-base-100">
+        <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-4 py-5 text-xs text-base-content sm:px-6">
           <p>© {new Date().getFullYear()} Nishan Transport. Customer Portal.</p>
           <p>Questions about a shipment? Contact your Nishan Transport dispatch coordinator.</p>
         </div>

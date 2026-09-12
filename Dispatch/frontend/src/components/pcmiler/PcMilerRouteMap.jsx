@@ -172,24 +172,22 @@ export default function PcMilerRouteMap({ route }) {
       <div ref={mapContainerRef} className="w-full h-full z-0" />
 
       {/* Top Right Map Layer Switcher & Filter Controls */}
-      <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center gap-2 pointer-events-auto bg-white/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/80 shadow-md">
+      <div className="absolute top-4 right-4 z-10 flex flex-wrap items-center gap-2 pointer-events-auto bg-base-100/95 backdrop-blur-md p-1.5 rounded-2xl border border-slate-200/80 shadow-md">
         {/* Layer Switcher */}
         <div className="flex items-center bg-slate-100 p-0.5 rounded-xl text-xs font-bold font-mono">
           <button
             type="button"
             onClick={() => setMapLayerType("streets")}
-            className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-              mapLayerType === "streets" ? "bg-white text-slate-900 shadow-2xs" : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${mapLayerType === "streets" ? "bg-base-100 text-base-content shadow-2xs" : "text-base-content hover:text-base-content"
+              }`}
           >
             Streets
           </button>
           <button
             type="button"
             onClick={() => setMapLayerType("satellite")}
-            className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${
-              mapLayerType === "satellite" ? "bg-sky-600 text-white shadow-2xs" : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`px-2.5 py-1 rounded-lg transition cursor-pointer flex items-center gap-1 ${mapLayerType === "satellite" ? "bg-sky-600 text-white shadow-2xs" : "text-base-content hover:text-base-content"
+              }`}
           >
             <Globe className="w-3 h-3" />
             <span>Satellite</span>
@@ -197,9 +195,8 @@ export default function PcMilerRouteMap({ route }) {
           <button
             type="button"
             onClick={() => setMapLayerType("dark")}
-            className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${
-              mapLayerType === "dark" ? "bg-slate-900 text-white shadow-2xs" : "text-slate-500 hover:text-slate-900"
-            }`}
+            className={`px-2.5 py-1 rounded-lg transition cursor-pointer ${mapLayerType === "dark" ? "bg-slate-900 text-white shadow-2xs" : "text-base-content hover:text-base-content"
+              }`}
           >
             Dark
           </button>
@@ -209,11 +206,10 @@ export default function PcMilerRouteMap({ route }) {
         <button
           type="button"
           onClick={() => setShowGeofences(!showGeofences)}
-          className={`px-2.5 py-1 rounded-xl text-xs font-bold font-mono border transition cursor-pointer flex items-center gap-1 ${
-            showGeofences
-              ? "bg-purple-50 text-purple-800 border-purple-200"
-              : "bg-white text-slate-400 border-slate-200"
-          }`}
+          className={`px-2.5 py-1 rounded-xl text-xs font-bold font-mono border transition cursor-pointer flex items-center gap-1 ${showGeofences
+            ? "bg-purple-50 text-purple-800 border-purple-200"
+            : "bg-base-100 text-slate-400 border-slate-200"
+            }`}
           title="Toggle Geofencing Perimeters"
         >
           <Radio className="w-3 h-3" />
@@ -256,7 +252,7 @@ export default function PcMilerRouteMap({ route }) {
       </div>
 
       {/* Legend Badge */}
-      <div className="absolute bottom-4 right-4 z-10 bg-white/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-3 text-[10px] font-mono font-bold text-slate-700 pointer-events-auto">
+      <div className="absolute bottom-4 right-4 z-10 bg-base-100/95 backdrop-blur-md border border-slate-200/80 rounded-2xl p-2.5 shadow-md flex flex-wrap items-center gap-3 text-[10px] font-mono font-bold text-slate-700 pointer-events-auto">
         <div className="flex items-center gap-1">
           <span className="w-2.5 h-2.5 rounded-full bg-sky-600" />
           <span>1. Origin</span>

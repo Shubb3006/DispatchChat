@@ -144,11 +144,10 @@ const validateLegChain = (legs) => {
       !prev.destination_state ||
       !cur.origin_state ||
       String(prev.destination_state).trim().toLowerCase() ===
-        String(cur.origin_state).trim().toLowerCase();
+      String(cur.origin_state).trim().toLowerCase();
     if (!cityMatches || !stateMatches) {
-      return `Leg ${i + 1} must start where leg ${i} ends (${prev.destination_city}${
-        prev.destination_state ? ", " + prev.destination_state : ""
-      })`;
+      return `Leg ${i + 1} must start where leg ${i} ends (${prev.destination_city}${prev.destination_state ? ", " + prev.destination_state : ""
+        })`;
     }
   }
   return null;
@@ -437,7 +436,7 @@ export default function TripLegsSection({ loadId, totalCost, totalDistance, ship
   const copyDispatchSummary = (leg) => {
     let override = leg.pay_override;
     if (typeof override === "string") {
-      try { override = JSON.parse(override); } catch (_) {}
+      try { override = JSON.parse(override); } catch (_) { }
     }
 
     const text = `🚚 RELAY DISPATCH INSTRUCTIONS (Leg #${leg.seq})
@@ -633,7 +632,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
 
   if (!validLoadId) {
     return (
-      <div className="p-6 bg-slate-50 rounded-2xl border border-slate-200 text-center text-sm text-slate-500">
+      <div className="p-6 bg-base-200 rounded-2xl border border-slate-200 text-center text-sm text-base-content">
         <AlertCircle className="w-6 h-6 mx-auto mb-2 text-slate-400" />
         Relay legs are available once this load is saved on the server.
       </div>
@@ -646,12 +645,12 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-200 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <h3 className="font-bold text-lg text-slate-900">Relay Trip Legs</h3>
+            <h3 className="font-bold text-lg text-base-content">Relay Trip Legs</h3>
             <span className="px-2.5 py-0.5 bg-sky-100 text-sky-800 text-2xs font-bold rounded-full uppercase tracking-wide">
               Relay Dispatch & Settlements
             </span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">
+          <p className="text-xs text-base-content mt-1">
             Split loads between multiple drivers & trucks — legs form a contiguous route chain
           </p>
         </div>
@@ -750,10 +749,10 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
 
       {/* Visual Progress Timeline & Summary */}
       {legs.length > 0 && (
-        <div className="space-y-4 bg-white p-4 rounded-xl border border-slate-200 shadow-2xs">
+        <div className="space-y-4 bg-base-100 p-4 rounded-xl border border-slate-200 shadow-2xs">
           {/* Stats Bar */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+            <div className="bg-base-200 border border-slate-100 rounded-lg p-3">
               <div className="flex items-center justify-between">
                 <div className="text-3xs font-bold uppercase text-slate-400">Total Legs</div>
                 <button
@@ -764,19 +763,19 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                   {selectedLegIds.size === legs.length ? "Deselect" : "Select All"}
                 </button>
               </div>
-              <div className="text-xl font-black text-slate-900 mt-0.5">{legs.length}</div>
+              <div className="text-xl font-black text-base-content mt-0.5">{legs.length}</div>
             </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+            <div className="bg-base-200 border border-slate-100 rounded-lg p-3">
               <div className="text-3xs font-bold uppercase text-slate-400 flex items-center gap-1">
                 <MapPin className="w-3 h-3 text-sky-500" /> Relay Distance
               </div>
-              <div className="text-xl font-black text-slate-900 mt-0.5">
+              <div className="text-xl font-black text-base-content mt-0.5">
                 {totalMiles > 0 ? `${totalMiles.toLocaleString()} mi` : "—"}
               </div>
             </div>
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-3">
+            <div className="bg-base-200 border border-slate-100 rounded-lg p-3">
               <div className="text-3xs font-bold uppercase text-slate-400">Drivers Assigned</div>
-              <div className="text-xl font-black text-slate-900 mt-0.5">
+              <div className="text-xl font-black text-base-content mt-0.5">
                 {new Set(legs.map((l) => l.driver_id).filter(Boolean)).size} / {legs.length}
               </div>
             </div>
@@ -792,18 +791,17 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
               {legs.map((leg, idx) => (
                 <div key={leg.id} className="flex items-center gap-2 shrink-0">
                   <div
-                    className={`px-3 py-2 rounded-lg border text-xs font-semibold flex items-center gap-2 ${
-                      STATUS_STYLES[String(leg.status || "pending").toLowerCase()] || "bg-slate-50 border-slate-200"
-                    }`}
+                    className={`px-3 py-2 rounded-lg border text-xs font-semibold flex items-center gap-2 ${STATUS_STYLES[String(leg.status || "pending").toLowerCase()] || "bg-base-200 border-slate-200"
+                      }`}
                   >
-                    <span className="w-5 h-5 rounded-full bg-white text-slate-800 font-bold text-3xs flex items-center justify-center border border-slate-300">
+                    <span className="w-5 h-5 rounded-full bg-base-100 text-slate-800 font-bold text-3xs flex items-center justify-center border border-slate-300">
                       {leg.seq}
                     </span>
                     <div>
-                      <div className="font-bold text-slate-900 flex items-center gap-1">
+                      <div className="font-bold text-base-content flex items-center gap-1">
                         {leg.origin_city} <ArrowRight className="w-3 h-3 opacity-40" /> {leg.destination_city}
                       </div>
-                      <div className="text-3xs text-slate-500 capitalize flex items-center gap-2 mt-0.5">
+                      <div className="text-3xs text-base-content capitalize flex items-center gap-2 mt-0.5">
                         <span>{driverName(leg.driver_id, leg.driver_name)}</span>
                         <span>•</span>
                         <span className="font-mono">{leg.miles ? `${leg.miles} mi` : "TBD"}</span>
@@ -832,10 +830,10 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
           <AlertCircle className="w-4 h-4" /> {loadError}
         </div>
       ) : legs.length === 0 ? (
-        <div className="text-center py-10 bg-slate-50/50 rounded-xl border border-dashed border-slate-200">
+        <div className="text-center py-10 bg-base-200/50 rounded-xl border border-dashed border-slate-200">
           <MapPin className="w-10 h-10 mx-auto text-slate-300 mb-2" />
           <h4 className="font-bold text-slate-800 text-sm">No relay legs assigned</h4>
-          <p className="text-xs text-slate-500 max-w-md mx-auto mt-1 mb-4">
+          <p className="text-xs text-base-content max-w-md mx-auto mt-1 mb-4">
             Split this load into multiple sequential relay legs between drivers or click Auto-Split to auto-generate legs from the route.
           </p>
 
@@ -855,16 +853,15 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
             const payInfo = calculateLegEstPay(leg);
             let override = leg.pay_override;
             if (typeof override === "string") {
-              try { override = JSON.parse(override); } catch (_) {}
+              try { override = JSON.parse(override); } catch (_) { }
             }
             const isSelected = selectedLegIds.has(leg.id);
 
             return (
               <div
                 key={leg.id}
-                className={`border rounded-xl p-4 bg-white transition-all space-y-3 ${
-                  isSelected ? "border-sky-500 bg-sky-50/30 shadow-xs" : "border-slate-200 hover:border-sky-300"
-                }`}
+                className={`border rounded-xl p-4 bg-base-100 transition-all space-y-3 ${isSelected ? "border-sky-500 bg-sky-50/30 shadow-xs" : "border-slate-200 hover:border-sky-300"
+                  }`}
               >
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1 space-y-2">
@@ -886,7 +883,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                       <span className="px-2.5 py-0.5 bg-slate-900 text-white font-black text-xs rounded-lg">
                         Leg {leg.seq}
                       </span>
-                      <span className="text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                      <span className="text-sm font-bold text-base-content flex items-center gap-1.5">
                         {leg.origin_city}
                         {leg.origin_state ? `, ${leg.origin_state}` : ""}
                         <ArrowRight className="w-4 h-4 text-sky-500" />
@@ -895,10 +892,9 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                       </span>
 
                       <span
-                        className={`px-2.5 py-0.5 rounded-full text-3xs font-black uppercase tracking-wider border ${
-                          STATUS_STYLES[String(leg.status || "pending").toLowerCase()] ||
+                        className={`px-2.5 py-0.5 rounded-full text-3xs font-black uppercase tracking-wider border ${STATUS_STYLES[String(leg.status || "pending").toLowerCase()] ||
                           "bg-slate-100 text-slate-700 border-slate-200"
-                        }`}
+                          }`}
                       >
                         {String(leg.status || "pending").replace(/_/g, " ")}
                       </span>
@@ -909,18 +905,18 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                     <div className="text-xs text-slate-600 flex items-center gap-5 flex-wrap pt-1">
                       <div className="flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-semibold text-slate-500">Driver:</span>{" "}
-                        <span className="font-bold text-slate-900">{driverName(leg.driver_id, leg.driver_name)}</span>
+                        <span className="font-semibold text-base-content">Driver:</span>{" "}
+                        <span className="font-bold text-base-content">{driverName(leg.driver_id, leg.driver_name)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <Truck className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-semibold text-slate-500">Truck:</span>{" "}
-                        <span className="font-bold text-slate-900">{truckLabel(leg.truck_id, leg.truck_name)}</span>
+                        <span className="font-semibold text-base-content">Truck:</span>{" "}
+                        <span className="font-bold text-base-content">{truckLabel(leg.truck_id, leg.truck_name)}</span>
                       </div>
                       <div className="flex items-center gap-1.5">
                         <MapPin className="w-3.5 h-3.5 text-slate-400" />
-                        <span className="font-semibold text-slate-500">Miles:</span>{" "}
-                        <span className="font-bold text-slate-900">
+                        <span className="font-semibold text-base-content">Miles:</span>{" "}
+                        <span className="font-bold text-base-content">
                           {leg.miles != null ? `${Number(leg.miles).toLocaleString()} mi` : "—"}
                         </span>
                       </div>
@@ -935,7 +931,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
 
                     {/* Leg notes / dispatch instructions */}
                     {override?.notes && (
-                      <div className="text-xs bg-slate-50 p-2 rounded-lg border border-slate-200 text-slate-700 flex items-start gap-2 mt-2">
+                      <div className="text-xs bg-base-200 p-2 rounded-lg border border-slate-200 text-slate-700 flex items-start gap-2 mt-2">
                         <FileText className="w-3.5 h-3.5 text-slate-400 shrink-0 mt-0.5" />
                         <span className="italic">{override.notes}</span>
                       </div>
@@ -947,7 +943,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                     <button
                       onClick={() => moveLeg(idx, "up")}
                       disabled={idx === 0 || saving}
-                      className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 disabled:opacity-30 cursor-pointer"
+                      className="p-1.5 hover:bg-slate-100 rounded-lg text-base-content disabled:opacity-30 cursor-pointer"
                       title="Move Leg Up"
                     >
                       <ArrowUp className="w-3.5 h-3.5" />
@@ -955,7 +951,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                     <button
                       onClick={() => moveLeg(idx, "down")}
                       disabled={idx === legs.length - 1 || saving}
-                      className="p-1.5 hover:bg-slate-100 rounded-lg text-slate-500 disabled:opacity-30 cursor-pointer"
+                      className="p-1.5 hover:bg-slate-100 rounded-lg text-base-content disabled:opacity-30 cursor-pointer"
                       title="Move Leg Down"
                     >
                       <ArrowDown className="w-3.5 h-3.5" />
@@ -1081,7 +1077,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
       {editingLeg && (
         <div className="border-2 border-sky-300 rounded-2xl p-5 bg-sky-50/70 space-y-4 shadow-md">
           <div className="flex items-center justify-between border-b border-sky-200/60 pb-3">
-            <h4 className="font-bold text-slate-900 flex items-center gap-2">
+            <h4 className="font-bold text-base-content flex items-center gap-2">
               <span className="w-6 h-6 rounded-lg bg-sky-600 text-white font-bold text-xs flex items-center justify-center">
                 {editingLeg.seq}
               </span>
@@ -1089,7 +1085,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
             </h4>
             <button
               onClick={() => setEditingLeg(null)}
-              className="p-1 rounded-lg hover:bg-sky-200/60 text-slate-500 transition-colors cursor-pointer"
+              className="p-1 rounded-lg hover:bg-sky-200/60 text-base-content transition-colors cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -1107,7 +1103,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                   value={editingLeg.origin_city}
                   onChange={(e) => setEditingLeg({ ...editingLeg, origin_city: e.target.value })}
                   placeholder="e.g. Brampton"
-                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
                 />
               </div>
               <div>
@@ -1117,7 +1113,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                   value={editingLeg.origin_state || ""}
                   onChange={(e) => setEditingLeg({ ...editingLeg, origin_state: e.target.value.toUpperCase() })}
                   placeholder="ON"
-                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold uppercase"
+                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold uppercase"
                 />
               </div>
             </div>
@@ -1135,7 +1131,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                     setEditingLeg({ ...editingLeg, destination_city: e.target.value })
                   }
                   placeholder="e.g. Detroit"
-                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
                 />
               </div>
               <div>
@@ -1147,7 +1143,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                     setEditingLeg({ ...editingLeg, destination_state: e.target.value.toUpperCase() })
                   }
                   placeholder="MI"
-                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold uppercase"
+                  className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold uppercase"
                 />
               </div>
             </div>
@@ -1158,7 +1154,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
               <select
                 value={editingLeg.driver_id || ""}
                 onChange={(e) => setEditingLeg({ ...editingLeg, driver_id: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
               >
                 <option value="">Unassigned</option>
                 {drivers.map((d) => (
@@ -1175,7 +1171,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
               <select
                 value={editingLeg.truck_id || ""}
                 onChange={(e) => setEditingLeg({ ...editingLeg, truck_id: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
               >
                 <option value="">Unassigned</option>
                 {trucks.map((t) => (
@@ -1205,7 +1201,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                 placeholder="Leg distance in miles"
                 value={editingLeg.miles}
                 onChange={(e) => setEditingLeg({ ...editingLeg, miles: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
               />
             </div>
 
@@ -1215,7 +1211,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
               <select
                 value={editingLeg.status || "pending"}
                 onChange={(e) => setEditingLeg({ ...editingLeg, status: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold capitalize"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold capitalize"
               >
                 {LEG_STATUSES.map((s) => (
                   <option key={s} value={s}>
@@ -1233,7 +1229,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                 placeholder="e.g. Sept 1, 09:00 AM - 12:00 PM"
                 value={editingLeg.scheduled_time || ""}
                 onChange={(e) => setEditingLeg({ ...editingLeg, scheduled_time: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
               />
             </div>
 
@@ -1245,7 +1241,7 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
                 placeholder="e.g. Border clearance PAPS barcode #9982, yard dock 4"
                 value={editingLeg.leg_notes || ""}
                 onChange={(e) => setEditingLeg({ ...editingLeg, leg_notes: e.target.value })}
-                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-white focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
+                className="w-full px-3 py-2 border border-sky-200 rounded-xl text-sm bg-base-100 focus:outline-hidden focus:ring-2 focus:ring-sky-400 font-semibold"
               />
             </div>
 
@@ -1279,26 +1275,26 @@ Status: ${String(leg.status || "pending").toUpperCase()}`;
       {/* Audit History Modal */}
       {historyLeg && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-in fade-in">
-          <div className="bg-white rounded-2xl max-w-lg w-full p-3 sm:p-5 space-y-4 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
+          <div className="bg-base-100 rounded-2xl max-w-lg w-full p-3 sm:p-5 space-y-4 shadow-xl border border-slate-200 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div className="flex items-center gap-2">
                 <History className="w-5 h-5 text-purple-600" />
-                <h4 className="font-bold text-slate-900 text-base">Leg {historyLeg.seq} Audit History</h4>
+                <h4 className="font-bold text-base-content text-base">Leg {historyLeg.seq} Audit History</h4>
               </div>
               <button
                 onClick={() => setHistoryLeg(null)}
-                className="p-1 rounded-lg hover:bg-slate-100 text-slate-500 cursor-pointer"
+                className="p-1 rounded-lg hover:bg-slate-100 text-base-content cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
             <div className="space-y-3 text-xs">
-              <div className="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-1">
+              <div className="p-3 bg-base-200 rounded-xl border border-slate-200 space-y-1">
                 <div className="font-bold text-slate-800">
                   {historyLeg.origin_city} ➔ {historyLeg.destination_city}
                 </div>
-                <div className="text-slate-500">
+                <div className="text-base-content">
                   Leg ID: <span className="font-mono text-3xs">{historyLeg.id}</span>
                 </div>
               </div>

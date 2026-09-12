@@ -51,7 +51,7 @@ function BarcodeSvg({ value, height = 54, width = 280 }) {
       >
         {bars}
       </svg>
-      <div className="font-mono text-xs font-black tracking-widest text-slate-900 mt-1">
+      <div className="font-mono text-xs font-black tracking-widest text-base-content mt-1">
         * {str} *
       </div>
     </div>
@@ -66,7 +66,7 @@ function NishanLogoHeader() {
       <div className="relative w-12 h-12 rounded-full border-2 border-sky-600 flex items-center justify-center bg-gradient-to-tr from-sky-600 via-blue-500 to-sky-400 shadow-sm shrink-0 overflow-hidden">
         {/* Globe Grid lines */}
         <div className="absolute inset-1 rounded-full border border-white/60 flex items-center justify-center">
-          <div className="w-full h-[1px] bg-white/60"></div>
+          <div className="w-full h-[1px] bg-base-100/60"></div>
         </div>
         <div className="absolute w-6 h-10 border border-white/60 rounded-[50%]"></div>
         <div className="absolute font-black text-white text-xs italic tracking-tighter drop-shadow-md">
@@ -221,8 +221,8 @@ export default function DocumentTemplateModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 print:p-0 print:bg-white print:static">
-      <div className="bg-white rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[96vh] flex flex-col overflow-hidden font-sans print:border-none print:shadow-none print:max-w-none print:max-h-none print:rounded-none">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-slate-900/80 backdrop-blur-sm flex items-center justify-center p-2 sm:p-4 print:p-0 print:bg-base-100 print:static">
+      <div className="bg-base-100 rounded-2xl shadow-2xl border border-slate-300 w-full max-w-4xl max-h-[96vh] flex flex-col overflow-hidden font-sans print:border-none print:shadow-none print:max-w-none print:max-h-none print:rounded-none">
         {/* Top Modal Header & Document Selector (Hidden in Print) */}
         <div className="bg-slate-900 text-white p-4 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden">
           <div className="flex items-center space-x-3">
@@ -235,8 +235,8 @@ export default function DocumentTemplateModal({
                   {docType === "PAPS"
                     ? "US Customs PAPS Entry Sheet"
                     : docType === "PARS"
-                    ? "CBSA Canada PARS Entry Sheet"
-                    : "Official Bill of Lading (BOL)"}
+                      ? "CBSA Canada PARS Entry Sheet"
+                      : "Official Bill of Lading (BOL)"}
                 </h2>
                 <span className="bg-sky-500/20 text-sky-300 border border-sky-400/30 text-3xs font-mono font-bold px-2 py-0.5 rounded">
                   Load #{cleanLoadNum}
@@ -253,33 +253,30 @@ export default function DocumentTemplateModal({
             <button
               type="button"
               onClick={() => setDocType("PAPS")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
-                docType === "PAPS"
-                  ? "bg-sky-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${docType === "PAPS"
+                ? "bg-sky-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+                }`}
             >
               PAPS (US Entry)
             </button>
             <button
               type="button"
               onClick={() => setDocType("PARS")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
-                docType === "PARS"
-                  ? "bg-sky-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${docType === "PARS"
+                ? "bg-sky-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+                }`}
             >
               PARS (Canada Entry)
             </button>
             <button
               type="button"
               onClick={() => setDocType("BOL")}
-              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${
-                docType === "BOL"
-                  ? "bg-sky-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white"
-              }`}
+              className={`px-3 py-1.5 rounded-lg text-xs font-bold font-mono transition-all ${docType === "BOL"
+                ? "bg-sky-600 text-white shadow-md"
+                : "text-slate-400 hover:text-white"
+                }`}
             >
               Bill of Lading (BOL)
             </button>
@@ -295,11 +292,11 @@ export default function DocumentTemplateModal({
         </div>
 
         {/* Scrollable Printable Document Container */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-200/70 flex justify-center print:p-0 print:bg-white print:overflow-visible">
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 bg-slate-200/70 flex justify-center print:p-0 print:bg-base-100 print:overflow-visible">
           {/* Exact Standard Sheet (8.5 x 11 aspect ratio preview) */}
           <div
             id="printable-preset-sheet"
-            className="w-full max-w-[800px] bg-white text-slate-950 p-6 sm:p-10 shadow-lg border border-slate-300 font-sans print:shadow-none print:border-none print:p-4 print:max-w-none print:w-full"
+            className="w-full max-w-[800px] bg-base-100 text-slate-950 p-6 sm:p-10 shadow-lg border border-slate-300 font-sans print:shadow-none print:border-none print:p-4 print:max-w-none print:w-full"
             style={{ minHeight: "1050px" }}
           >
             {/* ========================================================================= */}
@@ -323,7 +320,7 @@ export default function DocumentTemplateModal({
                 <div className="w-full h-[2px] bg-slate-900 my-2"></div>
 
                 {/* Document Main Title */}
-                <div className="text-center font-extrabold text-xl font-sans tracking-wide text-slate-900 uppercase">
+                <div className="text-center font-extrabold text-xl font-sans tracking-wide text-base-content uppercase">
                   {docType} ENTRY
                 </div>
 
@@ -331,7 +328,7 @@ export default function DocumentTemplateModal({
                 <div className="grid grid-cols-2 gap-8 text-xs font-bold pt-2">
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <span className="w-24 text-slate-900 font-extrabold uppercase">PIECE(S):</span>
+                      <span className="w-24 text-base-content font-extrabold uppercase">PIECE(S):</span>
                       <span className="font-sans font-bold text-slate-950">
                         {pieces} {piecesType}
                       </span>
@@ -340,11 +337,11 @@ export default function DocumentTemplateModal({
 
                   <div className="space-y-3">
                     <div className="flex items-center">
-                      <span className="w-24 text-slate-900 font-extrabold uppercase">PROBILL</span>
+                      <span className="w-24 text-base-content font-extrabold uppercase">PROBILL</span>
                       <span className="font-sans font-bold text-slate-950">{probill}</span>
                     </div>
                     <div className="flex items-center">
-                      <span className="w-24 text-slate-900 font-extrabold uppercase">WEIGHT:</span>
+                      <span className="w-24 text-base-content font-extrabold uppercase">WEIGHT:</span>
                       <span className="font-sans font-bold text-slate-950">
                         {formattedWeight} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; LBS
                       </span>
@@ -356,10 +353,10 @@ export default function DocumentTemplateModal({
                 <div className="pt-8 pb-6 flex flex-col items-center justify-center space-y-2">
                   <div className="flex items-center gap-6">
                     <div className="text-center">
-                      <div className="text-xs font-semibold text-slate-900 font-sans">
+                      <div className="text-xs font-semibold text-base-content font-sans">
                         Nishan Transport Inc.
                       </div>
-                      <div className="text-xs font-bold text-slate-900 font-mono tracking-wider">
+                      <div className="text-xs font-bold text-base-content font-mono tracking-wider">
                         {barcodeValue}
                       </div>
                     </div>
@@ -379,7 +376,7 @@ export default function DocumentTemplateModal({
                   {/* From (Shipper) */}
                   <div className="space-y-3 text-xs">
                     <div className="flex items-start">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">From :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">From :</span>
                       <div className="space-y-0.5 text-slate-950 font-bold uppercase leading-snug">
                         <div>{shipperName}</div>
                         <div>{shipperAddress}</div>
@@ -387,17 +384,17 @@ export default function DocumentTemplateModal({
                     </div>
 
                     <div className="flex items-center">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Telephone :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Telephone :</span>
                       <span className="font-bold text-slate-950">{shipperPhone}</span>
                     </div>
 
                     <div className="flex items-center">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Fax :</span>
-                      <span className="font-bold text-slate-500">—</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Fax :</span>
+                      <span className="font-bold text-base-content">—</span>
                     </div>
 
                     <div className="flex items-center pt-2">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Date :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Date :</span>
                       <span className="font-bold text-slate-950">{shipperDate}</span>
                     </div>
                   </div>
@@ -405,7 +402,7 @@ export default function DocumentTemplateModal({
                   {/* To (Consignee) */}
                   <div className="space-y-3 text-xs">
                     <div className="flex items-start">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">To :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">To :</span>
                       <div className="space-y-0.5 text-slate-950 font-bold uppercase leading-snug">
                         <div>{consigneeName}</div>
                         <div>{consigneeAddress}</div>
@@ -413,17 +410,17 @@ export default function DocumentTemplateModal({
                     </div>
 
                     <div className="flex items-center">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Telephone :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Telephone :</span>
                       <span className="font-bold text-slate-950">{consigneePhone}</span>
                     </div>
 
                     <div className="flex items-center">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Fax :</span>
-                      <span className="font-bold text-slate-500">—</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Fax :</span>
+                      <span className="font-bold text-base-content">—</span>
                     </div>
 
                     <div className="flex items-center pt-2">
-                      <span className="w-24 font-extrabold text-slate-900 uppercase shrink-0">Date :</span>
+                      <span className="w-24 font-extrabold text-base-content uppercase shrink-0">Date :</span>
                       <span className="font-bold text-slate-950">{consigneeDate}</span>
                     </div>
                   </div>
@@ -432,28 +429,28 @@ export default function DocumentTemplateModal({
                 {/* Customs Broker Details Section */}
                 <div className="pt-8 space-y-2.5 text-xs font-bold">
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">CUSTOMS BROKER:</span>
-                    <span className="text-slate-900 font-sans font-bold lowercase">{customsBroker}</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">CUSTOMS BROKER:</span>
+                    <span className="text-base-content font-sans font-bold lowercase">{customsBroker}</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">PHONE:</span>
-                    <span className="text-slate-500 font-sans">—</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">PHONE:</span>
+                    <span className="text-base-content font-sans">—</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">FAX:</span>
-                    <span className="text-slate-500 font-sans">—</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">FAX:</span>
+                    <span className="text-base-content font-sans">—</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">CROSSING:</span>
-                    <span className="text-slate-900 font-sans">{portOfCrossing}</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">CROSSING:</span>
+                    <span className="text-base-content font-sans">{portOfCrossing}</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">ETA TO BORDER :</span>
-                    <span className="text-slate-900 font-sans">{shipperDate} 14:00 EST</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">ETA TO BORDER :</span>
+                    <span className="text-base-content font-sans">{shipperDate} 14:00 EST</span>
                   </div>
                   <div className="flex items-center">
-                    <span className="w-36 font-extrabold text-slate-900 uppercase">CROSSING DATE:</span>
-                    <span className="text-slate-900 font-sans">{shipperDate}</span>
+                    <span className="w-36 font-extrabold text-base-content uppercase">CROSSING DATE:</span>
+                    <span className="text-base-content font-sans">{shipperDate}</span>
                   </div>
                 </div>
 
@@ -497,7 +494,7 @@ export default function DocumentTemplateModal({
                     <NishanLogoHeader />
                     <div className="w-full text-left pt-2 text-3xs font-bold border-t border-slate-300 mt-2">
                       <span className="text-slate-700">B/L No. : </span>
-                      <span className="font-mono font-bold text-slate-900">{blNumber}</span>
+                      <span className="font-mono font-bold text-base-content">{blNumber}</span>
                     </div>
                   </div>
                 </div>
@@ -518,7 +515,7 @@ export default function DocumentTemplateModal({
                         </div>
                         <div className="flex">
                           <span className="w-14 font-semibold text-slate-600">Address:</span>
-                          <span className="font-semibold text-slate-900 uppercase">{shipperAddress}</span>
+                          <span className="font-semibold text-base-content uppercase">{shipperAddress}</span>
                         </div>
                         <div className="flex justify-between">
                           <div className="flex">
@@ -549,7 +546,7 @@ export default function DocumentTemplateModal({
                         </div>
                         <div className="flex">
                           <span className="w-14 font-semibold text-slate-600">Address:</span>
-                          <span className="font-semibold text-slate-900 uppercase">{consigneeAddress}</span>
+                          <span className="font-semibold text-base-content uppercase">{consigneeAddress}</span>
                         </div>
                         <div className="flex justify-between">
                           <div className="flex">
@@ -580,7 +577,7 @@ export default function DocumentTemplateModal({
                         </div>
                         <div className="flex">
                           <span className="w-14 font-semibold text-slate-600">Address:</span>
-                          <span className="font-semibold text-slate-900 uppercase">{billToAddress}</span>
+                          <span className="font-semibold text-base-content uppercase">{billToAddress}</span>
                         </div>
                         <div className="flex justify-between">
                           <div className="flex">
@@ -628,8 +625,8 @@ export default function DocumentTemplateModal({
                       </div>
                     </div>
 
-                    <div className="p-2 border-t border-slate-900 bg-slate-50 flex items-center justify-between text-3xs">
-                      <span className="font-black text-slate-900 uppercase">SCAC :</span>
+                    <div className="p-2 border-t border-slate-900 bg-base-200 flex items-center justify-between text-3xs">
+                      <span className="font-black text-base-content uppercase">SCAC :</span>
                       <span className="font-mono font-black text-sm text-slate-950">{scac}</span>
                     </div>
                   </div>
@@ -663,7 +660,7 @@ export default function DocumentTemplateModal({
                   </div>
                   <table className="w-full text-3xs border-collapse">
                     <thead>
-                      <tr className="border-b border-slate-900 font-black text-slate-900">
+                      <tr className="border-b border-slate-900 font-black text-base-content">
                         <th className="border-r border-slate-900 p-1 w-28 text-center" colSpan={2}>
                           PIECES/QTY:
                           <div className="grid grid-cols-2 font-bold border-t border-slate-400 mt-0.5 pt-0.5">
@@ -685,7 +682,7 @@ export default function DocumentTemplateModal({
                       </tr>
                     </thead>
                     <tbody>
-                      <tr className="border-b border-slate-300 font-bold text-slate-900">
+                      <tr className="border-b border-slate-300 font-bold text-base-content">
                         <td className="p-1 text-center border-r border-slate-300 w-14">{pieces}</td>
                         <td className="p-1 text-center border-r border-slate-900 w-14">{piecesType}</td>
                         <td className="p-1 text-center border-r border-slate-900">{formattedWeight}</td>
@@ -694,7 +691,7 @@ export default function DocumentTemplateModal({
                         <td className="p-1 px-2 font-mono uppercase">{commodityDesc}</td>
                       </tr>
                       {/* Grand Total Row */}
-                      <tr className="border-b-2 border-slate-900 font-black text-slate-950 bg-slate-50">
+                      <tr className="border-b-2 border-slate-900 font-black text-slate-950 bg-base-200">
                         <td className="p-1 text-center border-r border-slate-900" colSpan={2}>
                           {pieces}
                         </td>
@@ -739,7 +736,7 @@ export default function DocumentTemplateModal({
 
                 {/* Remarks Block */}
                 <div className="border-b-2 border-slate-900 p-2 min-h-[40px] text-3xs">
-                  <span className="font-extrabold text-slate-900 uppercase">REMARKS:</span>
+                  <span className="font-extrabold text-base-content uppercase">REMARKS:</span>
                   <div className="text-slate-700 font-sans mt-0.5">
                     {shipment.special_instructions || "Standard dry freight carrier delivery. Must protect from extreme moisture."}
                   </div>
@@ -750,10 +747,10 @@ export default function DocumentTemplateModal({
                   {/* Shipper */}
                   <div className="p-2 border-r-2 border-slate-900 flex flex-col justify-between min-h-[95px]">
                     <div>
-                      <div className="font-black text-slate-900 uppercase">
+                      <div className="font-black text-base-content uppercase">
                         SHIPPER SIGNATURE / DATE
                       </div>
-                      <p className="text-[9px] text-slate-500 leading-tight pt-1">
+                      <p className="text-[9px] text-base-content leading-tight pt-1">
                         This is to certify that the above named materials are properly classified, described, packaged, marked and labeled, and are in proper condition for transportation.
                       </p>
                     </div>
@@ -765,10 +762,10 @@ export default function DocumentTemplateModal({
                   {/* Carrier */}
                   <div className="p-2 border-r-2 border-slate-900 flex flex-col justify-between min-h-[95px]">
                     <div>
-                      <div className="font-black text-slate-900 uppercase">
+                      <div className="font-black text-base-content uppercase">
                         CARRIER SIGNATURE / PICKUP DATE
                       </div>
-                      <p className="text-[9px] text-slate-500 leading-tight pt-1">
+                      <p className="text-[9px] text-base-content leading-tight pt-1">
                         Carrier acknowledges receipt of shipment in good condition.
                       </p>
                     </div>
@@ -780,10 +777,10 @@ export default function DocumentTemplateModal({
                   {/* Consignee */}
                   <div className="p-2 flex flex-col justify-between min-h-[95px]">
                     <div>
-                      <div className="font-black text-slate-900 uppercase">
+                      <div className="font-black text-base-content uppercase">
                         CONSIGNEE SIGNATURE / DATE
                       </div>
-                      <p className="text-[9px] text-slate-500 leading-tight pt-1">
+                      <p className="text-[9px] text-base-content leading-tight pt-1">
                         Receiver confirms receiving this shipment in good condition.
                       </p>
                     </div>
@@ -805,7 +802,7 @@ export default function DocumentTemplateModal({
         </div>
 
         {/* Action Controls Toolbar Footer (Hidden in Print) */}
-        <div className="p-4 bg-white border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden">
+        <div className="p-4 bg-base-100 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3 shrink-0 print:hidden">
           <div className="flex items-center space-x-2">
             <button
               type="button"
@@ -863,11 +860,11 @@ export default function DocumentTemplateModal({
       {/* Email Broker Modal Dialog */}
       {showEmailModal && (
         <div className="fixed inset-0 z-60 bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl p-5 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
+          <div className="bg-base-100 rounded-2xl p-5 max-w-md w-full border border-slate-200 shadow-2xl space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center space-x-2">
                 <Mail className="h-5 w-5 text-sky-600" />
-                <h3 className="text-sm font-bold text-slate-900">
+                <h3 className="text-sm font-bold text-base-content">
                   Email {docType} Document
                 </h3>
               </div>
@@ -895,7 +892,7 @@ export default function DocumentTemplateModal({
                 />
               </div>
 
-              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-3xs space-y-1 font-mono text-slate-600">
+              <div className="bg-base-200 p-2.5 rounded-xl border border-slate-200 text-3xs space-y-1 font-mono text-slate-600">
                 <div>Subject: <strong>[Nishan Transport] {docType} Entry / BOL - Load #{cleanLoadNum}</strong></div>
                 <div>Attachment: <strong>{docType}_{cleanLoadNum}_NishanTransport.pdf</strong></div>
               </div>
