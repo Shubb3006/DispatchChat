@@ -103,38 +103,19 @@ const ChatContainer = () => {
   //   messageEndRef.current?.scrollIntoView({ behavior: "auto" });
   // }, [activeMessagesList, isTyping]);
 
-  // useLayoutEffect(() => {
-  //   if (!activeLoading && messageEndRef.current) {
-  //     messageEndRef.current.scrollIntoView({
-  //       behavior: "instant",
-  //       block: "end",
-  //     });
-  //   }
-  // }, [activeMessagesList.length, activeLoading, isTyping]);
-
-  // const handleStartEdit = (message) => {
-  //   setEditingMessageId(message._id);
-  //   setEditText(message.text || "");
-  // };
-
   useLayoutEffect(() => {
-    console.log(
-      "SCROLL EFFECT:",
-      activeMessagesList.length,
-      activeMessagesList[activeMessagesList.length - 1]
-    );
-
-    if (activeLoading || !messageEndRef.current) return;
-
-    requestAnimationFrame(() => {
-      console.log("SCROLLING NOW");
-
-      messageEndRef.current?.scrollIntoView({
-        behavior: "auto",
+    if (!activeLoading && messageEndRef.current) {
+      messageEndRef.current.scrollIntoView({
+        behavior: "instant",
         block: "end",
       });
-    });
-  }, [activeMessagesList, activeLoading, isTyping]);
+    }
+  }, [activeMessagesList.length, activeLoading, isTyping]);
+
+  const handleStartEdit = (message) => {
+    setEditingMessageId(message._id);
+    setEditText(message.text || "");
+  };
 
   const handleSaveEdit = async (messageId) => {
     if (!editText.trim()) return;
