@@ -134,33 +134,111 @@ export const useChatStore = create((set, get) => ({
     }
   },
 
+  // sendMessage: async (data) => {
+  //   const { messages, selectedUser, users } = get();
+  //   const receiverId = selectedUser?._id || selectedUser?.id;
+  //   if (!receiverId) return;
+
+  //   set({ isMessageSending: true });
+  //   try {
+  //     const res = await axiosInstance.post(
+  //       `/messages/send-message/${receiverId}`,
+  //       data
+  //     );
+
+  //     // Move receiver user to top of users list
+  //     const targetUser = users.find((u) => u._id === receiverId);
+  //     const otherUsers = users.filter((u) => u._id !== receiverId);
+  //     const updatedUsers = targetUser ? [targetUser, ...otherUsers] : users;
+
+  //     // set({
+  //     //   messages: [...messages, res.data],
+  //     //   users: updatedUsers,
+  //     //   lastMessageTimestamps: {
+  //     //     ...get().lastMessageTimestamps,
+  //     //     [receiverId]: Date.now(),
+  //     //   },
+  //     // });
+  //     set((state) => {
+  //       const updatedMessages = [...state.messages, res.data];
+
+  //       return {
+  //         messages: updatedMessages,
+
+  //         messagesByUser: {
+  //           ...state.messagesByUser,
+  //           [receiverId]: updatedMessages,
+  //         },
+
+  //         users: updatedUsers,
+
+  //         lastMessageTimestamps: {
+  //           ...state.lastMessageTimestamps,
+  //           [receiverId]: Date.now(),
+  //         },
+  //       };
+  //     });
+  //   } catch (error) {
+  //     if (error.code === "ERR_NETWORK" || !navigator.onLine) {
+  //       addToQueue(data, "direct", receiverId);
+  //       toast("You are offline. Message queued!", { icon: "📡" });
+  //     } else {
+  //       toast.error(error.response?.data?.message || "Failed to send message");
+  //     }
+  //   } finally {
+  //     set({ isMessageSending: false });
+  //   }
+  // },
   sendMessage: async (data) => {
-    const { messages, selectedUser, users } = get();
+    const { selectedUser, users } = get();
     const receiverId = selectedUser?._id || selectedUser?.id;
+
     if (!receiverId) return;
 
-    set({ isMessageSending: true });
+    const senderId = useAuthStore.getState().authUser?._id;
+
+    // Temporary message shown immediately in the UI
+    const tempId = `temp-${Date.now()}-${Math.random()}`;
+
+    const optimisticMessage = {
+      ...data,
+      _id: tempId,
+      senderId,
+      receiverId,
+      createdAt: new Date().toISOString(),
+      status: "sending",
+      isOptimistic: true,
+    };
+
+    // Show message immediately
+    set((state) => {
+      const updatedMessages = [...state.messages, optimisticMessage];
+
+      return {
+        messages: updatedMessages,
+
+        messagesByUser: {
+          ...state.messagesByUser,
+          [receiverId]: updatedMessages,
+        },
+
+        isMessageSending: true,
+      };
+    });
+
     try {
       const res = await axiosInstance.post(
         `/messages/send-message/${receiverId}`,
         data
       );
 
-      // Move receiver user to top of users list
-      const targetUser = users.find((u) => u._id === receiverId);
-      const otherUsers = users.filter((u) => u._id !== receiverId);
-      const updatedUsers = targetUser ? [targetUser, ...otherUsers] : users;
+      const realMessage = res.data;
 
-      // set({
-      //   messages: [...messages, res.data],
-      //   users: updatedUsers,
-      //   lastMessageTimestamps: {
-      //     ...get().lastMessageTimestamps,
-      //     [receiverId]: Date.now(),
-      //   },
-      // });
+      // Replace temporary message with real database message
       set((state) => {
-        const updatedMessages = [...state.messages, res.data];
+        const updatedMessages = state.messages.map((message) =>
+          message._id === tempId ? realMessage : message
+        );
 
         return {
           messages: updatedMessages,
@@ -170,26 +248,56 @@ export const useChatStore = create((set, get) => ({
             [receiverId]: updatedMessages,
           },
 
-          users: updatedUsers,
-
           lastMessageTimestamps: {
             ...state.lastMessageTimestamps,
             [receiverId]: Date.now(),
           },
         };
       });
+
+      // Move receiver to top
+      const targetUser = users.find((u) => u._id === receiverId);
+      const otherUsers = users.filter((u) => u._id !== receiverId);
+
+      set({
+        users: targetUser ? [targetUser, ...otherUsers] : users,
+      });
+
     } catch (error) {
+      console.error("Failed to send message:", error);
+
       if (error.code === "ERR_NETWORK" || !navigator.onLine) {
         addToQueue(data, "direct", receiverId);
-        toast("You are offline. Message queued!", { icon: "📡" });
+
+        toast("You are offline. Message queued!", {
+          icon: "📡",
+        });
       } else {
-        toast.error(error.response?.data?.message || "Failed to send message");
+        toast.error(
+          error.response?.data?.message || "Failed to send message"
+        );
       }
+
+      // Remove failed optimistic message
+      set((state) => {
+        const updatedMessages = state.messages.filter(
+          (message) => message._id !== tempId
+        );
+
+        return {
+          messages: updatedMessages,
+
+          messagesByUser: {
+            ...state.messagesByUser,
+            [receiverId]: updatedMessages,
+          },
+        };
+      });
+
     } finally {
       set({ isMessageSending: false });
     }
   },
-
   syncQueue: async () => {
     const queue = getQueue();
     if (queue.length === 0) return;
