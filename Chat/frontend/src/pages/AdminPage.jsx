@@ -298,67 +298,230 @@ const AdminPage = () => {
               <Loader2 className="size-8 animate-spin text-primary" />
             </div>
           ) : (
-            <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
-              <table className="table table-zebra w-full text-sm">
+            // <div className="overflow-x-auto overflow-y-auto max-h-[500px]">
+            //   <table className="table table-zebra w-full text-sm">
+            //     <thead>
+            //       <tr>
+            //         <th>User</th>
+            //         <th>Role</th>
+            //         <th>Unit #</th>
+            //         <th>Duty Status</th>
+            //         <th>Actions</th>
+            //       </tr>
+            //     </thead>
+            //     <tbody>
+            //       {filteredUsers.map((u) => (
+            //         <tr key={u._id}>
+            //           <td>
+            //             <div className="flex items-center gap-3">
+            //               <img
+            //                 src={u.profilePic || "/avatar.png"}
+            //                 alt={u.fullName}
+            //                 className="size-9 rounded-full object-cover border border-base-300"
+            //               />
+            //               <div>
+            //                 <div className="font-semibold">{u.fullName}</div>
+            //                 <div className="text-xs text-base-content/60">
+            //                   {u.email}
+            //                 </div>
+            //               </div>
+            //             </div>
+            //           </td>
+            //           <td>
+            //             <span
+            //               className={`badge badge-sm font-semibold capitalize ${u.role === "super_user"
+            //                 ? "badge-warning text-black font-extrabold"
+            //                 : u.role === "admin"
+            //                   ? "badge-error text-white"
+            //                   : u.role === "dispatch"
+            //                     ? "badge-primary"
+            //                     : u.role === "hr"
+            //                       ? "badge-accent text-white"
+            //                       : u.role === "office_staff"
+            //                         ? "badge-info text-white"
+            //                         : u.role === "driver_manager"
+            //                           ? "badge-secondary"
+            //                           : "badge-ghost"
+            //                 }`}
+            //             >
+            //               {u.role?.replace("_", " ")}
+            //             </span>
+            //           </td>
+            //           <td>
+            //             {u.unitNumber ? (
+            //               <span className="flex items-center gap-1 text-xs font-mono bg-base-300 px-2 py-1 rounded">
+            //                 <Truck className="size-3" /> {u.unitNumber}
+            //               </span>
+            //             ) : (
+            //               <span className="text-xs text-base-content/40">--</span>
+            //             )}
+            //           </td>
+            //           <td>
+            //             <span
+            //               className={`badge badge-xs font-medium ${u.dutyStatus === "driving"
+            //                 ? "badge-info"
+            //                 : u.dutyStatus === "on_duty"
+            //                   ? "badge-success text-white"
+            //                   : u.dutyStatus === "break"
+            //                     ? "badge-warning"
+            //                     : "badge-ghost"
+            //                 }`}
+            //             >
+            //               {u.dutyStatus?.replace("_", " ") || "off duty"}
+            //             </span>
+            //           </td>
+            //           <td>
+            //             <div className="flex items-center gap-1">
+            //               {/* Only Super Users can reset a Super User password */}
+            //               {u.role === "super_user" && authUser?.role !== "super_user" ? (
+            //                 <span className="text-[10px] opacity-40">Protected</span>
+            //               ) : (
+            //                 <>
+            //                   <button
+            //                     onClick={() => handleEditUserClick(u)}
+            //                     className="btn btn-ghost btn-xs text-info"
+            //                     title="Edit User"
+            //                   >
+            //                     <Edit2 className="size-3" />
+            //                   </button>
+            //                   <button
+            //                     onClick={() => setResetModalUser(u)}
+            //                     className="btn btn-ghost btn-xs text-primary"
+            //                     title="Reset Password"
+            //                   >
+            //                     <Key className="size-3" />
+            //                   </button>
+            //                   {u._id !== authUser?._id && (
+            //                     <button
+            //                       onClick={() => handleDeleteUserClick(u._id, u.fullName)}
+            //                       className="btn btn-ghost btn-xs text-error"
+            //                       title="Delete User"
+            //                     >
+            //                       <Trash2 className="size-3" />
+            //                     </button>
+            //                   )}
+            //                 </>
+            //               )}
+            //             </div>
+            //           </td>
+            //         </tr>
+            //       ))}
+
+            //       {filteredUsers.length === 0 && (
+            //         <tr>
+            //           <td colSpan="5" className="text-center py-8 text-base-content/60">
+            //             No users found
+            //           </td>
+            //         </tr>
+            //       )}
+            //     </tbody>
+            //   </table>
+            // </div>
+
+            <div className="w-full overflow-x-auto">
+              <table className="table w-full min-w-[700px] text-sm">
                 <thead>
                   <tr>
-                    <th>User</th>
-                    <th>Role</th>
-                    <th>Unit #</th>
-                    <th>Duty Status</th>
-                    <th>Actions</th>
+                    <th className="whitespace-nowrap">User</th>
+                    <th className="whitespace-nowrap">Role</th>
+                    <th className="whitespace-nowrap">Unit #</th>
+                    <th className="whitespace-nowrap">Duty Status</th>
+                    <th className="whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
+
                 <tbody>
                   {filteredUsers.map((u) => (
                     <tr key={u._id}>
-                      <td>
-                        <div className="flex items-center gap-3">
+
+                      {/* User */}
+                      <td className="max-w-[260px]">
+                        <div className="flex items-center gap-3 min-w-0">
                           <img
                             src={u.profilePic || "/avatar.png"}
                             alt={u.fullName}
-                            className="size-9 rounded-full object-cover border border-base-300"
+                            className="size-9 shrink-0 rounded-full object-cover border border-base-300"
                           />
-                          <div>
-                            <div className="font-semibold">{u.fullName}</div>
-                            <div className="text-xs text-base-content/60">
+
+                          <div className="min-w-0">
+                            <div className="font-semibold truncate">
+                              {u.fullName}
+                            </div>
+
+                            <div className="text-xs text-base-content/60 break-all">
                               {u.email}
                             </div>
                           </div>
                         </div>
                       </td>
+
+                      {/* Role */}
+                      {/* <td>
+                        <span
+                          className={`badge badge-sm font-semibold capitalize whitespace-normal text-center leading-tight ${u.role === "super_user"
+                              ? "badge-warning text-black font-extrabold"
+                              : u.role === "admin"
+                                ? "badge-error text-white"
+                                : u.role === "dispatch"
+                                  ? "badge-primary"
+                                  : u.role === "hr"
+                                    ? "badge-accent text-white"
+                                    : u.role === "office_staff"
+                                      ? "badge-info text-white"
+                                      : u.role === "driver_manager"
+                                        ? "badge-secondary"
+                                        : "badge-ghost"
+                            }`}
+                        >
+                          {u.role?.replace("_", " ")}
+                        </span>
+                      </td> */}
                       <td>
                         <span
-                          className={`badge badge-sm font-semibold capitalize ${u.role === "super_user"
-                            ? "badge-warning text-black font-extrabold"
-                            : u.role === "admin"
-                              ? "badge-error text-white"
-                              : u.role === "dispatch"
-                                ? "badge-primary"
-                                : u.role === "hr"
-                                  ? "badge-accent text-white"
-                                  : u.role === "office_staff"
-                                    ? "badge-info text-white"
-                                    : u.role === "driver_manager"
-                                      ? "badge-secondary"
-                                      : "badge-ghost"
+                          className={`inline-flex items-center justify-center min-h-6 px-2 py-1 rounded-full
+      text-[11px] font-semibold capitalize text-center leading-tight
+      max-w-[110px] whitespace-normal break-words
+      ${u.role === "super_user"
+                              ? "bg-warning text-black font-extrabold"
+                              : u.role === "admin"
+                                ? "bg-error text-white"
+                                : u.role === "dispatch"
+                                  ? "bg-primary text-primary-content"
+                                  : u.role === "hr"
+                                    ? "bg-accent text-accent-content"
+                                    : u.role === "office_staff"
+                                      ? "bg-info text-info-content"
+                                      : u.role === "driver_manager"
+                                        ? "bg-secondary text-secondary-content"
+                                        : u.role === "driver"
+                                          ? "bg-success text-success-content"
+                                          : "bg-base-300 text-base-content"
                             }`}
                         >
                           {u.role?.replace("_", " ")}
                         </span>
                       </td>
+
+                      {/* Unit */}
                       <td>
                         {u.unitNumber ? (
-                          <span className="flex items-center gap-1 text-xs font-mono bg-base-300 px-2 py-1 rounded">
-                            <Truck className="size-3" /> {u.unitNumber}
+                          <span className="inline-flex items-center gap-1 text-xs font-mono bg-base-300 px-2 py-1 rounded whitespace-nowrap">
+                            <Truck className="size-3 shrink-0" />
+                            <span className="break-all">
+                              {u.unitNumber}
+                            </span>
                           </span>
                         ) : (
-                          <span className="text-xs text-base-content/40">--</span>
+                          <span className="text-xs text-base-content/40">
+                            --
+                          </span>
                         )}
                       </td>
+
+                      {/* Duty Status */}
                       <td>
                         <span
-                          className={`badge badge-xs font-medium ${u.dutyStatus === "driving"
+                          className={`badge badge-xs font-medium whitespace-nowrap ${u.dutyStatus === "driving"
                             ? "badge-info"
                             : u.dutyStatus === "on_duty"
                               ? "badge-success text-white"
@@ -370,31 +533,42 @@ const AdminPage = () => {
                           {u.dutyStatus?.replace("_", " ") || "off duty"}
                         </span>
                       </td>
+
+                      {/* Actions */}
                       <td>
-                        <div className="flex items-center gap-1">
-                          {/* Only Super Users can reset a Super User password */}
-                          {u.role === "super_user" && authUser?.role !== "super_user" ? (
-                            <span className="text-[10px] opacity-40">Protected</span>
+                        <div className="flex items-center gap-1 flex-wrap">
+                          {u.role === "super_user" &&
+                            authUser?.role !== "super_user" ? (
+                            <span className="text-[10px] opacity-40 whitespace-nowrap">
+                              Protected
+                            </span>
                           ) : (
                             <>
                               <button
                                 onClick={() => handleEditUserClick(u)}
-                                className="btn btn-ghost btn-xs text-info"
+                                className="btn btn-ghost btn-xs text-info shrink-0"
                                 title="Edit User"
                               >
                                 <Edit2 className="size-3" />
                               </button>
+
                               <button
                                 onClick={() => setResetModalUser(u)}
-                                className="btn btn-ghost btn-xs text-primary"
+                                className="btn btn-ghost btn-xs text-primary shrink-0"
                                 title="Reset Password"
                               >
                                 <Key className="size-3" />
                               </button>
+
                               {u._id !== authUser?._id && (
                                 <button
-                                  onClick={() => handleDeleteUserClick(u._id, u.fullName)}
-                                  className="btn btn-ghost btn-xs text-error"
+                                  onClick={() =>
+                                    handleDeleteUserClick(
+                                      u._id,
+                                      u.fullName
+                                    )
+                                  }
+                                  className="btn btn-ghost btn-xs text-error shrink-0"
                                   title="Delete User"
                                 >
                                   <Trash2 className="size-3" />
@@ -409,7 +583,10 @@ const AdminPage = () => {
 
                   {filteredUsers.length === 0 && (
                     <tr>
-                      <td colSpan="5" className="text-center py-8 text-base-content/60">
+                      <td
+                        colSpan="5"
+                        className="text-center py-8 text-base-content/60"
+                      >
                         No users found
                       </td>
                     </tr>

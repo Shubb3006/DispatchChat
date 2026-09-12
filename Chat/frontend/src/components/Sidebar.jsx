@@ -41,7 +41,7 @@ const Sidebar = () => {
   const searchRef = useRef(null);
 
   const {
-    isUsersLoading,
+    usersFetching,
     users,
     getUserList,
     selectedUser,
@@ -191,7 +191,7 @@ const Sidebar = () => {
     );
   };
 
-  if (isUsersLoading) return <SideBarSkeleton />;
+  if (users.length === 0 && usersFetching) return <SideBarSkeleton />;
 
   return (
     <div className="flex h-full flex-col bg-base-100">

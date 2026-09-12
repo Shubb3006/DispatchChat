@@ -90,6 +90,8 @@ const Navbar = () => {
   const [showServerModal, setShowServerModal] = useState(false);
   const [customServerUrl, setCustomServerUrl] = useState("");
   const [deferredPrompt, setDeferredPrompt] = useState(null);
+  const [accountOpen, setAccountOpen] = useState(false);
+  const [languageOpen, setLanguageOpen] = useState(false);
 
   const conn = useConnectionState(socket);
 
@@ -218,11 +220,12 @@ const Navbar = () => {
               <Smartphone className="size-4" />
             </button>
 
-            <div className="dropdown dropdown-end">
+            {/* <div className="dropdown dropdown-end">
               <div
                 tabIndex={0}
                 role="button"
                 className="btn btn-ghost btn-sm gap-1 rounded-lg px-2"
+
                 title="Language"
               >
                 <Globe className="size-4" />
@@ -251,8 +254,52 @@ const Navbar = () => {
                   </li>
                 ))}
               </ul>
-            </div>
+            </div> */}
 
+            <div className="relative">
+              <button
+                type="button"
+                onClick={() => setLanguageOpen((prev) => !prev)}
+                className="btn btn-ghost btn-sm gap-1 rounded-lg px-2"
+                title="Language"
+              >
+                <Globe className="size-4" />
+                <span className="text-xs">{currentLangObj.flag}</span>
+              </button>
+
+              {languageOpen && (
+                <div
+                  className="absolute right-0 top-full z-50 mt-2 w-48 rounded-xl
+        border border-base-300 bg-base-100 p-1.5 shadow-xl"
+                >
+                  <div className="px-2 pb-1 pt-1.5 text-[10px] uppercase tracking-widest text-base-content/50">
+                    Language
+                  </div>
+
+                  {LANGUAGES.map((lang) => (
+                    <button
+                      key={lang.code}
+                      type="button"
+                      onClick={() => {
+                        setLanguage(lang.code);
+                        setLanguageOpen(false);
+                      }}
+                      className="flex w-full items-center justify-between rounded-lg
+            px-3 py-2 text-sm hover:bg-base-200"
+                    >
+                      <span className="flex items-center gap-2">
+                        <span>{lang.flag}</span>
+                        <span>{lang.label}</span>
+                      </span>
+
+                      {language === lang.code && (
+                        <Check className="size-4 text-primary" />
+                      )}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
             <button
               onClick={toggleTheme}
               className="btn btn-ghost btn-sm btn-square rounded-lg"
@@ -268,11 +315,13 @@ const Navbar = () => {
             <span className="mx-1 h-6 w-px bg-base-300" />
 
             {/* Account menu */}
-            <div className="dropdown dropdown-end">
+            {/* <div className="dropdown dropdown-end"> */}
+            {/* <div className={`dropdown dropdown-end ${accountOpen ? "dropdown-open" : ""}`}>
               <div
                 tabIndex={0}
                 role="button"
-                className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 transition-colors hover:bg-base-200"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className="cursor-pointer flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 transition-colors hover:bg-base-200"
                 title="Account"
               >
                 <Avatar
@@ -323,7 +372,8 @@ const Navbar = () => {
 
                 <li className="menu-title px-2 py-1 text-[10px] uppercase tracking-widest">Account</li>
                 <li>
-                  <Link to="/profile" className="rounded-lg text-sm">
+
+                  <Link to="/profile" onClick={() => setAccountOpen(false)} className="rounded-lg text-sm">
                     <User className="size-4" /> Profile & settings
                   </Link>
                 </li>
@@ -345,6 +395,247 @@ const Navbar = () => {
                   </button>
                 </li>
               </ul>
+            </div> */}
+            {/* <div className={`dropdown dropdown-end ${accountOpen ? "dropdown-open" : ""}`}>
+              <div
+                tabIndex={0}
+                role="button"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className="cursor-pointer flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5 transition-colors hover:bg-base-200"
+                title="Account"
+              >
+                <Avatar
+                  src={authUser.profilePic}
+                  name={authUser.fullName}
+                  size="size-8"
+                  isOnline
+                  showPresence
+                />
+
+                <span className="hidden min-w-0 flex-col items-start leading-tight lg:flex">
+                  <span className="max-w-[130px] truncate text-xs font-semibold">
+                    {cleanName(authUser.fullName)}
+                  </span>
+
+                  <span className="text-[10px] font-medium text-base-content/50">
+                    {role.label}
+                  </span>
+                </span>
+
+                <ChevronDown className="hidden size-3.5 opacity-40 lg:block" />
+              </div>
+
+              <ul
+                className="menu dropdown-content elevated z-50 mt-2 w-64 gap-0.5 rounded-xl
+      border border-base-300 bg-base-100 p-1.5"
+              >
+                <li className="pointer-events-none px-2 pb-2 pt-1">
+                  <div className="flex items-center gap-3 hover:bg-transparent">
+                    <Avatar
+                      src={authUser.profilePic}
+                      name={authUser.fullName}
+                      size="size-10"
+                    />
+
+                    <div className="min-w-0">
+                      <div className="truncate text-sm font-semibold">
+                        {cleanName(authUser.fullName)}
+                      </div>
+
+                      <div className="mt-0.5 flex items-center gap-1.5">
+                        <span
+                          className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5 text-[10px]
+                font-bold uppercase tracking-wide ring-1 ring-inset
+                ${roleToneClass(authUser?.role)}`}
+                        >
+                          <role.icon className="size-2.5" />
+                          {role.label}
+                        </span>
+
+                        {authUser.unitNumber && (
+                          <span className="nums text-[10px] text-base-content/50">
+                            #{authUser.unitNumber}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </li>
+
+                <li className="menu-title px-2 py-1 text-[10px] uppercase tracking-widest">
+                  Account
+                </li>
+
+                <li>
+                  <Link
+                    to="/profile"
+                    onClick={() => setAccountOpen(false)}
+                    className="rounded-lg text-sm"
+                  >
+                    <User className="size-4" />
+                    Profile & settings
+                  </Link>
+                </li>
+
+                <li>
+                  <Link
+                    to="/status"
+                    onClick={() => setAccountOpen(false)}
+                    className="rounded-lg text-sm"
+                  >
+                    <Activity className="size-4" />
+                    Fleet status board
+                  </Link>
+                </li>
+
+                <li>
+                  <button
+                    onClick={() => {
+                      setAccountOpen(false);
+                      openServerModal();
+                    }}
+                    className="rounded-lg text-sm"
+                  >
+                    <Server className="size-4" />
+                    Connection settings
+                  </button>
+                </li>
+
+                <div className="my-1 h-px bg-base-300" />
+
+                <li>
+                  <button
+                    onClick={() => {
+                      setAccountOpen(false);
+                      logout();
+                    }}
+                    className="rounded-lg text-sm text-error"
+                  >
+                    <LogOut className="size-4" />
+                    Sign out
+                  </button>
+                </li>
+              </ul>
+            </div> */}
+            <div className="relative">
+              {/* Account button */}
+              <button
+                type="button"
+                onClick={() => setAccountOpen((prev) => !prev)}
+                className="cursor-pointer flex items-center gap-2 rounded-lg py-1 pl-1 pr-1.5
+      transition-colors hover:bg-base-200"
+                title="Account"
+              >
+                <Avatar
+                  src={authUser.profilePic}
+                  name={authUser.fullName}
+                  size="size-8"
+                  isOnline
+                  showPresence
+                />
+
+                <span className="hidden min-w-0 flex-col items-start leading-tight lg:flex">
+                  <span className="max-w-[130px] truncate text-xs font-semibold">
+                    {cleanName(authUser.fullName)}
+                  </span>
+
+                  <span className="text-[10px] font-medium text-base-content/50">
+                    {role.label}
+                  </span>
+                </span>
+
+                <ChevronDown className="hidden size-3.5 opacity-40 lg:block" />
+              </button>
+
+              {/* Dropdown */}
+              {accountOpen && (
+                <div
+                  className="absolute right-0 top-full z-50 mt-2 w-64
+        rounded-xl border border-base-300 bg-base-100 p-1.5
+        shadow-xl"
+                >
+                  <div className="px-2 pb-2 pt-1">
+                    <div className="flex items-center gap-3">
+                      <Avatar
+                        src={authUser.profilePic}
+                        name={authUser.fullName}
+                        size="size-10"
+                      />
+
+                      <div className="min-w-0">
+                        <div className="truncate text-sm font-semibold">
+                          {cleanName(authUser.fullName)}
+                        </div>
+
+                        <div className="mt-0.5 flex items-center gap-1.5">
+                          <span
+                            className={`inline-flex items-center gap-1 rounded-md px-1.5 py-0.5
+                  text-[10px] font-bold uppercase tracking-wide
+                  ring-1 ring-inset ${roleToneClass(authUser?.role)}`}
+                          >
+                            <role.icon className="size-2.5" />
+                            {role.label}
+                          </span>
+
+                          {authUser.unitNumber && (
+                            <span className="nums text-[10px] text-base-content/50">
+                              #{authUser.unitNumber}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="px-2 py-1 text-[10px] uppercase tracking-widest text-base-content/50">
+                    Account
+                  </div>
+
+                  <Link
+                    to="/profile"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-base-200"
+                  >
+                    <User className="size-4" />
+                    Profile & settings
+                  </Link>
+
+                  <Link
+                    to="/status"
+                    onClick={() => setAccountOpen(false)}
+                    className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-base-200"
+                  >
+                    <Activity className="size-4" />
+                    Fleet status board
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      openServerModal();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm hover:bg-base-200"
+                  >
+                    <Server className="size-4" />
+                    Connection settings
+                  </button>
+
+                  <div className="my-1 h-px bg-base-300" />
+
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setAccountOpen(false);
+                      logout();
+                    }}
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-error hover:bg-error/10"
+                  >
+                    <LogOut className="size-4" />
+                    Sign out
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         ) : (
