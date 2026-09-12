@@ -1,5 +1,5 @@
 
-import  bcrypt  from 'bcrypt';
+import bcrypt from 'bcrypt';
 import { generateToken } from "../lib/utils.js";
 import pool from '../config/db.js';
 
@@ -49,11 +49,11 @@ export const login = async (req, res) => {
 
     const user = result.rows[0];
 
-    const compare=await bcrypt.compare(password,user.password)
-    if(!compare){
-        return res.status(401).json({
-            message:"Password is wrong"
-        })
+    const compare = await bcrypt.compare(password, user.password)
+    if (!compare) {
+      return res.status(401).json({
+        message: "Password is wrong"
+      })
     }
 
     // We'll add bcrypt in the next step.
@@ -67,38 +67,38 @@ export const login = async (req, res) => {
 
 
     return res.json({
-        success:true,
-        // iOS Safari blocks cross-site cookies even with SameSite=None, so the
-        // client also stores this and sends it back as a Bearer header.
-        token,
-        // user:{
-        //     id:user.id,
-        //     username:user.username,
-        //     role:user.role,
-        //     email:user.email,
-        //     allowed_modules:user.allowed_modules,
-        // }
-        user: {
-          id: user.id,
-          username: user.username,
-          role: user.role,
-         
-          allowed_modules: user.allowed_modules,
-      
-          driver: user.driver_id
-              ? {
-                  id: user.driver_id,
-                  driver_code: user.driver_code,
-                  license_number: user.license_number,
-                  license_expiry: user.license_expiry,
-                  assigned_truck_number: user.assigned_truck_number,
-                  assigned_trailer_number: user.assigned_trailer_number,
-                  current_duty_status: user.current_duty_status,
-                  status: user.driver_status,
-                  current_lat: user.current_lat,
-                  current_lng: user.current_lng,
-              }
-              : null,
+      success: true,
+      // iOS Safari blocks cross-site cookies even with SameSite=None, so the
+      // client also stores this and sends it back as a Bearer header.
+      token,
+      // user:{
+      //     id:user.id,
+      //     username:user.username,
+      //     role:user.role,
+      //     email:user.email,
+      //     allowed_modules:user.allowed_modules,
+      // }
+      user: {
+        id: user.id,
+        username: user.username,
+        role: user.role,
+
+        allowed_modules: user.allowed_modules,
+
+        driver: user.driver_id
+          ? {
+            id: user.driver_id,
+            driver_code: user.driver_code,
+            license_number: user.license_number,
+            license_expiry: user.license_expiry,
+            assigned_truck_number: user.assigned_truck_number,
+            assigned_trailer_number: user.assigned_trailer_number,
+            current_duty_status: user.current_duty_status,
+            status: user.driver_status,
+            current_lat: user.current_lat,
+            current_lng: user.current_lng,
+          }
+          : null,
       }
 
 
@@ -123,34 +123,34 @@ export const login = async (req, res) => {
 //         phone,
 //         role
 //       } = req.body;
-  
+
 //       // Check username
 //       const usernameExists = await pool.query(
 //         "SELECT id FROM users WHERE username=$1",
 //         [username]
 //       );
-  
+
 //       if (usernameExists.rows.length > 0) {
 //         return res.status(400).json({
 //           message: "Username already exists"
 //         });
 //       }
-  
+
 //       // Check email
 //       const emailExists = await pool.query(
 //         "SELECT id FROM users WHERE email=$1",
 //         [email]
 //       );
-  
+
 //       if (emailExists.rows.length > 0) {
 //         return res.status(400).json({
 //           message: "Email already exists"
 //         });
 //       }
-  
+
 //       // Encrypt password
 //       const hashedPassword = await bcrypt.hash(password, 10);
-  
+
 //       const result = await pool.query(
 //         `
 //         INSERT INTO users
@@ -180,12 +180,12 @@ export const login = async (req, res) => {
 
 
 //    generateToken(result.rows[0].id,res)
-  
+
 //     return res.status(201).json({
 //         success: true,
 //         message: "User created successfully",
-    
-    
+
+
 //         user:{
 //             id:result.rows[0].id,
 //             username:result.rows[0].username,
@@ -193,10 +193,10 @@ export const login = async (req, res) => {
 //             email:result.rows[0].email
 //         }
 //     });
-  
+
 //     } catch (err) {
 //       console.log(err);
-  
+
 //       res.status(500).json({
 //         message: "Server Error"
 //       });
@@ -296,3 +296,5 @@ export const logout = async (req, res) => {
     return res.status(500).json({ message: "internal server error" });
   }
 };
+
+//..s
