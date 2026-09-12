@@ -498,6 +498,7 @@ const MessageInput = () => {
                   : `${t("typeMessage")} (Ctrl+V to paste screenshot)...`
               }
               title="Type a message or press Ctrl+V to paste a screenshot/image"
+              disabled={isMessageSending}
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
@@ -517,6 +518,7 @@ const MessageInput = () => {
             {/* Image Upload Button */}
             <button
               type="button"
+              disabled={isMessageSending}
               className={`btn btn-ghost btn-circle btn-sm ${imagePreview ? "text-primary" : "text-base-content/70"
                 }`}
               onClick={() => fileRef.current?.click()}
