@@ -502,7 +502,7 @@ const MessageInput = () => {
                   : `${t("typeMessage")} (Ctrl+V to paste screenshot)...`
               }
               title="Type a message or press Ctrl+V to paste a screenshot/image"
-              disabled={isMessageSending}
+
               value={text}
               onChange={(e) => {
                 setText(e.target.value);
@@ -558,8 +558,7 @@ const MessageInput = () => {
             type="submit"
             className="btn btn-primary btn-circle btn-sm"
             disabled={
-              (!text.trim() && !imagePreview && !audioBlob) ||
-              isMessageSending
+              (!text.trim() && !imagePreview && !audioBlob)
             }
           >
             <Send className="size-4" />
