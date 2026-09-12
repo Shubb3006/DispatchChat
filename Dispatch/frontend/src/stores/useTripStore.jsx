@@ -5,11 +5,14 @@ import { useShipmentStore } from "./useShipmentStore";
 
 export const useTripStore = create((set, get) => ({
   trips: [],
-  isLoading: false,
+  addingTrip: false,
+  fetchingTrips: false,
+  upatingTrip: false,
+  removingTrip: false,
   error: null,
 
   fetchTrips: async () => {
-    set({ isLoading: true, error: null });
+    set({ fetchingTrips: true, error: null });
     try {
       const response = await axiosInstance.get("/trips");
       const tripsData = response.data.trips || [];
@@ -18,7 +21,7 @@ export const useTripStore = create((set, get) => ({
           ? JSON.parse(item.data)
           : item.data || item
       );
-      set({ trips: parsedTrips, isLoading: false });
+      set({ trips: parsedTrips, fetchingTrips: false });
     } catch (err) {
       console.warn("Failed to fetch trips from /trips:", err.message);
       // Fallback to shipments as trips if /trips does not exist
@@ -30,13 +33,13 @@ export const useTripStore = create((set, get) => ({
               ? JSON.parse(item.data)
               : item.data || item
           );
-          set({ trips: parsed, isLoading: false });
+          set({ trips: parsed, addingTrip: false });
           return;
         }
       } catch (fbErr) {
         // no-op
       }
-      set({ error: "Failed to fetch trips", isLoading: false });
+      set({ error: "Failed to fetch trips", fetchingTrips: false });
     }
   },
 
@@ -51,13 +54,13 @@ export const useTripStore = create((set, get) => ({
       totalPallets: trip.totalPallets,
       shipmentIds: trip.shipmentIds,
     };
-    set({ isLoading: true });
+    set({ addingTrip: true });
     try {
       const response = await axiosInstance.post("/trips", payLoad);
       const savedTrip = response.data.trip || trip;
       set((state) => ({
         trips: [savedTrip, ...state.trips],
-        isLoading: false,
+        addingTrip: false,
       }));
 
       // The trip is routed at creation. Report what actually came back rather
@@ -76,7 +79,7 @@ export const useTripStore = create((set, get) => ({
     } catch (err) {
       console.error("Failed to add trip:", err);
       const msg = err?.response?.data?.message || "Failed to add trip";
-      set({ error: msg, isLoading: false });
+      set({ error: msg, addingTrip: false });
       toast.error(msg);
       return null;
     }
@@ -98,13 +101,13 @@ export const useTripStore = create((set, get) => ({
   },
 
   updateTrip: async (trip) => {
-    set({ isLoading: true });
+    set({ upatingTrip: true });
     try {
       const response = await axiosInstance.put(`/trips/${trip.id}`, trip);
       const updated = response.data.trip || trip;
       set((state) => ({
         trips: state.trips.map((t) => (t.id === trip.id ? updated : t)),
-        isLoading: false,
+        upatingTrip: false,
       }));
 
       // useShipmentStore.getState().setShipments((shipments) =>
@@ -117,25 +120,50 @@ export const useTripStore = create((set, get) => ({
       toast.success(`Trip updated`);
     } catch (err) {
       console.error("Failed to update trip:", err);
-      set({ error: "Failed to update trip", isLoading: false });
+      set({ error: "Failed to update trip", upatingTrip: false });
       toast.error("Failed to update trip");
     }
   },
 
+  // removeTrip: async (tripId) => {
+  //   set({ removingTrip: true });
+  //   try {
+  //     await axiosInstance.delete(`/trips/${tripId}`);
+  //     set((state) => ({
+  //       trips: state.trips.filter((t) => t.id !== tripId),
+  //       removingTrip: false,
+  //     }));
+  //     toast.success("Trip removed");
+  //     await useShipmentStore.getState().fetchShipments();
+  //   } catch (err) {
+  //     console.error("Failed to delete trip:", err);
+  //     set({ error: "Failed to delete trip", removingTrip: false });
+  //     toast.error("Failed to remove trip");
+  //   }
+  // },
   removeTrip: async (tripId) => {
-    set({ isLoading: true });
+    set({ removingTrip: true });
+
     try {
       await axiosInstance.delete(`/trips/${tripId}`);
+
       set((state) => ({
         trips: state.trips.filter((t) => t.id !== tripId),
-        isLoading: false,
       }));
-      toast.success("Trip removed");
+
       await useShipmentStore.getState().fetchShipments();
+
+      toast.success("Trip removed");
     } catch (err) {
       console.error("Failed to delete trip:", err);
-      set({ error: "Failed to delete trip", isLoading: false });
+
+      set({
+        error: "Failed to delete trip",
+      });
+
       toast.error("Failed to remove trip");
+    } finally {
+      set({ removingTrip: false });
     }
   },
 }));

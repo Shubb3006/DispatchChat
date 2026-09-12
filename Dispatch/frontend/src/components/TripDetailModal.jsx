@@ -44,6 +44,7 @@ export default function TripDetailsModal({
 }) {
   // Which of the trip's loads the Relay Legs section is managing.
   const [legsLoadId, setLegsLoadId] = useState(null);
+  const [updatingLoadId, setUpdatingLoadId] = useState(null)
   const [tripSheet, setTripSheet] = useState(null);
   const [isLoadingSheet, setIsLoadingSheet] = useState(false);
   const fetchTripSheet = useTripStore((s) => s.fetchTripSheet);
@@ -61,6 +62,7 @@ export default function TripDetailsModal({
     if (data) setTripSheet(data);
   };
 
+  const { removingTrip } = useTripStore();
   if (!isOpen || !trip) return null;
 
   const legsLoad =
@@ -252,7 +254,7 @@ export default function TripDetailsModal({
                       </td>
 
                       <td className="text-center">
-                        <select
+                        {/* <select
                           value={load.status}
                           onChange={async (e) => {
                             const status = e.target.value;
@@ -284,7 +286,55 @@ export default function TripDetailsModal({
                             Out for Delivery
                           </option>
                           <option value="delivered">Delivered</option>
-                        </select>
+                        </select> */}
+                        <div className="flex items-center justify-center gap-2">
+                          <select
+                            value={load.status}
+                            disabled={updatingLoadId === load.id}
+                            onChange={async (e) => {
+                              const status = e.target.value;
+
+                              try {
+                                setUpdatingLoadId(load.id);
+
+                                await onUpdateShipment({
+                                  ...load,
+                                  status,
+                                });
+
+                                setSelectedTrip((prev) => ({
+                                  ...prev,
+                                  shipments: prev?.shipments?.map((s) =>
+                                    s.id === load.id ? { ...s, status } : s
+                                  ),
+                                }));
+                              } catch (error) {
+                                console.error("Failed to update shipment status:", error);
+                              } finally {
+                                setUpdatingLoadId(null);
+                              }
+                            }}
+                            className={`rounded-lg px-3 py-2 text-sm font-semibold border-none outline-none
+      ${updatingLoadId === load.id
+                                ? "opacity-60 cursor-not-allowed"
+                                : "cursor-pointer"
+                              }
+      ${statusStyles[load.status]}
+    `}
+                          >
+                            <option value="trip_assigned">Trip Assigned</option>
+                            <option value="in_transit">In Transit</option>
+                            <option value="at_destination_hub">
+                              At Destination Hub
+                            </option>
+                            <option value="out_for_delivery">Out for Delivery</option>
+                            <option value="delivered">Delivered</option>
+                          </select>
+
+                          {/* {updatingLoadId === load.id && (
+                            <span className="h-4 w-4 rounded-full border-2 border-base-content/20 border-t-primary animate-spin" />
+                          )} */}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -343,20 +393,25 @@ export default function TripDetailsModal({
 
         <div className="border-t bg-base-200 px-8 py-5 flex justify-between">
           <button
+            disabled={removingTrip}
             onClick={async () => {
               if (window.confirm(`Disassemble Trip #${trip.trip_number}?`)) {
-                await onRemoveTrip(trip.id);
                 onClose();
+                await onRemoveTrip(trip.id);
+
               }
             }}
-            className="px-5 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 transition"
+            className={`px-5 py-2 rounded-lg text-white font-medium transition shadow-sm ${removingTrip
+              ? "bg-gray-400 cursor-not-allowed opacity-60"
+              : "bg-red-600 hover:bg-red-700 cursor-pointer"
+              }`}
           >
-            Disassemble Trip
+            {removingTrip ? "Disassembling..." : "Disassemble Trip"}
           </button>
 
           <button
             onClick={onClose}
-            className="px-5 py-2 rounded-lg border hover:bg-base-100"
+            className="cursor-pointer px-5 py-2 rounded-lg border hover:bg-base-100"
           >
             Close
           </button>

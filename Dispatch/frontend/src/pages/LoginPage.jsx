@@ -227,6 +227,7 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen w-screen flex flex-col items-center justify-center bg-slate-900 text-slate-100 font-sans p-6 selection:bg-indigo-500 selection:text-white relative overflow-x-hidden">
       {/* Decorative gradient overlay */}
+
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-indigo-900/40 via-slate-900 to-slate-950 pointer-events-none z-0" />
 
       <div className="w-full max-w-md z-10 space-y-6">

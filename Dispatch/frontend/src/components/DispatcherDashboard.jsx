@@ -978,6 +978,9 @@ export default function DispatcherDashboard({
   pendingBOLs: propPendingBOLs,
   handleApprove,
 }) {
+  const [isBuildingTrip, setIsBuildingTrip] = useState(false);
+  const [tripBuildStep, setTripBuildStep] = useState(0);
+
   const [selectedTrip, setSelectedTrip] = useState(null);
   const [isTripModalOpen, setIsTripModalOpen] = useState(false);
   const [isMultiStopModalOpen, setIsMultiStopModalOpen] = useState(false);
@@ -1007,6 +1010,9 @@ export default function DispatcherDashboard({
   const customers = useCustomerStore((state) => state.customers);
 
   const trips = useTripStore((state) => state.trips);
+
+  const { addingTrip, fetchingTrips, removingTrip, updatingTrip } = useTripStore();
+
   const { documents, fetchDocuments } = useDocumentStore();
 
   // Live Samsara fleet, for the Active Fleet card.
@@ -1715,29 +1721,85 @@ export default function DispatcherDashboard({
     toast.error(`Load #${s.load_number || s.tracking_number || s.trackingNumber || loadId} BOL Rejected. Driver notified to re-upload.`);
   };
 
+  // const handleConsolidateTrips = async () => {
+  //   console.log("s")
+  //   // if (!consolidationDriverId) {
+  //   //   alert("Please select a driver");
+  //   //   return;
+  //   // }
+  //   if (selectedConsolidationIds.length === 0) {
+  //     alert("Please select at least one load to consolidate into this trip.");
+  //     return;
+  //   }
+  //   // The trip number comes back from the server, which allocates it from a
+  //   // sequence starting at 10000. Computing it here from the loaded trip list
+  //   // raced other dispatchers onto the same number.
+  //   const selectedLoads = shipments.filter((s) =>
+  //     selectedConsolidationIds.includes(s.id)
+  //   );
+  //   const totalWeight = selectedLoads.reduce(
+  //     (sum, s) => sum + Number(s.weight),
+  //     0
+  //   );
+  //   const totalPallets = selectedLoads.reduce(
+  //     (sum, s) => sum + Number(s.pieces),
+  //     0
+  //   );
+  //   const newTrip = {
+  //     driverId: consolidationDriverId,
+  //     driverName: consolidationDriverName,
+  //     truckNumber: consolidationTruck,
+  //     trailerNumber: consolidationTrailer,
+  //     status: "pending",
+  //     shipmentIds: [...selectedConsolidationIds],
+  //     totalWeightLbs: totalWeight,
+  //     totalPallets,
+  //   };
+
+  //   if (!onAddTrip) return;
+
+  //   // Create first so the loads can be stamped with the real trip number the
+  //   // server allocated, then route is already computed server-side.
+  //   const savedTrip = await onAddTrip(newTrip);
+  //   if (!savedTrip) return; // store already surfaced the failure
+
+  //   const tripId = `TRIP-${savedTrip.trip_number}`;
+  //   selectedLoads.forEach((shipment) => {
+  //     onUpdateShipment({
+  //       ...shipment,
+  //       tripId,
+  //       driver_id: consolidationDriverId,
+  //       status: "trip_assigned",
+  //     });
+  //   });
+
+  //   setSelectedConsolidationIds([]);
+  //   setConsolidationDriverId("");
+  //   setConsolidationDriverName("");
+  // };
+  // Only fire when the selected shipment changes, not on every message arrival.
+  // Using selectedShipment?.id keeps the dep stable (primitive string, not object).
   const handleConsolidateTrips = async () => {
-    // if (!consolidationDriverId) {
-    //   alert("Please select a driver");
-    //   return;
-    // }
+
     if (selectedConsolidationIds.length === 0) {
       alert("Please select at least one load to consolidate into this trip.");
       return;
     }
-    // The trip number comes back from the server, which allocates it from a
-    // sequence starting at 10000. Computing it here from the loaded trip list
-    // raced other dispatchers onto the same number.
+
     const selectedLoads = shipments.filter((s) =>
       selectedConsolidationIds.includes(s.id)
     );
+
     const totalWeight = selectedLoads.reduce(
       (sum, s) => sum + Number(s.weight),
       0
     );
+
     const totalPallets = selectedLoads.reduce(
       (sum, s) => sum + Number(s.pieces),
       0
     );
+
     const newTrip = {
       driverId: consolidationDriverId,
       driverName: consolidationDriverName,
@@ -1751,27 +1813,105 @@ export default function DispatcherDashboard({
 
     if (!onAddTrip) return;
 
-    // Create first so the loads can be stamped with the real trip number the
-    // server allocated, then route is already computed server-side.
-    const savedTrip = await onAddTrip(newTrip);
-    if (!savedTrip) return; // store already surfaced the failure
+    // try {
+    //   // Show building modal
+    //   setIsBuildingTrip(true);
+    //   setTripBuildStep(1);
 
-    const tripId = `TRIP-${savedTrip.trip_number}`;
-    selectedLoads.forEach((shipment) => {
-      onUpdateShipment({
-        ...shipment,
-        tripId,
-        driver_id: consolidationDriverId,
-        status: "trip_assigned",
+    //   // The server creates the trip and generates the route
+    //   setTripBuildStep(2);
+    //   setTripBuildStep(3);
+
+
+    //   const savedTrip = await onAddTrip(newTrip);
+
+    //   if (!savedTrip) {
+    //     setIsBuildingTrip(false);
+    //     return;
+    //   }
+
+    //   // Trip + route successfully created
+
+    //   const tripId = `TRIP-${savedTrip.trip_number}`;
+
+    //   selectedLoads.forEach((shipment) => {
+    //     onUpdateShipment({
+    //       ...shipment,
+    //       tripId,
+    //       driver_id: consolidationDriverId,
+    //       status: "trip_assigned",
+    //     });
+    //   });
+
+    //   setTripBuildStep(4);
+
+    //   // Small moment to let the user see "Finalizing trip"
+    //   await new Promise((resolve) => setTimeout(resolve, 500));
+
+    //   setSelectedConsolidationIds([]);
+    //   setConsolidationDriverId("");
+    //   setConsolidationDriverName("");
+
+    //   // Close loader
+    //   setIsBuildingTrip(false);
+
+    // } catch (error) {
+    //   console.error("Failed to build consolidation trip:", error);
+    //   setIsBuildingTrip(false);
+    // }
+    try {
+      setIsBuildingTrip(true);
+      setTripBuildStep(1);
+
+      // Move through the first 3 stages gradually while the API works.
+      const step2Timer = setTimeout(() => {
+        setTripBuildStep(2);
+      }, 3000);
+
+      const step3Timer = setTimeout(() => {
+        setTripBuildStep(3);
+      }, 7000);
+
+      // This is the actual trip creation + route generation.
+      const savedTrip = await onAddTrip(newTrip);
+
+      // Stop timers because the API has finished.
+      clearTimeout(step2Timer);
+      clearTimeout(step3Timer);
+
+      if (!savedTrip) {
+        setIsBuildingTrip(false);
+        return;
+      }
+
+      // API successfully completed.
+      setTripBuildStep(4);
+
+      const tripId = `TRIP-${savedTrip.trip_number}`;
+
+      selectedLoads.forEach((shipment) => {
+        onUpdateShipment({
+          ...shipment,
+          tripId,
+          driver_id: consolidationDriverId,
+          status: "trip_assigned",
+        });
       });
-    });
 
-    setSelectedConsolidationIds([]);
-    setConsolidationDriverId("");
-    setConsolidationDriverName("");
+      // Give the user a moment to see the completed state.
+      await new Promise((resolve) => setTimeout(resolve, 700));
+
+      setSelectedConsolidationIds([]);
+      setConsolidationDriverId("");
+      setConsolidationDriverName("");
+
+      setIsBuildingTrip(false);
+
+    } catch (error) {
+      console.error("Failed to build consolidation trip:", error);
+      setIsBuildingTrip(false);
+    }
   };
-  // Only fire when the selected shipment changes, not on every message arrival.
-  // Using selectedShipment?.id keeps the dep stable (primitive string, not object).
   useEffect(() => {
     if (selectedShipment && onMarkMessagesAsRead) {
       onMarkMessagesAsRead(selectedShipment.id, "dispatcher");
@@ -3183,11 +3323,12 @@ export default function DispatcherDashboard({
                     )}
                     <button
                       type="button"
-                      disabled={!trailerPlan.fits}
+                      disabled={!trailerPlan.fits || addingTrip}
                       onClick={handleConsolidateTrips}
-                      className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg transition-all shadow-sm flex items-center space-x-1.5 ${!trailerPlan.fits
-                        ? "bg-slate-300 cursor-not-allowed"
-                        : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                      className={`px-5 py-2.5 text-xs font-bold text-white rounded-lg transition-all shadow-sm flex items-center space-x-1.5
+    ${!trailerPlan.fits || addingTrip
+                          ? "bg-gray-400 cursor-not-allowed opacity-60"
+                          : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
                         }`}
                     >
                       <Sparkles className="h-4 w-4" />
@@ -5142,6 +5283,184 @@ export default function DispatcherDashboard({
           fetchShipments();
         }}
       />
+      {isBuildingTrip && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-md rounded-2xl bg-base-100 shadow-2xl border border-base-300">
+
+            {/* Header */}
+            <div className="px-6 pt-7 pb-5 text-center">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-indigo-100">
+                <Sparkles className="h-7 w-7 text-indigo-600 animate-pulse" />
+              </div>
+
+              <h2 className="mt-4 text-xl font-bold text-base-content">
+                Building Your Trip
+              </h2>
+
+              <p className="mt-2 text-sm leading-relaxed text-base-content/60">
+                We're analyzing your selected loads, optimizing the trailer,
+                and generating the most efficient route.
+              </p>
+            </div>
+
+            {/* Steps */}
+            <div className="px-6 pb-5">
+              <div className="space-y-3 rounded-xl bg-base-200 p-4">
+
+                {/* Step 1 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${tripBuildStep > 1
+                      ? "bg-success text-success-content"
+                      : tripBuildStep === 1
+                        ? "bg-indigo-600 text-white"
+                        : "bg-base-300 text-base-content/40"
+                      }`}
+                  >
+                    {tripBuildStep > 1 ? (
+                      <span className="text-sm font-bold">✓</span>
+                    ) : tripBuildStep === 1 ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : (
+                      <span className="text-xs">1</span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`text-sm ${tripBuildStep >= 1
+                      ? "font-medium text-base-content"
+                      : "text-base-content/40"
+                      }`}
+                  >
+                    Analyzing selected loads
+                  </span>
+                </div>
+
+                {/* Step 2 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${tripBuildStep > 2
+                      ? "bg-success text-success-content"
+                      : tripBuildStep === 2
+                        ? "bg-indigo-600 text-white"
+                        : "bg-base-300 text-base-content/40"
+                      }`}
+                  >
+                    {tripBuildStep > 2 ? (
+                      <span className="text-sm font-bold">✓</span>
+                    ) : tripBuildStep === 2 ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : (
+                      <span className="text-xs">2</span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`text-sm ${tripBuildStep >= 2
+                      ? "font-medium text-base-content"
+                      : "text-base-content/40"
+                      }`}
+                  >
+                    Preparing trailer configuration
+                  </span>
+                </div>
+
+                {/* Step 3 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${tripBuildStep > 3
+                      ? "bg-success text-success-content"
+                      : tripBuildStep === 3
+                        ? "bg-indigo-600 text-white"
+                        : "bg-base-300 text-base-content/40"
+                      }`}
+                  >
+                    {tripBuildStep > 3 ? (
+                      <span className="text-sm font-bold">✓</span>
+                    ) : tripBuildStep === 3 ? (
+                      <span className="loading loading-spinner loading-xs" />
+                    ) : (
+                      <span className="text-xs">3</span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`text-sm ${tripBuildStep >= 3
+                      ? "font-medium text-base-content"
+                      : "text-base-content/40"
+                      }`}
+                  >
+                    Generating optimized route
+                  </span>
+                </div>
+
+                {/* Step 4 */}
+                <div className="flex items-center gap-3">
+                  <div
+                    className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full ${tripBuildStep >= 4
+                      ? "bg-success text-success-content"
+                      : "bg-base-300 text-base-content/40"
+                      }`}
+                  >
+                    {tripBuildStep >= 4 ? (
+                      <span className="text-sm font-bold">✓</span>
+                    ) : (
+                      <span className="text-xs">4</span>
+                    )}
+                  </div>
+
+                  <span
+                    className={`text-sm ${tripBuildStep >= 4
+                      ? "font-medium text-base-content"
+                      : "text-base-content/40"
+                      }`}
+                  >
+                    Finalizing trip
+                  </span>
+                </div>
+
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="border-t border-base-300 px-6 py-4">
+              <div className="flex items-center justify-center gap-2 text-xs text-base-content/50">
+                <span className="loading loading-spinner loading-xs" />
+                <span>
+                  This may take a moment. Please don't close this window.
+                </span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      )}
+
+      {removingTrip && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="w-full max-w-sm mx-4 rounded-2xl bg-base-100 border border-base-300 shadow-2xl p-7 text-center">
+
+            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
+              <Truck className="h-7 w-7 text-red-600 animate-pulse" />
+            </div>
+
+            <h2 className="mt-4 text-lg font-bold text-base-content">
+              Restoring Loads
+            </h2>
+
+            <p className="mt-2 text-sm leading-relaxed text-base-content/60">
+              The trip is being disassembled and its loads are being
+              returned to the available shipment list.
+            </p>
+
+            <div className="mt-5 flex items-center justify-center gap-2 text-xs text-base-content/50">
+              <span className="h-4 w-4 rounded-full border-2 border-base-content/20 border-t-primary animate-spin" />
+              <span>Please wait...</span>
+            </div>
+
+          </div>
+        </div>
+      )}
     </div>
   );
 

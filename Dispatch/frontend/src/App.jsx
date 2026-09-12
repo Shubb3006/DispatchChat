@@ -358,6 +358,7 @@ import PortalLoadDetailPage from "./pages/PortalLoadDetailPage";
 import { usePortalStore } from "./stores/usePortalStore";
 import FreightForceAlert from "./components/FreightForceAlert";
 import { useThemeStore } from "./stores/useThemeStore";
+import NotFoundPage from "./pages/NotFound";
 
 
 
@@ -559,6 +560,7 @@ function LogiSyncApp() {
         <Route path="/track/:trackingNumber" element={<PublicTrackingPage />} />
         <Route path="/track" element={<PublicTrackingPage />} />
         <Route path="*" element={<RequireAuth />} />
+        {/* <Route path="*" element={<NotFoundPage />} /> */}
       </Routes>
     );
   }

@@ -10,6 +10,15 @@
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
 }
 
+.grid-canvas {
+  background-image:
+    linear-gradient(to right, color-mix(in oklab, var(--color-base-300) 55%, transparent) 1px, transparent 1px),
+    linear-gradient(to bottom, color-mix(in oklab, var(--color-base-300) 55%, transparent) 1px, transparent 1px);
+  background-size: 28px 28px;
+  background-position: center center;
+}
+
+
 /* Custom Sleek Light Enterprise Scrollbars */
 ::-webkit-scrollbar {
   width: 6px;

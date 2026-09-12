@@ -1,6 +1,9 @@
 import React from "react";
+import { useTripStore } from "../stores/useTripStore";
 
 const TripCard = (trip, tripLoads) => {
+
+  const { removingTrip } = useTripStore();
   return (
     <div
       key={trip.id}
@@ -32,6 +35,7 @@ const TripCard = (trip, tripLoads) => {
     // }}
     >
       <div className="flex items-center justify-between">
+        <p>"SCCcs"</p>
         <div className="flex items-center space-x-1.5">
           <span className="text-xs font-bold text-base-content">
             Trip #{trip.trip_number}
@@ -183,11 +187,13 @@ const TripCard = (trip, tripLoads) => {
               </div>
             ))}
           </div>
+          {console.log(removingTrip)}
 
           {/* Disassemble Trip Action */}
           <div className="pt-2 flex justify-end">
             <button
               type="button"
+              disabled={removingTrip}
               onClick={() => {
                 if (
                   confirm(
@@ -206,7 +212,10 @@ const TripCard = (trip, tripLoads) => {
                   }
                 }
               }}
-              className="text-rose-600 hover:text-white border border-rose-200 hover:bg-rose-600 hover:border-rose-600 px-2.5 py-1 rounded text-3xs font-bold tracking-wider uppercase transition-colors cursor-pointer"
+              className={`text-rose-600 hover:text-white border border-rose-200 hover:bg-rose-600 hover:border-rose-600 px-2.5 py-1 rounded text-3xs font-bold tracking-wider uppercase transition-colors cursor-pointer ${removingTrip
+                ? "bg-gray-400 cursor-not-allowed opacity-60"
+                : "bg-indigo-600 hover:bg-indigo-700 cursor-pointer"
+                }`}
             >
               Disassemble Trip
             </button>
