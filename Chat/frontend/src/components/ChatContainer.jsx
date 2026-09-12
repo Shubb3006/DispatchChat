@@ -45,7 +45,9 @@ const ChatContainer = () => {
     deleteMessage,
     setReplyingToMessage,
     togglePinMessage,
+    messagesByUser
   } = useChatStore();
+  console.log(messagesByUser)
 
   const {
     selectedGroup,
@@ -164,14 +166,18 @@ const ChatContainer = () => {
     }
   }, [searchDate]);
 
-  if (activeLoading)
-    return (
-      <div className="flex-1 flex flex-col">
-        <ChatHeader />
-        <MessageSkeleton />
-        <MessageInput />
-      </div>
-    );
+  // if (activeLoading)
+  //   return (
+  //     <div className="flex-1 flex flex-col">
+  //       <ChatHeader />
+  //       <MessageSkeleton />
+  //       <MessageInput />
+  //     </div>
+  //   );
+
+  // if (activeLoading && messages.length === 0) {
+  //   return <MessageSkeleton />;
+  // }
 
   return (
     <div className="flex-1 flex flex-col bg-base-100 h-full min-h-0 overflow-hidden relative">
@@ -200,7 +206,7 @@ const ChatContainer = () => {
         {filteredMessages.length === 0 && !activeLoading && !isTyping ? ( */}
 
       <div className="flex-1 overflow-y-auto min-h-0 p-4 space-y-4 overflow-x-hidden">
-        {activeLoading ? (
+        {activeLoading && activeMessagesList.length === 0 ? (
           <MessageSkeleton />
         ) : filteredMessages.length === 0 && !isTyping ? (
           <div className="flex items-center justify-center h-full text-sm text-base-content/60">
