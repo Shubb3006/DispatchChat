@@ -14,7 +14,7 @@ const io = new Server(server, {
 
 export function getReceiverSocketId(userId) {
   return userSockMap[userId];
-} 
+}
 
 const userSockMap = {}; //{userId:socketId}
 io.on("connection", (socket) => {
@@ -25,16 +25,28 @@ io.on("connection", (socket) => {
 
   io.emit("getOnlineUsers", Object.keys(userSockMap)); // it used to send eventts to all connected users
 
+  // socket.on("disconnect", () => {
+  //   console.log("User disconnected", socket.id);
+  //   delete userSockMap[userId];
+  //   io.emit("getOnlineUsers", Object.keys(userSockMap)); // it used to send eventts to all connected users
+  // });
+
   socket.on("disconnect", () => {
     console.log("User disconnected", socket.id);
-    delete userSockMap[userId];
-    io.emit("getOnlineUsers", Object.keys(userSockMap)); // it used to send eventts to all connected users
+
+    // Only remove the mapping if this socket is still
+    // the active socket for this user.
+    if (userSockMap[userId] === socket.id) {
+      delete userSockMap[userId];
+    }
+
+    io.emit("getOnlineUsers", Object.keys(userSockMap));
   });
 
-  socket.on("typing",({senderId,receiverId,isTyping})=>{
-    const receiverSocketId=userSockMap[receiverId];
-    if(receiverSocketId)
-      io.to(receiverSocketId).emit("typing",{senderId,isTyping})
+  socket.on("typing", ({ senderId, receiverId, isTyping }) => {
+    const receiverSocketId = userSockMap[receiverId];
+    if (receiverSocketId)
+      io.to(receiverSocketId).emit("typing", { senderId, isTyping })
   })
 
   // --- Voice Calling Signaling ---

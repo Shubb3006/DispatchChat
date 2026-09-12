@@ -114,9 +114,9 @@ export const useAuthStore = create((set, get) => ({
     set((state) => ({
       authUser: state.authUser
         ? {
-            ...state.authUser,
-            archivedChatIds: state.authUser.archivedChatIds.filter((id) => id !== chatId),
-          }
+          ...state.authUser,
+          archivedChatIds: state.authUser.archivedChatIds.filter((id) => id !== chatId),
+        }
         : null,
     }));
   },
@@ -127,8 +127,13 @@ export const useAuthStore = create((set, get) => ({
     if (!authUser || !userId) return;
 
     // Disconnect existing socket if host changed or reconnecting
-    if (get().socket) {
-      get().socket.disconnect();
+    // if (get().socket) {
+    //   get().socket.disconnect();
+    // }
+
+    if (get().socket?.connected) {
+      console.log("Socket already connected:", get().socket.id);
+      return;
     }
 
     const socketUrl = getSocketUrl();
