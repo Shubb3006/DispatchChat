@@ -110,7 +110,7 @@ const ChatContainer = () => {
         block: "end",
       });
     }
-  }, [activeMessagesList, activeLoading, isTyping]);
+  }, [activeMessagesList.length, activeLoading, isTyping]);
 
   const handleStartEdit = (message) => {
     setEditingMessageId(message._id);
