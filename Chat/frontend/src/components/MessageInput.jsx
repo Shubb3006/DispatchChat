@@ -247,11 +247,7 @@ const MessageInput = () => {
           : null,
       };
 
-      if (selectedGroup) {
-        await sendGroupMessage(selectedGroup._id, payload);
-      } else if (selectedUser) {
-        await sendMessage(payload);
-      }
+
 
       setText("");
       setImagePreview(null);
@@ -270,10 +266,18 @@ const MessageInput = () => {
           isTyping: false,
         });
       }
+
+      if (selectedGroup) {
+        await sendGroupMessage(selectedGroup._id, payload);
+      } else if (selectedUser) {
+        await sendMessage(payload);
+      }
     } catch (error) {
       console.log("Failed to send message:", error);
     }
   }
+
+
 
   const handleImageChange = (e) => {
     if (isReadOnly) return;
@@ -549,22 +553,22 @@ const MessageInput = () => {
           </div>
 
           {/* Send Button */}
-          {!isMessageSending ? (
-            <button
-              type="submit"
-              className="btn btn-primary btn-circle btn-sm"
-              disabled={
-                (!text.trim() && !imagePreview && !audioBlob) ||
-                isMessageSending
-              }
-            >
-              <Send className="size-4" />
-            </button>
-          ) : (
+          {/* {!isMessageSending ? ( */}
+          <button
+            type="submit"
+            className="btn btn-primary btn-circle btn-sm"
+            disabled={
+              (!text.trim() && !imagePreview && !audioBlob) ||
+              isMessageSending
+            }
+          >
+            <Send className="size-4" />
+          </button>
+          {/* ) : (
             <div className="btn btn-circle btn-sm btn-ghost">
               <Loader className="size-5 animate-spin" />
             </div>
-          )}
+          )} */}
         </form>
       )}
     </div>
