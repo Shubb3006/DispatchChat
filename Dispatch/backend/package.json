@@ -7,9 +7,11 @@
     "dev": "nodemon src/server.js",
     "build": "tsc",
     "start": "node src/server.js",
-    "migrate": "node runMigrations.js"
+    "migrate": "node runMigrations.js",
+    "test:claude": "node src/scripts/testClaudeExtraction.mjs"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.125.0",
     "@google/genai": "^2.4.0",
     "@supabase/supabase-js": "^2.112.4",
     "axios": "^1.18.1",
@@ -29,6 +31,7 @@
     "react-hot-toast": "^2.6.0",
     "react-router-dom": "^7.18.1",
     "ws": "^8.21.3",
+    "zod": "^4.6.2",
     "zustand": "^5.0.14"
   },
   "devDependencies": {

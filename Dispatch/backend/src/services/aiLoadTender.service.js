@@ -1,162 +1,71 @@
-import { GoogleGenAI } from "@google/genai";
 import pool from "../config/db.js";
-
-// Read the key lazily so it works no matter when dotenv/env vars load.
-export const isGeminiConfigured = () => !!(process.env.GEMINI_API_KEY || "").trim();
-
-const getGeminiClient = () => {
-  const apiKey = (process.env.GEMINI_API_KEY || "").trim();
-  return apiKey ? new GoogleGenAI({ apiKey }) : null;
-};
+import {
+  extractWithClaude,
+  isClaudeConfigured,
+  CLAUDE_MODEL,
+} from "./claudeLoadTender.js";
 
 /**
- * Extract structured load tender data from raw email text or PDF buffer using Gemini AI
+ * Load tender extraction.
+ *
+ * Engine is Claude (see claudeLoadTender.js). The heuristic regex parser below
+ * remains the fallback for when the API key is missing or the call fails, so a
+ * tender still lands in the system rather than being dropped.
  */
-export const extractLoadTenderWithGemini = async ({
+
+// Kept as the canonical name; the Gemini-era alias below preserves callers.
+export const isAiConfigured = isClaudeConfigured;
+
+/** @deprecated name retained so existing imports keep resolving. */
+export const isGeminiConfigured = isClaudeConfigured;
+
+/** Source tag written onto every successful AI extraction. */
+export const AI_EXTRACTION_SOURCE = "claude-ai";
+
+export const extractLoadTender = async ({
   emailText = "",
   emailSubject = "",
   senderEmail = "",
   pdfBuffer = null,
   pdfBase64 = null,
 }) => {
-  const promptText = `
-You are an expert freight logistics AI parser for Nishan Transport Inc.
-Extract structured shipment and load confirmation details from the following incoming customer or broker load confirmation.
-
-Email Subject: ${emailSubject}
-Sender Email: ${senderEmail}
-Email Content / Rate Confirmation:
-"""
-${emailText}
-"""
-
-Return ONLY a valid, raw JSON object (without markdown code fences, no \`\`\`json, just pure parseable JSON) matching this exact schema:
-{
-  "load_number": "Carrier or broker load/order reference number (e.g. 582440, TRIP-4378, PO-99214)",
-  "status": "Entered",
-  "customer_name": "Full company or brokerage name (e.g. C.H. Robinson, TQL, Weston Wood Solutions)",
-  "customer_email": "Customer contact email or sender email",
-  "customer_phone": "Customer phone number if found, or 'N/A'",
-  "customer_billing_address": "Billing address if mentioned",
-  "rate": 2850.00,
-  "currency": "USD" or "CAD",
-  "po_number": "PO number, reference number, or tender ID",
-  "shipper_name": "Pickup facility or shipper name",
-  "shipper_street_address": "Pickup street address (e.g. 300 Orenda Road)",
-  "shipper_district": "District or neighborhood if mentioned (or empty)",
-  "shipper_city": "Pickup city (e.g. Brampton)",
-  "shipper_state": "Pickup state or province code (e.g. ON)",
-  "shipper_country": "CAN or USA",
-  "shipper_zipcode": "Pickup ZIP or postal code (e.g. L6T 1G1)",
-  "origin": "City, State/Prov, Country (e.g. Brampton, ON, Canada)",
-  "shipper_phone": "Shipper phone if found",
-  "pickup_date": "YYYY-MM-DD (e.g. 2026-08-24)",
-  "pickup_time": "Pickup appointment window (e.g. 08:00 - 14:00)",
-  "consignee_name": "Delivery facility or receiver name",
-  "consignee_street_address": "Delivery street address (e.g. 45150 Highway 27)",
-  "consignee_district": "District or neighborhood if mentioned (or empty)",
-  "consignee_city": "Delivery city (e.g. Davenport)",
-  "consignee_state": "Delivery state or province code (e.g. FL)",
-  "consignee_country": "USA or CAN",
-  "consignee_zipcode": "Delivery ZIP or postal code (e.g. 33896)",
-  "destination": "City, State/Prov, Country (e.g. Davenport, FL, USA)",
-  "consignee_phone": "Consignee phone if found",
-  "delivery_date": "YYYY-MM-DD (e.g. 2026-08-26)",
-  "delivery_time": "Delivery appointment window (e.g. 09:00)",
-  "commodity": "Description of freight cargo (e.g. Lumber / Wood Millwork Products)",
-  "pieces": 1,
-  "piece_type": "SKIDS" or "PALLETS" or "PCS",
-  "weight": 3856,
-  "load_type": "FTL" or "LTL",
-  "special_instructions": "Any delivery dock notes or driver requirements",
-  "customs_broker": "Customs broker name if cross-border (e.g. Livingston International)"
-}
-`;
-
-  const ai = getGeminiClient();
-  try {
-    if (ai) {
-      let contents = [];
-
-      // If PDF binary buffer or base64 is provided, pass directly as multimodal document
-      const base64Data = pdfBase64 || (pdfBuffer ? pdfBuffer.toString("base64") : null);
-      if (base64Data) {
-        contents = [
-          {
-            inlineData: {
-              data: base64Data,
-              mimeType: "application/pdf",
-            },
-          },
-          { text: promptText },
-        ];
-      } else {
-        contents = [{ text: promptText }];
-      }
-
-      // Active production model: gemini-3.6-flash (gemini-2.5 was retired)
-      const model = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-
-      // Rapid retry with small backoff
-      const RETRY_DELAYS_MS = [0, 1000, 2000];
-      let response;
-      let lastErr;
-      for (const delay of RETRY_DELAYS_MS) {
-        if (delay) await new Promise((r) => setTimeout(r, delay));
-        try {
-          response = await ai.models.generateContent({
-            model,
-            contents,
-            config: {
-              responseMimeType: "application/json",
-              temperature: 0.1,
-            },
-          });
-          lastErr = null;
-          break;
-        } catch (err) {
-          lastErr = err;
-          const msg = String(err.message || "");
-          const transient = /"code":\s*(503|429)|UNAVAILABLE|RESOURCE_EXHAUSTED|overloaded|high demand/i.test(msg);
-          if (!transient) throw err;
-          console.warn(`Gemini transient error, retrying: ${msg.slice(0, 200)}`);
-        }
-      }
-      if (lastErr) throw lastErr;
-
-      const responseText = response.text?.trim() || "{}";
-      const cleanedJsonStr = responseText
-        .replace(/```json/gi, "")
-        .replace(/```/g, "")
-        .trim();
-
-      const parsedData = JSON.parse(cleanedJsonStr);
-      return {
-        success: true,
-        source: "gemini-ai",
-        data: normalizeTenderData(parsedData, senderEmail),
-      };
-    }
-  } catch (err) {
-    console.error("Gemini AI extraction error, falling back to heuristic parser:", err);
-    const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
+  if (!isClaudeConfigured()) {
     return {
       success: true,
       source: "heuristic-parser",
-      fallback_reason: `Gemini call failed: ${err.message}`,
-      data: fallbackData,
+      fallback_reason: "ANTHROPIC_API_KEY is not configured on the backend server",
+      data: heuristicParseEmail(emailText, emailSubject, senderEmail),
     };
   }
 
-  // Heuristic Fallback Parser if Gemini API key is missing
-  const fallbackData = heuristicParseEmail(emailText, emailSubject, senderEmail);
+  const result = await extractWithClaude({
+    emailText,
+    emailSubject,
+    senderEmail,
+    pdfBuffer,
+    pdfBase64,
+  });
+
+  if (result.ok) {
+    return {
+      success: true,
+      source: AI_EXTRACTION_SOURCE,
+      model: result.model || CLAUDE_MODEL,
+      data: normalizeTenderData(result.data, senderEmail),
+    };
+  }
+
+  console.error("Claude extraction failed, falling back to heuristic parser:", result.reason);
   return {
     success: true,
     source: "heuristic-parser",
-    fallback_reason: "GEMINI_API_KEY is not configured on the backend server",
-    data: fallbackData,
+    fallback_reason: result.reason,
+    data: heuristicParseEmail(emailText, emailSubject, senderEmail),
   };
 };
+
+/** @deprecated name retained so existing imports keep resolving. */
+export const extractLoadTenderWithGemini = extractLoadTender;
 
 /**
  * Fallback regex/heuristic parser
@@ -236,7 +145,18 @@ function heuristicParseEmail(text = "", subject = "", sender = "") {
 /**
  * Normalizes and formats tender data
  */
-function normalizeTenderData(data, senderEmail) {
+/** Structured output returns null for absent fields; callers expect strings. */
+const coalesce = (value, fallback = "") =>
+  value === null || value === undefined ? fallback : value;
+
+function normalizeTenderData(rawData, senderEmail) {
+  // Strip nulls before the existing normalization logic sees them.
+  const data = Object.fromEntries(
+    Object.entries(rawData || {}).map(([k, v]) => [
+      k,
+      typeof v === "number" || typeof v === "boolean" ? v : coalesce(v),
+    ])
+  );
   const originStr = data.origin || `${data.shipper_city || 'Origin'}, ${data.shipper_state || 'ON'}, ${data.shipper_country || 'CAN'}`;
   const destStr = data.destination || `${data.consignee_city || 'Destination'}, ${data.consignee_state || 'FL'}, ${data.consignee_country || 'USA'}`;
 

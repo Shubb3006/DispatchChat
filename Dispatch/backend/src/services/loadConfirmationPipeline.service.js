@@ -1,6 +1,7 @@
 import pool from "../config/db.js";
 import {
-  extractLoadTenderWithGemini,
+  AI_EXTRACTION_SOURCE,
+  extractLoadTender,
   generateNextLoadNumber,
 } from "./aiLoadTender.service.js";
 import { evaluateRouteTeam } from "./routeAssignment.service.js";
@@ -28,16 +29,16 @@ export async function processLoadConfirmationPipeline({
 }) {
   console.log(`\n🚀 [Pipeline Start] Processing inbound Load Confirmation: "${emailSubject}" from ${senderEmail}`);
 
-  // Step 3 & 4: AI Document & Gemini Structured Extraction
+  // Step 3 & 4: AI Document & Claude Structured Extraction
   let tenderData;
-  let extractionSource = "gemini-ai";
+  let extractionSource = AI_EXTRACTION_SOURCE;
   let fallbackReason = null;
 
   // if (explicitTender && explicitTender.shipper_name) {
   //   tenderData = explicitTender;
   //   extractionSource = "explicit-payload";
   // } else {
-  //   const extraction = await extractLoadTenderWithGemini({
+  //   const extraction = await extractLoadTender({
   //     emailText,
   //     emailSubject,
   //     senderEmail,
@@ -47,7 +48,7 @@ export async function processLoadConfirmationPipeline({
   //   extractionSource = extraction.source;
   //   fallbackReason = extraction.fallback_reason || null;
   //   if (extractionSource !== "gemini-ai") {
-  //     console.warn(`⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`);
+  //     console.warn(`⚠️ [Pipeline] Claude NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`);
   //   }
   // }
 
@@ -55,7 +56,7 @@ export async function processLoadConfirmationPipeline({
     tenderData = explicitTender;
     extractionSource = "explicit-payload";
   } else {
-    const extraction = await extractLoadTenderWithGemini({
+    const extraction = await extractLoadTender({
       emailText,
       emailSubject,
       senderEmail,
@@ -66,22 +67,22 @@ export async function processLoadConfirmationPipeline({
     extractionSource = extraction.source;
     fallbackReason = extraction.fallback_reason || null;
 
-    if (extractionSource !== "gemini-ai") {
+    if (extractionSource !== AI_EXTRACTION_SOURCE) {
       console.warn(
-        `⚠️ [Pipeline] Gemini NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`
+        `⚠️ [Pipeline] Claude NOT used — ${fallbackReason}. Data below is heuristic/sample, not real extraction.`
       );
     }
   }
 
 
   /* =========================================================
-     MERGE RATE REQUEST + GEMINI DATA
+     MERGE RATE REQUEST + EXTRACTED DATA
      ========================================================= */
   console.log(tenderData)
   const finalTenderData = {
     ...tenderData,
 
-    // PDF/Gemini first, Rate Request as fallback
+    // PDF/Claude first, Rate Request as fallback
     origin: tenderData.origin || rateRequest?.origin || null,
     destination: tenderData.destination || rateRequest?.destination || null,
 

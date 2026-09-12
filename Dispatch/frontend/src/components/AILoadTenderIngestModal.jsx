@@ -135,7 +135,7 @@ export default function AILoadTenderIngestModal({
     }
 
     setIsUploadingPdf(true);
-    toast.loading(`Processing "${file.name}" with Gemini AI multimodal extractor...`, { id: "pdf-toast" });
+    toast.loading(`Processing "${file.name}" with Claude...`, { id: "pdf-toast" });
 
     try {
       const formData = new FormData();
@@ -151,10 +151,10 @@ export default function AILoadTenderIngestModal({
       if (res.data?.success) {
         setBookingResult(res.data);
         if (res.data.extraction_source === "gemini-ai") {
-          toast.success(`🎉 Gemini AI extracted your PDF! Load #${res.data.load_number} created & assigned to ${res.data.assigned_team}.`);
+          toast.success(`🎉 Claude extracted your PDF! Load #${res.data.load_number} created & assigned to ${res.data.assigned_team}.`);
         } else {
           toast.error(
-            `⚠️ Gemini AI was NOT used — load #${res.data.load_number} contains SAMPLE fallback data, not your PDF. ${res.data.fallback_reason || "Add GEMINI_API_KEY on the backend server (Render)."}`,
+            `⚠️ Claude was NOT used — load #${res.data.load_number} contains SAMPLE fallback data, not your PDF. ${res.data.fallback_reason || "Add ANTHROPIC_API_KEY on the backend server (Render)."}`,
             { duration: 10000 }
           );
         }
@@ -186,11 +186,11 @@ export default function AILoadTenderIngestModal({
       if (res.data?.success && res.data?.tender) {
         setExtractedData(res.data.tender);
         setSuggestedLoadNum(res.data.suggestedLoadNumber || "582440");
-        toast.success(`✨ Gemini AI successfully parsed the Load Confirmation!`);
+        toast.success(`✨ Claude successfully parsed the Load Confirmation!`);
       }
     } catch (err) {
       console.error(err);
-      toast.error("Failed to parse tender with Gemini. Check server connection.");
+      toast.error("Failed to parse tender with Claude. Check server connection.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -250,7 +250,7 @@ export default function AILoadTenderIngestModal({
                 </span>
               </h2>
               <p className="text-xs text-slate-400 font-mono">
-                Gmail Watcher ➔ Gemini AI ➔ Supabase 'Entered' ➔ Team Routing (A-E) ➔ Customer & Customs Emails
+                Gmail Watcher ➔ Claude ➔ Supabase 'Entered' ➔ Team Routing (A-E) ➔ Customer & Customs Emails
               </p>
             </div>
           </div>
@@ -368,12 +368,12 @@ export default function AILoadTenderIngestModal({
                 </div>
               </div>
 
-              {/* Gemini configuration warning */}
-              {workerStatus && workerStatus.geminiConfigured === false && (
+              {/* AI configuration warning */}
+              {workerStatus && (workerStatus.aiConfigured ?? workerStatus.geminiConfigured) === false && (
                 <div className="bg-red-50 border border-red-300 text-red-700 rounded-xl px-4 py-3 text-xs font-mono font-bold flex items-center gap-2">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>
-                    GEMINI_API_KEY is missing on the backend server — PDF uploads will produce SAMPLE data, not real extraction.
+                    ANTHROPIC_API_KEY is missing on the backend server — PDF uploads will produce SAMPLE data, not real extraction.
                     Add the key in Render Dashboard → Environment, then redeploy.
                   </span>
                 </div>
@@ -397,7 +397,7 @@ export default function AILoadTenderIngestModal({
                       Drag & Drop PDF Load Confirmation / Rate Confirmation
                     </h4>
                     <p className="text-xs text-base-content mt-1">
-                      Gemini AI will extract all 12 fields, insert into Supabase as <span className="font-bold text-emerald-600">'Entered'</span>, assign Team A-E, and dispatch customer emails.
+                      Claude will extract all 12 fields, insert into Supabase as <span className="font-bold text-emerald-600">'Entered'</span>, assign Team A-E, and dispatch customer emails.
                     </p>
                   </div>
                   <button
@@ -407,7 +407,7 @@ export default function AILoadTenderIngestModal({
                     className="px-5 py-2 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-2 font-mono"
                   >
                     <FileText className="h-4 w-4" />
-                    <span>{isUploadingPdf ? "Processing with Gemini AI..." : "Select PDF Document"}</span>
+                    <span>{isUploadingPdf ? "Processing with Claude..." : "Select PDF Document"}</span>
                   </button>
                 </div>
               </div>
@@ -570,7 +570,7 @@ export default function AILoadTenderIngestModal({
                     className="px-5 py-2.5 bg-gradient-to-r from-sky-600 to-indigo-600 hover:from-sky-500 hover:to-indigo-500 text-white font-bold text-xs rounded-xl shadow-md flex items-center space-x-2 transition-all cursor-pointer font-mono"
                   >
                     <Sparkles className={`h-4 w-4 ${isAnalyzing ? "animate-spin" : ""}`} />
-                    <span>{isAnalyzing ? "Extracting with Gemini AI..." : "Extract with Gemini AI 🤖"}</span>
+                    <span>{isAnalyzing ? "Extracting with Claude..." : "Extract with Claude 🤖"}</span>
                   </button>
                 </div>
               </div>
@@ -582,7 +582,7 @@ export default function AILoadTenderIngestModal({
                     <div className="flex items-center space-x-2">
                       <CheckCircle2 className="h-5 w-5 text-emerald-600" />
                       <h3 className="text-xs font-black uppercase text-base-content font-mono">
-                        2. Gemini AI Structured Extraction & Verification
+                        2. Claude Structured Extraction & Verification
                       </h3>
                     </div>
                     <div className="flex items-center space-x-2">

@@ -3,6 +3,7 @@ import pool from "../config/db.js";
 import { generateToken } from "../lib/utils.js";
 import { ensurePortalSchema } from "../services/portalSchema.service.js";
 import { processLoadConfirmationPipeline } from "../services/loadConfirmationPipeline.service.js";
+import { AI_EXTRACTION_SOURCE } from "../services/aiLoadTender.service.js";
 import { uploadLoadDocument } from "../services/supabaseStorage.service.js";
 import {
   notificationEvents,
@@ -363,7 +364,7 @@ export const respondToRateRequest = async (req, res) => {
 // ---------------------------------------------------------------------------
 // POST /api/loads/tender-upload   (customer)
 // multipart: tender=<pdf>, optional rate_request_id
-// Runs the existing Gemini pipeline, then stamps tenant ownership.
+// Runs the existing extraction pipeline, then stamps tenant ownership.
 // ---------------------------------------------------------------------------
 export const tenderUpload = async (req, res) => {
   try {
@@ -402,7 +403,7 @@ export const tenderUpload = async (req, res) => {
     );
     const customer = customerRow.rows[0] || {};
 
-    // Existing 12-step pipeline: Gemini extraction → load insert → route/team
+    // Existing 12-step pipeline: Claude extraction → load insert → route/team
     // assignment → customs entry → document storage → emails.
     const result = await processLoadConfirmationPipeline({
       emailText: `Portal tender upload by ${customer.company_name || "customer"} (${req.user.username})`,
@@ -453,7 +454,7 @@ export const tenderUpload = async (req, res) => {
     if (result.document?.id) {
       await pool
         .query(`UPDATE documents SET ai_parsed_status = $1, uploaded_by = $2 WHERE id = $3`, [
-          result.extraction_source === "gemini-ai" ? "PARSED" : "FAILED",
+          result.extraction_source === AI_EXTRACTION_SOURCE ? "PARSED" : "FAILED",
           req.user.id,
           result.document.id,
         ])
@@ -476,12 +477,12 @@ export const tenderUpload = async (req, res) => {
       data: { load_id: result.load_id, load_number: result.load_number },
     });
 
-    const usedGemini = result.extraction_source === "gemini-ai";
+    const usedGemini = result.extraction_source === AI_EXTRACTION_SOURCE;
     res.status(201).json({
       success: true,
       message: usedGemini
-        ? `Tender parsed with Gemini AI — Load #${result.load_number} created`
-        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Gemini unavailable"}`,
+        ? `Tender parsed with Claude — Load #${result.load_number} created`
+        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Claude unavailable"}`,
       load: stamped.rows[0],
       load_number: result.load_number,
       rate_request: rateRequest ? { ...rateRequest, status: "ACCEPTED" } : null,

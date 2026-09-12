@@ -1,7 +1,9 @@
 import pool from "../config/db.js";
 import {
-  extractLoadTenderWithGemini,
+  AI_EXTRACTION_SOURCE,
+  extractLoadTender,
   generateNextLoadNumber,
+  isAiConfigured,
 } from "../services/aiLoadTender.service.js";
 import { processLoadConfirmationPipeline } from "../services/loadConfirmationPipeline.service.js";
 import {
@@ -1372,7 +1374,7 @@ export const rejectBOL = async (req, res) => {
 
 /**
  * POST /api/v1/loads/parse-tender
- * Parses raw email text / load tender with Gemini AI without creating a load yet (for UI preview)
+ * Parses raw email text / load tender with Claude without creating a load yet (for UI preview)
  */
 export const parseInboundTender = async (req, res) => {
   try {
@@ -1385,7 +1387,7 @@ export const parseInboundTender = async (req, res) => {
       });
     }
 
-    const extractionResult = await extractLoadTenderWithGemini({
+    const extractionResult = await extractLoadTender({
       emailText: emailText || "",
       emailSubject: emailSubject || "",
       senderEmail: senderEmail || "",
@@ -1444,7 +1446,10 @@ export const getAutomationStatus = async (req, res) => {
     const status = getAutomationWorkerStatus();
     res.status(200).json({
       success: true,
-      geminiConfigured: !!(process.env.GEMINI_API_KEY || "").trim(),
+      aiConfigured: isAiConfigured(),
+      // Deprecated alias: kept so an older frontend build still reads a
+      // correct value during a deploy skew. Remove once clients are updated.
+      geminiConfigured: isAiConfigured(),
       ...status,
     });
   } catch (error) {
@@ -1489,12 +1494,12 @@ export const uploadAndProcessPdfTender = async (req, res) => {
       fileName: file.originalname,
     });
 
-    const usedGemini = result.extraction_source === "gemini-ai";
+    const usedGemini = result.extraction_source === AI_EXTRACTION_SOURCE;
     res.status(201).json({
       success: true,
       message: usedGemini
-        ? `PDF parsed with Gemini AI! Load #${result.load_number} assigned to ${result.assigned_team}`
-        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Gemini unavailable"}`,
+        ? `PDF parsed with Claude! Load #${result.load_number} assigned to ${result.assigned_team}`
+        : `⚠️ Load #${result.load_number} created from FALLBACK parser (sample data, NOT your PDF). Reason: ${result.fallback_reason || "Claude unavailable"}`,
       ...result,
     });
   } catch (error) {
