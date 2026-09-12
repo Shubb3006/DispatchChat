@@ -1011,7 +1011,7 @@ export default function DispatcherDashboard({
 
   const trips = useTripStore((state) => state.trips);
 
-  const { addingTrip, fetchingTrips, removingTrip, updatingTrip } = useTripStore();
+  const { addingTrip, removingTrip, updatingTrip } = useTripStore();
 
   const { documents, fetchDocuments } = useDocumentStore();
 
