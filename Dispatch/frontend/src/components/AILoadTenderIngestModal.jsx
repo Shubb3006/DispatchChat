@@ -28,6 +28,7 @@ import {
 import { axiosInstance } from "@/lib/axios";
 import { useShipmentStore } from "../stores/useShipmentStore";
 import toast from "react-hot-toast";
+import { usedAiExtraction } from "../lib/aiSource";
 
 const SAMPLE_BROKER_EMAIL = `Subject: Load Confirmation - TRIP-4378 (Weston Wood Solutions -> Woodgrain)
 From: dispatch@westonwood.com
@@ -150,7 +151,7 @@ export default function AILoadTenderIngestModal({
       toast.dismiss("pdf-toast");
       if (res.data?.success) {
         setBookingResult(res.data);
-        if (res.data.extraction_source === "gemini-ai") {
+        if (usedAiExtraction(res.data.extraction_source)) {
           toast.success(`🎉 Claude extracted your PDF! Load #${res.data.load_number} created & assigned to ${res.data.assigned_team}.`);
         } else {
           toast.error(

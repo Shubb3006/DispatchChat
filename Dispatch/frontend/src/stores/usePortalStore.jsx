@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
+import { usedAiExtraction } from "../lib/aiSource";
 
 /**
  * Absolute URL for a server-relative path the API handed us (document and
@@ -257,11 +258,11 @@ export const usePortalStore = create((set, get) => ({
 
       const res = await axiosInstance.post("/loads/tender-upload", formData, {
         headers: { "Content-Type": "multipart/form-data" },
-        timeout: 120000, // Gemini parse + retries can take a while
+        timeout: 120000, // Claude parse + retries can take a while
       });
 
       if (res.data?.success) {
-        if (res.data.extraction_source === "gemini-ai") {
+        if (usedAiExtraction(res.data.extraction_source)) {
           toast.success(`Load #${res.data.load_number} created from your tender.`, { duration: 6000 });
         } else {
           toast.error(
