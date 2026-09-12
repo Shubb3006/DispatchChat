@@ -40,11 +40,16 @@ const getClaudeClient = () => {
 export const CLAUDE_MODEL = process.env.ANTHROPIC_MODEL || "claude-opus-5";
 
 /**
- * Every field is nullable: a rate confirmation legitimately omits many of
- * these, and a schema that forces a value invites the model to invent one.
- * Nulls are normalized downstream by normalizeTenderData().
+ * Absent values: text fields use "", numeric and enum fields use null.
+ *
+ * Text fields are deliberately NOT nullable. Structured outputs rejects a
+ * schema with more than 16 union-typed parameters ("exponential compilation
+ * cost"), and every .nullable() is a union -- 38 nullable fields returned a
+ * 400. Only the 3 numbers and 5 enums keep null, which is 8 unions, because
+ * for those "" is not a representable value. Empty strings and nulls are both
+ * flattened by normalizeTenderData().
  */
-const str = () => z.string().nullable();
+const str = () => z.string();
 
 export const LoadTenderSchema = z.object({
   load_number: str().describe("Carrier or broker load/order reference, e.g. 582440, TRIP-4378, PO-99214"),
@@ -96,7 +101,7 @@ const SYSTEM_PROMPT = `You extract structured load tender data for Nishan Transp
 
 You are reading broker and customer rate confirmations. Follow these rules:
 
-- Transcribe what the document says. Never invent a value to fill a field. If something is genuinely absent, return null for it.
+- Transcribe what the document says. Never invent a value to fill a field. If something is genuinely absent, return an empty string for text fields, and null for the numeric fields (rate, pieces, weight) and the choice fields (currency, countries, piece_type, load_type).
 - Distinguish the shipper (pickup) from the consignee (delivery) by the role the document assigns, not by the order the addresses appear in.
 - Rates: return the total linehaul rate payable to the carrier as a plain number. Exclude currency symbols and thousands separators. If both a linehaul and an all-in total appear, use the all-in total.
 - Dates: convert to YYYY-MM-DD. Rate confirmations are often US-format (MM/DD/YYYY); read them that way unless the document clearly indicates otherwise.
