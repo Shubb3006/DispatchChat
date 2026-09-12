@@ -47,7 +47,7 @@ const ChatContainer = () => {
     togglePinMessage,
     messagesByUser
   } = useChatStore();
-  console.log(messagesByUser)
+  // console.log(messagesByUser)
 
   const {
     selectedGroup,
